@@ -709,7 +709,8 @@ const _v=new V3();
 function moveTo(obj,target,speed,dt,stop){_v.subVectors(target,obj.position);_v.y=0;const dist=_v.length();
   if(dist>stop){const step=Math.min(speed*dt,dist-stop);_v.normalize();obj.position.addScaledVector(_v,step);obj.rotation.y=Math.atan2(_v.x,_v.z)}
   obj.position.y+=(target.y-obj.position.y)*Math.min(1,dt*2);return Math.max(stop,dist-speed*dt)}
-function depleteAst(a){a.alive=false;a.respawn=25+Math.random()*15;if(mineTarget===a)mineTarget=null}
+function depleteAst(a){a.alive=false;a.respawn=25+Math.random()*15;if(mineTarget===a)stopMining()}
+function stopMining(){mineTarget=null;moveTarget=null}
 
 /* ---------- player control ---------- */
 let moveTarget=null,mineTarget=null,openOnArrive=false,fullWarned=false,mining=false,debrisT=0;
@@ -746,6 +747,8 @@ function damage(n,kind){const out={shield:0,hull:0};if(dead||n<=0)return out;
   if(kind!=='void'&&state.sh>0){const a=Math.min(state.sh,n);state.sh-=a;n-=a;out.shield=a}
   if(n>0){state.hp-=n;out.hull=n;if(state.hp<=0){state.hp=0;destroyShip()}}
   return out}
+function blockedAt(p){for(const a of asts){if(!a.alive)continue;const ar=astScale(a)*.95+SHIP_R;
+    if(Math.hypot(p.x-a.pos.x,p.z-a.pos.z)<ar+.5&&Math.hypot(ship.position.x-a.pos.x,ship.position.z-a.pos.z)<ar+3)return true}return false}
 function collide(){
   for(const a of asts){if(!a.alive)continue;const ar=astScale(a)*.95;const dx=ship.position.x-a.pos.x,dz=ship.position.z-a.pos.z;const d=Math.hypot(dx,dz);const minD=SHIP_R+ar;
     if(d>=minD)continue;const nx=d>.001?dx/d:1,nz=d>.001?dz/d:0;
@@ -763,7 +766,7 @@ function impactHit(impact,x,z,a){const k=clamp(impact/22,.15,1);shake=Math.max(s
 function hurtFlash(k){const h=$('#hurt');h.style.setProperty('--k',(.35+k*.6).toFixed(2));h.classList.remove('on');void h.offsetWidth;h.classList.add('on')}
 function destroyShip(){dead=true;mineTarget=null;moveTarget=null;hideBeam(beam);shake=1;rumble(1,600);
   for(let i=0;i<60;i++)emit(debris,ship.position,['#ffe2a8','#ff9a4d','#58d0c0'][i%3],.8+Math.random()*.9,new V3((Math.random()-.5)*30,Math.random()*8,(Math.random()-.5)*30));
-  ship.visible=false;const lost=Math.floor(cargoTotal());for(const r of RES)state.cargo[r]=0;
+  ship.visible=false;const lost=Math.floor(cargoTotal()+.05);for(const r of RES)state.cargo[r]=0;
   toast(lost>0?t('tt.destroyed',{n:lost}):t('tt.destroyed0'),'bad');
   setTimeout(()=>$('#warp').classList.add('on'),900);
   setTimeout(()=>{ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;state.hp=shipVal('hull');state.sh=shieldMax();hullSince=99;shSince=99;lastZone=1;
@@ -776,7 +779,8 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   if(inVec.lengthSq()>.0001){moveTarget=null;openOnArrive=false;desired.copy(inVec).multiplyScalar(maxSp)}
   else if(moveTarget){_v.subVectors(moveTarget,ship.position);_v.y=0;const dist=_v.length();
     const stop=mineTarget?mineStop(mineTarget):.6;
-    if(dist>stop){const sp=Math.min(maxSp,Math.sqrt(2*acc*.8*(dist-stop))+.4);desired.copy(_v).normalize().multiplyScalar(sp);avoid(desired)}
+    if(!mineTarget&&blockedAt(moveTarget)){moveTarget=null}
+    else if(dist>stop){const sp=Math.min(maxSp,Math.sqrt(2*acc*.8*(dist-stop))+.4);desired.copy(_v).normalize().multiplyScalar(sp);avoid(desired)}
     else if(!mineTarget)moveTarget=null}
   // velocity moves toward the wanted velocity no faster than the ship's acceleration allows
   _dv.subVectors(desired,shipVel);const lim=acc*(desired.lengthSq()<shipVel.lengthSq()?1.25:1)*dt;if(_dv.length()>lim)_dv.setLength(lim);
@@ -797,9 +801,9 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   // mining
   mining=false;
   if(mineTarget){const a=mineTarget;const range=mineRange(a);const d=ship.position.distanceTo(a.pos);
-    if(!a.alive){mineTarget=null}
+    if(!a.alive){stopMining()}
     else if(d<=range+.5){const capV=shipVal('cargo');const free=capV-cargoTotal();const y=D().yield;
-      if(free<=.01){if(!fullWarned){toast(t('tt.fullWarn'));fullWarned=true}mineTarget=null}
+      if(free<=.01){if(!fullWarned){toast(t('tt.fullWarn'));fullWarned=true}stopMining()}
       else{mining=true;const rate=shipVal('laser')*MINE_RATE[a.type];const take=Math.min(rate*dt,a.amt,free/y);a.amt-=take;state.cargo[a.type]+=take*y;setAstScale(a);
         if(a.amt<=0){depleteAst(a);toast(t('tt.depleted'))}
         debrisT-=dt;if(debrisT<=0){debrisT=.06;const from=a.pos.clone().add(new V3((Math.random()-.5)*2,Math.random(),(Math.random()-.5)*2).multiplyScalar(astScale(a)*.8));
@@ -936,7 +940,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   $('#oreTxt').textContent=Math.floor(state.ore);$('#grnTxt').textContent=Math.floor(state.green);$('#cryTxt').textContent=Math.floor(state.crystal);
   const capV=shipVal('cargo');$('#cOre').style.width=(state.cargo.ore/capV*100)+'%';$('#cGrn').style.width=(state.cargo.green/capV*100)+'%';$('#cCry').style.width=(state.cargo.crystal/capV*100)+'%';
   const full=cargoTotal()>=capV-.01;
-  $('#cargoTxt').textContent=`${Math.floor(cargoTotal())}/${Math.round(capV)}`;$('#cargoRow').classList.toggle('full',full);
+  $('#cargoTxt').textContent=`${Math.floor(cargoTotal()+.05)}/${Math.round(capV)}`;$('#cargoRow').classList.toggle('full',full);
   const smax=shieldMax();$('#shRow').hidden=smax<=0;
   if(smax>0){$('#shBar').style.width=(state.sh/smax*100)+'%';$('#shTxt').textContent=`${Math.floor(state.sh)}/${smax}`}
   const hm=shipVal('hull'),hp=Math.max(0,state.hp),hr=hp/hm;const hb=$('#hpBar');hb.style.width=(hr*100)+'%';hb.className=hr<.3?'low':hr<.6?'mid':'';
@@ -954,7 +958,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   else if(sheetTab&&inputMode==='pad')h=t('h.pad',{A:g.A,B:g.B,LB:g.LB,RB:g.RB});
   else if(rr>=HORIZON)h=t('h.void');
   else if(full)h=t('h.full',{home:cap1(say('home'))});
-  else if(mining)h=t('h.mining',{r:t('res.'+mineTarget.type+'.acc'),a:Math.floor(cargoTotal()),b:Math.round(capV)});
+  else if(mining)h=t('h.mining',{r:t('res.'+mineTarget.type+'.acc'),a:Math.floor(cargoTotal()+.05),b:Math.round(capV)});
   else if(mineTarget)h=t('h.flying');
   else if(hr<.3)h=D().regen?t('h.lowhp'):t('h.lowhpHard');
   else if(cargoTotal()>0)h=ptr?t('h.cargoPtr'):t('h.cargo',{mine:say('mine'),home:say('home')});
