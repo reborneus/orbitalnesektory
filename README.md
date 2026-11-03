@@ -11,3 +11,4 @@ Webový prototyp (Three.js) – otvor `index.html` v prehliadači.
 - **v0.3.2** – loď po skončení ťažby zastaví namiesto narážania do asteroidu, presnejší údaj o plnom náklade
 - **v0.3.3** – voliteľná automatická ťažba (Mapa → Nastavenia)
 - **v0.4** – autopilot (ťaží zvolenú surovinu, vozí ju na stanicu, vracia sa na opravu), automatický návrat pri plnom náklade, kláves P / tlačidlo View
+- **v0.4.1** – skok do sektora iba cez skokovú bránu, Mapa je informatívna, oprava zaseknutia pri skoku počas ťažby

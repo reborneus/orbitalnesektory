@@ -256,7 +256,7 @@ sk:{
   'h.void':'Za horizontom! Okamžite sa vráť do sektora.','h.lowhp':'Trup je vážne poškodený. Vyhni sa nárazom a radiácii.',
   'h.lowhpHard':'Trup je vážne poškodený. Oprav ho na základni v menu Stanica.',
   'h.cargoPtr':'Ťukni na ďalší asteroid, alebo leť Domov vyložiť náklad.','h.cargo':'Ťaž ďalej ({mine}) alebo {home} a vylož náklad.',
-  'h.captured':'Sektor je tvoj. {map} alebo leť do skokovej brány.','h.build':'Máš suroviny. {station} a postav modul.',
+  'h.captured':'Sektor je tvoj. Leť do skokovej brány (tyrkysový krúžok na minimape) a skoč do ďalšieho sektora.','h.build':'Máš suroviny. {station} a postav modul.',
   'h.idlePtr':'Ťukni na asteroid a začni ťažiť. Vonkajšie pásy sú radiačné.','h.idle':'{fly} k asteroidu a {mine}.',
   'sh.station':'Stanica · {s}','sh.ship':'Loď · Klepeto','sh.map':'Mapa sektorov','sh.close':'Zavrieť',
   'lv':'ÚR {n}/{m}','btn.upgrade':'Vylepšiť','btn.build':'Postaviť','btn.noslot':'Bez slotu','btn.max':'Max','btn.buy':'Kúpiť',
@@ -290,6 +290,7 @@ sk:{
   'chip.here':'Tu si','chip.won':'Obsadený','chip.free':'Voľný','chip.locked':'Zamknutý',
   'map.inf':'Vplyv {a} / {b}.','map.lock':'Odomkneš obsadením sektora {s}.',
   'map.income':'Pasívny príjem: <em>+{o} rudy</em>, <em>+{g} viriditu</em> za minútu',
+  'sh.gate':'Skoková brána','gate.note':'Vyber cieľový sektor. Náklad aj suroviny zostanú s tebou.','gate.far':'Skočiť môžeš iba pri skokovej bráne.','map.gateNote':'Do iného sektora sa dostaneš iba cez skokovú bránu. Na minimape je to tyrkysový krúžok.',
   'set.h':'Nastavenia','set.autoH':'Automatizácia',
   'set.ret':'Automatický návrat','set.ret.d':'Keď sa naplní náklad, loď sama poletí na stanicu a vyloží ho.',
   'set.ap':'Autopilot','set.ap.d':'Loď sama ťaží zvolenú surovinu, vozí ju na stanicu a opakuje to. Pri poškodenom trupe sa vráti na opravu. Ručné ovládanie ho na 6 s preruší. Zapneš ho aj klávesou P alebo tlačidlom {V} na ovládači.',
@@ -334,7 +335,7 @@ en:{
   'h.void':'Beyond the horizon! Get back into the sector now.','h.lowhp':'Hull badly damaged. Avoid collisions and radiation.',
   'h.lowhpHard':'Hull badly damaged. Repair it in the Station menu.',
   'h.cargoPtr':'Tap another asteroid, or fly Home to unload.','h.cargo':'Keep mining ({mine}) or {home} to unload.',
-  'h.captured':'The sector is yours. {map} or fly into the jump gate.','h.build':'You have resources. {station} and build a module.',
+  'h.captured':'The sector is yours. Fly to the jump gate (cyan ring on the minimap) and jump to the next sector.','h.build':'You have resources. {station} and build a module.',
   'h.idlePtr':'Tap an asteroid to start mining. The outer belts are radioactive.','h.idle':'{fly} to an asteroid and {mine}.',
   'sh.station':'Station · {s}','sh.ship':'Ship · Pincer','sh.map':'Sector map','sh.close':'Close',
   'lv':'LV {n}/{m}','btn.upgrade':'Upgrade','btn.build':'Build','btn.noslot':'No slot','btn.max':'Max','btn.buy':'Buy',
@@ -368,6 +369,7 @@ en:{
   'chip.here':'You are here','chip.won':'Claimed','chip.free':'Open','chip.locked':'Locked',
   'map.inf':'Influence {a} / {b}.','map.lock':'Unlocks when you claim {s}.',
   'map.income':'Passive income: <em>+{o} ore</em>, <em>+{g} viridite</em> per minute',
+  'sh.gate':'Jump gate','gate.note':'Pick a destination sector. Your cargo and resources come with you.','gate.far':'You can only jump at the jump gate.','map.gateNote':'You can reach another sector only through the jump gate. It is the cyan ring on the minimap.',
   'set.h':'Settings','set.autoH':'Automation',
   'set.ret':'Auto-return','set.ret.d':'When the cargo is full, the ship flies to the station by itself and unloads.',
   'set.ap':'Autopilot','set.ap.d':'The ship mines the chosen resource, hauls it to the station and repeats. With a damaged hull it returns for repairs. Manual control pauses it for 6 s. Toggle it with the P key or the {V} button on a controller.',
@@ -850,7 +852,7 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
     for(const r of RES){const n=Math.floor(state.cargo[r]);state[r]+=state.cargo[r];state.cargo[r]=0;if(n>0){parts.push(t('res.'+r+'.gain',{n}));bump('#'+RCLS[r]+'Txt')}}
     fullWarned=false;if(parts.length)toast(t('tt.unloaded',{list:parts.join(', ')}));save();refreshSheet()}
   if(openOnArrive&&dStation<STATION_R+8){openOnArrive=false;openSheet('station')}
-  if(gate&&ship.position.distanceTo(gate.position)<9&&!sheetTab&&!gateNear){gateNear=true;openSheet('map')}
+  if(gate&&ship.position.distanceTo(gate.position)<9&&!sheetTab&&!gateNear){gateNear=true;openSheet('gate')}
   if(gate&&ship.position.distanceTo(gate.position)>14)gateNear=false}
 let gateNear=false;
 
@@ -994,7 +996,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   else if(full)h=t('h.full',{home:cap1(say('home'))});
   else if(state.autoPilot&&autoPause>0&&!mining)h=t('h.apPause');
   else if(state.autoPilot&&!dead&&nearStation()&&state.hp<hm*.7&&!mineTarget)h=t('h.apWait');
-  else if(mining)h=(state.autoPilot?'Autopilot · ':'')+t('h.mining',{r:t('res.'+mineTarget.type+'.acc'),a:Math.floor(cargoTotal()+.05),b:Math.round(capV)});
+  else if(mining&&mineTarget)h=(state.autoPilot?'Autopilot · ':'')+t('h.mining',{r:t('res.'+mineTarget.type+'.acc'),a:Math.floor(cargoTotal()+.05),b:Math.round(capV)});
   else if(mineTarget)h=t('h.flying');
   else if(hr<.3)h=D().regen?t('h.lowhp'):t('h.lowhpHard');
   else if(cargoTotal()>0)h=ptr?t('h.cargoPtr'):t('h.cargo',{mine:say('mine'),home:say('home')});
@@ -1048,18 +1050,21 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     for(const k of Object.keys(UP))if(UP[k].grp===shipGrp)h+=upCard(k);
     if(shipGrp==='hull'&&state.hp<shipVal('hull')-.5)h+=repairCard();
     h+=`<p class="note">${t('note.ship',{a:Math.ceil(state.hp),b:shipVal('hull'),regen:D().regen?t('note.easy'):t('note.hard')})}</p>`}
-  else if(sheetTab==='map'){$('#sheetTitle').textContent=t('sh.map');
+  else if(sheetTab==='map'||sheetTab==='gate'){const isGate=sheetTab==='gate';$('#sheetTitle').textContent=isGate?t('sh.gate'):t('sh.map');
+    if(isGate)h+=`<p class="note">${t('gate.note')}</p>`;
     SECTORS.forEach((S,i)=>{const sc=state.sec[i];const here=i===state.cur;
       const chip=here?`<span class="chip here">${t('chip.here')}</span>`:sc.captured?`<span class="chip won">${t('chip.won')}</span>`:sc.unlocked?`<span class="chip">${t('chip.free')}</span>`:`<span class="chip">${t('chip.locked')}</span>`;
       h+=`<div class="card"><h3>${secName(i)} ${chip}</h3>`;
-      if(here)h+=`<button class="act max" disabled>${t('btn.here')}</button>`;
-      else if(sc.unlocked)h+=`<button class="act" data-act="jump" data-i="${i}">${t('btn.jump')}</button>`;
-      else h+=`<button class="act max" disabled>${t('btn.locked')}</button>`;
+      if(isGate){if(here)h+=`<button class="act max" disabled>${t('btn.here')}</button>`;
+        else if(sc.unlocked)h+=`<button class="act" data-act="jump" data-i="${i}">${t('btn.jump')}</button>`;
+        else h+=`<button class="act max" disabled>${t('btn.locked')}</button>`}
       h+=`<span class="gems">${S.res.map(r=>`<span class="gem" style="background:${RCOL[r]}" title="${t('res.'+r)}"></span>`).join('')}</span>`;
       h+=`<p>${t('sec'+i+'.sub')} ${sc.unlocked?t('map.inf',{a:influence(sc),b:S.capture}):t('map.lock',{s:secName(i-1)})}</p>`;
       const inc=sc.captured?passiveOf(sc):null;
       if(inc&&(inc.ore>0||inc.green>0))h+=`<div class="stat">${t('map.income',{o:Math.round(inc.ore*60),g:Math.round(inc.green*60)})}</div>`;
       h+='</div>'});
+    if(isGate){body.innerHTML=h;refreshSheet();applyFocus();return}
+    h+=`<p class="note">${t('map.gateNote')}</p>`;
     h+=`<div class="sec-h"><span>${t('set.h')}</span></div>`;
     const onoff=(k,on)=>`<div class="langs"><button class="langb" data-act="opt" data-k="${k}" data-v="1" aria-pressed="${on}">${t('on')}</button><button class="langb" data-act="opt" data-k="${k}" data-v="0" aria-pressed="${!on}">${t('off')}</button></div>`;
     h+=`<div class="sec-h"><span>${t('set.autoH')}</span></div>`;
@@ -1102,7 +1107,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
       if(k==='shield'){const before=shieldMax();state.ship[k]++;state.sh=Math.min(shieldMax(),state.sh+(shieldMax()-before));if(L===0){state.sh=shieldMax();toast(t('tt.shieldOn'))}else toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
       else{state.ship[k]++;if(k==='hull')state.hp+=40;toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
       changed()}}
-  else if(act==='jump'){closeSheet();jumpTo(+b.dataset.i)}});
+  else if(act==='jump'){if(!gate||ship.position.distanceTo(gate.position)>18){toast(t('gate.far'));return}closeSheet();jumpTo(+b.dataset.i)}});
 function changed(){checkCapture();save();renderSheet();updateHUD()}
 function checkCapture(){const s=cur();if(!s.captured&&influence(s)>=capOf(state.cur)){s.captured=true;const nx=state.sec[state.cur+1];if(nx)nx.unlocked=true;rebuildStation();updateGate();
   if(nx)toast(t('tt.captured',{s:secName(state.cur),n:secName(state.cur+1)}),true);
@@ -1112,9 +1117,10 @@ function passiveOf(sc){return{ore:countMod(sc,'drone')*.7,green:countMod(sc,'sen
 
 let jumping=false;
 function jumpTo(i,instant){if(jumping)return;jumping=true;const w=$('#warp');w.classList.add('on');
-  setTimeout(()=>{state.cur=i;mineTarget=null;moveTarget=null;openOnArrive=false;stationG=null;
+  mining=false;mineTarget=null;moveTarget=null;hideBeam(beam);
+  setTimeout(()=>{try{state.cur=i;mining=false;mineTarget=null;moveTarget=null;openOnArrive=false;stationG=null;gateNear=true;
     ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;lastZone=1;buildSector();camTarget.copy(ship.position);save();updateHUD();
-    w.classList.remove('on');jumping=false;if(!instant)toast(t('tt.jumped',{s:secName(i)}))},instant?50:480)}
+    if(!instant)toast(t('tt.jumped',{s:secName(i)}))}catch(e){console.error(e)}finally{w.classList.remove('on');jumping=false}},instant?50:480)}
 
 /* language + intro */
 let pendingDiff='easy';
