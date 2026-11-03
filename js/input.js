@@ -50,6 +50,8 @@ function drawMini(){const W=mini.width,c=W/2,R=c-1,k=R/MINI_R,u=W/150;const g=mc
   for(const l of loot){const x=c+l.g.position.x*k,y=c+l.g.position.z*k,s=(3.2+l.it.r*.25)*u;g.fillStyle=RAR[l.it.r].col;g.strokeStyle='#fff';g.lineWidth=.8*u;
     g.beginPath();g.moveTo(x,y-s);g.lineTo(x+s,y);g.lineTo(x,y+s);g.lineTo(x-s,y);g.closePath();g.fill();g.stroke();
     if(l.it.r>=6){g.strokeStyle=RAR[l.it.r].col;g.beginPath();g.arc(x,y,s+3*u,0,TAU);g.stroke()}}
+  // misie: fialová hviezda na cieli prieskumu/reliktu
+  for(const mk of mMarks){const x=c+mk.m.pos.x*k,y=c+mk.m.pos.z*k;g.fillStyle=MCOL;g.strokeStyle='#fff';g.lineWidth=.8*u;g.beginPath();for(let i=0;i<10;i++){const an=i/10*TAU-Math.PI/2,rr=(i%2?2.2:5)*u;g.lineTo(x+Math.cos(an)*rr,y+Math.sin(an)*rr)}g.closePath();g.fill();g.stroke()}
   // piráti: červené trojuholníky v smere letu
   for(const e of enemies){const x=c+e.pos.x*k,y=c+e.pos.z*k,a=e.body.rotation.y,s=(e.kind==='corsair'?4.5:3.2)*u,fx=Math.sin(a),fz=Math.cos(a);
     g.fillStyle=e.leaving?'rgba(255,90,74,.45)':'#ff5a4a';g.beginPath();g.moveTo(x+fx*s,y+fz*s);g.lineTo(x-fx*s*.7+fz*s*.7,y-fz*s*.7-fx*s*.7);g.lineTo(x-fx*s*.7-fz*s*.7,y-fz*s*.7+fx*s*.7);g.closePath();g.fill()}

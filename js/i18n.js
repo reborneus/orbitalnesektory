@@ -5,6 +5,18 @@
    'say' = krátke pokyny v troch variantoch: [ovládač, klávesnica, dotyk/myš]. */
 const L10N={
 sk:{
+  /* --- v0.7: radiačný štít, misie --- */
+  'm.deliver':'Dodávka: {r}','m.scan':'Prieskum radiácie','m.relic':'Stratený relikt','m.hunt':'Lov na pirátov','m.defend':'Obrana stanice',
+  'md.deliver':'Dovez na stanicu {n} t a vylož ich (počíta sa náklad tvojej lode po prijatí misie).','md.scan':'Leť k označenému bodu v {zone} a zdrž sa v okruhu {rad} m, kým skener nedokončí meranie ({s} s).',
+  'md.relic':'V {zone} sa objavil stratený relikt (fialový stĺp). Vyťaž ho – padne z neho predmet aspoň rarity {r}.','md.hunt':'Znič {n} pirátov v tomto sektore.',
+  'md.defend':'Odraz najbližší nájazd pirátov tak, aby stanica nepadla. Ak padne, misia zlyhá.',
+  'mt.easy':'Ľahká','mt.med':'Stredná','mt.hard':'Ťažká','ms.tab.mods':'Moduly','ms.tab.miss':'Misie','ms.active':'Aktívne misie ({a}/{b})','ms.offers':'Ponuka misií',
+  'ms.accept':'Prijať','ms.abandon':'Zrušiť','ms.reroll':'Nové ponuky za {c} ¢','ms.refresh':'nové o {t}','ms.item':'+ predmet {r} alebo lepší','ms.full':'Máš maximum aktívnych misií.',
+  'ms.other':'v sektore {s}','ms.none':'Nemáš žiadnu aktívnu misiu. Prijmi niektorú z ponuky.','ms.zone3':'páse 3','ms.zone4':'páse 4','ms.void':'priestore za horizontom',
+  'ms.needRS':'Bez radiačného štítu to loď nevydrží.','ms.doneN':'Splnené misie: {n}','tt.mAccept':'Misia prijatá: {n}','tt.mDone':'Misia splnená: {n}!','tt.mFail':'Misia zlyhala: {n}',
+  'up.radShield':'Radiačný štít','up.radShield.d':'Na obmedzený čas úplne zachytí radiáciu v pásoch aj za horizontom. Dobíja sa pri stanici.',
+  'hud.rad':'Rad. štít','st.radProt':'Radiačný štít chráni loď: {n} s','tt.radOut':'Radiačný štít je vyčerpaný! Dobiješ ho pri stanici.','tt.rsOn':'Radiačný štít nainštalovaný',
+  'rs.auto':'Vždy v radiácii','rs.void':'Len za horizontom','rs.d':'Kedy sa radiačný štít zapne. „Len za horizontom“ šetrí jeho čas na cesty za horizont, v pásoch 3–4 vtedy chránia bežné štíty.',
   /* --- v0.6: nastavenia, panel stanice, čipy, boj --- */
   'dock.settings':'Nastavenia','sh.settings':'Nastavenia','set.quit':'Ukončiť hru','set.quit.d':'Hra sa uloží a okno hry sa zavrie.','btn.quit':'Uložiť a ukončiť',
   'tt.saved':'Hra uložená','bye':'Hra je uložená. Teraz môžeš zavrieť toto okno.',
@@ -109,7 +121,7 @@ sk:{
   'diff.easy':'Ľahká','diff.hard':'Ťažká',
   'diff.easyD':'Trup sa sám opraví 30 s po poslednom poškodení. Bežná radiácia aj výnos.',
   'diff.hardD':'Trup opravíš len na stanici za rudu. Silnejšia radiácia a pomalšia loď, ale o 20 % viac surovín.',
-  'in.kicker':'Prototyp 0.6 · singleplayer',
+  'in.kicker':'Prototyp 0.7 · singleplayer',
   'in.6':'Zlaté relikty a piráti (od 2. sektora) ukrývajú predmety rôznej rarity. Nasadíš ich vo Výbave (kláves I), čipy vložíš do modulov stanice.',
   'in.1':'Ťukni do priestoru a loď tam priletí. Ťukni na asteroid a loď ho začne ťažiť.',
   'in.2':'Oranžová ruda je všade. Zelený viridit a fialové kryštály ležia vo vonkajších pásoch 3 a 4.',
@@ -122,6 +134,18 @@ sk:{
     fly:['leť ľavou páčkou','leť cez <kbd>WASD</kbd>','leť']}
 },
 en:{
+  /* --- v0.7: radiation shield, missions --- */
+  'm.deliver':'Delivery: {r}','m.scan':'Radiation survey','m.relic':'Lost relic','m.hunt':'Pirate hunt','m.defend':'Station defense',
+  'md.deliver':'Bring {n} t to the station and unload it (your ship’s cargo counts after you accept).','md.scan':'Fly to the marked point in the {zone} and stay within {rad} m until the scanner finishes ({s} s).',
+  'md.relic':'A lost relic appeared in the {zone} (purple pillar). Mine it – it drops an item of at least {r} rarity.','md.hunt':'Destroy {n} pirates in this sector.',
+  'md.defend':'Repel the next pirate raid without the station falling. If it falls, the mission fails.',
+  'mt.easy':'Easy','mt.med':'Medium','mt.hard':'Hard','ms.tab.mods':'Modules','ms.tab.miss':'Missions','ms.active':'Active missions ({a}/{b})','ms.offers':'Mission offers',
+  'ms.accept':'Accept','ms.abandon':'Abandon','ms.reroll':'New offers for {c} ¢','ms.refresh':'new in {t}','ms.item':'+ an item, {r} or better','ms.full':'You already have the maximum number of active missions.',
+  'ms.other':'in {s}','ms.none':'No active missions. Accept one of the offers.','ms.zone3':'belt 3','ms.zone4':'belt 4','ms.void':'space beyond the horizon',
+  'ms.needRS':'Without a radiation shield the ship won’t survive it.','ms.doneN':'Missions completed: {n}','tt.mAccept':'Mission accepted: {n}','tt.mDone':'Mission complete: {n}!','tt.mFail':'Mission failed: {n}',
+  'up.radShield':'Radiation shield','up.radShield.d':'Fully blocks radiation in the belts and beyond the horizon for a limited time. Recharges at the station.',
+  'hud.rad':'Rad. shield','st.radProt':'Radiation shield protecting the ship: {n} s','tt.radOut':'Radiation shield depleted! Recharge it at the station.','tt.rsOn':'Radiation shield installed',
+  'rs.auto':'Always in radiation','rs.void':'Only beyond the horizon','rs.d':'When the radiation shield turns on. “Only beyond the horizon” saves its time for trips past the horizon; in belts 3–4 your regular shields protect you.',
   /* --- v0.6: settings, station panel, chips, combat --- */
   'dock.settings':'Settings','sh.settings':'Settings','set.quit':'Quit game','set.quit.d':'The game is saved and the game window closes.','btn.quit':'Save and quit',
   'tt.saved':'Game saved','bye':'Your game is saved. You can close this window now.',
@@ -226,7 +250,7 @@ en:{
   'diff.easy':'Easy','diff.hard':'Hard',
   'diff.easyD':'The hull repairs itself 30 s after the last damage. Normal radiation and yield.',
   'diff.hardD':'Repair the hull only at the station, for ore. Stronger radiation and a slower ship, but 20% more resources.',
-  'in.kicker':'Prototype 0.6 · single player',
+  'in.kicker':'Prototype 0.7 · single player',
   'in.6':'Golden relics and pirates (from sector 2) drop items of various rarities. Equip them in Gear (I key); chips go into station modules.',
   'in.1':'Tap in space and the ship flies there. Tap an asteroid and it starts mining.',
   'in.2':'Orange ore is everywhere. Green viridite and purple crystals sit in the outer belts 3 and 4.',

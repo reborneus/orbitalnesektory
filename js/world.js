@@ -38,6 +38,7 @@ function buildSector(){
   rebuildStation();
   updateGate();
   resetCombat();
+  missionsRebuild();
 }
 
 function makeAst(type,f,r){const g=new THREE.Group();const S=SECTORS[state.cur];
@@ -193,7 +194,9 @@ function moveTo(obj,target,speed,dt,stop){_v.subVectors(target,obj.position);_v.
 /* byPlayer = vyťažila ho loď hráča (nie dron): vtedy môže padnúť korisť. Relikt vždy, bežný asteroid so šancou ASTEROID_DROP. */
 function depleteAst(a,byPlayer){a.alive=false;a.respawn=a.type==='relic'?rnd(RELIC_RESPAWN[0],RELIC_RESPAWN[1]):25+Math.random()*15;
   if(byPlayer){const z=Math.min(5,zoneOf(Math.hypot(a.pos.x,a.pos.z)));
-    if(a.type==='relic')spawnLoot(dropItem('relic',z,2),a.pos);else if(Math.random()<ASTEROID_DROP)spawnLoot(dropItem('asteroid',z),a.pos)}
+    // relikt z misie: lepšia korisť podľa stupňa misie, už sa neobjaví a misia sa splní
+    if(a.mission){a.respawn=1e9;const m=mstate().active.find(x=>x.id===a.mission);spawnLoot(dropItem('relic',z,m?MTIER[m.tier].minR:2),a.pos);missionRelic(a)}
+    else if(a.type==='relic')spawnLoot(dropItem('relic',z,2),a.pos);else if(Math.random()<ASTEROID_DROP)spawnLoot(dropItem('asteroid',z),a.pos)}
   if(mineTarget===a){if(!autoNext(a))stopMining()}}
 /* optional auto-mining: move on to the nearest asteroid of the same resource while cargo has room */
 function autoNext(a){if(a.type==='relic'||state.autoMine===false||cargoTotal()>=shipVal('cargo')-.01)return false;let best=null,bd=40;

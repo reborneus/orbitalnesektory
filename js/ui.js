@@ -14,6 +14,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   $('#secName').textContent=secName(state.cur);
   // výdrž stanice: zobrazí sa v sektoroch s pirátmi alebo keď je stanica poškodená
   {const mh=stationMaxHp(),show=!!raidCfg()||stationHp<mh-1;$('#stRow').hidden=!show;if(show){$('#stBar').style.width=(Math.max(0,stationHp)/mh*100)+'%';$('#stBar').className=stationDown>0||stationHp<mh*.3?'low':'';$('#stTxt').textContent=stationDown>0?t('hud.down'):`${Math.ceil(Math.max(0,stationHp))}/${mh}`}}
+  missionTracker();
   const tag=$('#secTag');tag.textContent=s.captured?t('hud.won'):t('hud.unc');tag.classList.toggle('won',s.captured);
   const ib=$('#infBar');ib.style.width=Math.min(100,inf/cap*100)+'%';ib.classList.toggle('won',s.captured);
   $('#infTxt').textContent=s.captured?t('hud.infwon',{a:inf}):t('hud.inf',{a:inf,b:cap});
@@ -21,13 +22,15 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   const capV=shipVal('cargo');$('#cOre').style.width=(state.cargo.ore/capV*100)+'%';$('#cGrn').style.width=(state.cargo.green/capV*100)+'%';$('#cCry').style.width=(state.cargo.crystal/capV*100)+'%';
   const full=cargoTotal()>=capV-.01;
   $('#cargoTxt').textContent=`${Math.floor(cargoTotal()+.05)}/${Math.round(capV)}`;$('#cargoRow').classList.toggle('full',full);
+  {const rm=shipVal('radShield');$('#rsRow').hidden=rm<=0;if(rm>0){$('#rsBar').style.width=(state.radCharge/rm*100)+'%';$('#rsTxt').textContent=Math.ceil(state.radCharge)+' s'}}
   const smax=shieldMax();$('#shRow').hidden=smax<=0;
   if(smax>0){$('#shBar').style.width=(state.sh/smax*100)+'%';$('#shTxt').textContent=`${Math.floor(state.sh)}/${smax}`}
   const hm=shipVal('hull'),hp=Math.max(0,state.hp),hr=hp/hm;const hb=$('#hpBar');hb.style.width=(hr*100)+'%';hb.className=hr<.3?'low':hr<.6?'mid':'';
   $('#hpTxt').textContent=`${Math.ceil(hp)}/${hm}`;
   // one status line: the most urgent thing about the ship
   const rr=Math.hypot(ship.position.x,ship.position.z);let st='',sc='status';
-  if(!dead&&rr>=HORIZON){st=t('st.void',{n:radRate.toFixed(1)});sc+=' bad'}
+  if(!dead&&radProt){st=t('st.radProt',{n:Math.ceil(state.radCharge)});sc+=' rad'}
+  else if(!dead&&rr>=HORIZON){st=t('st.void',{n:radRate.toFixed(1)});sc+=' bad'}
   else if(!dead&&radRate>0){st=t('st.rad',{z:zoneOf(rr),n:radRate.toFixed(1)});sc+=radHull?' warn':' sh'}
   else if(hp<hm-.01){if(!D().regen){st=t('st.noRegen');sc+=' warn'}else if(hullSince<HULL_DELAY)st=t('st.hullIn',{n:Math.ceil(HULL_DELAY-hullSince)});else{st=t('st.hullOn');sc+=' ok'}}
   else if(smax>0&&state.sh<smax-.01){const g=shipVal('sregen');if(shSince<g.delay)st=t('st.shIn',{n:Math.ceil(g.delay-shSince)});else{st=t('st.shOn');sc+=' sh'}}
@@ -68,11 +71,11 @@ function refundOf(s,k){const c=MOD[k].cost(countMod(s,k)-1);return C(Math.floor(
 function refundHtml(c){let h='';for(const r of RES)if(c[r])h+=`<span class="cost ${RCLS[r]} gain"><span class="gem"></span>+${c[r]}</span>`;return h}
 function actBtn(act,label,c,block,extra=''){return `<button class="act" data-act="${act}" ${extra} data-ore="${c.ore}" data-green="${c.green}" data-cry="${c.crystal}" data-crd="${c.cr||0}" data-block="${block?1:0}">${label}</button>`}
 function langBtns(){return `<div class="langs"><button class="langb" data-act="lang" data-l="sk" aria-pressed="${lang==='sk'}">SK</button><button class="langb" data-act="lang" data-l="en" aria-pressed="${lang==='en'}">EN</button></div>`}
-function fmtUp(k,L){const v=UP[k].val(L);if(k==='sregen')return t('fmt.sregen',{d:v.delay,r:Math.round(v.rate*100)});if(k==='shield'&&L===0)return t('fmt.none');return UP[k].fmt(v)}
+function fmtUp(k,L){const v=UP[k].val(L);if(k==='radShield'&&L===0)return t('fmt.none');if(k==='sregen')return t('fmt.sregen',{d:v.delay,r:Math.round(v.rate*100)});if(k==='shield'&&L===0)return t('fmt.none');return UP[k].fmt(v)}
 function upCard(k){const u=UP[k];const L=state.ship[k];
   let h=`<div class="card"><h3>${t('up.'+k)} <span class="lv">${t('lv',{n:L,m:u.max})}</span></h3>`;
   if(u.needs&&state.ship[u.needs]<1)return h+`<button class="act max" disabled>${t('btn.locked')}</button><p>${t('up.'+k+'.d')}</p><div class="stat">${t('up.needShield')}</div></div>`;
-  if(L<u.max){const c=u.cost(L);h+=actBtn('ship',k==='shield'&&L===0?t('btn.buy'):t('btn.upgrade'),c,false,`data-k="${k}"`)+`<div class="costs">${costHtml(c)}</div><p>${t('up.'+k+'.d')}</p><div class="stat">${fmtUp(k,L)} → <em>${fmtUp(k,L+1)}</em></div>`}
+  if(L<u.max){const c=u.cost(L);h+=actBtn('ship',(k==='shield'||k==='radShield')&&L===0?t('btn.buy'):t('btn.upgrade'),c,false,`data-k="${k}"`)+`<div class="costs">${costHtml(c)}</div><p>${t('up.'+k+'.d')}</p><div class="stat">${fmtUp(k,L)} → <em>${fmtUp(k,L+1)}</em></div>`}
   else h+=`<button class="act max" disabled>${t('btn.max')}</button><p>${t('up.'+k+'.d')}</p><div class="stat"><em>${fmtUp(k,L)}</em></div>`;
   return h+'</div>'}
 function repairCard(){const hm=shipVal('hull');const cost=Math.ceil((hm-state.hp)/REPAIR_PER_ORE);const near=nearStation();
@@ -111,6 +114,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
       ${SECTORS[state.cur].res.includes(state.autoRes)?'':`<div class="stat" style="color:var(--warn)">${t('set.ap.miss',{r:t('res.'+state.autoRes)})}</div>`}</div>`;
     h+=`<div class="card"><h3>${t('set.ret')}</h3>${onoff('autoReturn',state.autoReturn!==false)}<p>${t('set.ret.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
+    h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`;
     h+=`<div class="sec-h"><span>${t('set.h')}</span></div>`;
     h+=`<div class="card"><h3>${t('set.lang')}</h3>${langBtns()}<p>${t('set.diff',{d:t('diff.'+state.diff)})}</p></div>`;
     h+=`<div class="card"><h3>${t('set.quit')}</h3><button class="act" data-act="quit">${t('btn.quit')}</button><p>${t('set.quit.d')}</p></div>`;
@@ -140,9 +144,11 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
     if(n<=0)return;state.ore-=n;const before=state.hp;state.hp=Math.min(hm,state.hp+n*REPAIR_PER_ORE);toast(t('tt.repaired',{n:Math.round(state.hp-before)}));changed();return}
   if(stationAct(act,b))return; // akcie panela stanice (station.js)
   if(act==='quit'){quitGame();return}
+  if(act==='radMode'){state.radMode=b.dataset.v;save();renderSheet();return}
   if(act==='core'){const c=coreCost(s.core);if(s.core<CORE_MAX&&afford(c)){pay(c);s.core++;rebuildStation();toast(t('tt.coreUp',{n:s.core}));changed()}}
   else if(act==='ship'){const k=b.dataset.k;const u=UP[k];const L=state.ship[k];const c=u.cost(L);if(L<u.max&&afford(c)){pay(c);
-      if(k==='shield'){const before=shieldMax();state.ship[k]++;state.sh=Math.min(shieldMax(),state.sh+(shieldMax()-before));if(L===0){state.sh=shieldMax();toast(t('tt.shieldOn'))}else toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
+      if(k==='radShield'){state.ship[k]++;state.radCharge=shipVal('radShield');toast(L===0?t('tt.rsOn'):t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
+      else if(k==='shield'){const before=shieldMax();state.ship[k]++;state.sh=Math.min(shieldMax(),state.sh+(shieldMax()-before));if(L===0){state.sh=shieldMax();toast(t('tt.shieldOn'))}else toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
       else{state.ship[k]++;if(k==='hull')state.hp+=40;toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
       changed()}}
   else if(act==='jump'){if(!gate||ship.position.distanceTo(gate.position)>18){toast(t('gate.far'));return}closeSheet();jumpTo(+b.dataset.i)}});

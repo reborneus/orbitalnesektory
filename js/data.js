@@ -72,6 +72,9 @@ const UP={
   cargo:{grp:'hull',vals:[50,75,100,125,150,175,200,225,250,280],costs:costTable(...early([90,200,340,540,820,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>Math.round(v)+' t'},
   shield:{grp:'shield',min:0,vals:[0,40,65,90,120,150,170,190,210,230,250],
     costs:costTable([300,250,380,550,750,950,1150,1400,1650,1950],[0,40,90,150,220,260,320,380,440,520],[0,0,0,30,60,80,110,150,190,240],[0,0,0,0,0,300,500,800,1200,1800]),fmt:v=>String(Math.round(v))},
+  /* radiačný štít: počet sekúnd úplnej ochrany pred radiáciou (aj za horizontom); dobíja sa pri stanici rýchlosťou RADSHIELD_RECHARGE s/s */
+  radShield:{grp:'shield',min:0,vals:[0,20,30,45,60,80,100,120,140,160,180],
+    costs:costTable([250,300,420,600,800,1000,1250,1500,1800,2100],[20,50,90,140,200,260,320,400,480,560],[0,0,15,40,70,100,140,180,230,280],[0,0,0,0,0,300,500,800,1200,1800]),fmt:v=>v+' s'},
   sregen:{grp:'shield',needs:'shield',vals:[[15,.10],[13,.14],[11,.18],[9,.22],[7,.26],[6.5,.28],[6,.30],[5.5,.32],[5,.34],[4.5,.36]],
     costs:costTable(...early([150,280,450,650,900,1100,1350,1600,1900],[30,70,130,200],[0,0,25,50]))},
   laser:{grp:'laser',vals:[8,10.8,13.6,16.4,19.2,21,22.8,24.6,26.4,28.2],costs:costTable(...early([90,200,360,560,850,1050,1300,1550,1850],[0,30,75,130],[0,0,0,30])),fmt:v=>v.toFixed(1)+' t/s'},
@@ -85,7 +88,8 @@ for(const k in UP){const u=UP[k];if(u.min===undefined)u.min=1;
   u.cost=L=>u.costs[L-u.min];
   u.val=L=>{const v=u.vals[L-(u.min===0?0:1)];if(k==='speed')return v*D().speed;if(k==='sregen')return{delay:v[0],rate:v[1]};return v}}
 const GROUPS=['eng','hull','shield','laser','weapon'];
-const GUN_RANGE=28;   // dosah zbrane lode v m (+ vlastnosť Dosah zbrane)
+const GUN_RANGE=28;
+const RADSHIELD_RECHARGE=12;   // o koľko sekúnd sa radiačný štít dobije za sekundu pri stanici   // dosah zbrane lode v m (+ vlastnosť Dosah zbrane)
 /* Obtiažnosť: regen = trup sa sám opravuje, rad = násobok radiácie v pásoch 3–4, voidM = násobok za horizontom,
    speed = násobok rýchlosti lode, yield = násobok vyťaženej suroviny (1.2 = o 20 % viac). */
 const DIFF={easy:{regen:true,rad:1,voidM:1,speed:1,yield:1},hard:{regen:false,rad:1.6,voidM:1.3,speed:.85,yield:1.2}};

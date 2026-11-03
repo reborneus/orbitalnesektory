@@ -1,13 +1,10 @@
 {
-  "version": "0.6.1",
+  "version": "0.7.0",
   "date": "2026-11-03",
   "notes": [
-    "Oprava: autopilot sa po zbere koristi s plným nákladom zastavil, teraz pokračuje na stanicu",
-    "Boj: nájazdy pirátov od 2. sektora, zbraň lode, strieľajúce veže, obranný režim dronov",
-    "Nový panel stanice: moduly s 3D náhľadom, vylepšenie +1 až +10 so stúpajúcou raritou",
-    "Čipy do modulov (AI jadro dronu – viridit, kryštály, obrana; zameriavač veže; zosilňovač senzorov)",
-    "Nový slot Zbraň a vylepšenia zbraní",
-    "Nastavenia v samostatnom menu, tlačidlo Ukončiť hru",
-    "Pasívny príjem len zo sektorov s dosiahnutým vplyvom"
+    "Misie na stanici: dodávky, prieskum radiácie, stratené relikty, lov pirátov, obrana stanice – 3 stupne náročnosti",
+    "Radiačný štít: časovo obmedzená úplná ochrana pred radiáciou aj za horizontom, dobíja sa pri stanici",
+    "Sledovanie misií v paneli sektora, ciele na minimape a vo vesmíre",
+    "Nová kapitola príručky Misie a radiačný štít"
   ]
 }

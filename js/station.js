@@ -42,7 +42,10 @@ function slotCard(s,i){const m=s.slots[i];const open=openSlot===i?' open':'';
   h+=chipHtml(m,i);
   const rf=modRefund(s,m);h+=`<div class="itd-acts"><button class="btn danger" data-act="msell" data-i="${i}">${t('btn.msell')}</button><div class="costs">${refundHtml(rf)}${rf.cr?`<span class="cost crd gain"><span class="coin"></span>+${rf.cr}</span>`:''}</div></div>`;
   return h+'</div></details>'}
-function renderStation(){const s=cur();const inf=influence(s),cap=capOf(state.cur);let h='';
+let stTab='mods';   // záložka panela stanice: 'mods' = moduly, 'miss' = misie
+function renderStation(){const s=cur();const inf=influence(s),cap=capOf(state.cur);
+  let h=`<div class="segs two"><button class="seg" data-act="stTab" data-v="mods" aria-pressed="${stTab==='mods'}">${t('ms.tab.mods')}</button><button class="seg" data-act="stTab" data-v="miss" aria-pressed="${stTab==='miss'}">${t('ms.tab.miss')}${mstate().active.length?' · '+mstate().active.length:''}</button></div>`;
+  if(stTab==='miss')return h+renderMissions();
   if(state.hp<shipVal('hull')-.5)h+=repairCard();
   const L=s.core,mh=stationMaxHp(),sh=Math.max(0,stationHp);
   h+=`<div class="card"><h3>${t('core.name')} <span class="lv">${t('lv',{n:L,m:CORE_MAX})}</span></h3>`;
@@ -60,7 +63,7 @@ function renderStation(){const s=cur();const inf=influence(s),cap=capOf(state.cu
 /* rozbalenie jedného slotu zbalí ostatné (správanie ako akordeón) */
 body.addEventListener('toggle',e=>{const d=e.target;if(!d.matches||!d.matches('details.mslot'))return;
   if(d.open){openSlot=+d.dataset.slot;body.querySelectorAll('details.mslot[open]').forEach(x=>{if(x!==d)x.open=false})}else if(openSlot===+d.dataset.slot)openSlot=null},true);
-function stationAct(act,b){const s=cur();const i=+b.dataset.i;const m=s.slots[i];
+function stationAct(act,b){if(act==='stTab'){stTab=b.dataset.v;renderSheet();return true}if(missionAct(act,b))return true;const s=cur();const i=+b.dataset.i;const m=s.slots[i];
   const done=(msg,kind)=>{rebuildStation();if(msg)toast(msg,kind);changed();return true};
   switch(act){
     case 'mbuild':{const k=b.dataset.mod;if(m||i>=slotsFor(s.core))return true;const c=MOD[k].cost(countMod(s,k));if(!afford(c))return true;

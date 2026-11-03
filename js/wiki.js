@@ -6,6 +6,11 @@
    Nová kapitola: pridaj objekt do wikiSections() a jej texty do WT. */
 const WT={
 sk:{
+  'mis.h':'Misie a radiačný štít','mis.type':'Misia','mis.what':'Úloha','mis.base':'Kredity (ľahká, 1. sektor)','mis.tier':'Stupeň','mis.mult':'Násobok odmeny','mis.minR':'Predmet','mis.ich':'Šanca na predmet','mis.where':'Cieľ prieskumu / reliktu',
+  'mis.p':'Misie nájdeš v paneli stanice na záložke Misie. Stanica ponúka {o} misie pre aktuálny sektor, aktívne môžeš mať naraz {a}. Ponuky sa obnovia každé {r} minúty alebo hneď za {c} ¢. Aktívne misie vidíš aj v paneli sektora vľavo hore a ich ciele ako fialové stĺpy a hviezdy na minimape.',
+  'mis.sec':'Odmeny sa násobia podľa sektora: {m}. Doručenia v ďalších sektoroch vyžadujú viac suroviny.',
+  'mis.rs':'Radiačný štít (skupina Štíty) na obmedzený čas úplne zachytí radiáciu v pásoch aj za horizontom, takže sa dajú splniť aj ťažké misie za horizontom. Pri stanici sa dobíja rýchlosťou {rc} s za sekundu. V Nastaveniach zvolíš, či sa zapne vždy v radiácii, alebo len za horizontom.',
+  'mis.d.deliver':'dovez a vylož surovinu','mis.d.scan':'zdrž sa v okruhu bodu, kým skener nedobehne','mis.d.relic':'vyťaž označený relikt (predmet podľa stupňa)','mis.d.hunt':'znič pirátov (od 2. sektora)','mis.d.defend':'odraz nájazd bez pádu stanice (od 2. sektora)',
   'mod.h':'Moduly stanice a čipy','mod.lv':'Vylepšenie','mod.rar':'Rarita modulu','mod.cost':'Cena ďalšieho +1','mod.inf':'Vplyv (dok / veža / senzor)',
   'mod.p':'Ťuknutím na stanicu sa otvorí panel stanice. Každý slot je rozbaľovacia karta s náhľadom modulu. Postavený modul vylepšíš až na +{max}; s vylepšením rastie jeho účinok, vplyv a rarita (farba rámu aj žiara modulu vo vesmíre). Do modulu môžeš vložiť čip z koristi.',
   'mod.chip':'Čipy sú predmety pre moduly stanice. Padajú najmä z pirátov ({e} % koristi z pirátov), menej z reliktov. AI jadro dronu podľa rarity odomyká schopnosti:',
@@ -81,6 +86,11 @@ sk:{
     'Hra sa ukladá automaticky každých 6 sekúnd do prehliadača. Spúšťací panel pre Windows hru sťahuje z GitHubu a uložené hry drží vo vlastnom profile, takže prežijú aj aktualizáciu.'],
 },
 en:{
+  'mis.h':'Missions and radiation shield','mis.type':'Mission','mis.what':'Task','mis.base':'Credits (easy, sector 1)','mis.tier':'Tier','mis.mult':'Reward multiplier','mis.minR':'Item','mis.ich':'Item chance','mis.where':'Survey / relic target',
+  'mis.p':'Missions are in the station panel under the Missions tab. The station offers {o} missions for the current sector, and you can have {a} active at once. Offers refresh every {r} minutes, or right away for {c} ¢. Active missions are also shown in the sector panel at the top left, and their targets as purple pillars and stars on the minimap.',
+  'mis.sec':'Rewards are multiplied by sector: {m}. Deliveries in later sectors require more resources.',
+  'mis.rs':'The radiation shield (Shields group) fully blocks radiation in the belts and beyond the horizon for a limited time, so even hard missions beyond the horizon are doable. It recharges at the station at {rc} s per second. In Settings you choose whether it turns on in any radiation or only beyond the horizon.',
+  'mis.d.deliver':'bring and unload a resource','mis.d.scan':'stay within the point’s radius until the scanner finishes','mis.d.relic':'mine the marked relic (item by tier)','mis.d.hunt':'destroy pirates (from sector 2)','mis.d.defend':'repel a raid without the station falling (from sector 2)',
   'mod.h':'Station modules and chips','mod.lv':'Upgrade','mod.rar':'Module rarity','mod.cost':'Next +1 cost','mod.inf':'Influence (dock / tower / sensor)',
   'mod.p':'Tapping the station opens the station panel. Every slot is an expandable card with a preview of the module. A built module can be upgraded up to +{max}; upgrades raise its effect, influence and rarity (frame colour and the module glow in space). You can insert a chip from loot into a module.',
   'mod.chip':'Chips are items for station modules. They drop mostly from pirates ({e}% of pirate loot), less from relics. A drone AI core unlocks abilities by rarity:',
@@ -231,6 +241,11 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
     H('combat',wt('cmb.h'),`<p>${wt('cmb.p',{ag:PIRATES.aggro})}</p>`+list(wt('cmb.l').map(x=>fill(x,{gr:GUN_RANGE,st:PIRATES.steal*100,off:PIRATES.offline,rb:PIRATES.repelBonus,hd:Math.round((PIRATES.hardDmg-1)*100)})))
       +tbl([wt('cmb.kind'),wt('cmb.hp'),wt('cmb.dmg'),wt('cmb.fire'),wt('cmb.drop'),wt('cmb.cr')],kinds)+`<h4>${wt('cmb.raid')}</h4>`+tbl([wt('cmb.sec'),wt('cmb.first'),wt('cmb.every'),wt('cmb.count'),wt('cmb.cors')],raids)
       +`<p class="wnote">${wt('cmb.shp',{a:PIRATES.stationHp(0),b:PIRATES.stationHp(1)-PIRATES.stationHp(0)})}</p>`)}
+  { // misie a radiačný štít
+    const types=Object.keys(MREWARD).map(k=>[`<b>${missionTitle({type:k,res:'ore'}).replace(t('res.ore'),'…')}</b>`,wt('mis.d.'+k),`${gem('cr')} ${MREWARD[k]}`+(MORE[k]?` + ${gem('ore')} ${MORE[k]}`:'')]);
+    const tiers=MTIER.map((T,i)=>[`<b>${t('mt.'+T.k)}</b>`,'× '+nf(T.mult,1),rarName(T.minR)+'+',pct(T.itemCh),`${MPOS[i][0]}–${MPOS[i][1]} m`+(i===2?' ('+wt('zone.beyond')+')':'')]);
+    H('missions',wt('mis.h'),`<p>${wt('mis.p',{o:MISSION_OFFERS,a:MISSION_ACTIVE_MAX,r:MISSION_REFRESH/60,c:MISSION_REROLL})}</p>`+tbl([wt('mis.type'),wt('mis.what'),wt('mis.base')],types)
+      +tbl([wt('mis.tier'),wt('mis.mult'),wt('mis.minR'),wt('mis.ich'),wt('mis.where')],tiers)+`<p>${wt('mis.sec',{m:MSEC_MULT.map((x,i)=>secName(i)+' × '+nf(x,1)).join(', ')})}</p><p>${wt('mis.rs',{rc:RADSHIELD_RECHARGE})}</p>`)}
   { // loď
     let h=`<div class="wfig">${shipSvg()}<p>${wt('ship.p')}</p></div>`;
     for(const g of GROUPS){h+=`<h4>${t('grp.'+g)}</h4>`;

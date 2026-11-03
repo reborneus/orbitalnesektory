@@ -27,6 +27,7 @@
   <div class="sector glass">
     <div class="sec-row"><span class="sec-name" id="secName">Kepler-12</span><span class="tag" id="secTag"></span></div>
     <div class="inf"><div class="bar"><i id="infBar" style="width:12%"></i></div><span class="num" id="infTxt"></span></div>
+    <div class="mtrack" id="mTrack" hidden></div>
     <div class="meter" id="stRow" hidden><span class="lbl" data-t="hud.station"></span><div class="bar"><i id="stBar" style="width:100%"></i></div><span class="num" id="stTxt"></span></div>
   </div>
   <div class="rcol">
@@ -38,6 +39,7 @@
         <div class="r crd"><span class="coin"></span><b id="crTxt">0</b><small data-t="res.cr"></small></div>
       </div>
       <div class="meter" id="cargoRow"><span class="lbl" data-t="hud.cargo"></span><div class="bar"><i id="cOre" style="width:0"></i><i id="cGrn" style="width:0"></i><i id="cCry" style="width:0"></i></div><span class="num" id="cargoTxt">0/50</span></div>
+      <div class="meter" id="rsRow" hidden><span class="lbl" data-t="hud.rad"></span><div class="bar"><i id="rsBar" style="width:0"></i></div><span class="num" id="rsTxt">0 s</span></div>
       <div class="meter" id="shRow" hidden><span class="lbl" data-t="hud.shield"></span><div class="bar"><i id="shBar" style="width:0"></i></div><span class="num" id="shTxt">0/0</span></div>
       <div class="meter"><span class="lbl" data-t="hud.hull"></span><div class="bar"><i id="hpBar" style="width:100%"></i></div><span class="num" id="hpTxt">100/100</span></div>
       <div class="status" id="statusTxt"></div>
@@ -89,6 +91,7 @@
 <script src="js/world.js"></script>
 <script src="js/control.js"></script>
 <script src="js/combat.js"></script>
+<script src="js/missions.js"></script>
 <script src="js/input.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/gear.js"></script>

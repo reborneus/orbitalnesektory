@@ -14,6 +14,7 @@ Webový prototyp (Three.js) – otvor `index.html` v prehliadači.
 - **v0.4.1** – skok do sektora iba cez skokovú bránu, Mapa je informatívna, oprava zaseknutia pri skoku počas ťažby
 - **v0.4.2** – vysvetlivky v kóde (obsah sekcií, popis herných hodnôt na ladenie balansu)
 - **v0.5** – kredity, predmety s 10 raritami (Odpad až Prvotné) a náhodnými vlastnosťami, výbava lode a inventár, vylepšovanie +1 až +20, zlaté relikty s korisťou, vylepšenia lode do úrovne 10, hra rozdelená na súbory
+- **v0.7** – misie (5 typov, 3 stupne), radiačný štít s obmedzeným časom, sledovanie misií v HUD
 - **v0.6.1** – oprava: autopilot po zbere koristi s plným nákladom pokračuje na stanicu
 - **v0.6** – boj s pirátmi (zbraň lode, veže, obrana dronov), panel stanice s vylepšovaním modulov +1 až +10 a čipmi, slot Zbraň, samostatné Nastavenia s tlačidlom Ukončiť hru, pasívny príjem len pri dosiahnutom vplyve
 - **v0.5.1** – príručka (wiki) v hre aj ako stránka `wiki.html`, ikona hry, spúšťač s výberom priečinka

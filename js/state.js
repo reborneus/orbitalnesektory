@@ -6,7 +6,7 @@
    inv = inventár predmetov, eq = nasadené predmety podľa slotu (pozri items.js), nextId = ďalšie číslo predmetu,
    autoMine/autoReturn/autoPilot/autoRes = nastavenia automatizácie. */
 function freshState(){return{v:3,ore:40,green:0,crystal:0,credits:0,cargo:{ore:0,green:0,crystal:0},
-  ship:{speed:1,accel:1,hull:1,cargo:1,shield:0,sregen:1,laser:1,range:1,gun:1,gunRate:1},hp:100,sh:0,diff:'easy',
+  ship:{speed:1,accel:1,hull:1,cargo:1,shield:0,radShield:0,sregen:1,laser:1,range:1,gun:1,gunRate:1},hp:100,sh:0,radCharge:0,radMode:'auto',diff:'easy',
   autoMine:true,autoReturn:true,autoPilot:false,autoRes:'ore',lang,cur:0,intro:false,
   inv:[],eq:{laser:null,engine:null,hull:null,shield:null,util:null,weapon:null},nextId:1,
   sec:SECTORS.map((s,i)=>({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:i===0,rewarded:false}))}}
@@ -16,6 +16,7 @@ function migrate(s){
   if(!Array.isArray(s.inv))s.inv=[];
   if(!s.eq)s.eq={};for(const k of SLOTS)if(s.eq[k]===undefined)s.eq[k]=null;
   if(!s.nextId)s.nextId=1;
+  if(s.ship.radShield==null)s.ship.radShield=0;if(typeof s.radCharge!=='number')s.radCharge=0;if(!s.radMode)s.radMode='auto';
   // moduly stanice: staršie uloženia mali v slote len typ ('drone'), teraz je to objekt s vylepšením a čipom
   for(const x of s.sec)x.slots=x.slots.map(m=>typeof m==='string'?newModule(m):m);
   for(const k of['weapon'])if(s.ship.gun==null){s.ship.gun=1;s.ship.gunRate=1}

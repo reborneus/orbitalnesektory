@@ -3,7 +3,7 @@
    moveTarget = bod, kam letí autopilot (null = nikam); mineTarget = asteroid, ktorý loď ťaží.
    hullSince/shSince = sekundy od posledného poškodenia (pre opravu trupu a dobíjanie štítov). */
 let moveTarget=null,mineTarget=null,openOnArrive=false,fullWarned=false,mining=false,debrisT=0;
-let hullSince=99,shSince=99,hitCD=0,shake=0,dead=false,bubbleT=0,radRate=0,radHull=false,lastZone=1;
+let radProt=false,hullSince=99,shSince=99,hitCD=0,shake=0,dead=false,bubbleT=0,radRate=0,radHull=false,lastZone=1;
 const SHIP_R=2.3,inVec=new V3(),padVec=new V3(),_dv=new V3(),_des=new V3(),_a=new V3(),_b=new V3(),_c=new V3();
 /* Dosah ťažby = polomer asteroidu + dosah lasera; loď zastaví 2,5 m pred hranicou dosahu. */
 const mineRange=a=>astScale(a)*1.1+shipVal('range');
@@ -140,7 +140,7 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   // unload at the station
   const dStation=Math.hypot(ship.position.x,ship.position.z);
   if(dStation<STATION_R+5&&cargoTotal()>0){const parts=[];
-    for(const r of RES){const n=Math.floor(state.cargo[r]);state[r]+=state.cargo[r];state.cargo[r]=0;if(n>0){parts.push(t('res.'+r+'.gain',{n}));bump('#'+RCLS[r]+'Txt')}}
+    for(const r of RES){const n=Math.floor(state.cargo[r]);if(state.cargo[r]>0)missionDeliver(r,state.cargo[r]);state[r]+=state.cargo[r];state.cargo[r]=0;if(n>0){parts.push(t('res.'+r+'.gain',{n}));bump('#'+RCLS[r]+'Txt')}}
     fullWarned=false;if(parts.length)toast(t('tt.unloaded',{list:parts.join(', ')}));save();refreshSheet()}
   if(openOnArrive&&dStation<STATION_R+8){openOnArrive=false;openSheet('station')}
   if(gate&&ship.position.distanceTo(gate.position)<9&&!sheetTab&&!gateNear){gateNear=true;openSheet('gate')}

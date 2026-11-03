@@ -10,6 +10,7 @@ SÚBORY HRY (načítavajú sa v tomto poradí, pozri index.html)
   world.js    == 6. SEKTOR – zóny, asteroidy, stanica, brána, drony, korisť vo vesmíre
   control.js  == 7. OVLÁDANIE LODE – pohyb, ťažba, kolízie, radiácia, automatizácia
   combat.js   == 14. BOJ – piráti, nájazdy, strely, zbraň lode, veže, obrana dronov
+  missions.js == 16. MISIE – ponuky, aktívne misie, ciele, odmeny
   input.js    == 8. VSTUP – dotyk/myš, minimapa, klávesnica, ovládač
   ui.js       == 9. ROZHRANIE – HUD, nápovedy, menu Stanica/Loď/Mapa/Brána, úvod
   gear.js     == 12. VÝBAVA – obrazovka inventára a predmetov

@@ -55,14 +55,15 @@ function stationHit(d){stationHp-=d;if(stationHp<=0)stationDestroyed()}
 function stationDestroyed(){const o=Math.floor(state.ore*PIRATES.steal),g=Math.floor(state.green*PIRATES.steal);state.ore-=o;state.green-=g;
   stationDown=PIRATES.offline;stationHp=stationMaxHp()*.4;raidActive=false;for(const e of enemies)e.leaving=true;
   for(let i=0;i<40;i++)emit(debris,new V3(0,2,0),i%2?'#ff8a5c':'#ffe2a8',1+Math.random(),new V3((Math.random()-.5)*26,Math.random()*6,(Math.random()-.5)*26));
-  toast(t('tt.stDown',{o,g,s:PIRATES.offline}),'bad');shake=.8;save()}
+  toast(t('tt.stDown',{o,g,s:PIRATES.offline}),'bad');shake=.8;missionRaid(false);save()}
 function hitEnemy(e,dmg,side){e.hp-=dmg;if(side==='player')e.aggro=true;e.bar.scale.x=Math.max(.001,e.hp/e.max);e.bar.position.x=-1.5*(1-e.hp/e.max);
   if(e.hp<=0)killEnemy(e)}
 function killEnemy(e){const P=PIRATES[e.kind];world.remove(e.g);enemies=enemies.filter(x=>x!==e);pickables=pickables.filter(p=>p!==e.proxy);if(attackTarget===e)attackTarget=null;
   for(let i=0;i<(e.kind==='corsair'?40:22);i++)emit(debris,e.pos,['#ff8a5c','#ffe2a8','#ff3b2f'][i%3],.6+Math.random()*.8,new V3((Math.random()-.5)*22,Math.random()*5,(Math.random()-.5)*22));
+  missionKill();
   const cr=Math.round(rnd(P.cr[0],P.cr[1]));state.credits+=cr;bump('#crTxt');
   if(Math.random()<P.drop){const z=Math.min(5,zoneOf(Math.hypot(e.pos.x,e.pos.z)));spawnLoot(dropItem(e.kind==='corsair'?'corsair':'enemy',Math.max(2,z),e.kind==='corsair'?3:0),e.pos)}
-  if(raidActive&&!enemies.some(x=>!x.leaving)){raidActive=false;const bonus=PIRATES.repelBonus*raidCount;state.credits+=bonus;toast(t('tt.repelled',{c:bonus}),true);save()}}
+  if(raidActive&&!enemies.some(x=>!x.leaving)){raidActive=false;const bonus=PIRATES.repelBonus*raidCount;state.credits+=bonus;toast(t('tt.repelled',{c:bonus}),true);missionRaid(true);save()}}
 
 /* ---------- jednotlivé zbrane ---------- */
 function nearestEnemy(from,maxD){let best=null,bd=maxD;for(const e of enemies){if(e.leaving)continue;const d=from.distanceTo(e.pos);if(d<bd){bd=d;best=e}}return best}
