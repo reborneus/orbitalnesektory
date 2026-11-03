@@ -66,13 +66,14 @@ const BASES={
   filter: {slot:'util',  imp:'rad',   pool:['shield','hull','coll','sregen','mf','cargo']},
   scanner:{slot:'util',  imp:'mf',    pool:['magnet','yield','range','mine','speed','rad']},
   cannon: {slot:'weapon',imp:'dmg',   pool:['frate','crit','grange','dmg','hull','speed']},
-  /* čipy modulov stanice: slot 'chip', mod = do akého modulu patria. Rarita čipu odomyká schopnosti (CHIP_CAP). */
+  /* čipy modulov stanice: slot 'chip', mod = do akého modulu patria. Schopnosti dronu odomyká vyššia z rarít modul/čip (CHIP_CAP, droneCapR). */
   droneAI:   {slot:'chip',mod:'drone', imp:'dMine',pool:['dCap','dSpeed','dDmg','inf']},
   towerCore: {slot:'chip',mod:'tower', imp:'tDmg', pool:['tRange','tRate','inf']},
   sensorCore:{slot:'chip',mod:'sensor',imp:'sInc', pool:['inf']},
 };
 /* AI jadro dronu podľa rarity: green = dron ťaží aj viridit, def = obranný režim, crystal = ťaží aj kryštály. */
-const CHIP_CAP={green:3,def:4,crystal:5};
+/* prah rarity pre schopnosti dronu – platí vyššia z rarít: modul (z vylepšenia) alebo AI jadro */
+const CHIP_CAP={green:4,def:4,crystal:5};
 /* Šanca, že predmet z daného zdroja bude čip modulu (inak modul lode). */
 const CHIP_CHANCE={asteroid:.1,relic:.2,capture:.25,enemy:.45};
 const SHIP_BASES=Object.keys(BASES).filter(b=>BASES[b].slot!=='chip'),CHIP_BASES=Object.keys(BASES).filter(b=>BASES[b].slot==='chip');

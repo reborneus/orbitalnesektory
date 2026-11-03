@@ -35,7 +35,10 @@ const slotType=m=>m?(m.t||m):null;
 const modRar=m=>MOD_RAR[Math.min(MOD_ENH_MAX,m.enh||0)];
 /* Súčet vlastnosti k z čipu modulu (vrátane vylepšenia čipu). */
 function chipStat(m,k){if(!m||!m.chip)return 0;let v=0;for(const x of itemStats(m.chip))if(x.k===k)v+=x.v;return v}
-const chipCan=(m,cap)=>!!(m&&m.chip&&BASES[m.chip.b].mod==='drone'&&m.chip.r>=CHIP_CAP[cap]);
+/* Efektívna rarita dronu = vyššia z: rarita modulu (rastie vylepšovaním) alebo rarita vloženého AI jadra.
+   Podľa nej sa odomykajú schopnosti (CHIP_CAP). */
+const droneCapR=m=>Math.max(modRar(m),m.chip&&BASES[m.chip.b].mod==='drone'?m.chip.r:-1);
+const chipCan=(m,cap)=>!!(m&&m.t==='drone'&&droneCapR(m)>=CHIP_CAP[cap]);
 function modInf(m){return Math.round(MOD[m.t].inf*(1+MOD_ENH_INF*m.enh)+chipStat(m,'inf'))}
 function freeSlot(s){const n=slotsFor(s.core);for(let i=0;i<n;i++)if(!s.slots[i])return i;return -1}
 /* Vplyv sektora = úroveň jadra × CORE_INF + súčet vplyvu postavených modulov. */

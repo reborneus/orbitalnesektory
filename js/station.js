@@ -23,7 +23,7 @@ function chipHtml(m,i){let h=`<div class="sec-h"><span>${t('chip.h')}</span></di
   else{const fit=state.inv.filter(it=>BASES[it.b].mod===m.t).sort(byRarity);
     h+=fit.length?`<p class="note" style="margin:0">${t('chip.pick')}</p><div class="mchips">${fit.map(it=>`<button class="itm it r${it.r}" style="--rc:${RAR[it.r].col}" data-act="chipIn" data-i="${i}" data-id="${it.id}" title="${t('r.'+RAR[it.r].k)} ${t('base.'+it.b)}">${icon(it.b)}${it.enh?`<span class="enh">+${it.enh}</span>`:''}<span class="il">${it.ilvl}</span></button>`).join('')}</div>`:`<p class="note" style="margin:0">${t('chip.none')}</p>`}
   if(m.t==='drone'){ // schopnosti AI jadra podľa rarity
-    h+=`<ul class="caps">${['green','def','crystal'].map(c=>`<li class="${chipCan(m,c)?'on':''}">${chipCan(m,c)?'✓':'·'} ${t('cap.'+c)} <small>${t('cap.need',{r:t('r.'+RAR[CHIP_CAP[c]].k)})}</small></li>`).join('')}</ul>`}
+    h+=`<p class="note" style="margin:0">${t('cap.eff',{r:t('r.'+RAR[droneCapR(m)].k)})}</p><ul class="caps">${['green','def','crystal'].map(c=>`<li class="${chipCan(m,c)?'on':''}">${chipCan(m,c)?'✓':'·'} ${t('cap.'+c)} <small>${t('cap.need',{r:t('r.'+RAR[CHIP_CAP[c]].k)})}</small></li>`).join('')}</ul>`}
   return h}
 function droneCtl(m,i){const d=droneStats(m);
   return `<div class="mctl"><span>${t('fx.res')}</span><div class="langs">${RES.map(r=>`<button class="langb" data-act="mres" data-i="${i}" data-r="${r}" aria-pressed="${d.res===r}" ${d.can[r]?'':'disabled'}>${t('res.'+r)}</button>`).join('')}</div></div>
@@ -74,7 +74,7 @@ function stationAct(act,b){if(act==='stTab'){stTab=b.dataset.v;renderSheet();ret
     case 'chipIn':{if(!m)return true;const k=state.inv.findIndex(x=>x.id===+b.dataset.id);if(k<0)return true;const it=state.inv[k];if(BASES[it.b].mod!==m.t)return true;
       state.inv.splice(k,1);if(m.chip)state.inv.push(m.chip);m.chip=it;it.nw=false;return done(t('tt.chipIn',{n:t('base.'+it.b)}),{rar:it.r})}
     case 'chipOut':{if(!m||!m.chip)return true;if(state.inv.length>=INV_MAX){toast(t('tt.invFull'),'bad');return true}
-      state.inv.push(m.chip);m.chip=null;m.res='ore';m.mode='mine';return done(t('tt.chipOut'))}
+      state.inv.push(m.chip);m.chip=null;if(m.t==='drone'){const d=droneStats(m);if(!d.can[m.res])m.res='ore';if(!chipCan(m,'def'))m.mode='mine'}return done(t('tt.chipOut'))}
     case 'mres':{if(!m)return true;const d=droneStats(m);if(d.can[b.dataset.r])m.res=b.dataset.r;return done()}
     case 'mmode':{if(!m)return true;m.mode=b.dataset.v==='def'&&chipCan(m,'def')?'def':'mine';return done()}
     case 'msell':{if(!m)return true;

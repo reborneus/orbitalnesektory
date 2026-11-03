@@ -175,7 +175,7 @@ body.pad .pg{display:block}
 /* ===================== VÝBAVA A RARITY (v0.5) =====================
    Každá rarita má triedu .r0 (Odpad) až .r9 (Prvotné) a farbu v premennej --rc.
    Čím vyššia rarita, tým viac ozdôb: r3–r4 podfarbenie, r5 pruhovaný motív a žiara, r6–r8 rohové ozdoby,
-   r7 pulzovanie, r8 zlatý dvojitý rám s lúčmi a prebleskom, r9 dúhový otáčajúci sa rám. */
+   r7 pulzovanie, r8 zlatý dvojitý rám s lúčmi a prebleskom, r9 dúhový otáčajúci sa rám + animovaná hmlovina v pozadí. */
 .coin{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff3c4,var(--gold) 55%,#b8862a);box-shadow:0 0 8px rgba(255,210,122,.6);flex:none;display:inline-block}
 .crd b{color:var(--gold)}
 .cost.crd{color:var(--gold)} .cost.crd .coin{width:8px;height:8px}
@@ -240,16 +240,37 @@ body.pad .pg{display:block}
     linear-gradient(var(--rc),var(--rc)) bottom left/10px 2px no-repeat,linear-gradient(var(--rc),var(--rc)) bottom left/2px 10px no-repeat,
     linear-gradient(var(--rc),var(--rc)) bottom right/10px 2px no-repeat,linear-gradient(var(--rc),var(--rc)) bottom right/2px 10px no-repeat}
 .r8::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.32) 50%,transparent 65%);transform:translateX(-120%);animation:shimmer 3.2s ease-in-out infinite}
-.r9{--rc:#7ff6ff;border-color:transparent;overflow:hidden;background:#0a0f1c;box-shadow:0 0 24px rgba(127,246,255,.45)}
-.r9::before{content:"";position:absolute;inset:-60%;pointer-events:none;z-index:-2;background:conic-gradient(#ff3b5c,#ff8a2a,#ffd84a,#5fd36b,#7ff6ff,#4a9dff,#b36bff,#ff3b5c);animation:spin 5s linear infinite}
-.r9::after{content:"";position:absolute;inset:2px;border-radius:7px;pointer-events:none;z-index:-1;background:radial-gradient(circle at 20% 20%,rgba(127,246,255,.2),transparent 50%),radial-gradient(circle at 80% 85%,rgba(179,107,255,.22),transparent 50%),#0a0f1c}
-.r9 .nm,.r9 .ttl,.r9 .rlab,.r9 .eqc-txt b,.toast.r9{background:linear-gradient(90deg,#ff8a2a,#ffd84a,#5fd36b,#7ff6ff,#b36bff,#ff3b5c,#ff8a2a) 0 0/200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:prism 4s linear infinite}
-.toast.r9{background-color:#0a0f1c}
+/* r9 PRVOTNÉ: otáčajúci sa dúhový rám (::before), pod ním živá „hmlovina" (::after) –
+   farebné oblaky, hviezdy a lúče, ktoré sa pomaly posúvajú a menia odtieň; okolo pulzuje dúhová žiara. */
+.r9{--rc:#7ff6ff;border-color:transparent;overflow:hidden;isolation:isolate;background:#05070f;animation:primalGlow 6s linear infinite}
+.r9::before{content:"";position:absolute;inset:-60%;pointer-events:none;z-index:-2;background:conic-gradient(#ff3b5c,#ff8a2a,#ffd84a,#5fd36b,#7ff6ff,#4a9dff,#b36bff,#ff3b5c);animation:spin 4s linear infinite}
+.r9::after{content:"";position:absolute;inset:2px;border-radius:7px;pointer-events:none;z-index:-1;
+  background:
+    radial-gradient(1.2px 1.2px at 14% 22%,#fff 60%,transparent),radial-gradient(1px 1px at 72% 14%,#fff 60%,transparent),
+    radial-gradient(1.4px 1.4px at 86% 58%,#fff 60%,transparent),radial-gradient(1px 1px at 30% 78%,#fff 60%,transparent),
+    radial-gradient(1px 1px at 52% 40%,#cfffff 60%,transparent),radial-gradient(1.2px 1.2px at 62% 88%,#fff 60%,transparent),
+    repeating-conic-gradient(from 0deg at 50% 115%,rgba(255,255,255,.09) 0 5deg,transparent 5deg 17deg),
+    radial-gradient(ellipse 60% 50% at 18% 22%,rgba(255,59,92,.55),transparent 70%),
+    radial-gradient(ellipse 60% 50% at 84% 26%,rgba(127,246,255,.5),transparent 70%),
+    radial-gradient(ellipse 70% 55% at 50% 105%,rgba(179,107,255,.65),transparent 70%),
+    radial-gradient(ellipse 45% 40% at 82% 86%,rgba(255,216,74,.4),transparent 70%),
+    linear-gradient(160deg,#0b0620,#04101c 55%,#120624);
+  background-size:100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,180% 180%,180% 180%,160% 160%,170% 170%,100% 100%;
+  animation:primalNebula 9s ease-in-out infinite alternate,primalHue 12s linear infinite}
+.r9 svg,.r9 img,.r9 .ic{filter:drop-shadow(0 0 3px rgba(255,255,255,.85)) drop-shadow(0 0 7px rgba(127,246,255,.7))}
+.r9 .nm,.r9 .ttl,.r9 .rlab,.r9 .eqc-txt b{background:linear-gradient(90deg,#ff8a2a,#ffd84a,#5fd36b,#7ff6ff,#b36bff,#ff3b5c,#ff8a2a) 0 0/200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:prism 4s linear infinite;filter:drop-shadow(0 0 4px rgba(255,255,255,.35))}
+/* toast: text nesmie byť priehľadný (pod ním sú vrstvy hmloviny), preto biely s dúhovou žiarou */
+.toast.r9{color:#fff;font-weight:700;text-shadow:0 0 6px #ff3b5c,0 0 10px #7ff6ff,0 0 14px #b36bff}
+@keyframes primalGlow{0%,100%{box-shadow:0 0 16px rgba(255,59,92,.6),0 0 34px rgba(255,59,92,.25)}25%{box-shadow:0 0 16px rgba(255,216,74,.6),0 0 34px rgba(255,216,74,.25)}
+  50%{box-shadow:0 0 18px rgba(127,246,255,.7),0 0 38px rgba(127,246,255,.3)}75%{box-shadow:0 0 16px rgba(179,107,255,.65),0 0 34px rgba(179,107,255,.28)}}
+@keyframes primalNebula{0%{background-position:0 0,0 0,0 0,0 0,0 0,0 0,0 0,0% 0%,100% 0%,50% 100%,100% 100%,0 0}
+  100%{background-position:0 0,0 0,0 0,0 0,0 0,0 0,0 0,60% 40%,30% 60%,20% 60%,40% 30%,0 0}}
+@keyframes primalHue{to{filter:hue-rotate(360deg)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes shimmer{0%,40%{transform:translateX(-120%)}80%,100%{transform:translateX(120%)}}
 @keyframes mythPulse{50%{box-shadow:0 0 22px color-mix(in srgb,var(--rc) 55%,transparent),inset 0 0 16px color-mix(in srgb,var(--rc) 30%,transparent)}}
 @keyframes prism{to{background-position:200% 0}}
-@media (prefers-reduced-motion:reduce){.r7,.r8::after,.r9::before,.r9 .nm,.r9 .ttl,.r9 .rlab,.r9 .eqc-txt b{animation:none}}
+@media (prefers-reduced-motion:reduce){.r7,.r8::after,.r9,.r9::before,.r9::after,.r9 .nm,.r9 .ttl,.r9 .rlab,.r9 .eqc-txt b{animation:none}}
 /* opravy rozloženia v0.5: položky menu sa nesmú zmršťovať (karty s overflow:hidden by inak skolabovali) */
 .sheet .body{grid-auto-rows:max-content}
 .eqc,.itd,.itm{box-sizing:border-box}

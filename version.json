@@ -1,11 +1,8 @@
 {
-  "version": "0.7.1",
+  "version": "0.7.2",
   "date": "2026-11-03",
   "notes": [
-    "Admin panel na testovanie (suroviny, nesmrteľnosť, predmety, postup v hre)",
-    "Misie na stanici: dodávky, prieskum radiácie, stratené relikty, lov pirátov, obrana stanice – 3 stupne náročnosti",
-    "Radiačný štít: časovo obmedzená úplná ochrana pred radiáciou aj za horizontom, dobíja sa pri stanici",
-    "Sledovanie misií v paneli sektora, ciele na minimape a vo vesmíre",
-    "Nová kapitola príručky Misie a radiačný štít"
+    "Oprava: schopnosti dronu sa odomykajú podľa vyššej rarity z modulu a AI jadra (viridit a obrana od Vzácnej, kryštály od Epickej)",
+    "Rarita Prvotné: nové animované pozadie (hmlovina, hviezdy, lúče) a pulzujúca dúhová žiara"
   ]
 }
