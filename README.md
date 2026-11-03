@@ -22,3 +22,14 @@ Na sekciu v kóde skočíš hľadaním `== 1.` až `== 12.`.
 
 `python3 build.py` poskladá všetko do jedného súboru `dist/orbitalne-sektory.html` (dá sa otvoriť dvojklikom aj bez internetu na súbory hry).
 `version.json` obsahuje číslo aktuálnej verzie (používa ho spúšťací panel).
+
+## Spúšťací panel pre Windows
+V priečinku `launcher/` je spúšťač pre testerov:
+1. Stiahni súbor **`launcher/Orbitalne-Sektory.bat`** (na GitHube otvor súbor a klikni na *Download raw file*) a ulož ho napríklad na plochu.
+2. Dvakrát naň klikni. Ak Windows zobrazí „Systém Windows ochránil váš počítač“, klikni na *Ďalšie informácie → Spustiť aj tak*.
+3. Otvorí sa panel: ukáže nainštalovanú a najnovšiu verziu s novinkami, sám stiahne novú verziu a tlačidlom **ŠTART** spustí hru v samostatnom okne Edge (alebo Chrome).
+4. Tlačidlo *Odkaz na ploche* vytvorí odkaz „Orbitálne Sektory“.
+
+Hra sa inštaluje do `%LOCALAPPDATA%\OrbitalneSektory\hra`, uložené hry sú v `...\profil` a pri aktualizácii sa nemažú.
+Panel sťahuje súbory z GitHubu bez prihlásenia, preto musí byť repozitár **verejný**.
+Pri vydaní novej verzie treba zvýšiť číslo v `version.json` – podľa neho panel pozná, že je k dispozícii aktualizácia.
