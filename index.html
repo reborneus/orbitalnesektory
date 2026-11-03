@@ -55,6 +55,21 @@ button:focus-visible{outline:2px solid var(--hull);outline-offset:2px}
 .cargo .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
 #cOre{background:var(--ore)} #cCry{background:var(--crystal)}
 .cargo.full .lbl,.cargo.full .num{color:var(--warn)}
+#hpBar{background:var(--hull);box-shadow:0 0 8px var(--hull)}
+#hpBar.mid{background:var(--ore);box-shadow:0 0 8px var(--ore)}
+#hpBar.low{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+.regen{font-size:11px;color:var(--muted);white-space:nowrap}
+.regen.on{color:var(--hull)}
+kbd{font-family:var(--f-data);font-size:12px;font-weight:700;padding:0 6px;margin:0 1px;border:1px solid rgba(221,231,241,.4);border-bottom-width:2px;border-radius:5px;background:rgba(9,15,27,.75);color:var(--text)}
+.dock button{position:relative}
+.pg{display:none;position:absolute;top:3px;right:5px;font-family:var(--f-data);font-size:10px;line-height:1;padding:2px 4px;border-radius:4px;background:rgba(221,231,241,.14);color:var(--text);letter-spacing:0;text-transform:none}
+body.pad .pg{display:block}
+.pad-focus{outline:2px solid var(--hull);outline-offset:2px;box-shadow:0 0 18px rgba(88,208,192,.25)}
+#hurt{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0;box-shadow:inset 0 0 120px 30px rgba(255,80,60,.75)}
+#hurt.low{opacity:.3;animation:lowhp 1.4s ease-in-out infinite}
+#hurt.on{animation:hurt .5s ease-out}
+@keyframes hurt{0%{opacity:var(--k,.6)}100%{opacity:0}}
+@keyframes lowhp{50%{opacity:.1}}
 .pulse{animation:pulse .5s ease}
 @keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
 
@@ -108,7 +123,7 @@ button:focus-visible{outline:2px solid var(--hull);outline-offset:2px}
 .ghost{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;padding:9px 12px;cursor:pointer;font-weight:600;justify-self:start}
 .ghost.danger{color:var(--warn);border-color:rgba(255,123,107,.45)}
 
-.intro{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 40%,rgba(4,7,13,.55),rgba(4,7,13,.92));
+.intro{position:fixed;inset:0;z-index:10;display:grid;place-items:center;overflow:auto;background:radial-gradient(ellipse at 50% 40%,rgba(4,7,13,.55),rgba(4,7,13,.92));
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px}
 .intro .box{width:min(100%,420px);display:grid;gap:14px;padding:22px 20px}
 .kicker{font-family:var(--f-data);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--hull)}
@@ -136,18 +151,20 @@ button:focus-visible{outline:2px solid var(--hull);outline-offset:2px}
       <div class="r cry"><span class="gem"></span><b id="cryTxt">0</b><small>kryštály</small></div>
     </div>
     <div class="cargo" id="cargo"><span class="lbl">Náklad</span><div class="bar"><i id="cOre" style="width:0"></i><i id="cCry" style="width:0"></i></div><span class="num" id="cargoTxt">0/50</span></div>
+    <div class="cargo"><span class="lbl">Trup</span><div class="bar"><i id="hpBar" style="width:100%"></i></div><span class="num" id="hpTxt">100/100</span><span class="regen" id="regenTxt"></span></div>
   </div>
 </div>
 
+<div id="hurt"></div>
 <div id="toasts" aria-live="polite"></div>
 
 <div class="hud-bottom">
   <p class="hint" id="hint"></p>
   <nav class="dock glass" aria-label="Menu">
-    <button data-tab="station" aria-label="Stanica"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="9.5" ry="4"/><path d="M12 2.5v3M12 18.5v3"/></svg>Stanica</button>
-    <button data-tab="ship" aria-label="Loď"><svg viewBox="0 0 24 24"><path d="M12 2.5l3 9 6 3.5-6 1-3 5.5-3-5.5-6-1 6-3.5z"/></svg>Loď</button>
-    <button data-tab="map" aria-label="Mapa sektorov"><svg viewBox="0 0 24 24"><path d="M7 3.5l5 2.9v5.8l-5 2.9-5-2.9V6.4z"/><path d="M17 9.5l5 2.9v5.8l-5 2.9-5-2.9"/></svg>Mapa</button>
-    <button id="homeBtn" aria-label="Domov k stanici"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6.5 9.5V20h11V9.5"/><path d="M10 20v-5h4v5"/></svg>Domov</button>
+    <button data-tab="station" aria-label="Stanica"><span class="pg" data-g="Y"></span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="9.5" ry="4"/><path d="M12 2.5v3M12 18.5v3"/></svg>Stanica</button>
+    <button data-tab="ship" aria-label="Loď"><span class="pg" data-g="X"></span><svg viewBox="0 0 24 24"><path d="M12 2.5l3 9 6 3.5-6 1-3 5.5-3-5.5-6-1 6-3.5z"/></svg>Loď</button>
+    <button data-tab="map" aria-label="Mapa sektorov"><span class="pg" data-g="M"></span><svg viewBox="0 0 24 24"><path d="M7 3.5l5 2.9v5.8l-5 2.9-5-2.9V6.4z"/><path d="M17 9.5l5 2.9v5.8l-5 2.9-5-2.9"/></svg>Mapa</button>
+    <button id="homeBtn" aria-label="Domov k stanici"><span class="pg" data-g="B"></span><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6.5 9.5V20h11V9.5"/><path d="M10 20v-5h4v5"/></svg>Domov</button>
   </nav>
 </div>
 
@@ -162,9 +179,10 @@ button:focus-visible{outline:2px solid var(--hull);outline-offset:2px}
     <h1>Orbitálne Sektory</h1>
     <ol>
       <li>Ťukni do priestoru a loď tam priletí. Ak držíš prst (alebo myš), letí za ním.</li>
-      <li>Ťukni na asteroid na okraji sektora a loď ho začne ťažiť. Oranžové dávajú rudu, fialové kryštály.</li>
+      <li>Ťukni na asteroid na okraji sektora a loď ho začne ťažiť. Oranžové dávajú rudu, fialové kryštály. Pozor, nárazy poškodzujú trup.</li>
       <li>Pri stanici v strede sa náklad vyloží sám. Tlačidlo Domov ťa tam vráti.</li>
       <li>V menu Stanica stavaj moduly. Keď vplyv dosiahne 100, sektor je tvoj a odomkne sa ďalší.</li>
+      <li>Ovládač Xbox alebo PlayStation: stlač ľubovoľné tlačidlo. Na PC funguje aj WASD, medzerník a H.</li>
     </ol>
     <button class="go" id="goBtn">Spustiť motory</button>
   </div>
@@ -197,14 +215,21 @@ const CORE_MAX=5, SHIP_MAX=5, CAPTURE=100;
 const coreCost=L=>({ore:40*L,crystal:8*(L-1)});
 const slotsFor=L=>Math.min(6,1+L);
 const SHIPUP={
+  speed:{name:'Maximálna rýchlosť',desc:'Najvyššia rýchlosť, akou loď dokáže letieť.',cost:L=>({ore:30*L,crystal:6*(L-1)}),val:L=>24*(1+.2*(L-3)),fmt:v=>v.toFixed(1)+' m/s'},
+  accel:{name:'Zrýchlenie',desc:'Ako rýchlo loď naberie rýchlosť a zabrzdí.',cost:L=>({ore:30*L,crystal:5*(L-1)}),val:L=>36*(1+.3*(L-3)),fmt:v=>v.toFixed(1)+' m/s²'},
   laser:{name:'Ťažobný laser',desc:'Rýchlejšia ťažba rudy aj kryštálov.',cost:L=>({ore:40*L,crystal:5*(L-1)}),val:L=>8*(1+.35*(L-1)),fmt:v=>v.toFixed(1)+' t/s'},
   cargo:{name:'Nákladný priestor',desc:'Viac surovín na jednu cestu.',cost:L=>({ore:35*L,crystal:4*(L-1)}),val:L=>50+25*(L-1),fmt:v=>Math.round(v)+' t'},
-  engine:{name:'Motory',desc:'Vyššia rýchlosť letu.',cost:L=>({ore:30*L,crystal:6*(L-1)}),val:L=>24*(1+.18*(L-1)),fmt:v=>v.toFixed(0)+' m/s'},
+  hull:{name:'Pancier trupu',desc:'Vyššia integrita lode. Znesie viac nárazov.',cost:L=>({ore:45*L,crystal:6*(L-1)}),val:L=>100+30*(L-1),fmt:v=>Math.round(v)+' bodov'},
 };
 const SAVE_KEY='orbitalne-sektory-v1';
-function freshState(){return{v:1,ore:30,crystal:0,cargo:{ore:0,crystal:0},ship:{laser:1,cargo:1,engine:1},cur:0,intro:false,
+function freshState(){return{v:1,ore:30,crystal:0,cargo:{ore:0,crystal:0},ship:{laser:1,cargo:1,speed:1,accel:1,hull:1},hp:100,cur:0,intro:false,
   sec:SECTORS.map((s,i)=>({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:i===0}))}}
-function loadState(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return null;const s=JSON.parse(raw);if(s&&s.v===1&&Array.isArray(s.sec))return s}catch(e){}return null}
+function loadState(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return null;const s=JSON.parse(raw);if(s&&s.v===1&&Array.isArray(s.sec)){migrate(s);return s}}catch(e){}return null}
+/* older saves had one "engine" upgrade: refund it, the speed and acceleration upgrades replace it */
+function migrate(s){const sh=s.ship||(s.ship={});
+  if(sh.engine!=null){for(let L=1;L<sh.engine;L++){s.ore=(s.ore||0)+30*L;s.crystal=(s.crystal||0)+6*(L-1)}delete sh.engine}
+  for(const k of['speed','accel','laser','cargo','hull'])if(!sh[k])sh[k]=1;
+  if(typeof s.hp!=='number')s.hp=100+30*(sh.hull-1)}
 let state;
 function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch(e){}}
 
@@ -275,21 +300,36 @@ const SHARD=new THREE.OctahedronGeometry(1,0);
 /* ---------- ship ---------- */
 const ship=new THREE.Group();
 (function buildShip(){
-  const body=new THREE.Group();ship.add(body);ship.userData.body=body;
-  const hull=new THREE.Mesh(new THREE.ConeGeometry(1.1,4.4,6),M.metal);hull.rotation.x=Math.PI/2;body.add(hull);
-  const spine=new THREE.Mesh(new THREE.BoxGeometry(.9,.6,3.2),M.plate);spine.position.set(0,.25,-.6);body.add(spine);
-  const wing=new THREE.Mesh(new THREE.BoxGeometry(5.6,.16,1.5),M.plate);wing.position.set(0,0,-.9);body.add(wing);
-  const wing2=new THREE.Mesh(new THREE.BoxGeometry(3.2,.12,.8),M.dark);wing2.position.set(0,.12,-.2);body.add(wing2);
-  for(const s of[-1,1]){const tip=new THREE.Mesh(new THREE.BoxGeometry(.25,.25,1.3),M.hullGlow);tip.position.set(2.8*s,0,-.9);body.add(tip);
-    const eng=new THREE.Mesh(new THREE.CylinderGeometry(.42,.5,1.4,8),M.dark);eng.rotation.x=Math.PI/2;eng.position.set(.95*s,0,-2.1);body.add(eng);
-    const g=glow('#6fe3ff',2.6,.9);g.position.set(.95*s,0,-2.9);body.add(g);(ship.userData.eng||(ship.userData.eng=[])).push(g)}
-  const cock=new THREE.Mesh(new THREE.SphereGeometry(.5,12,8),M.hullGlow);cock.scale.set(1,.6,1.6);cock.position.set(0,.45,.6);body.add(cock);
-  const halo=glow('#58d0c0',9,.18);halo.position.y=-.5;ship.add(halo);
-  ship.scale.setScalar(1.15);
+  /* "Klepeto": armored hull, two pincer arms closing around a glowing mining core */
+  const body=new THREE.Group();ship.add(body);ship.userData.body=body;ship.userData.eng=[];
+  const hull=new THREE.Mesh(new THREE.CylinderGeometry(.8,1.4,4.4,6),M.metal);hull.rotation.x=Math.PI/2;hull.scale.z=.55;hull.position.z=-.9;body.add(hull);
+  const spine=new THREE.Mesh(new THREE.BoxGeometry(1,.5,3),M.plate);spine.position.set(0,.55,-1.4);body.add(spine);
+  const bridge=new THREE.Mesh(new THREE.BoxGeometry(.85,.4,1),M.dark);bridge.position.set(0,.95,-.55);body.add(bridge);
+  const visor=new THREE.Mesh(new THREE.BoxGeometry(.7,.14,.12),M.hullGlow);visor.position.set(0,1,-.02);body.add(visor);
+  const block=new THREE.Mesh(new THREE.BoxGeometry(2.9,.95,1.3),M.plate);block.position.set(0,.05,-3.15);body.add(block);
+  const fin=new THREE.Mesh(new THREE.BoxGeometry(.18,.9,1.4),M.dark);fin.position.set(0,.85,-3);body.add(fin);
+  for(const x of[-1,0,1]){const n=new THREE.Mesh(new THREE.CylinderGeometry(.34,.46,.8,8),M.dark);n.rotation.x=Math.PI/2;n.position.set(x,.05,-4.05);body.add(n);
+    const g=glow('#6fe3ff',2.2,.9);g.position.set(x,.05,-4.55);body.add(g);ship.userData.eng.push(g)}
+  const R=2.25,ARC=2.45,A0=-1.22;
+  for(const s of[-1,1]){
+    const pod=new THREE.Mesh(new THREE.BoxGeometry(.75,.65,2.3),M.dark);pod.position.set(1.6*s,0,-2.25);pod.rotation.y=-.16*s;body.add(pod);
+    const stripe=new THREE.Mesh(new THREE.BoxGeometry(.1,.12,1.9),M.hullGlow);stripe.position.set(1.98*s,.14,-2.3);stripe.rotation.y=-.16*s;body.add(stripe);
+    const w=new THREE.Group();w.position.set(-.3*s,0,.9);w.rotation.x=Math.PI/2;w.scale.set(s,1,.55);body.add(w);
+    const arm=new THREE.Mesh(new THREE.TorusGeometry(R,.44,6,22,ARC),M.metal);arm.rotation.z=A0;w.add(arm);
+    const edge=new THREE.Mesh(new THREE.TorusGeometry(R,.1,4,22,ARC*.86),M.hullGlow);edge.rotation.z=A0+.12;edge.position.z=-.62;w.add(edge);
+    const th=A0+ARC;const tip=new THREE.Mesh(new THREE.ConeGeometry(.3,.8,5),M.plate);tip.position.set(R*Math.cos(th),R*Math.sin(th),0);tip.rotation.z=th;w.add(tip);
+    for(const f of[.35,.75]){const ang=A0+ARC*f;const tooth=new THREE.Mesh(new THREE.ConeGeometry(.16,.6,4),M.dark);
+      tooth.position.set((R-.5)*Math.cos(ang),(R-.5)*Math.sin(ang),0);tooth.rotation.z=ang+Math.PI/2;w.add(tooth)}
+    const tg=glow('#58d0c0',1.4,.9);tg.position.set(.3*s,.1,3.15);body.add(tg);
+    const nav=glow(s<0?'#ff6a4d':'#7ef2e2',1.6,1);nav.position.set(2.45*s,.15,.9);body.add(nav)}
+  const core=new THREE.Mesh(new THREE.IcosahedronGeometry(.42,1),M.hullGlow);core.position.set(0,.05,1.9);body.add(core);
+  const cg=glow('#7ef2e2',3.2,.85);cg.position.copy(core.position);body.add(cg);ship.userData.core=cg;
+  const halo=glow('#58d0c0',10,.16);halo.position.y=-.5;ship.add(halo);
+  ship.scale.setScalar(1.1);
 })();
 scene.add(ship);
 const shipVel=new V3();let shipYaw=0;
-const NOSE=new V3(0,0,2.3);
+const NOSE=new V3(0,0,2.0);
 
 /* laser (ship) */
 const CYL=new THREE.CylinderGeometry(1,1,1,8,1,true);
@@ -307,7 +347,7 @@ function hideBeam(b){b.visible=false;b.userData.hit.visible=false}
 
 /* particle pools */
 function pool(n,size){const arr=[];for(let i=0;i<n;i++){const s=glow('#ffffff',size,0);s.visible=false;scene.add(s);arr.push({s,life:0,max:1,v:new V3(),from:new V3(),to:null,size})}return arr}
-const trail=pool(70,1.6),debris=pool(40,.9);
+const trail=pool(90,1.6),debris=pool(110,.9);
 function emit(p,pos,color,life,vel,to){const it=p.find(x=>x.life<=0);if(!it)return;it.s.visible=true;it.s.position.copy(pos);it.from.copy(pos);it.s.material.color.set(color);
   it.life=it.max=life;it.v.copy(vel||_zero);it.to=to||null}
 const _zero=new V3();
@@ -372,6 +412,7 @@ function makeAst(type,r){const g=new THREE.Group();const isC=type==='crystal';
 function placeAst(a,r){for(let t=0;t<12;t++){const ang=r()*TAU;const rad=a.type==='crystal'?82+r()*28:54+r()*52;
     a.g.position.set(Math.cos(ang)*rad,(r()-.5)*3,Math.sin(ang)*rad);
     if(gate&&a.g.position.distanceTo(gate.position)<12)continue;
+    if(a.g.position.distanceTo(ship.position)<16)continue;
     if(!asts.some(o=>o!==a&&o.alive&&o.g.position.distanceTo(a.g.position)<a.base+o.base+3))break}
   setAstScale(a)}
 function astScale(a){return a.base*(.5+.5*a.amt/a.max)*a.shrink}
@@ -471,40 +512,89 @@ function depleteAst(a){a.alive=false;a.respawn=22+Math.random()*12;if(mineTarget
 
 /* ---------- player control ---------- */
 let moveTarget=null,mineTarget=null,openOnArrive=false,fullWarned=false,mining=false,debrisT=0;
+let sinceHit=99,hitCD=0,shake=0,dead=false;
+const SHIP_R=2.3,inVec=new V3(),padVec=new V3(),_dv=new V3(),_des=new V3(),_a=new V3(),_b=new V3(),_c=new V3();
 function cmdMove(p){moveTarget=p.clone().setY(0);mineTarget=null;openOnArrive=false}
 function cmdMine(a){if(cargoTotal()>=shipVal('cargo')-.01){toast('Náklad je plný. Najprv ho vylož pri stanici.');return}
   mineTarget=a;moveTarget=a.pos.clone().setY(0);openOnArrive=false;fullWarned=false}
 function cmdHome(){const dir=ship.position.clone().setY(0);if(dir.lengthSq()<1)dir.set(0,0,1);dir.normalize().multiplyScalar(STATION_R+2);moveTarget=dir;mineTarget=null}
+function goHome(){closeSheet();cmdHome();toast('Kurz na stanicu')}
+function mineNearest(){
+  if(mineTarget){mineTarget=null;moveTarget=null;toast('Ťažba zastavená');return}
+  const fwd=_a.set(Math.sin(shipYaw),0,Math.cos(shipYaw));let best=null,bs=1e9;
+  for(const a of asts){if(!a.alive)continue;_b.subVectors(a.pos,ship.position);_b.y=0;const d=_b.length();if(d>48)continue;
+    const sc=d-_b.dot(fwd)/Math.max(d,.001)*8;if(sc<bs){bs=sc;best=a}}
+  if(!best){toast('Žiadny asteroid nablízku. Leť k okraju sektora.');return}
+  cmdMine(best);flashMarker(best.pos,'#58d0c0')}
 
-function tickShip(dt,t){const maxSp=shipVal('engine');
-  let desired=_zero.clone();
-  if(moveTarget){_v.subVectors(moveTarget,ship.position);_v.y=0;const dist=_v.length();
+/* autopilot steers around asteroids on its path; manual flight does not */
+function avoid(desired){const sp=desired.length();if(sp<.1)return;const dir=_a.copy(desired).divideScalar(sp);const look=6+shipVel.length()*1.1;
+  for(const a of asts){if(!a.alive||a===mineTarget)continue;const ar=astScale(a);_b.subVectors(a.pos,ship.position);_b.y=0;
+    const along=_b.dot(dir);if(along<-ar||along>look+ar)continue;
+    const lat=_b.x*dir.z-_b.z*dir.x;const clear=SHIP_R+ar+2.2;if(Math.abs(lat)>clear)continue;
+    const side=lat>=0?1:-1;const k=((1-Math.abs(lat)/clear)*(1-Math.max(0,along)/(look+ar))*1.8+.25)*sp;
+    desired.x-=side*dir.z*k;desired.z+=side*dir.x*k}
+  desired.setLength(sp)}
+
+function collide(){
+  for(const a of asts){if(!a.alive)continue;const ar=astScale(a)*.95;const dx=ship.position.x-a.pos.x,dz=ship.position.z-a.pos.z;const d=Math.hypot(dx,dz);const minD=SHIP_R+ar;
+    if(d>=minD)continue;const nx=d>.001?dx/d:1,nz=d>.001?dz/d:0;
+    ship.position.x=a.pos.x+nx*minD;ship.position.z=a.pos.z+nz*minD;
+    const vn=shipVel.x*nx+shipVel.z*nz;if(vn>=0)continue;
+    shipVel.x-=1.35*vn*nx;shipVel.z-=1.35*vn*nz;shipVel.multiplyScalar(.82);
+    const impact=-vn;a.spin.x+=(Math.random()-.5)*impact*.04;a.spin.z+=(Math.random()-.5)*impact*.04;
+    if(impact>2)impactHit(impact,a.pos.x+nx*ar,a.pos.z+nz*ar,a)}}
+function impactHit(impact,x,z,a){sinceHit=0;const k=clamp(impact/22,.15,1);shake=Math.max(shake,k);rumble(k,140+k*160);
+  const n=Math.round(5+impact*.5);
+  for(let i=0;i<n;i++)emit(debris,_c.set(x,.4,z),Math.random()<.5?'#ffe2a8':(a.type==='crystal'?'#b9a0ff':'#ff9a4d'),.35+Math.random()*.35,
+    new V3((Math.random()-.5)*(6+impact),Math.random()*4,(Math.random()-.5)*(6+impact)));
+  if(hitCD>0)return;hitCD=.3;const dmg=Math.round((impact-2)*1.5);if(dmg<=0)return;
+  state.hp=Math.max(0,state.hp-dmg);hurtFlash(k);if(state.hp<=0)destroyShip()}
+function hurtFlash(k){const h=$('#hurt');h.style.setProperty('--k',(.35+k*.6).toFixed(2));h.classList.remove('on');void h.offsetWidth;h.classList.add('on')}
+function destroyShip(){dead=true;mineTarget=null;moveTarget=null;hideBeam(beam);shake=1;rumble(1,600);
+  for(let i=0;i<60;i++)emit(debris,ship.position,['#ffe2a8','#ff9a4d','#58d0c0'][i%3],.8+Math.random()*.9,new V3((Math.random()-.5)*30,Math.random()*8,(Math.random()-.5)*30));
+  ship.visible=false;const lost=Math.floor(cargoTotal());state.cargo.ore=0;state.cargo.crystal=0;
+  toast(lost>0?`Loď zničená! Stratil si ${lost} t nákladu.`:'Loď zničená!',true);
+  setTimeout(()=>$('#warp').classList.add('on'),900);
+  setTimeout(()=>{ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;state.hp=shipVal('hull');sinceHit=99;ship.visible=true;dead=false;
+    $('#warp').classList.remove('on');toast('Nová loď čaká pri stanici.');save()},1500)}
+
+function tickShip(dt,t){const maxSp=shipVal('speed'),acc=shipVal('accel');
+  const desired=_des.set(0,0,0);
+  if(inVec.lengthSq()>.0001){moveTarget=null;openOnArrive=false;desired.copy(inVec).multiplyScalar(maxSp)}
+  else if(moveTarget){_v.subVectors(moveTarget,ship.position);_v.y=0;const dist=_v.length();
     const stop=mineTarget?astScale(mineTarget)*1.1+4.5:.6;
-    if(dist>stop){desired.copy(_v).normalize().multiplyScalar(Math.min(maxSp,(dist-stop)*1.6+2))}else{if(!mineTarget)moveTarget=null}}
-  shipVel.lerp(desired,1-Math.exp(-dt*3.2));
+    if(dist>stop){const sp=Math.min(maxSp,Math.sqrt(2*acc*.8*(dist-stop))+.4);desired.copy(_v).normalize().multiplyScalar(sp);avoid(desired)}
+    else if(!mineTarget)moveTarget=null}
+  // velocity changes toward the wanted velocity no faster than the ship's acceleration allows
+  _dv.subVectors(desired,shipVel);const lim=acc*(desired.lengthSq()<shipVel.lengthSq()?1.25:1)*dt;if(_dv.length()>lim)_dv.setLength(lim);
+  shipVel.add(_dv);shipVel.y=0;
   ship.position.addScaledVector(shipVel,dt);
-  const rr=Math.hypot(ship.position.x,ship.position.z);if(rr>114){ship.position.x*=114/rr;ship.position.z*=114/rr}
-  // keep out of station core
+  const rr=Math.hypot(ship.position.x,ship.position.z);
+  if(rr>114){ship.position.x*=114/rr;ship.position.z*=114/rr;const ux=ship.position.x/114,uz=ship.position.z/114;const vr=shipVel.x*ux+shipVel.z*uz;if(vr>0){shipVel.x-=vr*ux;shipVel.z-=vr*uz}}
   if(rr<9){const k=9/Math.max(rr,.01);ship.position.x*=k;ship.position.z*=k}
+  collide();
   const sp=shipVel.length();let roll=0;
   if(sp>.5){const want=Math.atan2(shipVel.x,shipVel.z);let diff=((want-shipYaw+Math.PI)%TAU+TAU)%TAU-Math.PI;shipYaw+=diff*Math.min(1,dt*6);roll=clamp(-diff*1.2,-.6,.6)}
   else if(mineTarget){_v.subVectors(mineTarget.pos,ship.position);const want=Math.atan2(_v.x,_v.z);let diff=((want-shipYaw+Math.PI)%TAU+TAU)%TAU-Math.PI;shipYaw+=diff*Math.min(1,dt*5)}
-  ship.rotation.y=shipYaw;const body=ship.userData.body;body.rotation.z+= (roll-body.rotation.z)*Math.min(1,dt*5);
+  ship.rotation.y=shipYaw;const body=ship.userData.body;body.rotation.z+=(roll-body.rotation.z)*Math.min(1,dt*5);
   ship.position.y=Math.sin(t*1.6)*.25;
-  const thr=clamp(sp/maxSp,0,1);for(const e of ship.userData.eng){const s=1.6+thr*2.4+Math.random()*.3;e.scale.set(s,s,1)}
-  if(sp>3&&Math.random()<dt*40*thr){for(const e of ship.userData.eng){const w=e.getWorldPosition(new V3());emit(trail,w,'#6fe3ff',.55+Math.random()*.3,new V3((Math.random()-.5)*1.5,0,(Math.random()-.5)*1.5))}}
+  const thr=clamp(sp/maxSp,0,1);for(const e of ship.userData.eng){const s=1.4+thr*2.2+Math.random()*.3;e.scale.set(s,s,1)}
+  if(sp>3&&Math.random()<dt*30*thr){for(const e of ship.userData.eng){const w=e.getWorldPosition(new V3());emit(trail,w,'#6fe3ff',.55+Math.random()*.3,new V3((Math.random()-.5)*1.5,0,(Math.random()-.5)*1.5))}}
   // mining
   mining=false;
   if(mineTarget){const a=mineTarget;const range=astScale(a)*1.1+6;const d=ship.position.distanceTo(a.pos);
     if(!a.alive){mineTarget=null}
     else if(d<=range+.5){const capV=shipVal('cargo');const free=capV-cargoTotal();
-      if(free<=.01){if(!fullWarned){toast('Náklad plný. Ťukni Domov a vylož ho na stanici.');fullWarned=true}mineTarget=null}
+      if(free<=.01){if(!fullWarned){toast('Náklad plný. Leť domov a vylož ho na stanici.');fullWarned=true}mineTarget=null}
       else{mining=true;const rate=shipVal('laser')*(a.type==='crystal'?.5:1);const take=Math.min(rate*dt,a.amt,free);a.amt-=take;state.cargo[a.type]+=take;setAstScale(a);
         if(a.amt<=0){depleteAst(a);toast(a.type==='crystal'?'Kryštálový asteroid vyťažený':'Asteroid vyťažený')}
         debrisT-=dt;if(debrisT<=0){debrisT=.06;const from=a.pos.clone().add(new V3((Math.random()-.5)*2,Math.random(),(Math.random()-.5)*2).multiplyScalar(astScale(a)*.8));
-          emit(debris,from,a.type==='crystal'?'#b9a0ff':'#ffb85c',.55,null,ship.position.clone())}}}}
+          emit(debris,from,a.type==='crystal'?'#b9a0ff':'#ffb85c',.55,null,ship.position.clone())}}}
+    else if(!moveTarget&&d>range*2.2){mineTarget=null}}
   if(mining){const nose=ship.localToWorld(NOSE.clone());const to=mineTarget?mineTarget.pos.clone().lerp(nose,.12):nose;
     setBeam(beam,nose,to,.32+Math.random()*.12,mineTarget&&mineTarget.type==='crystal'?'#a98bff':'#58d0c0')}else hideBeam(beam);
+  const cg=ship.userData.core;const cs=(mining?4.6:3.2)*(1+Math.sin(t*(mining?14:3))*.1);cg.scale.set(cs,cs,1);
   // unload
   const dStation=Math.hypot(ship.position.x,ship.position.z);
   if(dStation<STATION_R+5&&cargoTotal()>0){const o=Math.floor(state.cargo.ore),c=Math.floor(state.cargo.crystal);
@@ -519,6 +609,7 @@ let gateNear=false;
 /* ---------- input ---------- */
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),ground=new THREE.Plane(new V3(0,1,0),0);
 const pointers=new Map();let downPos=null,dragging=false,pinch0=0,zoom0=1,zoom=isTouch?1.08:1;
+let inputMode=isTouch?'touch':'mouse';
 function toNdc(x,y){const r=canvas.getBoundingClientRect();ndc.set((x-r.left)/r.width*2-1,-(y-r.top)/r.height*2+1);ray.setFromCamera(ndc,camera)}
 function groundAt(x,y){toNdc(x,y);const p=new V3();return ray.ray.intersectPlane(ground,p)?p:null}
 function tapAt(x,y){toNdc(x,y);const hits=ray.intersectObjects(pickables,false);
@@ -528,7 +619,7 @@ function tapAt(x,y){toNdc(x,y);const hits=ray.intersectObjects(pickables,false);
     if(u.gate){cmdMove(gate.position);return}}
   const p=groundAt(x,y);if(p){if(Math.hypot(p.x,p.z)>116)p.multiplyScalar(116/Math.hypot(p.x,p.z));cmdMove(p);flashMarker(p,'#58d0c0')}}
 function flashMarker(p,c){marker.position.set(p.x,.05,p.z);marker.material.color.set(c);markerT=.6}
-canvas.addEventListener('pointerdown',e=>{canvas.focus({preventScroll:true});pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});canvas.setPointerCapture(e.pointerId);
+canvas.addEventListener('pointerdown',e=>{canvas.focus({preventScroll:true});setMode(e.pointerType==='touch'?'touch':'mouse');pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});canvas.setPointerCapture(e.pointerId);
   if(pointers.size===1){downPos={x:e.clientX,y:e.clientY,t:performance.now()};dragging=false}
   else if(pointers.size===2){const [a,b]=[...pointers.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y);zoom0=zoom;downPos=null;dragging=false}});
 canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -539,15 +630,69 @@ function endPtr(e){if(!pointers.has(e.pointerId))return;pointers.delete(e.pointe
   if(pointers.size===0){downPos=null;dragging=false;pinch0=0}}
 canvas.addEventListener('pointerup',endPtr);canvas.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);downPos=null;dragging=false});
 canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=clamp(zoom*(1+Math.sign(e.deltaY)*.08),.55,1.7)},{passive:false});
-// hold-to-fly also when the pointer is held still
 setInterval(()=>{if(downPos&&pointers.size===1&&!dragging&&performance.now()-downPos.t>300){dragging=true;const p=groundAt(downPos.x,downPos.y);if(p)cmdMove(p)}},80);
+
+/* keyboard */
+const keys=new Set();const MOVE_KEYS=['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'];
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();const inUI=e.target.closest&&e.target.closest('#sheet,.intro');
+  if(k==='escape'){closeSheet();return}
+  if(MOVE_KEYS.includes(k)){if(inUI&&k.startsWith('arrow'))return;keys.add(k);setMode('key');e.preventDefault();return}
+  if(e.repeat||inUI)return;
+  if(k===' '){e.preventDefault();if(document.activeElement&&document.activeElement!==canvas)document.activeElement.blur();setMode('key');mineNearest()}
+  else if(k==='h'){setMode('key');goHome()}
+  else if(k==='1')toggleTab('station');else if(k==='2')toggleTab('ship');else if(k==='3')toggleTab('map')});
+addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+addEventListener('blur',()=>keys.clear());
+function readInput(){inVec.set(0,0,0);
+  if(keys.has('a')||keys.has('arrowleft'))inVec.x-=1;if(keys.has('d')||keys.has('arrowright'))inVec.x+=1;
+  if(keys.has('w')||keys.has('arrowup'))inVec.z-=1;if(keys.has('s')||keys.has('arrowdown'))inVec.z+=1;
+  if(inVec.lengthSq()>1)inVec.normalize();inVec.add(padVec);if(inVec.lengthSq()>1)inVec.normalize()}
+
+/* gamepad: Xbox and PlayStation controllers through the browser's standard mapping */
+const GLY={xbox:{A:'A',B:'B',X:'X',Y:'Y',LB:'LB',RB:'RB',M:'Menu'},ps:{A:'✕',B:'○',X:'□',Y:'△',LB:'L1',RB:'R1',M:'Options'}};
+let padType='xbox',padPrev=[],activePad=null,navT=0,navLast=0;
+const G=()=>GLY[padType];
+const padKind=id=>/054c|dualsense|dualshock|playstation|wireless controller/i.test(id||'')?'ps':'xbox';
+function setMode(m){if(inputMode===m)return;inputMode=m;document.body.classList.toggle('pad',m==='pad');
+  document.querySelectorAll('.pg').forEach(el=>el.textContent=G()[el.dataset.g]);applyFocus();lastHint=''}
+addEventListener('gamepadconnected',e=>{padType=padKind(e.gamepad.id);inputMode='';setMode('pad');toast(`Ovládač pripojený: ${padType==='ps'?'PlayStation':'Xbox'}`)});
+addEventListener('gamepaddisconnected',()=>{activePad=null;padVec.set(0,0,0);if(inputMode==='pad')setMode(isTouch?'touch':'mouse');toast('Ovládač odpojený')});
+function rumble(k,ms){const va=activePad&&activePad.vibrationActuator;if(!va||!va.playEffect)return;
+  try{const r=va.playEffect('dual-rumble',{duration:ms,strongMagnitude:clamp(k,0,1),weakMagnitude:clamp(k*1.2,0,1)});if(r&&r.catch)r.catch(()=>{})}catch(e){}}
+function pollPad(dt){let pads=[];try{pads=navigator.getGamepads?navigator.getGamepads():[]}catch(e){return}
+  let p=null;for(const g of pads||[])if(g&&g.connected){p=g;break}
+  activePad=p;if(!p){padVec.set(0,0,0);padPrev=[];return}
+  const btn=i=>{const b=p.buttons[i];return!!(b&&(b.pressed||b.value>.5))};const press=i=>btn(i)&&!padPrev[i];
+  let lx=p.axes[0]||0,ly=p.axes[1]||0;const m=Math.hypot(lx,ly);
+  if(m<.2){lx=0;ly=0}else{const k=Math.min(1,(m-.2)/.8)/m;lx*=k;ly*=k}
+  const dx=(btn(15)?1:0)-(btn(14)?1:0),dy=(btn(13)?1:0)-(btn(12)?1:0);
+  if(inputMode!=='pad'&&(m>=.2||p.buttons.some((b,i)=>btn(i)))){padType=padKind(p.id);setMode('pad')}
+  padVec.set(0,0,0);
+  if(!$('#intro').hidden){if(press(0)||press(9))$('#goBtn').click()}
+  else if(sheetTab){
+    const v=dy||(Math.abs(ly)>.55?Math.sign(ly):0);navT-=dt;
+    if(v&&(v!==navLast||navT<=0)){moveFocus(v);navT=v===navLast?.14:.38}navLast=v;
+    if(press(0))activateFocus();if(press(1))closeSheet();if(press(4))cycleTab(-1);if(press(5))cycleTab(1);
+    if(press(3))toggleTab('station');if(press(2))toggleTab('ship');if(press(9))toggleTab('map')}
+  else{padVec.set(lx+dx,0,ly+dy);if(padVec.lengthSq()>1)padVec.normalize();
+    if(press(0)||press(7))mineNearest();if(press(1))goHome();if(press(3))openSheet('station');if(press(2))openSheet('ship');if(press(9))openSheet('map')}
+  const ry=p.axes[3]||0;if(Math.abs(ry)>.2)zoom=clamp(zoom*(1+ry*dt*1.2),.55,1.7);
+  padPrev=p.buttons.map((b,i)=>btn(i))}
 
 /* ---------- UI ---------- */
 function toast(msg,big){const el=document.createElement('div');el.className='toast'+(big?' big':'');el.textContent=msg;const box=$('#toasts');box.appendChild(el);
   while(box.children.length>3)box.firstChild.remove();setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400)},big?4200:2400)}
 function bump(sel){const el=$(sel).parentElement;el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse')}
-let hudT=0;
-function updateHUD(){const s=cur();const inf=influence(s);
+let hudT=0,lastHint='';
+function say(a){const g=G();
+  const T={home:[`stlač <kbd>${g.B}</kbd>`,'stlač <kbd>H</kbd>','ťukni Domov'],
+    mine:[`stlač <kbd>${g.A}</kbd>`,'stlač <kbd>medzerník</kbd>','ťukni na asteroid'],
+    station:[`stlač <kbd>${g.Y}</kbd>`,'stlač <kbd>1</kbd>','otvor Stanica'],
+    map:[`stlač <kbd>${g.M}</kbd>`,'stlač <kbd>3</kbd>','otvor Mapu'],
+    fly:['leť ľavou páčkou','leť cez <kbd>WASD</kbd>','leť']}[a];
+  return inputMode==='pad'?T[0]:inputMode==='key'?T[1]:T[2]}
+const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
+function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const ptr=inputMode!=='pad'&&inputMode!=='key';
   $('#secName').textContent=SECTORS[state.cur].name;
   const tag=$('#secTag');tag.textContent=s.captured?'Obsadený':'Neobsadený';tag.classList.toggle('won',s.captured);
   const ib=$('#infBar');ib.style.width=Math.min(100,inf/CAPTURE*100)+'%';ib.classList.toggle('won',s.captured);
@@ -555,19 +700,27 @@ function updateHUD(){const s=cur();const inf=influence(s);
   $('#oreTxt').textContent=Math.floor(state.ore);$('#cryTxt').textContent=Math.floor(state.crystal);
   const capV=shipVal('cargo');$('#cOre').style.width=(state.cargo.ore/capV*100)+'%';$('#cCry').style.width=(state.cargo.crystal/capV*100)+'%';
   $('#cargoTxt').textContent=`${Math.floor(cargoTotal())}/${Math.round(capV)}`;$('#cargo').classList.toggle('full',cargoTotal()>=capV-.01);
-  let h;const full=cargoTotal()>=capV-.01;
-  if(full)h='Náklad je plný. Ťukni Domov a vylož ho na stanici.';
+  const hm=shipVal('hull'),hp=Math.max(0,state.hp),hr=hp/hm;const hb=$('#hpBar');hb.style.width=(hr*100)+'%';hb.className=hr<.3?'low':hr<.6?'mid':'';
+  $('#hpTxt').textContent=`${Math.ceil(hp)}/${hm}`;
+  const rg=$('#regenTxt');if(hp>=hm-.01){rg.textContent='';rg.className='regen'}
+  else if(sinceHit<10){rg.textContent=`oprava o ${Math.ceil(10-sinceHit)} s`;rg.className='regen'}else{rg.textContent='opravuje sa';rg.className='regen on'}
+  $('#hurt').classList.toggle('low',!dead&&hr<.3);
+  let h;const full=cargoTotal()>=capV-.01;const g=G();
+  if(dead)h='Loď zničená. Pripravuje sa nová…';
+  else if(sheetTab&&inputMode==='pad')h=`<kbd>↑</kbd><kbd>↓</kbd> výber · <kbd>${g.A}</kbd> potvrdiť · <kbd>${g.LB}</kbd><kbd>${g.RB}</kbd> karty · <kbd>${g.B}</kbd> zavrieť`;
+  else if(full)h=`Náklad je plný. ${cap1(say('home'))} a vylož ho na stanici.`;
   else if(mining)h=`Ťažím ${mineTarget&&mineTarget.type==='crystal'?'kryštály':'rudu'}… ${Math.floor(cargoTotal())}/${Math.round(capV)} t`;
   else if(mineTarget)h='Letím k asteroidu…';
-  else if(cargoTotal()>0)h='Ťukni na ďalší asteroid, alebo leť Domov vyložiť náklad.';
-  else if(s.captured&&state.cur<SECTORS.length-1&&!state.sec[state.cur+1].captured)h='Sektor je tvoj. Otvor Mapu alebo leť do skokovej brány.';
-  else if(inf<CAPTURE&&(state.ore>=40))h='Máš suroviny. Otvor Stanica a postav modul.';
-  else h='Ťukni na asteroid na okraji sektora a začni ťažiť.';
-  $('#hint').textContent=h}
+  else if(hr<.3)h='Trup je vážne poškodený. Vyhni sa nárazom, kým sa neopraví.';
+  else if(cargoTotal()>0)h=ptr?'Ťukni na ďalší asteroid, alebo leť Domov vyložiť náklad.':`Ťaž ďalej (${say('mine')}) alebo ${say('home')} a vylož náklad.`;
+  else if(s.captured&&state.cur<SECTORS.length-1&&!state.sec[state.cur+1].captured)h=`Sektor je tvoj. ${cap1(say('map'))} alebo leť do skokovej brány.`;
+  else if(inf<CAPTURE&&state.ore>=40)h=`Máš suroviny. ${cap1(say('station'))} a postav modul.`;
+  else h=ptr?'Ťukni na asteroid na okraji sektora a začni ťažiť.':`${cap1(say('fly'))} k asteroidu na okraji sektora a ${say('mine')}.`;
+  if(h!==lastHint){lastHint=h;$('#hint').innerHTML=h}}
 
 let sheetTab=null;
 const sheet=$('#sheet'),body=$('#sheetBody');
-function openSheet(tab){sheetTab=tab;sheet.hidden=false;renderSheet();document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab))}
+function openSheet(tab){if(sheetTab!==tab)focusIdx=0;sheetTab=tab;sheet.hidden=false;renderSheet();document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab))}
 function closeSheet(){sheetTab=null;sheet.hidden=true;document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.remove('on'))}
 function costHtml(c){let h='';if(c.ore)h+=`<span class="cost ore" data-need-ore="${c.ore}"><span class="gem"></span>${c.ore}</span>`;
   if(c.crystal)h+=`<span class="cost cry" data-need-cry="${c.crystal}"><span class="gem"></span>${c.crystal}</span>`;return h||'<span class="cost">zdarma</span>'}
@@ -585,13 +738,13 @@ function renderSheet(){if(!sheetTab)return;const s=cur();let h='';
     for(const k of Object.keys(MOD)){const md=MOD[k];const cnt=countMod(s,k);const c=md.cost(cnt);
       h+=`<div class="card"><h3>${md.name} <span class="lv">${cnt}× · +${md.inf} vplyv</span></h3>${actBtn('mod',free<0?'Bez slotu':'Postaviť',c,free<0,`data-mod="${k}"`)}<div class="costs">${costHtml(c)}</div><p>${md.desc}</p></div>`}
     h+=`<p class="note">${s.captured?`Sektor je obsadený. Jeho drony a senzory ti budú posielať suroviny, aj keď budeš inde.`:`Vplyv sektora ${inf} / ${CAPTURE}. Pri ${CAPTURE} sektor obsadíš a odomkneš ďalší.`}</p>`}
-  else if(sheetTab==='ship'){$('#sheetTitle').textContent='Loď · Prieskumník';
+  else if(sheetTab==='ship'){$('#sheetTitle').textContent='Loď · Klepeto';
     for(const k of Object.keys(SHIPUP)){const u=SHIPUP[k];const L=state.ship[k];
       h+=`<div class="card"><h3>${u.name} <span class="lv">ÚR ${L}/${SHIP_MAX}</span></h3>`;
       if(L<SHIP_MAX){const c=u.cost(L);h+=actBtn('ship','Vylepšiť',c,false,`data-k="${k}"`)+`<div class="costs">${costHtml(c)}</div><p>${u.desc}</p><div class="stat">${u.fmt(u.val(L))} → <em>${u.fmt(u.val(L+1))}</em></div>`}
       else h+=`<button class="act max" disabled>Max</button><p>${u.desc}</p><div class="stat"><em>${u.fmt(u.val(L))}</em></div>`;
       h+='</div>'}
-    h+=`<p class="note">Kryštály sa ťažia polovičnou rýchlosťou. Útočné lode a krížniky prídu v ďalšom prototype.</p>`}
+    h+=`<p class="note">Integrita trupu ${Math.ceil(state.hp)}/${shipVal('hull')}. Oprava začne 10 s po poslednom náraze. Kryštály sa ťažia polovičnou rýchlosťou.</p>`}
   else if(sheetTab==='map'){$('#sheetTitle').textContent='Mapa sektorov';
     SECTORS.forEach((S,i)=>{const sc=state.sec[i];const here=i===state.cur;
       const chip=here?'<span class="chip here">Tu si</span>':sc.captured?'<span class="chip won">Obsadený</span>':sc.unlocked?'<span class="chip">Voľný</span>':'<span class="chip">Zamknutý</span>';
@@ -604,11 +757,21 @@ function renderSheet(){if(!sheetTab)return;const s=cur();let h='';
       if(inc&&(inc.ore>0||inc.crystal>0))h+=`<div class="stat">Pasívny príjem: <em>+${Math.round(inc.ore*60)} rudy</em>, <em>+${Math.round(inc.crystal*60)} kryštálov</em> za minútu</div>`;
       h+='</div>'});
     h+=`<p class="note">Postup sa ukladá v tomto prehliadači.</p><button class="ghost danger" id="resetBtn">Začať odznova</button>`}
-  body.innerHTML=h;refreshSheet()}
+  body.innerHTML=h;refreshSheet();applyFocus()}
 function refreshSheet(){if(!sheetTab)return;
   body.querySelectorAll('[data-need-ore]').forEach(el=>el.classList.toggle('lack',state.ore<+el.dataset.needOre));
   body.querySelectorAll('[data-need-cry]').forEach(el=>el.classList.toggle('lack',state.crystal<+el.dataset.needCry));
   body.querySelectorAll('.act[data-ore]').forEach(b=>{b.disabled=b.dataset.block==='1'||state.ore<+b.dataset.ore||state.crystal<+b.dataset.cry})}
+let focusIdx=0;const TABS=['station','ship','map'];
+function toggleTab(t){sheetTab===t?closeSheet():openSheet(t)}
+function cycleTab(d){const i=TABS.indexOf(sheetTab);openSheet(TABS[(i+d+TABS.length)%TABS.length])}
+function focusables(){return[...body.querySelectorAll('.act,.ghost')]}
+function applyFocus(){body.querySelectorAll('.pad-focus').forEach(el=>el.classList.remove('pad-focus'));if(inputMode!=='pad'||!sheetTab)return;
+  const f=focusables();if(!f.length)return;focusIdx=clamp(focusIdx,0,f.length-1);const el=f[focusIdx];const box=el.closest('.card')||el;
+  box.classList.add('pad-focus');box.scrollIntoView({block:'nearest',behavior:'smooth'})}
+function moveFocus(v){focusIdx+=v;applyFocus()}
+function activateFocus(){const el=focusables()[focusIdx];if(!el)return;if(!el.disabled){el.click();return}
+  if(el.dataset.block==='1')toast('Žiadny voľný slot. Vylepši jadro stanice.');else if(el.dataset.ore)toast('Na toto ti chýbajú suroviny.')}
 let resetArm=0;
 body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   if(b.id==='resetBtn'){if(performance.now()-resetArm<3000){try{localStorage.removeItem(SAVE_KEY)}catch(_){}state=freshState();state.intro=true;closeSheet();jumpTo(0,true);toast('Nová hra');return}
@@ -616,7 +779,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   const act=b.dataset.act;if(!act||b.disabled)return;const s=cur();
   if(act==='core'){const c=coreCost(s.core);if(s.core<CORE_MAX&&afford(c)){pay(c);s.core++;rebuildStation();toast(`Jadro stanice: úroveň ${s.core}`);changed()}}
   else if(act==='mod'){const k=b.dataset.mod;const i=freeSlot(s);const c=MOD[k].cost(countMod(s,k));if(i>=0&&afford(c)){pay(c);s.slots[i]=k;rebuildStation();toast(`${MOD[k].name} postavený`);changed()}}
-  else if(act==='ship'){const k=b.dataset.k;const L=state.ship[k];const c=SHIPUP[k].cost(L);if(L<SHIP_MAX&&afford(c)){pay(c);state.ship[k]++;toast(`${SHIPUP[k].name}: úroveň ${state.ship[k]}`);changed()}}
+  else if(act==='ship'){const k=b.dataset.k;const L=state.ship[k];const c=SHIPUP[k].cost(L);if(L<SHIP_MAX&&afford(c)){pay(c);state.ship[k]++;if(k==='hull')state.hp+=30;toast(`${SHIPUP[k].name}: úroveň ${state.ship[k]}`);changed()}}
   else if(act==='jump'){closeSheet();jumpTo(+b.dataset.i)}});
 function changed(){checkCapture();save();renderSheet();updateHUD()}
 function checkCapture(){const s=cur();if(!s.captured&&influence(s)>=CAPTURE){s.captured=true;const nx=state.sec[state.cur+1];if(nx)nx.unlocked=true;rebuildStation();updateGate();
@@ -633,8 +796,7 @@ function jumpTo(i,instant){if(jumping)return;jumping=true;const w=$('#warp');w.c
 
 document.querySelectorAll('.dock [data-tab]').forEach(b=>b.addEventListener('click',()=>{sheetTab===b.dataset.tab?closeSheet():openSheet(b.dataset.tab)}));
 $('#sheetClose').addEventListener('click',closeSheet);
-$('#homeBtn').addEventListener('click',()=>{closeSheet();cmdHome();toast('Kurz na stanicu')});
-addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+$('#homeBtn').addEventListener('click',goHome);
 $('#goBtn').addEventListener('click',()=>{state.intro=true;$('#intro').hidden=true;save();canvas.focus()});
 
 /* ---------- loop ---------- */
@@ -644,7 +806,9 @@ function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);c
 addEventListener('resize',resize);
 const clock=new THREE.Clock();let saveT=0,incomeT=0,t=0;
 function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.05);t+=dt;
-  if(!jumping){tickShip(dt,t);tickDrones(dt,t)}
+  pollPad(dt);readInput();
+  if(!jumping&&!dead)tickShip(dt,t);if(!jumping)tickDrones(dt,t);
+  sinceHit+=dt;hitCD-=dt;{const hm=shipVal('hull');if(!dead&&sinceHit>=10&&state.hp<hm)state.hp=Math.min(hm,state.hp+hm*.08*dt)}
   for(const a of asts){
     if(a.alive){a.g.rotation.x+=a.spin.x*dt;a.g.rotation.y+=a.spin.y*dt;a.g.rotation.z+=a.spin.z*dt;if(a.shrink<1){a.shrink=Math.min(1,a.shrink+dt*.8);setAstScale(a)}}
     else{if(a.g.visible){a.shrink-=dt*3;if(a.shrink<=0){a.shrink=0;a.g.visible=false}else setAstScale(a)}
@@ -660,14 +824,15 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
   incomeT+=dt;if(incomeT>=1){incomeT=0;let gotC=false;state.sec.forEach((sc,i)=>{if(i!==state.cur&&sc.captured){const p=passiveOf(sc);state.ore+=p.ore;state.crystal+=p.crystal;if(p.crystal)gotC=true}});refreshSheet()}
   // camera
   const look=ship.position.clone().addScaledVector(shipVel,.35);look.y=0;camTarget.lerp(look,1-Math.exp(-dt*3.5));
-  camera.position.set(camTarget.x,52*zoom,camTarget.z+36*zoom);camera.lookAt(camTarget.x,0,camTarget.z);
+  const sx=shake>0?(Math.random()-.5)*shake*1.6:0,sz=shake>0?(Math.random()-.5)*shake*1.6:0;shake=Math.max(0,shake-dt*2.2);
+  camera.position.set(camTarget.x+sx,52*zoom,camTarget.z+36*zoom+sz);camera.lookAt(camTarget.x+sx*.5,0,camTarget.z+sz*.5);
   hudT-=dt;if(hudT<=0){hudT=.12;updateHUD()}
   saveT+=dt;if(saveT>6){saveT=0;save()}
   renderer.render(scene,camera)}
 
 addEventListener('visibilitychange',()=>{if(document.hidden)save()});
 window.claude?.hot?.snapshot?.(()=>({state}));
-function start(data){state=(data&&data.state)||loadState()||freshState();
+function start(data){state=(data&&data.state)||loadState()||freshState();migrate(state);
   if(state.intro)$('#intro').hidden=true;
   resize();buildSector();ship.position.set(0,0,STATION_R+8);camTarget.copy(ship.position);updateHUD();frame()}
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
