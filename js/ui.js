@@ -71,7 +71,7 @@ function upCard(k){const u=UP[k];const L=state.ship[k];
   if(L<u.max){const c=u.cost(L);h+=actBtn('ship',k==='shield'&&L===0?t('btn.buy'):t('btn.upgrade'),c,false,`data-k="${k}"`)+`<div class="costs">${costHtml(c)}</div><p>${t('up.'+k+'.d')}</p><div class="stat">${fmtUp(k,L)} → <em>${fmtUp(k,L+1)}</em></div>`}
   else h+=`<button class="act max" disabled>${t('btn.max')}</button><p>${t('up.'+k+'.d')}</p><div class="stat"><em>${fmtUp(k,L)}</em></div>`;
   return h+'</div>'}
-function repairCard(){const hm=shipVal('hull');const cost=Math.ceil((hm-state.hp)/2);const near=nearStation();
+function repairCard(){const hm=shipVal('hull');const cost=Math.ceil((hm-state.hp)/REPAIR_PER_ORE);const near=nearStation();
   return `<div class="card"><h3>${t('rep.name')}</h3><button class="act" data-act="repair" data-ore="1" data-green="0" data-cry="0" data-block="${near?0:1}">${t('btn.repair')}</button><div class="costs">${costHtml(C(cost))}</div><p>${near?t('rep.desc'):t('rep.far')}</p><div class="stat">${t('rep.stat',{a:Math.ceil(state.hp),b:hm})}</div></div>`}
 /* sheetTab: 'station' | 'ship' | 'map' | 'gate'. Tlačidlá majú data-act (čo urobiť) a ceny v data-ore/data-green/data-cry;
    kliknutia spracúva jeden spoločný poslucháč nižšie (body.addEventListener('click', ...)). */
@@ -146,8 +146,8 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(act==='lang'){setLang(b.dataset.l);return}
   if(act==='opt'){const k=b.dataset.k,v=b.dataset.v==='1';if(k==='autoPilot'){if(!!state.autoPilot!==v)toggleAutopilot();return}state[k]=v;save();renderSheet();return}
   if(act==='ares'){state.autoRes=b.dataset.r;save();renderSheet();if(state.autoPilot)toast(t('tt.apOn',{r:t('res.'+state.autoRes)}));return}
-  if(act==='repair'){if(!nearStation()){toast(t('rep.far'));return}const hm=shipVal('hull');const need=Math.ceil((hm-state.hp)/2);const n=Math.min(need,Math.floor(state.ore));
-    if(n<=0)return;state.ore-=n;const before=state.hp;state.hp=Math.min(hm,state.hp+n*2);toast(t('tt.repaired',{n:Math.round(state.hp-before)}));changed();return}
+  if(act==='repair'){if(!nearStation()){toast(t('rep.far'));return}const hm=shipVal('hull');const need=Math.ceil((hm-state.hp)/REPAIR_PER_ORE);const n=Math.min(need,Math.floor(state.ore));
+    if(n<=0)return;state.ore-=n;const before=state.hp;state.hp=Math.min(hm,state.hp+n*REPAIR_PER_ORE);toast(t('tt.repaired',{n:Math.round(state.hp-before)}));changed();return}
   if(act==='sell'){const i=+b.dataset.i;const k=s.slots[i];if(!k)return;
     if(!b.dataset.arm||performance.now()-(+b.dataset.arm)>3000){b.dataset.arm=performance.now();b.textContent=t('btn.sellSure');setTimeout(()=>{if(b.isConnected)b.textContent=t('btn.sell')},3000);return}
     const r=refundOf(s,k);s.slots[i]=null;const parts=[];for(const x of RES){state[x]+=r[x];if(r[x])parts.push(t('res.'+x+'.gain',{n:r[x]}))}
@@ -188,9 +188,9 @@ function renderIntro(){$('#introBox').innerHTML=`<div class="intro-top"><div cla
   <h1>Orbitálne Sektory</h1><ol>${[1,2,3,4,5,6].map(i=>`<li>${t('in.'+i)}</li>`).join('')}</ol>
   <div class="sec-h"><span>${t('in.diff')}</span></div>
   <div class="diffs">${['easy','hard'].map(d=>`<button class="diff ${d}" data-d="${d}" aria-pressed="${pendingDiff===d}"><b>${t('diff.'+d)}</b><span>${t('diff.'+d+'D')}</span></button>`).join('')}</div>
-  <button class="go" id="goBtn">${t('in.go')}</button>`}
+  <button class="go" id="goBtn">${t('in.go')}</button><button class="ghost" id="introWiki" style="justify-self:center">${t('dock.wiki')}</button>`}
 $('#introBox').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-  if(b.dataset.l){setLang(b.dataset.l);return}if(b.dataset.d){pendingDiff=b.dataset.d;renderIntro();return}if(b.id==='goBtn')startGame()});
+  if(b.dataset.l){setLang(b.dataset.l);return}if(b.dataset.d){pendingDiff=b.dataset.d;renderIntro();return}if(b.id==='goBtn')startGame();if(b.id==='introWiki')openWiki()});
 function startGame(){state.diff=pendingDiff;state.intro=true;state.hp=shipVal('hull');$('#intro').hidden=true;save();lastHint='';updateHUD();canvas.focus()}
 function newGame(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}state=freshState();closeSheet();for(const a of asts)a.claims=0;
   dead=false;ship.visible=true;hullSince=99;shSince=99;pendingDiff='easy';$('#intro').hidden=false;renderIntro();jumpTo(0,true);toast(t('tt.newGame'))}
@@ -198,3 +198,4 @@ function newGame(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}state=freshSt
 document.querySelectorAll('.dock [data-tab]').forEach(b=>b.addEventListener('click',()=>toggleTab(b.dataset.tab)));
 $('#sheetClose').addEventListener('click',closeSheet);
 $('#homeBtn').addEventListener('click',goHome);
+$('#wikiBtn').addEventListener('click',()=>openWiki());

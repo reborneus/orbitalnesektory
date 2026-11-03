@@ -59,8 +59,10 @@ function drawMini(){const W=mini.width,c=W/2,R=c-1,k=R/MINI_R,u=W/150;const g=mc
 
 /* keyboard */
 const keys=new Set();const MOVE_KEYS=['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'];
-addEventListener('keydown',e=>{const k=e.key.toLowerCase();const inUI=e.target.closest&&e.target.closest('#sheet,.intro');
-  if(k==='escape'){closeSheet();return}
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();const inUI=e.target.closest&&e.target.closest('#sheet,.intro,#wiki');
+  if(k==='escape'){if(wikiOpen())closeWiki();else closeSheet();return}
+  if(e.target.tagName==='INPUT'||wikiOpen())return; // písanie do vyhľadávania v príručke nesmie hýbať loďou
+  if(k==='k'&&!e.repeat){openWiki();return}
   if(MOVE_KEYS.includes(k)){if(inUI&&k.startsWith('arrow'))return;if(!$('#intro').hidden)return;keys.add(k);setMode('key');e.preventDefault();return}
   if(e.repeat||inUI)return;
   if(k===' '){e.preventDefault();if(document.activeElement&&document.activeElement!==canvas)document.activeElement.blur();setMode('key');mineNearest()}
@@ -96,6 +98,7 @@ function pollPad(dt){let pads=[];try{pads=navigator.getGamepads?navigator.getGam
   const dx=(btn(15)?1:0)-(btn(14)?1:0),dy=(btn(13)?1:0)-(btn(12)?1:0);
   if(inputMode!=='pad'&&(m>=.2||p.buttons.some((b,i)=>btn(i)))){padType=padKind(p.id);setMode('pad')}
   padVec.set(0,0,0);
+  if(wikiOpen()){const m=$('#wikiMain');if(m)m.scrollTop+=(ly+dy)*dt*900;if(press(1)||press(9))closeWiki();if(press(4))wikiStep(-1);if(press(5))wikiStep(1);padPrev=p.buttons.map((b,i)=>btn(i));return}
   if(!$('#intro').hidden){
     if(press(14)){pendingDiff='easy';renderIntro()}if(press(15)){pendingDiff='hard';renderIntro()}
     if(press(2))setLang(lang==='sk'?'en':'sk');if(press(0)||press(9))startGame()}

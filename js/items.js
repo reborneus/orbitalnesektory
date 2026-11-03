@@ -62,7 +62,10 @@ const MF_ZONE={1:0,2:0,3:.25,4:.5,5:.6};
 const ILVL_ZONE={1:0,2:1,3:4,4:7,5:9};
 
 /* Losovanie rarity: vyššie rarity dostanú tým väčšie zvýhodnenie, čím je mf vyššie. minR = najnižšia povolená rarita. */
-function rollRarity(mf,minR=0){const w=RAR.map((R,i)=>i<minR?0:R.w*Math.pow(1+mf,Math.max(0,i-3)*.35));
+function rarityWeights(mf,minR=0){return RAR.map((R,i)=>i<minR?0:R.w*Math.pow(1+mf,Math.max(0,i-3)*.35))}
+/* Presné pravdepodobnosti rarít (súčet 1) – používa ich aj príručka. */
+function rarityProbs(mf,minR=0){const w=rarityWeights(mf,minR);const sum=w.reduce((a,b)=>a+b,0);return w.map(x=>x/sum)}
+function rollRarity(mf,minR=0){const w=rarityWeights(mf,minR);
   let x=Math.random()*w.reduce((a,b)=>a+b,0);for(let i=0;i<w.length;i++){x-=w[i];if(x<=0)return i}return w.length-1}
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const pick=a=>a[Math.floor(Math.random()*a.length)];

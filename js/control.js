@@ -53,7 +53,7 @@ function impactHit(impact,x,z,a){const k=clamp(impact/22,.15,1);shake=Math.max(s
   const n=Math.round(5+impact*.5);
   for(let i=0;i<n;i++)emit(debris,_c.set(x,.4,z),Math.random()<.5?'#ffe2a8':RCOL[a.type],.35+Math.random()*.35,
     new V3((Math.random()-.5)*(6+impact),Math.random()*4,(Math.random()-.5)*(6+impact)));
-  if(hitCD>0)return;hitCD=.3;const dmg=(impact-2)*1.5*(1-bonus().coll/100);if(dmg<=0)return;
+  if(hitCD>0)return;hitCD=COLL.cooldown;const dmg=(impact-COLL.minSpeed)*COLL.perMs*(1-bonus().coll/100);if(dmg<=0)return;
   const o=damage(dmg,'hit');if(o.hull>0)hurtFlash(k);if(o.shield>0)bubbleT=1}
 function hurtFlash(k){const h=$('#hurt');h.style.setProperty('--k',(.35+k*.6).toFixed(2));h.classList.remove('on');void h.offsetWidth;h.classList.add('on')}
 function destroyShip(){dead=true;mineTarget=null;moveTarget=null;hideBeam(beam);shake=1;rumble(1,600);
@@ -77,7 +77,7 @@ function tickAuto(dt){autoPause-=dt;apNoneT-=dt;
   if(hr<.35&&!nearStation()){if(!apHurtSent&&!homeBound()){cmdHome();apHurtSent=true;toast(t('tt.apHurt'))}return}
   apHurtSent=false;
   if(nearStation()&&hr<.7){
-    if(!D().regen){const n=Math.min(Math.ceil((hm-state.hp)/2),Math.floor(state.ore));if(n>0){state.ore-=n;state.hp=Math.min(hm,state.hp+n*2);toast(t('tt.repaired',{n:n*2}))}}
+    if(!D().regen){const n=Math.min(Math.ceil((hm-state.hp)/REPAIR_PER_ORE),Math.floor(state.ore));if(n>0){state.ore-=n;state.hp=Math.min(hm,state.hp+n*REPAIR_PER_ORE);toast(t('tt.repaired',{n:n*REPAIR_PER_ORE}))}}
     if(state.hp/hm<.7)return}
   // korisť v okolí: autopilot ju najprv pozbiera
   if(!mineTarget&&state.inv.length<INV_MAX){const L=nearestLoot(70);if(L){if(!moveTarget||moveTarget.distanceTo(L.g.position)>1.5)moveTarget=L.g.position.clone().setY(0);return}}
@@ -88,7 +88,8 @@ function tickAuto(dt){autoPause-=dt;apNoneT-=dt;
   if(best)cmdMine(best);else if(apNoneT<=0){apNoneT=12;toast(t('tt.apNone',{r:t('res.'+state.autoRes)}))}}
 /* Radiácia v bodoch za sekundu podľa vzdialenosti r od stanice: v pásoch 3–4 rastie z 0,8 na 3,5; za horizontom 12 a viac. */
 /* Radiačný filter a podobné vlastnosti predmetov (bonus().rad) znižujú radiáciu v pásoch 3–4, za horizontom nie. */
-function radAt(r){if(r<Z2)return 0;if(r<HORIZON)return(.8+(r-Z2)/(HORIZON-Z2)*2.7)*D().rad*(1-bonus().rad/100);return(12+(r-HORIZON)*.35)*D().voidM}
+function radBase(r){if(r<Z2)return 0;if(r<HORIZON)return RAD.start+(r-Z2)/(HORIZON-Z2)*(RAD.end-RAD.start);return RAD.voidBase+(r-HORIZON)*RAD.voidPerM}
+function radAt(r){const b=radBase(r);if(r<HORIZON)return b*D().rad*(1-bonus().rad/100);return b*D().voidM}
 const zoneOf=r=>r<Z1?1:r<Z2?2:r<Z3?3:r<HORIZON?4:5;
 
 /* Pohyb lode každý snímok: loď mení rýchlosť smerom k želanej rýchlosti najviac o hodnotu zrýchlenia (preto má zotrvačnosť). */

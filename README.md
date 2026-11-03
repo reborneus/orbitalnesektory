@@ -14,6 +14,7 @@ Webový prototyp (Three.js) – otvor `index.html` v prehliadači.
 - **v0.4.1** – skok do sektora iba cez skokovú bránu, Mapa je informatívna, oprava zaseknutia pri skoku počas ťažby
 - **v0.4.2** – vysvetlivky v kóde (obsah sekcií, popis herných hodnôt na ladenie balansu)
 - **v0.5** – kredity, predmety s 10 raritami (Odpad až Prvotné) a náhodnými vlastnosťami, výbava lode a inventár, vylepšovanie +1 až +20, zlaté relikty s korisťou, vylepšenia lode do úrovne 10, hra rozdelená na súbory
+- **v0.5.1** – príručka (wiki) v hre aj ako stránka `wiki.html`, ikona hry, spúšťač s výberom priečinka
 
 ## Úpravy kódu
 Hra je rozdelená na súbory: `index.html` (kostra stránky), `css/style.css` (vzhľad) a `js/*.js` (logika). Prehľad súborov je v `js/README.txt`.
@@ -23,6 +24,9 @@ Na sekciu v kóde skočíš hľadaním `== 1.` až `== 12.`.
 `python3 build.py` poskladá všetko do jedného súboru `dist/orbitalne-sektory.html` (dá sa otvoriť dvojklikom aj bez internetu na súbory hry).
 `version.json` obsahuje číslo aktuálnej verzie (používa ho spúšťací panel).
 
+**Príručka:** `js/wiki.js` – texty v objekte `WT` (SK/EN), tabuľky sa počítajú z herných dát. V hre ju otvorí tlačidlo *Wiki* alebo kláves **K**, samostatne `wiki.html`.
+**Ikona:** `assets/icon-*.png` a `assets/icon.ico`; nakreslí ich `node tools/make_icon.js` podľa `tools/icon.html`.
+
 ## Spúšťací panel pre Windows
 V priečinku `launcher/` je spúšťač pre testerov:
 1. Stiahni súbor **`launcher/Orbitalne-Sektory.bat`** (na GitHube otvor súbor a klikni na *Download raw file*) a ulož ho napríklad na plochu.
@@ -30,6 +34,6 @@ V priečinku `launcher/` je spúšťač pre testerov:
 3. Otvorí sa panel: ukáže nainštalovanú a najnovšiu verziu s novinkami, sám stiahne novú verziu a tlačidlom **ŠTART** spustí hru v samostatnom okne Edge (alebo Chrome).
 4. Tlačidlo *Odkaz na ploche* vytvorí odkaz „Orbitálne Sektory“.
 
-Hra sa inštaluje do `%LOCALAPPDATA%\OrbitalneSektory\hra`, uložené hry sú v `...\profil` a pri aktualizácii sa nemažú.
+Hra sa predvolene inštaluje do `%LOCALAPPDATA%\OrbitalneSektory\hra`; tlačidlom *Zmeniť…* vyberieš iný disk alebo priečinok (hra sa uloží do podpriečinka `Orbitalne Sektory`, existujúca inštalácia sa môže presunúť). Uložené hry sú vždy v `%LOCALAPPDATA%\OrbitalneSektory\profil` a pri aktualizácii ani presune sa nemažú. Tlačidlo *Príručka* otvorí wiki.
 Panel sťahuje súbory z GitHubu bez prihlásenia, preto musí byť repozitár **verejný**.
 Pri vydaní novej verzie treba zvýšiť číslo v `version.json` – podľa neho panel pozná, že je k dispozícii aktualizácia.

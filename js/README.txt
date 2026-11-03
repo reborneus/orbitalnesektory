@@ -12,6 +12,7 @@ SÚBORY HRY (načítavajú sa v tomto poradí, pozri index.html)
   input.js    == 8. VSTUP – dotyk/myš, minimapa, klávesnica, ovládač
   ui.js       == 9. ROZHRANIE – HUD, nápovedy, menu Stanica/Loď/Mapa/Brána, úvod
   gear.js     == 12. VÝBAVA – obrazovka inventára a predmetov
+  wiki.js     == 13. PRÍRUČKA – wiki v hre aj na stránke wiki.html, generovaná z herných dát
   main.js     == 10. HERNÁ SLUČKA – frame() každý snímok, start()
 
 Všetky súbory zdieľajú jeden spoločný priestor premenných (bežné <script>, nie moduly),

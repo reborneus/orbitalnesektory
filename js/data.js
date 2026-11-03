@@ -74,5 +74,14 @@ const DIFF={easy:{regen:true,rad:1,voidM:1,speed:1,yield:1},hard:{regen:false,ra
 const D=()=>DIFF[(state&&state.diff)||'easy'];
 /* Oprava trupu (len na ľahkej): začne HULL_DELAY sekúnd po poslednom poškodení, rýchlosťou HULL_RATE z maxima za sekundu. */
 const HULL_DELAY=30,HULL_RATE=.03;
+/* Oprava trupu na stanici: koľko bodov trupu opraví 1 ruda. */
+const REPAIR_PER_ORE=2;
+/* Radiácia (body za sekundu): v pásoch 3–4 rastie lineárne od start (na hranici Z2) po end (na horizonte);
+   za horizontom voidBase + voidPerM za každý meter navyše. Násobí sa obtiažnosťou (DIFF.rad / DIFF.voidM). */
+const RAD={start:.8,end:3.5,voidBase:12,voidPerM:.35};
+/* Nárazy: pod minSpeed m/s bez poškodenia, inak (rýchlosť − minSpeed) × perMs bodov; cooldown = min. čas medzi poškodeniami. */
+const COLL={minSpeed:2,perMs:1.5,cooldown:.3};
+/* Zber koristi: loď pritiahne predmety bližšie ako LOOT_RANGE m (+ vlastnosť Dosah zberu). */
+const LOOT_RANGE=8;
 /* Kľúč uloženej hry v prehliadači. Ak ho zmeníš, hra začne odznova (stará uložená hra sa ignoruje). */
 const SAVE_KEY='orbitalne-sektory-v3';

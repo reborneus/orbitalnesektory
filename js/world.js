@@ -189,7 +189,7 @@ function spawnLoot(it,pos){const g=new THREE.Group();const c=new THREE.Color(RAR
 function nearestLoot(maxD){let best=null,bd=maxD;for(const l of loot){const d=ship.position.distanceTo(l.g.position);if(d<bd){bd=d;best=l}}return best}
 function pickLoot(l){state.inv.push(l.it);world.remove(l.g);loot=loot.filter(x=>x!==l);invWarned=false;
   toast(t('tt.loot',{r:t('r.'+RAR[l.it.r].k),n:itemTitle(l.it)?'«'+itemTitle(l.it)+'» '+t('base.'+l.it.b):t('base.'+l.it.b)}),{rar:l.it.r});save();if(sheetTab==='gear')renderSheet()}
-function tickLoot(dt,tt){const mag=8+bonus().magnet;
+function tickLoot(dt,tt){const mag=LOOT_RANGE+bonus().magnet;
   for(const l of loot.slice()){const k=l.it.r;
     l.core.rotation.y+=dt*(1.2+k*.15);l.core.position.y=Math.sin(tt*2+l.ph)*.3;
     l.pil.material.opacity=(.18+k*.03)*(1+.35*Math.sin(tt*3+l.ph));

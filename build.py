@@ -11,6 +11,10 @@ def js(m):
     return '<script>\n' + open(os.path.join(root, m.group(1)), encoding='utf-8').read() + '</script>'
 out = re.sub(r'<link rel="stylesheet" href="(css/[^"]+)">', css, src)
 out = re.sub(r'<script src="(js/[^"]+)"></script>', js, out)
+import base64
+for name in ('icon-64.png', 'icon-256.png'):
+    data = base64.b64encode(open(os.path.join(root, 'assets', name), 'rb').read()).decode()
+    out = out.replace('assets/' + name, 'data:image/png;base64,' + data)
 if '--artifact' in sys.argv:
     head = out[out.index('<head>') + 6: out.index('</head>')]
     head = re.sub(r'<meta charset[^>]*>\s*|<meta name="viewport"[^>]*>\s*', '', head)

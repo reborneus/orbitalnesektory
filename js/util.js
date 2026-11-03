@@ -1,7 +1,7 @@
-/* Pomocné funkcie zdieľané všetkými súbormi. */
 'use strict';
+/* Pomocné funkcie zdieľané všetkými súbormi. (Samostatná príručka wiki.html sa načíta bez 3D knižnice, preto V3 môže byť prázdne.) */
 const $=s=>document.querySelector(s);
-const V3=THREE.Vector3;
+const V3=typeof THREE!=='undefined'?THREE.Vector3:null;
 const col=h=>new THREE.Color(h).convertSRGBToLinear();
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const TAU=Math.PI*2;
