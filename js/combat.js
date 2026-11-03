@@ -29,11 +29,12 @@ function makePirate(kind){const g=new THREE.Group();const body=new THREE.Group()
   const bar=new THREE.Mesh(BAR_GEO,new THREE.MeshBasicMaterial({color:new THREE.Color('#ff5a4a'),depthWrite:false}));bar.rotation.x=-Math.PI/2;bar.position.set(0,3.05,-2.6*sc);g.add(bar);
   const proxy=new THREE.Mesh(new THREE.SphereGeometry(2.6*sc,8,6),M.pick);g.add(proxy);
   return{g,body,bar,proxy}}
-function spawnRaid(){const c=raidCfg();if(!c)return;const n=c.count[0]+Math.floor(Math.random()*(c.count[1]-c.count[0]+1));const a0=Math.random()*TAU;
+/* force = spustiť nájazd aj v sektore bez pirátov (admin panel); vtedy sa použijú hodnoty 2. sektora */
+function spawnRaid(force){const c=raidCfg()||(force?PIRATES.raid[1]:null);if(!c)return;const si=Math.max(1,state.cur);const n=c.count[0]+Math.floor(Math.random()*(c.count[1]-c.count[0]+1));const a0=Math.random()*TAU;
   const kinds=[];for(let i=0;i<n;i++)kinds.push('fighter');if(Math.random()<c.corsair)kinds.push('corsair');
   kinds.forEach((kind,i)=>{const P=PIRATES[kind];const v=makePirate(kind);const a=a0+(i-kinds.length/2)*.09;
     v.g.position.set(Math.cos(a)*(LIMIT-35+Math.random()*10),2,Math.sin(a)*(LIMIT-35+Math.random()*10));world.add(v.g);
-    const e={...v,kind,hp:P.hp[state.cur],max:P.hp[state.cur],dmg:P.dmg[state.cur]*(state.diff==='hard'?PIRATES.hardDmg:1),speed:P.speed,range:P.range,fire:P.fire,r:P.r,
+    const e={...v,kind,hp:P.hp[si]||P.hp[2],max:P.hp[si]||P.hp[2],dmg:(P.dmg[si]||P.dmg[2])*(state.diff==='hard'?PIRATES.hardDmg:1),speed:P.speed,range:P.range,fire:P.fire,r:P.r,
       cd:1+Math.random()*2,vel:new V3(),aggro:false,leaving:false,orb:Math.random()<.5?1:-1,pos:v.g.position};
     v.proxy.userData.enemy=e;pickables.push(v.proxy);enemies.push(e)});
   raidActive=true;raidCount=kinds.length;toast(t('tt.raid',{n:kinds.length}),'bad');rumble(.4,300)}

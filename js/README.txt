@@ -16,6 +16,7 @@ SÚBORY HRY (načítavajú sa v tomto poradí, pozri index.html)
   gear.js     == 12. VÝBAVA – obrazovka inventára a predmetov
   station.js  == 15. PANEL STANICE – moduly, vylepšenie +10, čipy, predaj
   wiki.js     == 13. PRÍRUČKA – wiki v hre aj na stránke wiki.html, generovaná z herných dát
+  admin.js    == 17. ADMIN PANEL – testovanie (suroviny, nesmrteľnosť, predmety, postup)
   main.js     == 10. HERNÁ SLUČKA – frame() každý snímok, start()
 
 Všetky súbory zdieľajú jeden spoločný priestor premenných (bežné <script>, nie moduly),

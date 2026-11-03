@@ -14,7 +14,8 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
   // radiačný štít: pri stanici sa dobíja; v radiácii (alebo len za horizontom podľa nastavenia) ju úplne zachytí, kým má nabité sekundy
   const rsMax=shipVal('radShield');if(state.radCharge>rsMax)state.radCharge=rsMax;if(nearStation()&&state.radCharge<rsMax)state.radCharge=Math.min(rsMax,state.radCharge+RADSHIELD_RECHARGE*dt);
   if(!dead&&!jumping&&playing){radRate=radAt(rr);
-    if(radRate>0&&state.radCharge>0&&(state.radMode!=='void'||rr>=HORIZON)){radProt=true;state.radCharge=Math.max(0,state.radCharge-dt);if(state.radCharge<=0)toast(t('tt.radOut'),'bad')}
+    if(radRate>0&&state.admin&&state.admin.godRad){radProt=true}
+    else if(radRate>0&&state.radCharge>0&&(state.radMode!=='void'||rr>=HORIZON)){radProt=true;state.radCharge=Math.max(0,state.radCharge-dt);if(state.radCharge<=0)toast(t('tt.radOut'),'bad')}
     else if(radRate>0){const o=damage(radRate*dt,rr>=HORIZON?'void':'rad');radHull=o.hull>0}
     const z=zoneOf(rr);if(z!==lastZone){if(z===5)toast(t('tt.horizon'),'bad');else if(z>=3&&z>lastZone)toast(t('tt.rad',{z}));lastZone=z}}
   hullSince+=dt;shSince+=dt;hitCD-=dt;

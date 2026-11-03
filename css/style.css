@@ -370,3 +370,10 @@ body.pad .pg{display:block}
 .mtr span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mtr b{font-family:var(--f-data);font-size:11.5px;color:var(--rad);white-space:nowrap}
 .mtr.dim{opacity:.55}
+
+/* admin panel */
+.sec-name{pointer-events:auto}
+.card.adm{display:grid;grid-template-columns:1fr;gap:8px}
+.admrow{display:flex;flex-wrap:wrap;gap:6px}
+.admrar{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.admrar .itm{aspect-ratio:auto;padding:8px 2px}

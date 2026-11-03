@@ -1,7 +1,8 @@
 {
-  "version": "0.7.0",
+  "version": "0.7.1",
   "date": "2026-11-03",
   "notes": [
+    "Admin panel na testovanie (suroviny, nesmrteľnosť, predmety, postup v hre)",
     "Misie na stanici: dodávky, prieskum radiácie, stratené relikty, lov pirátov, obrana stanice – 3 stupne náročnosti",
     "Radiačný štít: časovo obmedzená úplná ochrana pred radiáciou aj za horizontom, dobíja sa pri stanici",
     "Sledovanie misií v paneli sektora, ciele na minimape a vo vesmíre",

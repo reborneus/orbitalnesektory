@@ -67,6 +67,7 @@ function drawMini(){const W=mini.width,c=W/2,R=c-1,k=R/MINI_R,u=W/150;const g=mc
 const keys=new Set();const MOVE_KEYS=['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'];
 addEventListener('keydown',e=>{const k=e.key.toLowerCase();const inUI=e.target.closest&&e.target.closest('#sheet,.intro,#wiki');
   if(k==='escape'){if(wikiOpen())closeWiki();else closeSheet();return}
+  if(e.ctrlKey&&e.shiftKey&&k==='f8'){e.preventDefault();toggleAdmin();return}   // skrytý admin panel
   if(e.target.tagName==='INPUT'||wikiOpen())return; // písanie do vyhľadávania v príručke nesmie hýbať loďou
   if(k==='k'&&!e.repeat){openWiki();return}
   if(MOVE_KEYS.includes(k)){if(inUI&&k.startsWith('arrow'))return;if(!$('#intro').hidden)return;keys.add(k);setMode('key');e.preventDefault();return}

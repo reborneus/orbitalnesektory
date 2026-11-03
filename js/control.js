@@ -36,8 +36,11 @@ function avoid(desired){const sp=desired.length();if(sp<.1)return;const dir=_a.c
 /* damage: shields absorb collisions and belt radiation first; past the horizon it hits the hull directly */
 /* kind: 'hit' = náraz, 'rad' = radiácia v pásoch (oboje najprv berie štíty), 'void' = za horizontom (priamo trup). */
 function damage(n,kind){const out={shield:0,hull:0};if(dead||n<=0)return out;
+  // admin panel: neobmedzené štíty zachytia všetko, neobmedzený trup neubúda
+  const ad=state.admin||{};if(ad.godShield){out.shield=n;return out}
   hullSince=0;shSince=0;
   if(kind!=='void'&&state.sh>0){const a=Math.min(state.sh,n);state.sh-=a;n-=a;out.shield=a}
+  if(n>0&&ad.godHull){hullSince=99;return out}
   if(n>0){state.hp-=n;out.hull=n;if(state.hp<=0){state.hp=0;destroyShip()}}
   return out}
 function blockedAt(p){for(const a of asts){if(!a.alive)continue;const ar=astScale(a)*.95+SHIP_R;

@@ -15,7 +15,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   // výdrž stanice: zobrazí sa v sektoroch s pirátmi alebo keď je stanica poškodená
   {const mh=stationMaxHp(),show=!!raidCfg()||stationHp<mh-1;$('#stRow').hidden=!show;if(show){$('#stBar').style.width=(Math.max(0,stationHp)/mh*100)+'%';$('#stBar').className=stationDown>0||stationHp<mh*.3?'low':'';$('#stTxt').textContent=stationDown>0?t('hud.down'):`${Math.ceil(Math.max(0,stationHp))}/${mh}`}}
   missionTracker();
-  const tag=$('#secTag');tag.textContent=s.captured?t('hud.won'):t('hud.unc');tag.classList.toggle('won',s.captured);
+  const tag=$('#secTag');tag.textContent=(s.captured?t('hud.won'):t('hud.unc'))+(godActive()?' · ADMIN':'');tag.classList.toggle('won',s.captured);
   const ib=$('#infBar');ib.style.width=Math.min(100,inf/cap*100)+'%';ib.classList.toggle('won',s.captured);
   $('#infTxt').textContent=s.captured?t('hud.infwon',{a:inf}):t('hud.inf',{a:inf,b:cap});
   $('#oreTxt').textContent=Math.floor(state.ore);$('#grnTxt').textContent=Math.floor(state.green);$('#cryTxt').textContent=Math.floor(state.crystal);$('#crTxt').textContent=Math.floor(state.credits);
@@ -29,7 +29,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   $('#hpTxt').textContent=`${Math.ceil(hp)}/${hm}`;
   // one status line: the most urgent thing about the ship
   const rr=Math.hypot(ship.position.x,ship.position.z);let st='',sc='status';
-  if(!dead&&radProt){st=t('st.radProt',{n:Math.ceil(state.radCharge)});sc+=' rad'}
+  if(!dead&&radProt){st=state.admin&&state.admin.godRad?(lang==='en'?'Radiation immunity (admin)':'Imunita voči radiácii (admin)'):t('st.radProt',{n:Math.ceil(state.radCharge)});sc+=' rad'}
   else if(!dead&&rr>=HORIZON){st=t('st.void',{n:radRate.toFixed(1)});sc+=' bad'}
   else if(!dead&&radRate>0){st=t('st.rad',{z:zoneOf(rr),n:radRate.toFixed(1)});sc+=radHull?' warn':' sh'}
   else if(hp<hm-.01){if(!D().regen){st=t('st.noRegen');sc+=' warn'}else if(hullSince<HULL_DELAY)st=t('st.hullIn',{n:Math.ceil(HULL_DELAY-hullSince)});else{st=t('st.hullOn');sc+=' ok'}}
@@ -89,6 +89,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     for(const k of Object.keys(UP))if(UP[k].grp===shipGrp)h+=upCard(k);
     if(shipGrp==='hull'&&state.hp<shipVal('hull')-.5)h+=repairCard();
     h+=`<p class="note">${t('note.ship',{a:Math.ceil(state.hp),b:shipVal('hull'),regen:D().regen?t('note.easy'):t('note.hard')})}</p>`}
+  else if(sheetTab==='admin'){$('#sheetTitle').textContent='Admin';h=renderAdmin()}
   else if(sheetTab==='gear'){$('#sheetTitle').textContent=t('sh.gear');h=renderGear()}
   else if(sheetTab==='map'||sheetTab==='gate'){const isGate=sheetTab==='gate';$('#sheetTitle').textContent=isGate?t('sh.gate'):t('sh.map');
     if(isGate)h+=`<p class="note">${t('gate.note')}</p>`;
@@ -135,6 +136,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(b.id==='resetBtn'){if(performance.now()-resetArm<3000){newGame();return}
     resetArm=performance.now();b.textContent=t('btn.resetSure');setTimeout(()=>{if(b.isConnected)b.textContent=t('btn.reset')},3000);return}
   const act=b.dataset.act;if(!act||b.disabled)return;const s=cur();
+  if(adminAct(act,b))return; // admin panel (admin.js)
   if(gearAct(act,b))return; // akcie obrazovky Výbava (gear.js)
   if(act==='grp'){shipGrp=b.dataset.g;focusIdx=GROUPS.indexOf(shipGrp);renderSheet();return}
   if(act==='lang'){setLang(b.dataset.l);return}
