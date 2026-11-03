@@ -1,10 +1,17 @@
 <title>Orbitálne Sektory</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<!--
+  ORBITÁLNE SEKTORY – celá hra je v tomto jednom súbore.
+  Poradie: 1) CSS štýly (vzhľad HUD a menu)  2) HTML (panely, menu, úvodná obrazovka)  3) JavaScript (logika hry).
+  3D grafika: knižnica three.js r128 načítaná z CDN (cdnjs). Písma: Google Fonts.
+  V JavaScripte je na začiatku obsah sekcií; každú sekciu nájdeš hľadaním textu "== 1." až "== 10.".
+-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Semi+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
 /* Layout: full-bleed 3D canvas; HUD glass strips pinned top (sector left, resources + minimap right) and bottom (hint + dock); menus as a bottom sheet. Single committed dark look. */
+/* Farby a písma: všetky farby rozhrania sú tu ako premenné (--ore = oranžová ruda, --green = viridit, --crystal = kryštály, --shield = štíty...). */
 :root{
   --void:#04070d;
   --panel:rgba(9,15,27,.78);
@@ -30,6 +37,7 @@ body{font-family:var(--f-display);font-size:15px;-webkit-tap-highlight-color:tra
 button{font:inherit;color:inherit}
 button:focus-visible{outline:2px solid var(--hull);outline-offset:2px}
 
+/* --- Horný HUD: vľavo panel sektora (vplyv), vpravo suroviny, náklad, štíty, trup a minimapa --- */
 .hud-top{position:fixed;left:0;right:0;top:0;z-index:5;pointer-events:none;
   padding-top:calc(env(safe-area-inset-top,0px) + 10px);padding-bottom:0;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
@@ -82,6 +90,7 @@ body.pad .pg{display:block}
 .pulse{animation:pulse .5s ease}
 @keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
 
+/* --- Krátke oznámenia (toasty) nad spodnou lištou --- */
 #toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 132px);z-index:6;display:grid;gap:6px;justify-items:center;align-content:end;pointer-events:none;width:min(92vw,440px)}
 .toast{padding:8px 14px;border-radius:8px;background:var(--panel-solid);border:1px solid var(--line);font-size:14px;font-weight:500;text-align:center;animation:tin .25s ease both}
 .toast.big{border-color:rgba(255,210,122,.5);color:var(--gold);font-weight:700;font-size:16px}
@@ -90,6 +99,7 @@ body.pad .pg{display:block}
 @keyframes tin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes tout{to{opacity:0;transform:translateY(6px)}}
 
+/* --- Spodný HUD: nápoveda a lišta tlačidiel Stanica / Loď / Mapa / Domov --- */
 .hud-bottom{position:fixed;left:0;right:0;bottom:0;z-index:5;pointer-events:none;display:grid;justify-items:center;gap:8px;
   padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px);padding-top:0;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -100,6 +110,7 @@ body.pad .pg{display:block}
 .dock button:hover,.dock button.on{color:var(--text);background:rgba(88,208,192,.10)}
 .dock button.on{color:var(--hull)}
 
+/* --- Vysúvacie menu zdola (Stanica, Loď, Mapa, Skoková brána); karty, tlačidlá, ceny --- */
 .sheet{position:fixed;z-index:8;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,560px);max-height:70%;display:flex;flex-direction:column;
   background:var(--panel-solid);border:1px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0;box-shadow:0 -20px 60px rgba(0,0,0,.6);animation:sheetIn .22s ease}
 @keyframes sheetIn{from{transform:translate(-50%,24px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
@@ -144,6 +155,7 @@ body.pad .pg{display:block}
 .langb[aria-pressed="true"]{background:rgba(88,208,192,.16);color:var(--hull)}
 .card .langs{grid-column:2;grid-row:1}
 
+/* --- Úvodná obrazovka: návod, výber jazyka a obtiažnosti --- */
 .intro{position:fixed;inset:0;z-index:10;display:grid;place-items:center;overflow:auto;background:radial-gradient(ellipse at 50% 40%,rgba(4,7,13,.55),rgba(4,7,13,.92));
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px}
 .intro .box{width:min(100%,440px);display:grid;gap:14px;padding:22px 20px}
@@ -163,6 +175,7 @@ body.pad .pg{display:block}
 .warp{position:fixed;inset:0;z-index:9;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 50%,#e9fffb 0,#58d0c0 18%,rgba(4,7,13,.95) 60%);transition:opacity .45s ease}
 .warp.on{opacity:1}
 @media (prefers-reduced-motion:reduce){.toast,.sheet,.pulse{animation:none}.warp,#radv{transition:none}}
+/* --- Úpravy pre mobil (úzka obrazovka) --- */
 @media (max-width:600px){
   .sector{flex-basis:100%;max-width:none}
   .rcol{flex:1 1 100%;align-items:stretch}
@@ -172,8 +185,10 @@ body.pad .pg{display:block}
 }
 </style>
 
+<!-- 3D plátno hry (celá obrazovka) -->
 <canvas id="c" tabindex="0" aria-label="Sector"></canvas>
 
+<!-- Horný HUD; texty s atribútom data-t sa plnia z prekladov (L10N) podľa jazyka -->
 <div class="hud-top">
   <div class="sector glass">
     <div class="sec-row"><span class="sec-name" id="secName">Kepler-12</span><span class="tag" id="secTag"></span></div>
@@ -195,6 +210,7 @@ body.pad .pg{display:block}
   </div>
 </div>
 
+<!-- Efekty okrajov obrazovky: radv = radiácia/horizont, hurt = náraz a nízky trup -->
 <div id="radv"></div>
 <div id="hurt"></div>
 <div id="toasts" aria-live="polite"></div>
@@ -209,11 +225,13 @@ body.pad .pg{display:block}
   </nav>
 </div>
 
+<!-- Menu: obsah #sheetBody vykresľuje funkcia renderSheet() v JS -->
 <section class="sheet" id="sheet" hidden>
   <header><h2 id="sheetTitle"></h2><button class="close" id="sheetClose" data-t="sh.close"></button></header>
   <div class="body" id="sheetBody"></div>
 </section>
 
+<!-- Úvodná obrazovka: obsah vykresľuje renderIntro() v JS -->
 <div class="intro" id="intro">
   <div class="box glass" id="introBox"></div>
 </div>
@@ -221,6 +239,20 @@ body.pad .pg{display:block}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+/* =====================================================================
+   OBSAH SKRIPTU (hľadaj "== číslo." pre skok na sekciu)
+    1. JAZYK ............... všetky texty SK/EN v L10N, preklad funkciou t('kľúč')
+    2. HERNÉ DÁTA .......... suroviny, zóny, sektory, ceny, vylepšenia, obtiažnosť  <- TU SA LADÍ BALANS
+    3. STAV HRY ............ objekt state (čo sa ukladá) a ukladanie do prehliadača
+    4. 3D SCÉNA ............ renderer, kamera, svetlá, hviezdy, materiály, tvary asteroidov
+    5. LOĎ ................. 3D model "Klepeto", štít, laser, častice
+    6. SEKTOR .............. zóny, asteroidy, stanica a moduly, skoková brána, drony
+    7. OVLÁDANIE LODE ...... pohyb, ťažba, kolízie, poškodenie, radiácia, automatizácia
+    8. VSTUP ............... dotyk/myš, minimapa, klávesnica, herný ovládač
+    9. ROZHRANIE ........... HUD, nápovedy, menu Stanica/Loď/Mapa/Brána, jazyk, úvod
+   10. HERNÁ SLUČKA ........ frame() = čo sa deje každý snímok; start() = spustenie hry
+   Jednotky: vzdialenosti v metroch (m) herného sveta, čas v sekundách (s).
+   ===================================================================== */
 'use strict';
 (function(){
 const $=s=>document.querySelector(s);
@@ -230,7 +262,10 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const TAU=Math.PI*2;
 function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 
-/* ---------- language (SK default, EN optional) ---------- */
+/* ==================== == 1. JAZYK ====================
+   L10N.sk a L10N.en obsahujú rovnaké kľúče. Nový text: pridaj kľúč do OBOCH jazykov a v kóde použi t('kľúč').
+   Zástupné symboly {n}, {a}... sa nahradia hodnotami: t('tt.coreUp',{n:3}).
+   'say' = krátke pokyny v troch variantoch: [ovládač, klávesnica, dotyk/myš]. */
 const L10N={
 sk:{
   'res.ore':'ruda','res.green':'viridit','res.crystal':'kryštály',
@@ -296,7 +331,7 @@ sk:{
   'set.ap':'Autopilot','set.ap.d':'Loď sama ťaží zvolenú surovinu, vozí ju na stanicu a opakuje to. Pri poškodenom trupe sa vráti na opravu. Ručné ovládanie ho na 6 s preruší. Zapneš ho aj klávesou P alebo tlačidlom {V} na ovládači.',
   'set.ap.res':'Surovina pre autopilota','set.ap.miss':'V tomto sektore sa {r} nenachádza.',
   'tt.autoHome':'Náklad plný, letím na stanicu','tt.apOn':'Autopilot zapnutý: {r}','tt.apOff':'Autopilot vypnutý','tt.apNone':'Autopilot: v sektore nie je žiadny asteroid so surovinou {r}.','tt.apHurt':'Autopilot: trup je poškodený, vraciam sa na opravu',
-  'h.apHome':'Autopilot vezie náklad na stanicu…','h.apWait':'Autopilot čaká pri stanici, kým sa trup opraví.','h.apPause':'Autopilot pozastavený ručným ovládaním','set.auto':'Automatická ťažba','set.auto.d':'Po vyťažení asteroidu loď sama preletí na najbližší asteroid rovnakej suroviny, kým sa nenaplní náklad.','on':'ZAP','off':'VYP','set.lang':'Jazyk','set.diff':'Obtiažnosť: {d}. Zmeniť ju môžeš pri novej hre.','save.note':'Postup sa ukladá v tomto prehliadači.',
+  'h.apHome':'Letím vyložiť náklad na stanicu…','h.apWait':'Autopilot čaká pri stanici, kým sa trup opraví.','h.apPause':'Autopilot pozastavený ručným ovládaním','set.auto':'Automatická ťažba','set.auto.d':'Po vyťažení asteroidu loď sama preletí na najbližší asteroid rovnakej suroviny, kým sa nenaplní náklad.','on':'ZAP','off':'VYP','set.lang':'Jazyk','set.diff':'Obtiažnosť: {d}. Zmeniť ju môžeš pri novej hre.','save.note':'Postup sa ukladá v tomto prehliadači.',
   'diff.easy':'Ľahká','diff.hard':'Ťažká',
   'diff.easyD':'Trup sa sám opraví 30 s po poslednom poškodení. Bežná radiácia aj výnos.',
   'diff.hardD':'Trup opravíš len na stanici za rudu. Silnejšia radiácia a pomalšia loď, ale o 20 % viac surovín.',
@@ -375,7 +410,7 @@ en:{
   'set.ap':'Autopilot','set.ap.d':'The ship mines the chosen resource, hauls it to the station and repeats. With a damaged hull it returns for repairs. Manual control pauses it for 6 s. Toggle it with the P key or the {V} button on a controller.',
   'set.ap.res':'Autopilot resource','set.ap.miss':'There is no {r} in this sector.',
   'tt.autoHome':'Cargo full, heading to the station','tt.apOn':'Autopilot on: {r}','tt.apOff':'Autopilot off','tt.apNone':'Autopilot: no {r} asteroid in this sector.','tt.apHurt':'Autopilot: hull damaged, returning for repairs',
-  'h.apHome':'Autopilot is hauling cargo to the station…','h.apWait':'Autopilot is waiting at the station for hull repairs.','h.apPause':'Autopilot paused by manual control','set.auto':'Auto-mining','set.auto.d':'When an asteroid is depleted, the ship moves on to the nearest asteroid of the same resource until the cargo is full.','on':'ON','off':'OFF','set.lang':'Language','set.diff':'Difficulty: {d}. You can change it when starting a new game.','save.note':'Progress is saved in this browser.',
+  'h.apHome':'Flying to the station to unload…','h.apWait':'Autopilot is waiting at the station for hull repairs.','h.apPause':'Autopilot paused by manual control','set.auto':'Auto-mining','set.auto.d':'When an asteroid is depleted, the ship moves on to the nearest asteroid of the same resource until the cargo is full.','on':'ON','off':'OFF','set.lang':'Language','set.diff':'Difficulty: {d}. You can change it when starting a new game.','save.note':'Progress is saved in this browser.',
   'diff.easy':'Easy','diff.hard':'Hard',
   'diff.easyD':'The hull repairs itself 30 s after the last damage. Normal radiation and yield.',
   'diff.hardD':'Repair the hull only at the station, for ore. Stronger radiation and a slower ship, but 20% more resources.',
@@ -390,15 +425,28 @@ en:{
     station:['press <kbd>{Y}</kbd>','press <kbd>1</kbd>','open Station'],map:['press <kbd>{M}</kbd>','press <kbd>3</kbd>','open Map'],
     fly:['fly with the left stick','fly with <kbd>WASD</kbd>','fly']}
 }};
+/* Zvolený jazyk sa pamätá v prehliadači pod kľúčom 'os-lang'; predvolený je slovenský. */
 let lang='sk';try{const l=localStorage.getItem('os-lang');if(l==='sk'||l==='en')lang=l}catch(e){}
 function t(k,v){let s=L10N[lang][k];if(s==null)s=L10N.sk[k];if(s==null)return k;if(v)for(const n in v)s=s.split('{'+n+'}').join(v[n]);return s}
 
-/* ---------- game data ---------- */
+/* ==================== == 2. HERNÉ DÁTA (balans) ==================== */
+/* Suroviny: interné názvy ore = ruda, green = viridit, crystal = kryštály. */
 const RES=['ore','green','crystal'];
 const RCOL={ore:'#f0a644',green:'#86e05a',crystal:'#a98bff'};
 const RCLS={ore:'ore',green:'grn',crystal:'cry'};
+/* Násobok rýchlosti ťažby podľa suroviny (1 = plný výkon lasera). Vzácnejšie sa ťažia pomalšie. */
 const MINE_RATE={ore:1,green:.7,crystal:.5};
+/* Pásy sektora = vzdialenosť od stanice v metroch:
+   pás 1: 0–Z1, pás 2: Z1–Z2, pás 3: Z2–Z3 (radiácia), pás 4: Z3–HORIZON (silnejšia radiácia).
+   Za HORIZON trup rýchlo ubúda a štíty nepomáhajú. LIMIT = najďalej, kam sa dá doletieť. */
 const Z1=40,Z2=80,Z3=120,HORIZON=160,LIMIT=230;
+/* Sektory v poradí, v akom sa odomykajú. Polia:
+   name/seed ... seed určuje rozloženie asteroidov a polohu brány (iné číslo = iné rozloženie)
+   rich ........ násobok množstva suroviny v jednom asteroide
+   neb/planet .. farby hmloviny a planéty v pozadí, pPos = poloha planéty
+   capture ..... koľko vplyvu treba na obsadenie sektora
+   res ......... suroviny zobrazené v mape (len informácia)
+   fields ...... skupiny asteroidov: type = surovina, n = počet, r = [od, do] vzdialenosť od stanice v m */
 const SECTORS=[
   {name:'Kepler-12',seed:11,rich:1,neb:['#173a6e','#3b1e5e'],planet:'#c98a4b',pPos:[-140,-340,-120],capture:120,res:['ore'],
     fields:[{type:'ore',n:38,r:[44,78]},{type:'ore',n:20,r:[84,156]}]},
@@ -407,13 +455,22 @@ const SECTORS=[
   {name:'Orion Hlbina',seed:37,rich:1.25,neb:['#5c1b31','#1b2e6e'],planet:'#9b6bd1',pPos:[-110,-380,110],capture:240,res:['ore','green','crystal'],
     fields:[{type:'ore',n:32,r:[44,78]},{type:'green',n:18,r:[84,118]},{type:'crystal',n:16,r:[124,156]},{type:'green',n:6,r:[124,156]}]},
 ];
+/* C(ruda, viridit, kryštály) = pomocník na zápis ceny. */
 const C=(o,g,c)=>({ore:o||0,green:g||0,crystal:c||0});
+/* Moduly stanice: inf = koľko vplyvu dáva, cost(n) = cena, kde n = počet už postavených modulov rovnakého typu (každý ďalší je drahší). */
 const MOD={drone:{inf:15,cost:n=>C(120+70*n)},tower:{inf:25,cost:n=>C(200+80*n)},sensor:{inf:35,cost:n=>C(180+60*n,50+25*n)}};
+/* Ceny jadra stanice: CORE_COST[0] = z úrovne 1 na 2, [1] = z 2 na 3 atď. Každá úroveň jadra dáva CORE_INF vplyvu a jeden slot navyše. */
 const CORE_COST=[C(150),C(320),C(500,80),C(750,160,60)];
 const CORE_MAX=5,CORE_INF=15;
 const coreCost=L=>CORE_COST[L-1];
 const slotsFor=L=>Math.min(6,L+1);
+/* tier([ruda...],[viridit...],[kryštály...]) = cenník vylepšenia po úrovniach; prvý stĺpec je cena prechodu z úrovne 1 na 2
+   (pri off=0 z úrovne 0 na 1, používa to štítový generátor, ktorý sa najprv kupuje). */
 const tier=(o,g,c,off=1)=>L=>C(o[L-off],g[L-off],c[L-off]);
+/* Vylepšenia lode. Polia: grp = skupina v menu (eng Motory, hull Trup, shield Štíty, laser Lasery), max = najvyššia úroveň,
+   cost(L) = cena prechodu z úrovne L na L+1, val(L) = hodnota na úrovni L, fmt = ako sa hodnota zobrazí, needs = vyžaduje iné vylepšenie.
+   speed: m/s (úroveň 3 = pôvodná rýchlosť z v0.1), accel: m/s², hull: body trupu, cargo: tony,
+   shield: body štítu (0 = nemá), sregen: {delay = čakanie v s, rate = podiel max. štítu za sekundu}, laser: t/s, range: dosah v m. */
 const UP={
   speed:{grp:'eng',max:5,cost:tier([80,180,320,500],[0,30,70,120],[0,0,0,25]),val:L=>24*(1+.2*(L-3))*D().speed,fmt:v=>v.toFixed(1)+' m/s'},
   accel:{grp:'eng',max:5,cost:tier([70,160,300,480],[0,25,60,110],[0,0,0,20]),val:L=>36*(1+.3*(L-3)),fmt:v=>v.toFixed(1)+' m/s²'},
@@ -425,10 +482,19 @@ const UP={
   range:{grp:'laser',max:5,cost:tier([60,150,280,450],[0,20,50,100],[0,0,0,20]),val:L=>10+2.5*(L-1),fmt:v=>v.toFixed(1)+' m'},
 };
 const GROUPS=['eng','hull','shield','laser'];
+/* Obtiažnosť: regen = trup sa sám opravuje, rad = násobok radiácie v pásoch 3–4, voidM = násobok za horizontom,
+   speed = násobok rýchlosti lode, yield = násobok vyťaženej suroviny (1.2 = o 20 % viac). */
 const DIFF={easy:{regen:true,rad:1,voidM:1,speed:1,yield:1},hard:{regen:false,rad:1.6,voidM:1.3,speed:.85,yield:1.2}};
 const D=()=>DIFF[(state&&state.diff)||'easy'];
+/* Oprava trupu (len na ľahkej): začne HULL_DELAY sekúnd po poslednom poškodení, rýchlosťou HULL_RATE z maxima za sekundu. */
 const HULL_DELAY=30,HULL_RATE=.03;
+/* Kľúč uloženej hry v prehliadači. Ak ho zmeníš, hra začne odznova (stará uložená hra sa ignoruje). */
 const SAVE_KEY='orbitalne-sektory-v3';
+/* ==================== == 3. STAV HRY ====================
+   state = všetko, čo sa ukladá: suroviny na stanici (ore/green/crystal), cargo = náklad v lodi,
+   ship = úrovne vylepšení, hp/sh = trup a štíty, diff = obtiažnosť, cur = index aktuálneho sektora,
+   sec[] = stav každého sektora (úroveň jadra, sloty s modulmi, obsadený/odomknutý),
+   autoMine/autoReturn/autoPilot/autoRes = nastavenia automatizácie. */
 function freshState(){return{v:3,ore:40,green:0,crystal:0,cargo:{ore:0,green:0,crystal:0},
   ship:{speed:1,accel:1,hull:1,cargo:1,shield:0,sregen:1,laser:1,range:1},hp:100,sh:0,diff:'easy',autoMine:true,autoReturn:true,autoPilot:false,autoRes:'ore',lang,cur:0,intro:false,
   sec:SECTORS.map((s,i)=>({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:i===0}))}}
@@ -438,6 +504,7 @@ function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch(e
 const cur=()=>state.sec[state.cur];
 const countMod=(s,k)=>s.slots.filter(x=>x===k).length;
 function freeSlot(s){const n=slotsFor(s.core);for(let i=0;i<n;i++)if(!s.slots[i])return i;return -1}
+/* Vplyv sektora = úroveň jadra × CORE_INF + súčet vplyvu postavených modulov. */
 function influence(s){let v=s.core*CORE_INF;for(const m of s.slots)if(m)v+=MOD[m].inf;return v}
 const afford=c=>RES.every(r=>state[r]>=c[r]);
 function pay(c){for(const r of RES)state[r]-=c[r]}
@@ -447,7 +514,7 @@ const shieldMax=()=>shipVal('shield');
 const capOf=i=>SECTORS[i].capture;
 const secName=i=>t('sec'+i+'.name');
 
-/* ---------- renderer ---------- */
+/* ==================== == 4. 3D SCÉNA ==================== */
 const canvas=$('#c');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
 const isTouch=matchMedia('(pointer: coarse)').matches;
@@ -462,6 +529,7 @@ scene.add(new THREE.HemisphereLight(col('#7f9ccf'),col('#150b1c'),.6));
 const sun=new THREE.DirectionalLight(col('#ffe4bd'),1.9);sun.position.set(90,120,50);scene.add(sun);
 const rim=new THREE.DirectionalLight(col('#4fa8ff'),.55);rim.position.set(-70,30,-90);scene.add(rim);
 
+/* Žiara: jedna textúra s mäkkým kruhom, použitá na motory, svetlá a častice (glow = funkcia, ktorá vytvorí svietiaci bod). */
 function makeGlowTex(){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');const gr=g.createRadialGradient(64,64,0,64,64,64);
   gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.18,'rgba(255,255,255,.65)');gr.addColorStop(.45,'rgba(255,255,255,.14)');gr.addColorStop(1,'rgba(255,255,255,0)');
   g.fillStyle=gr;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)}
@@ -475,6 +543,7 @@ function stars(n,spread,y,size,tint,seed){const r=rng(seed);const p=new Float32A
   return new THREE.Points(g,new THREE.PointsMaterial({size,map:GLOW,vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true}))}
 scene.add(stars(1800,2000,-90,2.2,'#9ec4ff',1),stars(1100,2800,-220,3.6,'#ffd9b0',2),stars(600,3600,-420,6,'#c9b6ff',3));
 
+/* Materiály (povrchy) zdieľané všetkými 3D objektmi. emissive = farba, ktorou objekt sám svieti. */
 const M={
   metal:new THREE.MeshStandardMaterial({color:col('#b9c6d4'),metalness:.65,roughness:.35,flatShading:true}),
   plate:new THREE.MeshStandardMaterial({color:col('#4a5a6e'),metalness:.5,roughness:.55,flatShading:true}),
@@ -490,6 +559,7 @@ const M={
   pick:new THREE.MeshBasicMaterial({visible:false}),
 };
 
+/* Tvar asteroidu: zdeformovaný mnohosten s náhodnými škvrnami suroviny. GEOS = niekoľko variantov pre každú surovinu. */
 function rockGeo(seed,base,fleck,fleckP){const g=new THREE.IcosahedronGeometry(1,1);const p=g.attributes.position;const r=rng(seed);const cache=new Map();
   for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const k=x.toFixed(3)+','+y.toFixed(3)+','+z.toFixed(3);let d=cache.get(k);if(d===undefined){d=.72+r()*.5;cache.set(k,d)}p.setXYZ(i,x*d,y*d,z*d)}
   const cs=new Float32Array(p.count*3);const b=col(base),f=col(fleck);
@@ -502,7 +572,8 @@ const GEOS={
 };
 const SHARD=new THREE.OctahedronGeometry(1,0);
 
-/* ---------- ship "Klepeto" ---------- */
+/* ==================== == 5. LOĎ "Klepeto" ====================
+   Loď smeruje dopredu po osi +z. Klepetá sú dve časti kruhu (TorusGeometry), druhé je zrkadlovo otočené (scale.x = -1). */
 const ship=new THREE.Group();
 (function buildShip(){
   const body=new THREE.Group();ship.add(body);ship.userData.body=body;ship.userData.eng=[];
@@ -541,6 +612,7 @@ scene.add(ship);
 const shipVel=new V3();let shipYaw=0;
 const NOSE=new V3(0,0,2.0);
 
+/* NOSE = bod na lodi (medzi klepetami), z ktorého vychádza ťažobný laser. */
 /* laser beam */
 const CYL=new THREE.CylinderGeometry(1,1,1,8,1,true);
 function makeBeam(color){const g=new THREE.Group();
@@ -555,6 +627,7 @@ function setBeam(b,a,c,w,color){_d.subVectors(c,a);const len=_d.length();_m.addV
   b.userData.hit.position.copy(c);b.visible=true;b.userData.hit.visible=true}
 function hideBeam(b){b.visible=false;b.userData.hit.visible=false}
 
+/* Častice: pool = vopred pripravená zásoba svietiacich bodov (trail = stopa motorov, debris = úlomky a iskry). */
 /* particles */
 const _zero=new V3();
 function pool(n,size){const arr=[];for(let i=0;i<n;i++){const s=glow('#ffffff',size,0);s.visible=false;scene.add(s);arr.push({s,life:0,max:1,v:new V3(),from:new V3(),to:null,size})}return arr}
@@ -570,7 +643,10 @@ marker.rotation.x=-Math.PI/2;scene.add(marker);let markerT=0;
 const tRing=new THREE.Mesh(new THREE.RingGeometry(1,1.08,48,1,0,TAU*.82),new THREE.MeshBasicMaterial({color:new THREE.Color('#58d0c0'),transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
 tRing.rotation.x=-Math.PI/2;tRing.visible=false;scene.add(tRing);
 
-/* ---------- sector world ---------- */
+/* ==================== == 6. SEKTOR ====================
+   buildSector() postaví celý sektor nanovo (pri štarte a po skoku): pozadie, zóny, asteroidy, stanicu, bránu.
+   Asteroid (objekt a): type, amt/max = zostávajúce/pôvodné množstvo, alive, respawn = sekundy do znovuobjavenia,
+   rmin/rmax = pás, v ktorom sa smie objaviť, claims = koľko dronov si ho práve zabralo. */
 let world=null,asts=[],pickables=[],stationG=null,stationAnim=null,gate=null,drones=[];
 const STATION_R=14;
 function slotPos(i){const a=i/6*TAU+Math.PI/6;return new V3(Math.cos(a)*12.5,0,Math.sin(a)*12.5)}
@@ -629,9 +705,11 @@ function placeAst(a,r){for(let tries=0;tries<14;tries++){const ang=r()*TAU;const
     if(a.g.position.distanceTo(ship.position)<16)continue;
     if(!asts.some(o=>o!==a&&o.alive&&o.g.position.distanceTo(a.g.position)<a.base+o.base+3))break}
   setAstScale(a)}
+/* Veľkosť asteroidu sa zmenšuje podľa toho, koľko z neho zostáva (na polovicu pri úplnom vyťažení). */
 function astScale(a){return a.base*(.5+.5*a.amt/a.max)*a.shrink}
 function setAstScale(a){a.g.scale.setScalar(Math.max(.001,astScale(a)))}
 
+/* Stanica sa prestavia pri každej zmene (vylepšenie jadra, stavba/predaj modulu). Vzhľad závisí od úrovne jadra. */
 function rebuildStation(){
   if(stationG)world.remove(stationG);
   const s=cur();const g=new THREE.Group();stationG=g;const anim={rings:[],turrets:[],dishes:[],blink:[]};stationAnim=anim;
@@ -680,6 +758,7 @@ function makeModule(type,p,anim){const g=new THREE.Group();g.position.copy(p);g.
     const bl=glow('#a98bff',2.4,1);bl.position.set(0,.95,.95);dg.add(bl);anim.blink.push({o:bl,f:2.1,base:2.4});anim.dishes.push({o:dg})}
   return g}
 
+/* Skoková brána: v prvom sektore sa objaví až po jeho obsadení, v ďalších je vždy. Vzdialenosť 72 m od stanice, smer určuje seed sektora. */
 function updateGate(){if(gate){world.remove(gate);pickables=pickables.filter(p=>!p.userData.gate);gate=null}
   const s=cur();if(!(s.captured||state.cur>0))return;
   const r=rng(SECTORS[state.cur].seed+5);const ang=r()*TAU;
@@ -703,6 +782,7 @@ function syncDrones(){const s=cur();const docks=[];s.slots.forEach((m,i)=>{if(m=
     const d={g,line,state:'seek',t:null,load:0,home:new V3(),wait:Math.random()*1.5};g.position.copy(slotPos(docks[drones.length])).multiplyScalar(.92);world.add(g);drones.push(d)}
   while(drones.length>docks.length){const d=drones.pop();world.remove(d.g);world.remove(d.line);if(d.t)d.t.claims=Math.max(0,d.t.claims-1);if(d.load>0)state.ore+=d.load}
   drones.forEach((d,i)=>d.home.copy(slotPos(docks[i])).multiplyScalar(.85).setY(1))}
+/* Dron: seek (hľadá rudu v pásoch 1–2) -> go (letí) -> mine (ťaží do 15 t) -> back (vezie na stanicu). */
 function tickDrones(dt,tt){const sp=16,cap=15,rate=4;
   for(const d of drones){const p=d.g.position;
     if(d.wait>0){d.wait-=dt;continue}
@@ -728,10 +808,13 @@ function autoNext(a){if(state.autoMine===false||cargoTotal()>=shipVal('cargo')-.
   if(!best)return false;mineTarget=best;moveTarget=best.pos.clone().setY(0);flashMarker(best.pos,'#58d0c0');return true}
 function stopMining(){mineTarget=null;moveTarget=null}
 
-/* ---------- player control ---------- */
+/* ==================== == 7. OVLÁDANIE LODE ====================
+   moveTarget = bod, kam letí autopilot (null = nikam); mineTarget = asteroid, ktorý loď ťaží.
+   hullSince/shSince = sekundy od posledného poškodenia (pre opravu trupu a dobíjanie štítov). */
 let moveTarget=null,mineTarget=null,openOnArrive=false,fullWarned=false,mining=false,debrisT=0;
 let hullSince=99,shSince=99,hitCD=0,shake=0,dead=false,bubbleT=0,radRate=0,radHull=false,lastZone=1;
 const SHIP_R=2.3,inVec=new V3(),padVec=new V3(),_dv=new V3(),_des=new V3(),_a=new V3(),_b=new V3(),_c=new V3();
+/* Dosah ťažby = polomer asteroidu + dosah lasera; loď zastaví 2,5 m pred hranicou dosahu. */
 const mineRange=a=>astScale(a)*1.1+shipVal('range');
 const mineStop=a=>mineRange(a)-2.5;
 const nearStation=()=>Math.hypot(ship.position.x,ship.position.z)<STATION_R+14;
@@ -758,6 +841,7 @@ function avoid(desired){const sp=desired.length();if(sp<.1)return;const dir=_a.c
   desired.setLength(sp)}
 
 /* damage: shields absorb collisions and belt radiation first; past the horizon it hits the hull directly */
+/* kind: 'hit' = náraz, 'rad' = radiácia v pásoch (oboje najprv berie štíty), 'void' = za horizontom (priamo trup). */
 function damage(n,kind){const out={shield:0,hull:0};if(dead||n<=0)return out;
   hullSince=0;shSince=0;
   if(kind!=='void'&&state.sh>0){const a=Math.min(state.sh,n);state.sh-=a;n-=a;out.shield=a}
@@ -765,6 +849,7 @@ function damage(n,kind){const out={shield:0,hull:0};if(dead||n<=0)return out;
   return out}
 function blockedAt(p){for(const a of asts){if(!a.alive)continue;const ar=astScale(a)*.95+SHIP_R;
     if(Math.hypot(p.x-a.pos.x,p.z-a.pos.z)<ar+.5&&Math.hypot(ship.position.x-a.pos.x,ship.position.z-a.pos.z)<ar+3)return true}return false}
+/* Kolízia s asteroidom: loď sa odrazí a poškodenie závisí od rýchlosti nárazu (pod 2 m/s bez poškodenia). */
 function collide(){
   for(const a of asts){if(!a.alive)continue;const ar=astScale(a)*.95;const dx=ship.position.x-a.pos.x,dz=ship.position.z-a.pos.z;const d=Math.hypot(dx,dz);const minD=SHIP_R+ar;
     if(d>=minD)continue;const nx=d>.001?dx/d:1,nz=d>.001?dz/d:0;
@@ -787,6 +872,7 @@ function destroyShip(){dead=true;mineTarget=null;moveTarget=null;hideBeam(beam);
   setTimeout(()=>$('#warp').classList.add('on'),900);
   setTimeout(()=>{ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;state.hp=shipVal('hull');state.sh=shieldMax();hullSince=99;shSince=99;lastZone=1;
     ship.visible=true;dead=false;$('#warp').classList.remove('on');toast(t('tt.respawn'));save()},1500)}
+/* Automatizácia: autoPause = sekundy, počas ktorých je autopilot pozastavený po ručnom zásahu. */
 /* automation: auto-return when full, and the autopilot loop (mine chosen resource -> haul home -> repeat) */
 let autoPause=0,returnSent=false,apNoneT=0,apHurtSent=false;
 const homeBound=()=>!mineTarget&&moveTarget&&Math.hypot(moveTarget.x,moveTarget.z)<=STATION_R+3;
@@ -805,9 +891,11 @@ function tickAuto(dt){autoPause-=dt;apNoneT-=dt;
   if(full||mineTarget||moveTarget)return;
   let best=null,bd=1e9;for(const a of asts){if(!a.alive||a.type!==state.autoRes||Math.hypot(a.pos.x,a.pos.z)>=HORIZON-2)continue;const d=ship.position.distanceTo(a.pos);if(d<bd){bd=d;best=a}}
   if(best)cmdMine(best);else if(apNoneT<=0){apNoneT=12;toast(t('tt.apNone',{r:t('res.'+state.autoRes)}))}}
+/* Radiácia v bodoch za sekundu podľa vzdialenosti r od stanice: v pásoch 3–4 rastie z 0,8 na 3,5; za horizontom 12 a viac. */
 function radAt(r){if(r<Z2)return 0;if(r<HORIZON)return(.8+(r-Z2)/(HORIZON-Z2)*2.7)*D().rad;return(12+(r-HORIZON)*.35)*D().voidM}
 const zoneOf=r=>r<Z1?1:r<Z2?2:r<Z3?3:r<HORIZON?4:5;
 
+/* Pohyb lode každý snímok: loď mení rýchlosť smerom k želanej rýchlosti najviac o hodnotu zrýchlenia (preto má zotrvačnosť). */
 function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   const desired=_des.set(0,0,0);
   if(inVec.lengthSq()>.0001){autoPause=6;moveTarget=null;openOnArrive=false;desired.copy(inVec).multiplyScalar(maxSp)}
@@ -856,7 +944,8 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   if(gate&&ship.position.distanceTo(gate.position)>14)gateNear=false}
 let gateNear=false;
 
-/* ---------- input ---------- */
+/* ==================== == 8. VSTUP ====================
+   inputMode: 'touch' | 'mouse' | 'key' | 'pad' – podľa neho sa menia nápovedy (napr. 'stlač A' vs 'ťukni'). */
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),ground=new THREE.Plane(new V3(0,1,0),0);
 const pointers=new Map();let downPos=null,dragging=false,pinch0=0,zoom0=1,zoom=isTouch?1.08:1;
 let inputMode=isTouch?'touch':'mouse';
@@ -925,6 +1014,8 @@ function readInput(){inVec.set(0,0,0);
   if(keys.has('w')||keys.has('arrowup'))inVec.z-=1;if(keys.has('s')||keys.has('arrowdown'))inVec.z+=1;
   if(inVec.lengthSq()>1)inVec.normalize();inVec.add(padVec);if(inVec.lengthSq()>1)inVec.normalize()}
 
+/* Ovládač – štandardné číslovanie tlačidiel prehliadača: 0 A/✕, 1 B/○, 2 X/□, 3 Y/△, 4 LB, 5 RB, 6 LT, 7 RT,
+   8 View/Share, 9 Menu/Options, 12–15 krížový ovládač (hore, dole, vľavo, vpravo). Osi: 0/1 ľavá páčka, 2/3 pravá páčka. */
 /* gamepad: Xbox and PlayStation controllers through the browser's standard mapping */
 const GLY={xbox:{A:'A',B:'B',X:'X',Y:'Y',LB:'LB',RB:'RB',M:'Menu',V:'View'},ps:{A:'✕',B:'○',X:'□',Y:'△',LB:'L1',RB:'R1',M:'Options',V:'Share'}};
 let padType='xbox',padPrev=[],activePad=null,navT=0,navLast=0;
@@ -959,7 +1050,8 @@ function pollPad(dt){let pads=[];try{pads=navigator.getGamepads?navigator.getGam
   const ry=p.axes[3]||0;if(Math.abs(ry)>.2)zoom=clamp(zoom*(1+ry*dt*1.2),ZMIN,ZMAX);
   padPrev=p.buttons.map((b,i)=>btn(i))}
 
-/* ---------- UI ---------- */
+/* ==================== == 9. ROZHRANIE ====================
+   updateHUD() obnovuje horný panel a nápovedu (~8× za sekundu); renderSheet() vykresľuje otvorené menu podľa sheetTab. */
 function toast(msg,kind){const el=document.createElement('div');el.className='toast'+(kind===true?' big':kind?' '+kind:'');el.textContent=msg;const box=$('#toasts');box.appendChild(el);
   while(box.children.length>3)box.firstChild.remove();setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400)},kind?4200:2400)}
 function bump(sel){const el=$(sel);if(!el)return;const p=el.parentElement;p.classList.remove('pulse');void p.offsetWidth;p.classList.add('pulse')}
@@ -1014,6 +1106,7 @@ function toggleTab(tb){sheetTab===tb?closeSheet():openSheet(tb)}
 function cycleTab(d){const i=TABS.indexOf(sheetTab);openSheet(TABS[(i+d+TABS.length)%TABS.length])}
 function cycleGroup(d){shipGrp=GROUPS[(GROUPS.indexOf(shipGrp)+d+GROUPS.length)%GROUPS.length];focusIdx=GROUPS.indexOf(shipGrp);renderSheet()}
 function costHtml(c){let h='';for(const r of RES)if(c[r])h+=`<span class="cost ${RCLS[r]}" data-need="${r}" data-n="${c[r]}"><span class="gem"></span>${c[r]}</span>`;return h}
+/* Predaj modulu vráti 60 % ceny posledného postaveného modulu toho typu. */
 function refundOf(s,k){const c=MOD[k].cost(countMod(s,k)-1);return C(Math.floor(c.ore*.6),Math.floor(c.green*.6),Math.floor(c.crystal*.6))}
 function refundHtml(c){let h='';for(const r of RES)if(c[r])h+=`<span class="cost ${RCLS[r]} gain"><span class="gem"></span>+${c[r]}</span>`;return h}
 function actBtn(act,label,c,block,extra=''){return `<button class="act" data-act="${act}" ${extra} data-ore="${c.ore}" data-green="${c.green}" data-cry="${c.crystal}" data-block="${block?1:0}">${label}</button>`}
@@ -1027,6 +1120,8 @@ function upCard(k){const u=UP[k];const L=state.ship[k];
   return h+'</div>'}
 function repairCard(){const hm=shipVal('hull');const cost=Math.ceil((hm-state.hp)/2);const near=nearStation();
   return `<div class="card"><h3>${t('rep.name')}</h3><button class="act" data-act="repair" data-ore="1" data-green="0" data-cry="0" data-block="${near?0:1}">${t('btn.repair')}</button><div class="costs">${costHtml(C(cost))}</div><p>${near?t('rep.desc'):t('rep.far')}</p><div class="stat">${t('rep.stat',{a:Math.ceil(state.hp),b:hm})}</div></div>`}
+/* sheetTab: 'station' | 'ship' | 'map' | 'gate'. Tlačidlá majú data-act (čo urobiť) a ceny v data-ore/data-green/data-cry;
+   kliknutia spracúva jeden spoločný poslucháč nižšie (body.addEventListener('click', ...)). */
 function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
   if(sheetTab==='station'){$('#sheetTitle').textContent=t('sh.station',{s:secName(state.cur)});const inf=influence(s),cap=capOf(state.cur);
     if(state.hp<shipVal('hull')-.5)h+=repairCard();
@@ -1113,9 +1208,11 @@ function checkCapture(){const s=cur();if(!s.captured&&influence(s)>=capOf(state.
   if(nx)toast(t('tt.captured',{s:secName(state.cur),n:secName(state.cur+1)}),true);
   else if(state.sec.every(x=>x.captured))toast(t('tt.capturedAll'),true);
   else toast(t('tt.capturedOne',{s:secName(state.cur)}),true)}}
+/* Pasívny príjem obsadeného sektora za sekundu: každý dok dronov 0,7 rudy, každé senzorové pole 0,06 viriditu. */
 function passiveOf(sc){return{ore:countMod(sc,'drone')*.7,green:countMod(sc,'sensor')*.06}}
 
 let jumping=false;
+/* Skok do sektora i: krátky záblesk, potom sa sektor postaví nanovo a loď sa objaví pri stanici. */
 function jumpTo(i,instant){if(jumping)return;jumping=true;const w=$('#warp');w.classList.add('on');
   mining=false;mineTarget=null;moveTarget=null;hideBeam(beam);
   setTimeout(()=>{try{state.cur=i;mining=false;mineTarget=null;moveTarget=null;openOnArrive=false;stationG=null;gateNear=true;
@@ -1142,7 +1239,8 @@ document.querySelectorAll('.dock [data-tab]').forEach(b=>b.addEventListener('cli
 $('#sheetClose').addEventListener('click',closeSheet);
 $('#homeBtn').addEventListener('click',goHome);
 
-/* ---------- loop ---------- */
+/* ==================== == 10. HERNÁ SLUČKA ====================
+   frame() beží každý snímok obrazovky: vstup, automatizácia, loď, drony, radiácia, opravy, animácie, kamera, HUD, ukladanie (každých 6 s). */
 const camTarget=new V3();
 function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w<h?52:40;camera.updateProjectionMatrix();sizeMini()}
 addEventListener('resize',resize);
@@ -1186,6 +1284,7 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
 
 addEventListener('visibilitychange',()=>{if(document.hidden&&state)save()});
 window.claude?.hot?.snapshot?.(()=>({state}));
+/* start(): načíta uloženú hru (alebo vytvorí novú), postaví sektor a spustí slučku. */
 function start(data){const hs=data&&data.state;state=(hs&&hs.v===3)?hs:(loadState()||freshState());
   let stored=null;try{stored=localStorage.getItem('os-lang')}catch(e){}
   if(!stored&&(state.lang==='sk'||state.lang==='en'))lang=state.lang;state.lang=lang;

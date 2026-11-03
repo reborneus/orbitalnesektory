@@ -12,3 +12,8 @@ Webový prototyp (Three.js) – otvor `index.html` v prehliadači.
 - **v0.3.3** – voliteľná automatická ťažba (Mapa → Nastavenia)
 - **v0.4** – autopilot (ťaží zvolenú surovinu, vozí ju na stanicu, vracia sa na opravu), automatický návrat pri plnom náklade, kláves P / tlačidlo View
 - **v0.4.1** – skok do sektora iba cez skokovú bránu, Mapa je informatívna, oprava zaseknutia pri skoku počas ťažby
+- **v0.4.2** – vysvetlivky v kóde (obsah sekcií, popis herných hodnôt na ladenie balansu)
+
+## Úpravy kódu
+Celá hra je v `index.html`. Na začiatku JavaScriptu je obsah sekcií; na sekciu skočíš hľadaním `== 1.` až `== 10.`.
+Ceny, zóny, radiácia, sektory a obtiažnosť sú v sekcii **== 2. HERNÉ DÁTA**. Texty v oboch jazykoch sú v sekcii **== 1. JAZYK**.
