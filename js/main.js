@@ -32,10 +32,10 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
     for(const d of stationAnim.dishes)d.o.rotation.y+=dt*.6;for(const b of stationAnim.blink){const k=b.soft?.75+.25*Math.sin(tt*3*b.f):(Math.sin(tt*TAU*b.f)>.2?1:.35);b.o.scale.setScalar(b.base*k)}}
   if(gate){gate.userData.ring.rotation.z+=dt*.4;const k=1+Math.sin(tt*2)*.12;gate.userData.core.scale.set(9*k,9*k,1)}
   if(world&&world.userData.planet)world.userData.planet.rotation.y+=dt*.01;
-  tickPool(trail,dt);tickPool(debris,dt);if(!jumping)tickLoot(dt,tt);
+  tickPool(trail,dt);tickPool(debris,dt);if(!jumping){tickLoot(dt,tt);tickCombat(dt,tt)}
   if(markerT>0){markerT-=dt;const k=markerT/.6;marker.material.opacity=k*.9;marker.scale.setScalar(1+(1-k)*1.8)}else marker.material.opacity=0;
   if(mineTarget&&mineTarget.alive){tRing.visible=true;tRing.position.set(mineTarget.pos.x,mineTarget.pos.y-.2,mineTarget.pos.z);tRing.scale.setScalar(astScale(mineTarget)*1.6+1.2);tRing.rotation.z+=dt*1.2}else tRing.visible=false;
-  incomeT+=dt;if(incomeT>=1){incomeT=0;state.sec.forEach((sc,i)=>{if(i!==state.cur&&sc.captured){const p=passiveOf(sc);state.ore+=p.ore;state.green+=p.green}if(sc.captured)state.credits+=SECTOR_CREDITS});refreshSheet()}
+  incomeT+=dt;if(incomeT>=1){incomeT=0;state.sec.forEach((sc,i)=>{if(i!==state.cur&&sc.captured){const p=passiveOf(sc);state.ore+=p.ore;state.green+=p.green}if(sc.captured&&!passiveOf(sc).paused)state.credits+=SECTOR_CREDITS});refreshSheet()}
   const look=ship.position.clone().addScaledVector(shipVel,.35);look.y=0;camTarget.lerp(look,1-Math.exp(-dt*3.5));
   const sx=shake>0?(Math.random()-.5)*shake*1.6:0,sz=shake>0?(Math.random()-.5)*shake*1.6:0;shake=Math.max(0,shake-dt*2.2);
   camera.position.set(camTarget.x+sx,52*zoom,camTarget.z+36*zoom+sz);camera.lookAt(camTarget.x+sx*.5,0,camTarget.z+sz*.5);

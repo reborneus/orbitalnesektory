@@ -9,9 +9,11 @@ SÚBORY HRY (načítavajú sa v tomto poradí, pozri index.html)
   ship.js     == 5. LOĎ – 3D model "Klepeto", štít, laser, častice
   world.js    == 6. SEKTOR – zóny, asteroidy, stanica, brána, drony, korisť vo vesmíre
   control.js  == 7. OVLÁDANIE LODE – pohyb, ťažba, kolízie, radiácia, automatizácia
+  combat.js   == 14. BOJ – piráti, nájazdy, strely, zbraň lode, veže, obrana dronov
   input.js    == 8. VSTUP – dotyk/myš, minimapa, klávesnica, ovládač
   ui.js       == 9. ROZHRANIE – HUD, nápovedy, menu Stanica/Loď/Mapa/Brána, úvod
   gear.js     == 12. VÝBAVA – obrazovka inventára a predmetov
+  station.js  == 15. PANEL STANICE – moduly, vylepšenie +10, čipy, predaj
   wiki.js     == 13. PRÍRUČKA – wiki v hre aj na stránke wiki.html, generovaná z herných dát
   main.js     == 10. HERNÁ SLUČKA – frame() každý snímok, start()
 

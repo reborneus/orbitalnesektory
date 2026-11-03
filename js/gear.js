@@ -23,9 +23,10 @@ function detailHtml(f){const it=f.it,R=RAR[it.r],title=itemTitle(it),slot=BASES[
     <div class="itd-head">${icon(it.b)}<div class="itd-names">${title?`<div class="ttl">«${title}»</div>`:''}<div class="nm">${itemName(it)}</div>
       <div class="meta"><span class="rlab">${t('r.'+R.k)}</span> · ${t('slot.'+slot)} · ${t('gear.ilvl',{n:it.ilvl})}${it.lock?' · '+t('gear.isLocked'):''}</div></div></div>
     <ul class="stats">${itemStats(it).map(x=>`<li class="${x.imp?'imp':''}"><span>${t('s.'+x.k)}</span><b>${fmtStat(x.k,x.v)}</b></li>`).join('')}</ul>`;
-  if(f.where==='inv'&&state.eq[slot])h+=cmpHtml(it,state.eq[slot]);
+  if(f.where==='inv'&&slot!=='chip'&&state.eq[slot])h+=cmpHtml(it,state.eq[slot]);
   h+=`<div class="itd-acts">`;
-  h+=f.where==='inv'?`<button class="btn prim" data-act="equip">${t('btn.equip')}</button>`:`<button class="btn" data-act="unequip">${t('btn.unequip')}</button>`;
+  if(slot==='chip')h+=`<p class="note" style="margin:0;flex-basis:100%">${t('gear.chipNote')}</p>`;
+  else h+=f.where==='inv'?`<button class="btn prim" data-act="equip">${t('btn.equip')}</button>`:`<button class="btn" data-act="unequip">${t('btn.unequip')}</button>`;
   if(f.where==='inv')h+=it.lock?`<button class="btn" data-act="salv" disabled title="${t('gear.locked')}">${t('btn.salv',{n:salvValue(it)})}</button>`:`<button class="btn danger" data-act="salv">${t('btn.salv',{n:salvValue(it)})}</button>`;
   h+=`<button class="btn" data-act="lock">${it.lock?t('btn.unlock'):t('btn.lock')}</button><button class="btn" data-act="desel">${t('btn.back')}</button></div>`;
   // vylepšenie +N
@@ -54,7 +55,7 @@ function gearAct(act,b){
   switch(act){
     case 'sel':{gearSel=+b.dataset.id;const g=findItem(gearSel);if(g)g.it.nw=false;renderSheet();body.scrollTop=0;focusIdx=0;applyFocus();return true}
     case 'desel':gearSel=null;renderSheet();return true;
-    case 'equip':{if(!f||f.where!=='inv')return true;const slot=BASES[f.it.b].slot;const old=state.eq[slot];
+    case 'equip':{if(!f||f.where!=='inv'||BASES[f.it.b].slot==='chip')return true;const slot=BASES[f.it.b].slot;const old=state.eq[slot];
       state.inv.splice(f.i,1);state.eq[slot]=f.it;if(old)state.inv.push(old);bonusDirty();toast(t('tt.equipped',{n:itemName(f.it)}),{rar:f.it.r});return done()}
     case 'unequip':{if(!f||f.where!=='eq')return true;if(state.inv.length>=INV_MAX){toast(t('tt.invFull'),'bad');return true}
       state.eq[f.slot]=null;state.inv.push(f.it);bonusDirty();return done()}

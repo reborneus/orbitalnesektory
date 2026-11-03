@@ -306,3 +306,49 @@ body.pad .pg{display:block}
   .wiki-nav a{white-space:nowrap;font-size:13.5px}
   .wiki-main{padding-left:max(16px,env(safe-area-inset-left,0px))}
 }
+
+/* ===================== PANEL STANICE, ČIPY, BOJ (v0.6) ===================== */
+/* Panel stanice sa na širokej obrazovke vysunie zľava pod panelom sektora (vpravo je minimapa). */
+@media (min-width:900px){
+  .sheet.side{left:max(16px,env(safe-area-inset-left,0px));right:auto;top:calc(env(safe-area-inset-top,0px) + 132px);bottom:16px;max-height:none;width:410px;
+    transform:none;border-radius:14px;border:1px solid var(--line);animation:sideIn .22s ease}
+}
+@keyframes sideIn{from{transform:translateX(-24px);opacity:0}to{transform:none;opacity:1}}
+.mslots{display:grid;gap:8px}
+.mslot{border-radius:10px;box-sizing:border-box}
+.mslot.empty{border:1px dashed rgba(88,208,192,.35);background:rgba(88,208,192,.03)}
+.mslot.locked{display:flex;align-items:center;gap:10px;padding:8px 11px;border:1px dashed var(--line);color:var(--muted);opacity:.7}
+.mslot summary{display:flex;align-items:center;gap:11px;padding:8px 11px;cursor:pointer;list-style:none;min-width:0}
+.mslot summary::-webkit-details-marker{display:none}
+.mslot summary::after{content:"▾";margin-left:auto;color:var(--muted);transition:transform .2s}
+.mslot[open] summary::after{transform:rotate(180deg)}
+.mslot summary:focus-visible{outline:2px solid var(--hull);outline-offset:-2px;border-radius:9px}
+.mthumb{width:72px;height:54px;border-radius:7px;object-fit:cover;flex:none;background:radial-gradient(circle at 50% 70%,color-mix(in srgb,var(--rc,#58d0c0) 25%,transparent),rgba(4,7,13,.6));border:1px solid color-mix(in srgb,var(--rc,#58d0c0) 40%,transparent)}
+.mthumb.sm{width:60px;height:45px}
+.mthumb.noimg{display:grid;place-items:center;font-weight:700;font-size:20px;color:var(--muted)}
+.mbody{padding:4px 12px 12px;display:grid;gap:10px}
+.mbuild{display:flex;gap:10px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.02)}
+.mbuild .eqc-txt{flex:1;min-width:0}
+.mbuild .act,.enhrow .act{grid-column:auto;grid-row:auto}
+.eqc-txt small.wrap{white-space:normal}
+.mctl{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.mctl .langb:disabled{opacity:.35;cursor:not-allowed}
+.mchip{display:flex;align-items:center;gap:10px;padding:8px 10px}
+.mchips{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:6px}
+.caps{list-style:none;margin:0;padding:0;display:grid;gap:3px;font-size:12.5px;color:var(--muted)}
+.caps li.on{color:var(--hull)} .caps small{color:var(--muted);opacity:.8}
+#stRow .lbl{width:auto;min-width:4.5em}
+#stBar{background:var(--hull);box-shadow:0 0 8px var(--hull)} #stBar.low{background:var(--warn);box-shadow:0 0 8px var(--warn)}
+.segs{grid-template-columns:repeat(5,1fr)}
+/* spodná lišta: na úzkej obrazovke len ikony (popisy sú v aria/title) */
+@media (max-width:520px){
+  .dock{gap:2px;padding:4px}
+  .dock button{font-size:0;letter-spacing:0;padding:8px 2px}
+  .dock button svg{width:24px;height:24px}
+  .seg{font-size:12px;padding:8px 2px}
+}
+/* spodná lišta má 7 tlačidiel; bočný panel stanice končí nad ňou */
+.dock{width:min(100%,660px)}
+.dock button{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (min-width:900px){.sheet.side{bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}}
+@media (max-width:520px){.dock button{font-size:0}}

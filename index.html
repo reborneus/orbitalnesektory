@@ -27,6 +27,7 @@
   <div class="sector glass">
     <div class="sec-row"><span class="sec-name" id="secName">Kepler-12</span><span class="tag" id="secTag"></span></div>
     <div class="inf"><div class="bar"><i id="infBar" style="width:12%"></i></div><span class="num" id="infTxt"></span></div>
+    <div class="meter" id="stRow" hidden><span class="lbl" data-t="hud.station"></span><div class="bar"><i id="stBar" style="width:100%"></i></div><span class="num" id="stTxt"></span></div>
   </div>
   <div class="rcol">
     <div class="res glass">
@@ -57,6 +58,7 @@
     <button data-tab="ship"><span class="pg" data-g="X"></span><svg viewBox="0 0 24 24"><path d="M7 3.5c-3 2.5-3.5 7-1 9.5M17 3.5c3 2.5 3.5 7 1 9.5"/><path d="M9 9.5h6l1.5 8-4.5 3-4.5-3z"/></svg><span data-t="dock.ship"></span></button>
     <button data-tab="gear"><span class="pg" data-g="LT"></span><svg viewBox="0 0 24 24"><path d="M12 2l3 6 6 1-4.5 4.5L18 20l-6-3-6 3 1.5-6.5L3 9l6-1z"/></svg><span data-t="dock.gear"></span></button>
     <button data-tab="map"><span class="pg" data-g="M"></span><svg viewBox="0 0 24 24"><path d="M7 3.5l5 2.9v5.8l-5 2.9-5-2.9V6.4z"/><path d="M17 9.5l5 2.9v5.8l-5 2.9-5-2.9"/></svg><span data-t="dock.map"></span></button>
+    <button data-tab="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span data-t="dock.settings"></span></button>
     <button id="wikiBtn"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M8 7h7M8 10.5h7"/></svg><span>Wiki</span></button>
     <button id="homeBtn"><span class="pg" data-g="B"></span><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6.5 9.5V20h11V9.5"/><path d="M10 20v-5h4v5"/></svg><span data-t="dock.home"></span></button>
   </nav>
@@ -86,9 +88,11 @@
 <script src="js/ship.js"></script>
 <script src="js/world.js"></script>
 <script src="js/control.js"></script>
+<script src="js/combat.js"></script>
 <script src="js/input.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/gear.js"></script>
+<script src="js/station.js"></script>
 <script src="js/wiki.js"></script>
 <script src="js/main.js"></script>
 </body>

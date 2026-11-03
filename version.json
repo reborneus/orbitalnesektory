@@ -1,9 +1,12 @@
 {
-  "version": "0.5.1",
+  "version": "0.6.0",
   "date": "2026-11-03",
   "notes": [
-    "Príručka (wiki) v hre – tlačidlo Wiki alebo kláves K, aj ako samostatná stránka wiki.html",
-    "Ikona hry",
-    "Spúšťač: výber priečinka hry, ikona na ploche, tlačidlo Príručka"
+    "Boj: nájazdy pirátov od 2. sektora, zbraň lode, strieľajúce veže, obranný režim dronov",
+    "Nový panel stanice: moduly s 3D náhľadom, vylepšenie +1 až +10 so stúpajúcou raritou",
+    "Čipy do modulov (AI jadro dronu – viridit, kryštály, obrana; zameriavač veže; zosilňovač senzorov)",
+    "Nový slot Zbraň a vylepšenia zbraní",
+    "Nastavenia v samostatnom menu, tlačidlo Ukončiť hru",
+    "Pasívny príjem len zo sektorov s dosiahnutým vplyvom"
   ]
 }

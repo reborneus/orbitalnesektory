@@ -6,6 +6,21 @@
    Nová kapitola: pridaj objekt do wikiSections() a jej texty do WT. */
 const WT={
 sk:{
+  'mod.h':'Moduly stanice a čipy','mod.lv':'Vylepšenie','mod.rar':'Rarita modulu','mod.cost':'Cena ďalšieho +1','mod.inf':'Vplyv (dok / veža / senzor)',
+  'mod.p':'Ťuknutím na stanicu sa otvorí panel stanice. Každý slot je rozbaľovacia karta s náhľadom modulu. Postavený modul vylepšíš až na +{max}; s vylepšením rastie jeho účinok, vplyv a rarita (farba rámu aj žiara modulu vo vesmíre). Do modulu môžeš vložiť čip z koristi.',
+  'mod.chip':'Čipy sú predmety pre moduly stanice. Padajú najmä z pirátov ({e} % koristi z pirátov), menej z reliktov. AI jadro dronu podľa rarity odomyká schopnosti:',
+  'mod.cap':['{g}: dron ťaží aj viridit (aj vo vonkajších pásoch, radiácia mu neškodí).','{d}: obranný režim – počas nájazdu dron útočí na pirátov pri stanici.','{c}: dron ťaží aj kryštály.'],
+  'mod.fx':'Účinok na +0 a každé +1: dok dronov {dr} t/s (+{drp} %), kapacita {dc} t (+{dcp} t), rýchlosť {ds} m/s (+{dsp} %); veža {td} poškodenia (+{tdp} %), {tr} výstrelu/s, dosah {tg} m (+{tgp} m); senzorové pole {sg} viriditu/min (+{sgp} %).',
+  'mod.sell':'Predaj modulu vráti {b} % ceny stavby a {e} % surovín minutých na jeho vylepšenia; čip sa vráti do inventára.',
+  'mod.paused':'Ak po obsadení vplyv sektora klesne pod hranicu (napríklad po predaji veží), sektor zostane prístupný, ale jeho pasívny príjem sa pozastaví, kým vplyv znova nedosiahne hranicu.',
+  'cmb.h':'Boj a piráti','cmb.kind':'Pirát','cmb.hp':'Výdrž','cmb.dmg':'Poškodenie výstrelu','cmb.fire':'Výstrel každých','cmb.drop':'Šanca na predmet','cmb.cr':'Kredity',
+  'cmb.p':'Od 2. sektora prilietajú nájazdy pirátov. Letia na stanicu a strieľajú do nej; ak je tvoja loď bližšie ako {ag} m alebo do nich vystrelíš, zaútočia na teba.',
+  'cmb.l':['Zbraň lode strieľa sama na najbližšieho piráta v dosahu {gr} m. Ťuknutím na piráta (alebo tlačidlom ťažby, keď je pirát blízko) ho zameriaš a loď sa drží v dosahu.',
+    'Obranné veže strieľajú na pirátov v okolí stanice. Drony s AI jadrom v obrannom režime počas nájazdu tiež bojujú.',
+    'Keď výdrž stanice klesne na nulu, piráti ukradnú {st} % rudy a viriditu na stanici, odletia a moduly sú {off} s offline. Stanica sa potom sama opravuje.',
+    'Za odrazený nájazd dostaneš {rb} ¢ za každého piráta. Na ťažkej obtiažnosti piráti udierajú o {hd} % silnejšie.'],
+  'cmb.raid':'Nájazdy podľa sektora','cmb.sec':'Sektor','cmb.first':'Prvý nájazd po','cmb.every':'Interval','cmb.count':'Stíhačky','cmb.cors':'Šanca na korzára','cmb.none':'bez pirátov',
+  'cmb.fighter':'Stíhačka','cmb.corsair':'Korzár','cmb.shp':'Výdrž stanice: {a} + {b} × úroveň jadra.',
   title:'Príručka',search:'Hľadať v príručke…',none:'Nič sa nenašlo.',close:'Zavrieť',toc:'Obsah',
   auto:'Hodnoty v príručke sa počítajú priamo z herných dát, takže vždy zodpovedajú tejto verzii hry.',
   'start.h':'Začíname',
@@ -16,7 +31,7 @@ sk:{
   'ctl.p':'Hra rozpozná, čím ju práve ovládaš, a podľa toho mení nápovedy. Ťuknutie na minimapu pošle loď na to miesto.',
   'ctl.rows':[['Let','ťuknúť alebo držať v priestore','WASD / šípky','ľavá páčka'],['Ťažiť najbližší asteroid','ťuknúť na asteroid','medzerník','A / ✕ alebo RT'],
     ['Domov na stanicu','tlačidlo Domov','H','B / ○'],['Stanica','tlačidlo Stanica','1','Y / △'],['Loď','tlačidlo Loď','2','X / □'],['Výbava','tlačidlo Výbava','I','LT / L2'],
-    ['Mapa a nastavenia','tlačidlo Mapa','3','Menu / Options'],['Autopilot zap./vyp.','Mapa → Nastavenia','P','View / Share'],['Príručka','tlačidlo Wiki','K','–'],
+    ['Mapa sektorov','tlačidlo Mapa','3','Menu / Options'],['Nastavenia','tlačidlo Nastavenia','O','LB / RB v menu'],['Útok na piráta','ťuknúť na piráta','medzerník (pirát blízko)','A / ✕'],['Autopilot zap./vyp.','Nastavenia','P','View / Share'],['Príručka','tlačidlo Wiki','K','–'],
     ['Priblíženie','koliesko alebo dva prsty','koliesko myši','pravá páčka'],['Pohyb v menu','ťuknutie','Tab, Enter','krížový ovládač, A, B, LB/RB']],
   'res.h':'Suroviny a kredity','res.name':'Surovina','res.where':'Kde sa nachádza','res.rate':'Rýchlosť ťažby','res.use':'Na čo slúži',
   'res.p':'Ťažobný laser ťaží rýchlosťou podľa úrovne lasera; vzácnejšie suroviny sa ťažia pomalšie. Vyťažené suroviny sú v náklade, kým ich nevyložíš na stanici. Pri zničení lode sa náklad stratí.',
@@ -57,7 +72,7 @@ sk:{
   'enh.p':'V detaile predmetu ho vylepšíš o +1. Do +5 sa vylepšenie vždy podarí, potom šanca klesá (najmenej {min} %). Pri neúspechu sa minú suroviny a kredity, predmet zostane. Najvyššie vylepšenie závisí od rarity.',
   'auto.h':'Automatizácia',
   'auto.l':['Automatická ťažba: po vyťažení asteroidu loď prejde na najbližší asteroid tej istej suroviny do 40 m.','Automatický návrat: pri plnom náklade loď sama poletí na stanicu.',
-    'Autopilot: ťaží zvolenú surovinu, vozí ju domov, zbiera korisť do 70 m a ťaží relikty do 50 m. Pri trupe pod 35 % sa vráti a pokračuje od 70 %. Ručný zásah ho na 6 s pozastaví.','Všetko zapneš v menu Mapa → Nastavenia. Autopilota aj klávesou P alebo tlačidlom View/Share.'],
+    'Autopilot: ťaží zvolenú surovinu, vozí ju domov, zbiera korisť do 70 m a ťaží relikty do 50 m. Pri trupe pod 35 % sa vráti a pokračuje od 70 %. Ručný zásah ho na 6 s pozastaví.','Všetko zapneš v menu Nastavenia. Autopilota aj klávesou P alebo tlačidlom View/Share.'],
   'diff.h':'Obtiažnosť','diff.k':'Vlastnosť',
   'diff.rows':[['Oprava trupu','sama po 30 s','len na stanici za rudu'],['Radiácia v pásoch','× {e1}','× {h1}'],['Za horizontom','× {e2}','× {h2}'],['Rýchlosť lode','× {e3}','× {h3}'],['Výnos surovín','× {e4}','× {h4}']],
   'diff.p':'Obtiažnosť sa vyberá na začiatku hry a zmeniť ju môžeš len pri novej hre.',
@@ -66,6 +81,21 @@ sk:{
     'Hra sa ukladá automaticky každých 6 sekúnd do prehliadača. Spúšťací panel pre Windows hru sťahuje z GitHubu a uložené hry drží vo vlastnom profile, takže prežijú aj aktualizáciu.'],
 },
 en:{
+  'mod.h':'Station modules and chips','mod.lv':'Upgrade','mod.rar':'Module rarity','mod.cost':'Next +1 cost','mod.inf':'Influence (dock / tower / sensor)',
+  'mod.p':'Tapping the station opens the station panel. Every slot is an expandable card with a preview of the module. A built module can be upgraded up to +{max}; upgrades raise its effect, influence and rarity (frame colour and the module glow in space). You can insert a chip from loot into a module.',
+  'mod.chip':'Chips are items for station modules. They drop mostly from pirates ({e}% of pirate loot), less from relics. A drone AI core unlocks abilities by rarity:',
+  'mod.cap':['{g}: the drone also mines viridite (in the outer belts too; radiation does not hurt it).','{d}: defense mode – during a raid the drone attacks pirates near the station.','{c}: the drone also mines crystals.'],
+  'mod.fx':'Effect at +0 and per +1: drone dock {dr} t/s (+{drp}%), capacity {dc} t (+{dcp} t), speed {ds} m/s (+{dsp}%); tower {td} damage (+{tdp}%), {tr} shots/s, range {tg} m (+{tgp} m); sensor array {sg} viridite/min (+{sgp}%).',
+  'mod.sell':'Selling a module returns {b}% of its build price and {e}% of the resources spent on its upgrades; the chip goes back to the inventory.',
+  'mod.paused':'If a claimed sector’s influence drops below the threshold (for example after selling towers), the sector stays accessible, but its passive income pauses until influence reaches the threshold again.',
+  'cmb.h':'Combat and pirates','cmb.kind':'Pirate','cmb.hp':'Hit points','cmb.dmg':'Shot damage','cmb.fire':'Shot every','cmb.drop':'Item chance','cmb.cr':'Credits',
+  'cmb.p':'From sector 2 on, pirates raid the station. They fly to the station and shoot it; if your ship is closer than {ag} m or you shoot them, they attack you.',
+  'cmb.l':['The ship’s weapon fires by itself at the nearest pirate within {gr} m. Tap a pirate (or press mine when one is close) to target it; the ship stays in range.',
+    'Defense towers shoot pirates near the station. Drones with an AI core in defense mode also fight during raids.',
+    'If the station’s integrity reaches zero, pirates steal {st}% of the station’s ore and viridite, fly off, and modules go offline for {off} s. The station then repairs itself.',
+    'A repelled raid pays {rb} ¢ per pirate. On Hard pirates hit {hd}% harder.'],
+  'cmb.raid':'Raids by sector','cmb.sec':'Sector','cmb.first':'First raid after','cmb.every':'Interval','cmb.count':'Fighters','cmb.cors':'Corsair chance','cmb.none':'no pirates',
+  'cmb.fighter':'Fighter','cmb.corsair':'Corsair','cmb.shp':'Station integrity: {a} + {b} × core level.',
   title:'Handbook',search:'Search the handbook…',none:'Nothing found.',close:'Close',toc:'Contents',
   auto:'The values in this handbook are computed straight from the game data, so they always match this version of the game.',
   'start.h':'Getting started',
@@ -76,7 +106,7 @@ en:{
   'ctl.p':'The game detects what you are playing with and adapts the hints. Tapping the minimap sends the ship there.',
   'ctl.rows':[['Fly','tap or hold in space','WASD / arrows','left stick'],['Mine nearest asteroid','tap an asteroid','Space','A / ✕ or RT'],
     ['Return to station','Home button','H','B / ○'],['Station','Station button','1','Y / △'],['Ship','Ship button','2','X / □'],['Gear','Gear button','I','LT / L2'],
-    ['Map and settings','Map button','3','Menu / Options'],['Autopilot on/off','Map → Settings','P','View / Share'],['Handbook','Wiki button','K','–'],
+    ['Sector map','Map button','3','Menu / Options'],['Settings','Settings button','O','LB / RB in menus'],['Attack a pirate','tap a pirate','Space (pirate nearby)','A / ✕'],['Autopilot on/off','Settings','P','View / Share'],['Handbook','Wiki button','K','–'],
     ['Zoom','scroll or pinch','mouse wheel','right stick'],['Menu navigation','tap','Tab, Enter','D-pad, A, B, LB/RB']],
   'res.h':'Resources and credits','res.name':'Resource','res.where':'Where','res.rate':'Mining speed','res.use':'Used for',
   'res.p':'The mining laser works at a speed set by its level; rarer resources mine slower. Mined resources stay in cargo until you unload them at the station. If the ship is destroyed, the cargo is lost.',
@@ -117,7 +147,7 @@ en:{
   'enh.p':'In the item detail you can upgrade it by +1. Up to +5 it always succeeds, then the chance drops (to at least {min}%). On failure the resources and credits are spent and the item stays. The highest upgrade depends on rarity.',
   'auto.h':'Automation',
   'auto.l':['Auto-mining: when an asteroid is depleted, the ship moves to the nearest asteroid of the same resource within 40 m.','Auto-return: with full cargo the ship flies to the station by itself.',
-    'Autopilot: mines the chosen resource, hauls it home, picks up loot within 70 m and mines relics within 50 m. Below 35% hull it returns and continues from 70%. Manual input pauses it for 6 s.','Turn everything on in Map → Settings. The autopilot also with the P key or the View/Share button.'],
+    'Autopilot: mines the chosen resource, hauls it home, picks up loot within 70 m and mines relics within 50 m. Below 35% hull it returns and continues from 70%. Manual input pauses it for 6 s.','Turn everything on in the Settings menu. The autopilot also with the P key or the View/Share button.'],
   'diff.h':'Difficulty','diff.k':'Property',
   'diff.rows':[['Hull repair','by itself after 30 s','only at the station, for ore'],['Belt radiation','× {e1}','× {h1}'],['Beyond the horizon','× {e2}','× {h2}'],['Ship speed','× {e3}','× {h3}'],['Resource yield','× {e4}','× {h4}']],
   'diff.p':'Difficulty is chosen at the start and can only be changed with a new game.',
@@ -186,9 +216,21 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
     H('sectors',wt('sec.h'),`<p>${wt('sec.p')}</p>`+tbl([wt('sec.name'),wt('sec.res'),wt('sec.ast'),wt('sec.relic'),wt('sec.cap'),wt('sec.rew'),wt('sec.ilvl')],rows))}
   { // stanica
     const core=[];for(let L=1;L<=CORE_MAX;L++)core.push([`<b>${L}</b>`,slotsFor(L),L*CORE_INF,L<CORE_MAX?costTxt(coreCost(L)):'–']);
-    const inc={drone:wt('st.pd',{o:nf(.7*60)}),tower:wt('st.pt'),sensor:wt('st.ps',{g:nf(.06*60,1)})};
+    const inc={drone:wt('st.pd',{o:nf(MOD_FX.drone.income*60)}),tower:wt('st.pt'),sensor:wt('st.ps',{g:nf(MOD_FX.sensor.green*60,1)})};
     const mods=Object.keys(MOD).map(k=>[`<b>${t('mod.'+k)}</b>`,'+'+MOD[k].inf,costTxt(MOD[k].cost(0)),costTxt(MOD[k].cost(1)),costTxt(MOD[k].cost(2)),inc[k]]);
-    H('station',wt('st.h'),`<p>${wt('st.p',{ci:CORE_INF,sell:60})}</p>`+tbl([wt('st.lv'),wt('st.slots'),wt('st.inf'),wt('st.next')],core)+tbl([wt('st.mod'),wt('st.minf'),wt('st.c1'),wt('st.c2'),wt('st.c3'),wt('st.pas')],mods))}
+    H('station',wt('st.h'),`<p>${wt('st.p',{ci:CORE_INF,sell:SELL_BUILD*100})}</p>`+tbl([wt('st.lv'),wt('st.slots'),wt('st.inf'),wt('st.next')],core)+tbl([wt('st.mod'),wt('st.minf'),wt('st.c1'),wt('st.c2'),wt('st.c3'),wt('st.pas')],mods))}
+  { // moduly stanice a čipy
+    const F=MOD_FX;const rows=[];for(let n=0;n<=MOD_ENH_MAX;n++){const R=MOD_RAR[n];rows.push([`<b>+${n}</b>`,rarName(R),n<MOD_ENH_MAX?costTxt(modEnhCost(n)):'–',['drone','tower','sensor'].map(k=>Math.round(MOD[k].inf*(1+MOD_ENH_INF*n))).join(' / ')])}
+    const capTxt=wt('mod.cap').map(x=>fill(x,{g:rarName(CHIP_CAP.green),d:rarName(CHIP_CAP.def),c:rarName(CHIP_CAP.crystal)}));
+    H('modules',wt('mod.h'),`<p>${wt('mod.p',{max:MOD_ENH_MAX})}</p><p>${wt('mod.fx',{dr:F.drone.rate,drp:F.drone.ratePer*100,dc:F.drone.cap,dcp:F.drone.capPer,ds:F.drone.speed,dsp:nf(F.drone.speedPer*100),td:F.tower.dmg,tdp:F.tower.dmgPer*100,tr:F.tower.rate,tg:F.tower.range,tgp:F.tower.rangePer,sg:nf(F.sensor.green*60,1),sgp:F.sensor.incPer*100})}</p>`
+      +tbl([wt('mod.lv'),wt('mod.rar'),wt('mod.cost'),wt('mod.inf')],rows)+`<p>${wt('mod.chip',{e:nf(CHIP_CHANCE.enemy*100)})}</p>`+list(capTxt)
+      +`<p>${wt('mod.sell',{b:SELL_BUILD*100,e:SELL_ENH*100})}</p><p>${wt('mod.paused')}</p>`)}
+  { // boj
+    const kinds=['fighter','corsair'].map(k=>{const P=PIRATES[k];return[`<b>${wt('cmb.'+k)}</b>`,P.hp.slice(1).filter(x=>x).join(' / '),P.dmg.slice(1).filter(x=>x).join(' / '),nf(P.fire,1)+' s',pct(P.drop),`${gem('cr')} ${P.cr[0]}–${P.cr[1]}`]});
+    const raids=SECTORS.map((S,i)=>{const c=PIRATES.raid[i];return c?[`<b>${secName(i)}</b>`,c.first+' s',`${c.every[0]}–${c.every[1]} s`,`${c.count[0]}–${c.count[1]}`,pct(c.corsair)]:[`<b>${secName(i)}</b>`,wt('cmb.none'),'–','–','–']});
+    H('combat',wt('cmb.h'),`<p>${wt('cmb.p',{ag:PIRATES.aggro})}</p>`+list(wt('cmb.l').map(x=>fill(x,{gr:GUN_RANGE,st:PIRATES.steal*100,off:PIRATES.offline,rb:PIRATES.repelBonus,hd:Math.round((PIRATES.hardDmg-1)*100)})))
+      +tbl([wt('cmb.kind'),wt('cmb.hp'),wt('cmb.dmg'),wt('cmb.fire'),wt('cmb.drop'),wt('cmb.cr')],kinds)+`<h4>${wt('cmb.raid')}</h4>`+tbl([wt('cmb.sec'),wt('cmb.first'),wt('cmb.every'),wt('cmb.count'),wt('cmb.cors')],raids)
+      +`<p class="wnote">${wt('cmb.shp',{a:PIRATES.stationHp(0),b:PIRATES.stationHp(1)-PIRATES.stationHp(0)})}</p>`)}
   { // loď
     let h=`<div class="wfig">${shipSvg()}<p>${wt('ship.p')}</p></div>`;
     for(const g of GROUPS){h+=`<h4>${t('grp.'+g)}</h4>`;

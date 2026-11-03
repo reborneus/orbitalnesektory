@@ -9,12 +9,14 @@ const SHIP_R=2.3,inVec=new V3(),padVec=new V3(),_dv=new V3(),_des=new V3(),_a=ne
 const mineRange=a=>astScale(a)*1.1+shipVal('range');
 const mineStop=a=>mineRange(a)-2.5;
 const nearStation=()=>Math.hypot(ship.position.x,ship.position.z)<STATION_R+14;
-function cmdMove(p){autoPause=6;moveTarget=p.clone().setY(0);mineTarget=null;openOnArrive=false}
-function cmdMine(a){if(a.type!=='relic'&&cargoTotal()>=shipVal('cargo')-.01){toast(t('tt.cargoFull'));return}
+function cmdMove(p){autoPause=6;attackTarget=null;moveTarget=p.clone().setY(0);mineTarget=null;openOnArrive=false}
+function cmdMine(a){attackTarget=null;if(a.type!=='relic'&&cargoTotal()>=shipVal('cargo')-.01){toast(t('tt.cargoFull'));return}
   mineTarget=a;moveTarget=a.pos.clone().setY(0);openOnArrive=false;fullWarned=false}
-function cmdHome(){const dir=ship.position.clone().setY(0);if(dir.lengthSq()<1)dir.set(0,0,1);dir.normalize().multiplyScalar(STATION_R+2);moveTarget=dir;mineTarget=null}
+function cmdHome(){attackTarget=null;const dir=ship.position.clone().setY(0);if(dir.lengthSq()<1)dir.set(0,0,1);dir.normalize().multiplyScalar(STATION_R+2);moveTarget=dir;mineTarget=null}
 function goHome(){autoPause=6;closeSheet();cmdHome();toast(t('tt.home'))}
 function mineNearest(){autoPause=6;
+  // pirát v dosahu zbrane má prednosť: tlačidlo ťažby ho zameria
+  {const e=nearestEnemy(ship.position,gunRange()*1.3);if(e&&!mineTarget){cmdAttack(e);return}}
   if(mineTarget){mineTarget=null;moveTarget=null;toast(t('tt.mineStop'));return}
   const fwd=_a.set(Math.sin(shipYaw),0,Math.cos(shipYaw));let best=null,bs=1e9;
   for(const a of asts){if(!a.alive)continue;_b.subVectors(a.pos,ship.position);_b.y=0;const d=_b.length();if(d>50)continue;

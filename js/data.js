@@ -38,6 +38,20 @@ const MOD={drone:{inf:15,cost:n=>C(120+70*n)},tower:{inf:25,cost:n=>C(200+80*n)}
 /* Ceny jadra stanice: CORE_COST[0] = z úrovne 1 na 2, [1] = z 2 na 3 atď. Každá úroveň jadra dáva CORE_INF vplyvu a jeden slot navyše. */
 const CORE_COST=[C(150),C(320),C(500,80),C(750,160,60)];
 const CORE_MAX=5,CORE_INF=15;
+/* Vylepšenie postavených modulov stanice +0 až +10. MOD_RAR[enh] = rarita modulu (index v RAR) – vylepšovaním modul stúpa na vyššiu raritu.
+   Každé +1 zvýši vplyv modulu o MOD_ENH_INF (podiel základu) a jeho účinok podľa MOD_FX. */
+const MOD_ENH_MAX=10,MOD_ENH_INF=.1;
+const MOD_RAR=[1,2,3,4,4,5,5,6,7,8,9];
+const modEnhCost=n=>C(120*(n+1),n>=2?25*(n-1):0,n>=6?12*(n-5):0,Math.round(40*Math.pow(n+1,1.5)));  // cena z +n na +(n+1)
+/* Účinky modulov. drone: rate t/s, cap t, speed m/s (+ podiel za každé +1), dmg poškodenie výstrelu v obrannom režime, range dosah obrany;
+   tower: dmg poškodenie výstrelu, rate výstrelov/s, range dosah od stanice v m; sensor: green = viridit/s v obsadenom sektore. */
+const MOD_FX={
+  drone:{rate:4,ratePer:.15,cap:15,capPer:3,speed:16,speedPer:.06,dmg:3,dmgPer:.15,range:28,income:.7},
+  tower:{dmg:8,dmgPer:.2,rate:1.2,range:40,rangePer:2},
+  sensor:{green:.06,incPer:.15},
+};
+/* Predaj modulu: vráti SELL_BUILD z ceny stavby a SELL_ENH z toho, čo stáli jeho vylepšenia. */
+const SELL_BUILD=.6,SELL_ENH=.4;
 const coreCost=L=>CORE_COST[L-1];
 const slotsFor=L=>Math.min(6,L+1);
 /* costTable([ruda...],[viridit...],[kryštály...],[kredity...]) = cenník vylepšenia; i-ty stĺpec = cena prechodu z úrovne (i+1) na (i+2),
@@ -48,7 +62,8 @@ const early=(o4,g4,c4)=>[o4,[...g4,...LATE_G],[...c4,...LATE_C],[0,0,0,0,...LATE
 /* Vylepšenia lode (10 úrovní). Polia: grp = skupina v menu (eng Motory, hull Trup, shield Štíty, laser Lasery),
    vals[L-1] = hodnota na úrovni L (pri štíte vals[L]), costs = cenník (costTable), fmt = zobrazenie, needs = vyžaduje iné vylepšenie.
    speed: m/s (úroveň 3 = pôvodná rýchlosť z v0.1), accel: m/s², hull: body trupu, cargo: tony,
-   shield: body štítu (0 = nemá), sregen: [čakanie v s, podiel max. štítu za sekundu], laser: t/s, range: dosah v m.
+   shield: body štítu (0 = nemá), sregen: [čakanie v s, podiel max. štítu za sekundu], laser: t/s, range: dosah v m,
+   gun: poškodenie jedného výstrelu zbrane, gunRate: výstrelov za sekundu (zbraň strieľa sama na najbližšieho piráta v dosahu GUN_RANGE).
    Bonusy z nasadených predmetov sa pripočítajú až v shipVal() v state.js. */
 const UP={
   speed:{grp:'eng',vals:[14.4,19.2,24,28.8,33.6,36,38.4,40.8,43.2,45.6],costs:costTable(...early([80,180,320,500,800,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>v.toFixed(1)+' m/s'},
@@ -60,6 +75,8 @@ const UP={
   sregen:{grp:'shield',needs:'shield',vals:[[15,.10],[13,.14],[11,.18],[9,.22],[7,.26],[6.5,.28],[6,.30],[5.5,.32],[5,.34],[4.5,.36]],
     costs:costTable(...early([150,280,450,650,900,1100,1350,1600,1900],[30,70,130,200],[0,0,25,50]))},
   laser:{grp:'laser',vals:[8,10.8,13.6,16.4,19.2,21,22.8,24.6,26.4,28.2],costs:costTable(...early([90,200,360,560,850,1050,1300,1550,1850],[0,30,75,130],[0,0,0,30])),fmt:v=>v.toFixed(1)+' t/s'},
+  gun:{grp:'weapon',vals:[8,10,12,14.5,17,19.5,22,25,28,32],costs:costTable(...early([120,240,400,620,900,1100,1350,1600,1900],[0,30,70,120],[0,0,0,25])),fmt:v=>v.toFixed(1)},
+  gunRate:{grp:'weapon',vals:[1.2,1.4,1.6,1.8,2,2.15,2.3,2.45,2.6,2.8],costs:costTable(...early([100,220,380,600,880,1080,1320,1580,1880],[0,25,60,110],[0,0,0,20])),fmt:v=>v.toFixed(2)+' /s'},
   range:{grp:'laser',vals:[10,12.5,15,17.5,20,21,22,23,24,25],costs:costTable(...early([60,150,280,450,700,880,1100,1350,1600],[0,20,50,100],[0,0,0,20])),fmt:v=>v.toFixed(1)+' m'},
 };
 /* doplní max, cost(L) a val(L) z tabuliek (min = najnižšia úroveň: 1, pri štíte 0) */
@@ -67,7 +84,8 @@ for(const k in UP){const u=UP[k];if(u.min===undefined)u.min=1;
   u.max=u.vals.length-(u.min===0?1:0);
   u.cost=L=>u.costs[L-u.min];
   u.val=L=>{const v=u.vals[L-(u.min===0?0:1)];if(k==='speed')return v*D().speed;if(k==='sregen')return{delay:v[0],rate:v[1]};return v}}
-const GROUPS=['eng','hull','shield','laser'];
+const GROUPS=['eng','hull','shield','laser','weapon'];
+const GUN_RANGE=28;   // dosah zbrane lode v m (+ vlastnosť Dosah zbrane)
 /* Obtiažnosť: regen = trup sa sám opravuje, rad = násobok radiácie v pásoch 3–4, voidM = násobok za horizontom,
    speed = násobok rýchlosti lode, yield = násobok vyťaženej suroviny (1.2 = o 20 % viac). */
 const DIFF={easy:{regen:true,rad:1,voidM:1,speed:1,yield:1},hard:{regen:false,rad:1.6,voidM:1.3,speed:.85,yield:1.2}};
@@ -83,5 +101,15 @@ const RAD={start:.8,end:3.5,voidBase:12,voidPerM:.35};
 const COLL={minSpeed:2,perMs:1.5,cooldown:.3};
 /* Zber koristi: loď pritiahne predmety bližšie ako LOOT_RANGE m (+ vlastnosť Dosah zberu). */
 const LOOT_RANGE=8;
+/* Piráti (od 2. sektora). raid[i] = nastavenie sektora i: every = interval medzi nájazdmi v s, count = počet stíhačiek, corsair = šanca na korzára,
+   first = prvý nájazd po príchode do sektora. fighter/corsair: hp, dmg (poškodenie výstrelu) podľa sektora, speed m/s, range dosah streľby,
+   fire = s medzi výstrelmi, drop = šanca na predmet, cr = kredity za zničenie, mf = bonus k vzácnosti koristi.
+   stationHp(L) = výdrž stanice podľa jadra; pri zničení piráti ukradnú steal podiel rudy a viriditu a moduly sú offline sekúnd. */
+const PIRATES={
+  raid:[null,{every:[120,200],count:[2,3],corsair:0,first:90},{every:[90,160],count:[3,5],corsair:.4,first:70}],
+  fighter:{hp:[0,45,80],dmg:[0,4,7],speed:18,range:26,fire:1.5,drop:.15,cr:[6,12],mf:.3,r:1.8},
+  corsair:{hp:[0,220,260],dmg:[0,12,14],speed:12,range:32,fire:2,drop:.7,cr:[25,50],mf:1,r:3.2},
+  stationHp:L=>400+150*L,stationRegen:3,steal:.15,offline:30,aggro:30,repelBonus:15,hardDmg:1.3,boltSpeed:45,playerBolt:70,
+};
 /* Kľúč uloženej hry v prehliadači. Ak ho zmeníš, hra začne odznova (stará uložená hra sa ignoruje). */
 const SAVE_KEY='orbitalne-sektory-v3';

@@ -10,6 +10,7 @@ function groundAt(x,y){toNdc(x,y);const p=new V3();return ray.ray.intersectPlane
 function clampLimit(p){const r=Math.hypot(p.x,p.z);if(r>LIMIT-2)p.multiplyScalar((LIMIT-2)/r);return p}
 function tapAt(x,y){autoPause=6;toNdc(x,y);const hits=ray.intersectObjects(pickables,false);
   for(const h of hits){const u=h.object.userData;
+    if(u.enemy&&enemies.includes(u.enemy)){cmdAttack(u.enemy);return}
     if(u.ast&&u.ast.alive){cmdMine(u.ast);flashMarker(u.ast.pos,'#58d0c0');return}
     if(u.station){if(nearStation())openSheet('station');else{cmdHome();openOnArrive=true}return}
     if(u.gate){cmdMove(gate.position);return}}
@@ -49,6 +50,9 @@ function drawMini(){const W=mini.width,c=W/2,R=c-1,k=R/MINI_R,u=W/150;const g=mc
   for(const l of loot){const x=c+l.g.position.x*k,y=c+l.g.position.z*k,s=(3.2+l.it.r*.25)*u;g.fillStyle=RAR[l.it.r].col;g.strokeStyle='#fff';g.lineWidth=.8*u;
     g.beginPath();g.moveTo(x,y-s);g.lineTo(x+s,y);g.lineTo(x,y+s);g.lineTo(x-s,y);g.closePath();g.fill();g.stroke();
     if(l.it.r>=6){g.strokeStyle=RAR[l.it.r].col;g.beginPath();g.arc(x,y,s+3*u,0,TAU);g.stroke()}}
+  // piráti: červené trojuholníky v smere letu
+  for(const e of enemies){const x=c+e.pos.x*k,y=c+e.pos.z*k,a=e.body.rotation.y,s=(e.kind==='corsair'?4.5:3.2)*u,fx=Math.sin(a),fz=Math.cos(a);
+    g.fillStyle=e.leaving?'rgba(255,90,74,.45)':'#ff5a4a';g.beginPath();g.moveTo(x+fx*s,y+fz*s);g.lineTo(x-fx*s*.7+fz*s*.7,y-fz*s*.7-fx*s*.7);g.lineTo(x-fx*s*.7-fz*s*.7,y-fz*s*.7+fx*s*.7);g.closePath();g.fill()}
   if(gate){g.strokeStyle='#7ef2e2';g.lineWidth=1.4*u;g.beginPath();g.arc(c+gate.position.x*k,c+gate.position.z*k,3.2*u,0,TAU);g.stroke()}
   const won=cur().captured;g.fillStyle=won?'#ffd27a':'#58d0c0';g.beginPath();for(let i=0;i<6;i++){const an=i/6*TAU;g.lineTo(c+Math.cos(an)*4*u,c+Math.sin(an)*4*u)}g.closePath();g.fill();
   g.fillStyle='#ffe2a8';for(const d of drones){g.beginPath();g.arc(c+d.g.position.x*k,c+d.g.position.z*k,1.2*u,0,TAU);g.fill()}
@@ -68,7 +72,7 @@ addEventListener('keydown',e=>{const k=e.key.toLowerCase();const inUI=e.target.c
   if(k===' '){e.preventDefault();if(document.activeElement&&document.activeElement!==canvas)document.activeElement.blur();setMode('key');mineNearest()}
   else if(k==='h'){setMode('key');goHome()}
   else if(k==='p'){setMode('key');toggleAutopilot()}
-  else if(k==='1')toggleTab('station');else if(k==='2')toggleTab('ship');else if(k==='3')toggleTab('map');else if(k==='i')toggleTab('gear')});
+  else if(k==='1')toggleTab('station');else if(k==='2')toggleTab('ship');else if(k==='3')toggleTab('map');else if(k==='i')toggleTab('gear');else if(k==='o')toggleTab('settings')});
 addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 addEventListener('blur',()=>keys.clear());
 function readInput(){inVec.set(0,0,0);

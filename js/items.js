@@ -40,9 +40,23 @@ const STATS={
   rad:    {lo:2,  hi:4,  dec:1,u:'%',cap:75}, // ochrana pred radiáciou v pásoch 3–4 (nie za horizontom)
   mf:     {lo:3,  hi:6,  dec:1,u:'%'},   // šanca na vzácnejšiu korisť
   magnet: {lo:.5, hi:1.5,dec:1,u:'m'},   // dosah zberu koristi
+  dmg:    {lo:4,  hi:8,  dec:1,u:'%'},   // poškodenie zbrane
+  frate:  {lo:3,  hi:6,  dec:1,u:'%'},   // kadencia zbrane
+  crit:   {lo:2,  hi:4,  dec:1,u:'%',cap:50}, // šanca na kritický zásah (dvojnásobné poškodenie)
+  grange: {lo:.5, hi:1.2,dec:1,u:'m'},   // dosah zbrane
+  /* vlastnosti čipov modulov stanice (platia len pre modul, do ktorého je čip vložený) */
+  dMine:  {lo:5,  hi:10, dec:1,u:'%'},   // výkon ťažby dronu
+  dCap:   {lo:2,  hi:4,  dec:0,u:'t'},   // kapacita dronu
+  dSpeed: {lo:4,  hi:8,  dec:1,u:'%'},   // rýchlosť dronu
+  dDmg:   {lo:6,  hi:12, dec:1,u:'%'},   // poškodenie dronu v obrannom režime
+  tDmg:   {lo:6,  hi:12, dec:1,u:'%'},   // poškodenie veže
+  tRange: {lo:1,  hi:2.5,dec:1,u:'m'},   // dosah veže
+  tRate:  {lo:4,  hi:8,  dec:1,u:'%'},   // kadencia veže
+  sInc:   {lo:6,  hi:12, dec:1,u:'%'},   // príjem senzorového poľa
+  inf:    {lo:1,  hi:2.5,dec:0,u:''},    // vplyv modulu
 };
 /* Sloty lode a typy predmetov. imp = hlavná vlastnosť (má dvojnásobnú silu), pool = z čoho sa losujú náhodné vlastnosti. */
-const SLOTS=['laser','engine','hull','shield','util'];
+const SLOTS=['laser','engine','hull','shield','util','weapon'];
 const BASES={
   laser:  {slot:'laser', imp:'mine',  pool:['range','yield','mf','mine','magnet','speed']},
   engine: {slot:'engine',imp:'speed', pool:['accel','speed','magnet','coll','cargo','rad']},
@@ -51,13 +65,23 @@ const BASES={
   cargo:  {slot:'util',  imp:'cargo', pool:['yield','mf','magnet','speed','rad','mine']},
   filter: {slot:'util',  imp:'rad',   pool:['shield','hull','coll','sregen','mf','cargo']},
   scanner:{slot:'util',  imp:'mf',    pool:['magnet','yield','range','mine','speed','rad']},
+  cannon: {slot:'weapon',imp:'dmg',   pool:['frate','crit','grange','dmg','hull','speed']},
+  /* čipy modulov stanice: slot 'chip', mod = do akého modulu patria. Rarita čipu odomyká schopnosti (CHIP_CAP). */
+  droneAI:   {slot:'chip',mod:'drone', imp:'dMine',pool:['dCap','dSpeed','dDmg','inf']},
+  towerCore: {slot:'chip',mod:'tower', imp:'tDmg', pool:['tRange','tRate','inf']},
+  sensorCore:{slot:'chip',mod:'sensor',imp:'sInc', pool:['inf']},
 };
+/* AI jadro dronu podľa rarity: green = dron ťaží aj viridit, def = obranný režim, crystal = ťaží aj kryštály. */
+const CHIP_CAP={green:3,def:4,crystal:5};
+/* Šanca, že predmet z daného zdroja bude čip modulu (inak modul lode). */
+const CHIP_CHANCE={asteroid:.1,relic:.2,capture:.25,enemy:.45};
+const SHIP_BASES=Object.keys(BASES).filter(b=>BASES[b].slot!=='chip'),CHIP_BASES=Object.keys(BASES).filter(b=>BASES[b].slot==='chip');
 const INV_MAX=40;          // veľkosť inventára
 const ENH_STEP=.06;        // +6 % ku všetkým vlastnostiam za každé +1
 const ILVL_SCALE=.08;      // +8 % sily vlastností za každú úroveň predmetu
 const ASTEROID_DROP=.03;   // šanca, že z bežného asteroidu (vyťaženého loďou) padne predmet
 /* Bonus k šanci na vzácnosť podľa zdroja a pásu (pridáva sa k vlastnosti mf). */
-const MF_SOURCE={asteroid:0,relic:.8,capture:1.2};
+const MF_SOURCE={asteroid:0,relic:.8,capture:1.2,enemy:.3,corsair:1};
 const MF_ZONE={1:0,2:0,3:.25,4:.5,5:.6};
 const ILVL_ZONE={1:0,2:1,3:4,4:7,5:9};
 
@@ -70,7 +94,7 @@ function rollRarity(mf,minR=0){const w=rarityWeights(mf,minR);
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function rollStat(k,ilvl,r,m=1){const S=STATS[k];const v=rnd(S.lo,S.hi)*(1+ilvl*ILVL_SCALE)*RAR[r].mult*m;const f=Math.pow(10,S.dec);return Math.max(1/f,Math.round(v*f)/f)}
-function genItem(r,ilvl,bk){bk=bk||pick(Object.keys(BASES));const B=BASES[bk];const R=RAR[r];
+function genItem(r,ilvl,bk){bk=bk||pick(SHIP_BASES);const B=BASES[bk];const R=RAR[r];
   const n=Math.min(B.pool.length-(B.pool.includes(B.imp)?1:0),R.aff[0]+Math.floor(Math.random()*(R.aff[1]-R.aff[0]+1)));
   // hlavná vlastnosť sa medzi náhodnými neopakuje
   const pool=B.pool.filter(k=>k!==B.imp).sort(()=>Math.random()-.5).slice(0,n);
@@ -78,7 +102,8 @@ function genItem(r,ilvl,bk){bk=bk||pick(Object.keys(BASES));const B=BASES[bk];co
     title:r>=6?Math.floor(Math.random()*TITLE_COUNT):-1,lock:false,nw:true}}
 /* Predmet, ktorý padne zo zdroja: mf zo zdroja + pásu + sektora + vlastností výbavy. */
 function dropItem(source,zone,minR=0){const mf=MF_SOURCE[source]+MF_ZONE[zone]+state.cur*.25+bonus().mf/100;
-  const r=rollRarity(mf,minR);const ilvl=SECTORS[state.cur].ilvl+ILVL_ZONE[zone]+Math.floor(Math.random()*3);return genItem(r,ilvl)}
+  const r=rollRarity(mf,minR);const ilvl=SECTORS[state.cur].ilvl+ILVL_ZONE[zone]+Math.floor(Math.random()*3);
+  const chip=Math.random()<(CHIP_CHANCE[source==='corsair'?'enemy':source]||0);return genItem(r,ilvl,chip?pick(CHIP_BASES):null)}
 
 /* Skutočné hodnoty vlastností predmetu vrátane vylepšenia (+N). */
 const enhMul=it=>1+ENH_STEP*it.enh;
@@ -89,6 +114,7 @@ let _bonus=null;
 function bonusDirty(){_bonus=null}
 function bonus(){if(_bonus)return _bonus;const b={};for(const k in STATS)b[k]=0;
   if(state&&state.eq)for(const s of SLOTS){const it=state.eq[s];if(it)for(const x of itemStats(it))b[x.k]+=x.v}
+  b.mf=b.mf||0;
   for(const k in STATS)if(STATS[k].cap)b[k]=Math.min(STATS[k].cap,b[k]);return _bonus=b}
 
 /* Vylepšenie predmetu: cena rastie s úrovňou a raritou; od +5 hrozí neúspech (stratia sa len suroviny a kredity). */
@@ -109,5 +135,9 @@ const ICONS={
   cargo:'<rect x="4" y="7" width="16" height="12" rx="1"/><path d="M4 11h16M10 7V4h4v3"/>',
   filter:'<circle cx="12" cy="12" r="8"/><path d="M12 12V5M12 12l6 3.5M12 12l-6 3.5"/><circle cx="12" cy="12" r="1.5"/>',
   scanner:'<circle cx="11" cy="11" r="6"/><path d="M15.5 15.5L21 21M11 8v6M8 11h6"/>',
+  cannon:'<path d="M3 15h10l3-3h5v4h-5l-3-1H3z"/><path d="M6 15v4M9 15v4"/>',
+  droneAI:'<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/><circle cx="12" cy="12" r="2.5"/>',
+  towerCore:'<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M12 8v8M8 12h8"/><circle cx="12" cy="12" r="4"/>',
+  sensorCore:'<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 14a3 3 0 0 1 6 0M8 11a5 5 0 0 1 8 0"/>',
 };
 const icon=b=>`<svg viewBox="0 0 24 24" class="ico">${ICONS[b]}</svg>`;

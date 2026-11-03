@@ -12,6 +12,8 @@ function say(a){const arr=(L10N[lang].say||L10N.sk.say)[a];const s=inputMode==='
 const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
 function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const cap=capOf(state.cur);const ptr=inputMode!=='pad'&&inputMode!=='key';
   $('#secName').textContent=secName(state.cur);
+  // výdrž stanice: zobrazí sa v sektoroch s pirátmi alebo keď je stanica poškodená
+  {const mh=stationMaxHp(),show=!!raidCfg()||stationHp<mh-1;$('#stRow').hidden=!show;if(show){$('#stBar').style.width=(Math.max(0,stationHp)/mh*100)+'%';$('#stBar').className=stationDown>0||stationHp<mh*.3?'low':'';$('#stTxt').textContent=stationDown>0?t('hud.down'):`${Math.ceil(Math.max(0,stationHp))}/${mh}`}}
   const tag=$('#secTag');tag.textContent=s.captured?t('hud.won'):t('hud.unc');tag.classList.toggle('won',s.captured);
   const ib=$('#infBar');ib.style.width=Math.min(100,inf/cap*100)+'%';ib.classList.toggle('won',s.captured);
   $('#infTxt').textContent=s.captured?t('hud.infwon',{a:inf}):t('hud.inf',{a:inf,b:cap});
@@ -35,6 +37,8 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   if(dead)h=t('h.dead');
   else if(sheetTab&&inputMode==='pad')h=t('h.pad',{A:g.A,B:g.B,LB:g.LB,RB:g.RB});
   else if(rr>=HORIZON)h=t('h.void');
+  else if(stationDown>0)h=t('h.stDown',{s:Math.ceil(stationDown)});
+  else if(raidActive)h=ptr?t('h.raidPtr',{n:enemies.filter(e=>!e.leaving).length}):t('h.raid',{n:enemies.filter(e=>!e.leaving).length,mine:say('mine')});
   else if((state.autoPilot||returnSent)&&homeBound()&&cargoTotal()>0)h=t('h.apHome');
   else if(full)h=t('h.full',{home:cap1(say('home'))});
   else if(state.autoPilot&&autoPause>0&&!mining)h=t('h.apPause');
@@ -51,8 +55,8 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
 
 let sheetTab=null,shipGrp='eng',focusIdx=0;
 const sheet=$('#sheet'),body=$('#sheetBody');
-const TABS=['station','ship','gear','map'];
-function openSheet(tab){if(sheetTab!==tab)focusIdx=0;sheetTab=tab;sheet.hidden=false;renderSheet();document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));lastHint=''}
+const TABS=['station','ship','gear','map','settings'];
+function openSheet(tab){if(sheetTab!==tab)focusIdx=0;sheetTab=tab;sheet.hidden=false;sheet.classList.toggle('side',tab==='station');renderSheet();document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));lastHint=''}
 function closeSheet(){sheetTab=null;sheet.hidden=true;document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.remove('on'));lastHint=''}
 function toggleTab(tb){sheetTab===tb?closeSheet():openSheet(tb)}
 function cycleTab(d){const i=TABS.indexOf(sheetTab);openSheet(TABS[(i+d+TABS.length)%TABS.length])}
@@ -76,23 +80,7 @@ function repairCard(){const hm=shipVal('hull');const cost=Math.ceil((hm-state.hp
 /* sheetTab: 'station' | 'ship' | 'map' | 'gate'. Tlačidlá majú data-act (čo urobiť) a ceny v data-ore/data-green/data-cry;
    kliknutia spracúva jeden spoločný poslucháč nižšie (body.addEventListener('click', ...)). */
 function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
-  if(sheetTab==='station'){$('#sheetTitle').textContent=t('sh.station',{s:secName(state.cur)});const inf=influence(s),cap=capOf(state.cur);
-    if(state.hp<shipVal('hull')-.5)h+=repairCard();
-    const L=s.core;
-    h+=`<div class="card"><h3>${t('core.name')} <span class="lv">${t('lv',{n:L,m:CORE_MAX})}</span></h3>`;
-    if(L<CORE_MAX){const cc=coreCost(L);h+=actBtn('core',t('btn.upgrade'),cc,false)+`<div class="costs">${costHtml(cc)}</div><p>${t('core.next')}</p>`}
-    else h+=`<button class="act max" disabled>${t('btn.max')}</button><p>${t('core.max')}</p>`;
-    h+=`<div class="stat">${t('core.stat',{s:slotsFor(L),i:L*CORE_INF})}</div></div>`;
-    const n=slotsFor(L),free=freeSlot(s);
-    h+=`<div class="sec-h"><span>${t('mods')}</span><span>${t('slotsOf',{a:s.slots.slice(0,n).filter(Boolean).length,b:n})}</span></div><div class="slots">`;
-    for(let i=0;i<6;i++){const m=s.slots[i];h+=i<n?`<span class="slot ${m||''}" title="${m?t('mod.'+m):''}">${m?t('mod.'+m+'.s'):''}</span>`:'<span class="slot lock"></span>'}h+='</div>';
-    for(const k of Object.keys(MOD)){const md=MOD[k];const cnt=countMod(s,k);const c=md.cost(cnt);
-      h+=`<div class="card"><h3>${t('mod.'+k)} <span class="lv">${t('mod.inf',{n:cnt,i:md.inf})}</span></h3>${actBtn('mod',free<0?t('btn.noslot'):t('btn.build'),c,free<0,`data-mod="${k}"`)}<div class="costs">${costHtml(c)}</div><p>${t('mod.'+k+'.d')}</p></div>`}
-    const built=[];for(let i=0;i<n;i++)if(s.slots[i])built.push(i);
-    if(built.length){h+=`<div class="sec-h"><span>${t('mods.built')}</span></div>`;
-      for(const i of built){const k=s.slots[i];const r=refundOf(s,k);
-        h+=`<div class="card"><h3>${t('mod.'+k)} <span class="lv">${t('slotN',{n:i+1})} · −${MOD[k].inf}</span></h3><button class="act sell" data-act="sell" data-i="${i}">${t('btn.sell')}</button><div class="costs">${refundHtml(r)}</div><p>${t('sell.d')}</p></div>`}}
-    h+=`<p class="note">${s.captured?t('st.noteWon'):state.cur<SECTORS.length-1?t('st.note',{a:inf,b:cap}):t('st.noteLast',{a:inf,b:cap})}</p>`}
+  if(sheetTab==='station'){$('#sheetTitle').textContent=t('sh.station',{s:secName(state.cur)});h=renderStation()}
   else if(sheetTab==='ship'){$('#sheetTitle').textContent=t('sh.ship');
     h+=`<div class="segs">${GROUPS.map(g=>`<button class="seg" data-act="grp" data-g="${g}" aria-pressed="${g===shipGrp}">${t('grp.'+g)}</button>`).join('')}</div>`;
     for(const k of Object.keys(UP))if(UP[k].grp===shipGrp)h+=upCard(k);
@@ -110,12 +98,12 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
       h+=`<span class="gems">${S.res.map(r=>`<span class="gem" style="background:${RCOL[r]}" title="${t('res.'+r)}"></span>`).join('')}</span>`;
       h+=`<p>${t('sec'+i+'.sub')} ${sc.unlocked?t('map.inf',{a:influence(sc),b:S.capture}):t('map.lock',{s:secName(i-1)})}</p>`;
       const inc=sc.captured?passiveOf(sc):null;
-      if(inc)h+=`<div class="stat">${t('map.income',{o:Math.round(inc.ore*60),g:Math.round(inc.green*60)})}${t('map.cr',{c:Math.round(SECTOR_CREDITS*60)})}</div>`;
+      if(inc&&inc.paused)h+=`<div class="stat" style="color:var(--warn)">${t('map.paused',{a:influence(sc),b:S.capture})}</div>`;
+      else if(inc)h+=`<div class="stat">${t('map.income',{o:Math.round(inc.ore*60),g:Math.round(inc.green*60)})}${t('map.cr',{c:Math.round(SECTOR_CREDITS*60)})}</div>`;
       else h+=`<div class="stat">${t('map.reward',{c:S.reward.cr,r:t('r.'+RAR[S.reward.minR].k)})}</div>`;
       h+='</div>'});
-    if(isGate){body.innerHTML=h;refreshSheet();applyFocus();return}
-    h+=`<p class="note">${t('map.gateNote')}</p>`;
-    h+=`<div class="sec-h"><span>${t('set.h')}</span></div>`;
+    if(!isGate)h+=`<p class="note">${t('map.gateNote')}</p>`}
+  else if(sheetTab==='settings'){$('#sheetTitle').textContent=t('sh.settings');
     const onoff=(k,on)=>`<div class="langs"><button class="langb" data-act="opt" data-k="${k}" data-v="1" aria-pressed="${on}">${t('on')}</button><button class="langb" data-act="opt" data-k="${k}" data-v="0" aria-pressed="${!on}">${t('off')}</button></div>`;
     h+=`<div class="sec-h"><span>${t('set.autoH')}</span></div>`;
     h+=`<div class="card"><h3>${t('set.ap')}</h3>${onoff('autoPilot',!!state.autoPilot)}<p>${t('set.ap.d',{V:G().V})}</p>
@@ -123,13 +111,15 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
       ${SECTORS[state.cur].res.includes(state.autoRes)?'':`<div class="stat" style="color:var(--warn)">${t('set.ap.miss',{r:t('res.'+state.autoRes)})}</div>`}</div>`;
     h+=`<div class="card"><h3>${t('set.ret')}</h3>${onoff('autoReturn',state.autoReturn!==false)}<p>${t('set.ret.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
+    h+=`<div class="sec-h"><span>${t('set.h')}</span></div>`;
     h+=`<div class="card"><h3>${t('set.lang')}</h3>${langBtns()}<p>${t('set.diff',{d:t('diff.'+state.diff)})}</p></div>`;
+    h+=`<div class="card"><h3>${t('set.quit')}</h3><button class="act" data-act="quit">${t('btn.quit')}</button><p>${t('set.quit.d')}</p></div>`;
     h+=`<p class="note">${t('save.note')}</p><button class="ghost danger" id="resetBtn">${t('btn.reset')}</button>`}
   body.innerHTML=h;refreshSheet();applyFocus()}
 function refreshSheet(){if(!sheetTab)return;
   body.querySelectorAll('[data-need]').forEach(el=>el.classList.toggle('lack',amt(el.dataset.need)<+el.dataset.n));
   body.querySelectorAll('.act[data-ore]').forEach(b=>{b.disabled=b.dataset.block==='1'||state.ore<+b.dataset.ore||state.green<+b.dataset.green||state.crystal<+b.dataset.cry||state.credits<+(b.dataset.crd||0)})}
-function focusables(){return[...body.querySelectorAll('.seg,.act,.langb,.ghost,.btn,.itm,.eqc')]}
+function focusables(){return[...body.querySelectorAll('.seg,.act,.langb:not(:disabled),.ghost,.btn,.itm,.eqc,summary')]}
 function applyFocus(){body.querySelectorAll('.pad-focus').forEach(el=>el.classList.remove('pad-focus'));if(inputMode!=='pad'||!sheetTab)return;
   const f=focusables();if(!f.length)return;focusIdx=clamp(focusIdx,0,f.length-1);const el=f[focusIdx];const box=el.classList.contains('act')?(el.closest('.card')||el):el;
   box.classList.add('pad-focus');box.scrollIntoView({block:'nearest',behavior:'smooth'})}
@@ -148,12 +138,9 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(act==='ares'){state.autoRes=b.dataset.r;save();renderSheet();if(state.autoPilot)toast(t('tt.apOn',{r:t('res.'+state.autoRes)}));return}
   if(act==='repair'){if(!nearStation()){toast(t('rep.far'));return}const hm=shipVal('hull');const need=Math.ceil((hm-state.hp)/REPAIR_PER_ORE);const n=Math.min(need,Math.floor(state.ore));
     if(n<=0)return;state.ore-=n;const before=state.hp;state.hp=Math.min(hm,state.hp+n*REPAIR_PER_ORE);toast(t('tt.repaired',{n:Math.round(state.hp-before)}));changed();return}
-  if(act==='sell'){const i=+b.dataset.i;const k=s.slots[i];if(!k)return;
-    if(!b.dataset.arm||performance.now()-(+b.dataset.arm)>3000){b.dataset.arm=performance.now();b.textContent=t('btn.sellSure');setTimeout(()=>{if(b.isConnected)b.textContent=t('btn.sell')},3000);return}
-    const r=refundOf(s,k);s.slots[i]=null;const parts=[];for(const x of RES){state[x]+=r[x];if(r[x])parts.push(t('res.'+x+'.gain',{n:r[x]}))}
-    rebuildStation();toast(t('tt.sold',{m:t('mod.'+k),list:parts.join(', ')}));changed();return}
+  if(stationAct(act,b))return; // akcie panela stanice (station.js)
+  if(act==='quit'){quitGame();return}
   if(act==='core'){const c=coreCost(s.core);if(s.core<CORE_MAX&&afford(c)){pay(c);s.core++;rebuildStation();toast(t('tt.coreUp',{n:s.core}));changed()}}
-  else if(act==='mod'){const k=b.dataset.mod;const i=freeSlot(s);const c=MOD[k].cost(countMod(s,k));if(i>=0&&afford(c)){pay(c);s.slots[i]=k;rebuildStation();toast(t('tt.built',{m:t('mod.'+k)}));changed()}}
   else if(act==='ship'){const k=b.dataset.k;const u=UP[k];const L=state.ship[k];const c=u.cost(L);if(L<u.max&&afford(c)){pay(c);
       if(k==='shield'){const before=shieldMax();state.ship[k]++;state.sh=Math.min(shieldMax(),state.sh+(shieldMax()-before));if(L===0){state.sh=shieldMax();toast(t('tt.shieldOn'))}else toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
       else{state.ship[k]++;if(k==='hull')state.hp+=40;toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
@@ -168,7 +155,14 @@ function checkCapture(){const s=cur();if(!s.captured&&influence(s)>=capOf(state.
   else if(state.sec.every(x=>x.captured))toast(t('tt.capturedAll'),true);
   else toast(t('tt.capturedOne',{s:secName(state.cur)}),true)}}
 /* Pasívny príjem obsadeného sektora za sekundu: každý dok dronov 0,7 rudy, každé senzorové pole 0,06 viriditu, k tomu SECTOR_CREDITS kreditov (v main.js). */
-function passiveOf(sc){return{ore:countMod(sc,'drone')*.7,green:countMod(sc,'sensor')*.06}}
+/* Ak vplyv obsadeného sektora klesne pod hranicu (napr. po predaji modulov), sektor zostane prístupný, ale príjem sa pozastaví (paused). */
+function passiveOf(sc){const paused=influence(sc)<SECTORS[state.sec.indexOf(sc)].capture;let ore=0,green=0;
+  if(!paused)for(const m of sc.slots){if(!m)continue;if(m.t==='drone')ore+=droneIncome(m);if(m.t==='sensor')green+=sensorIncome(m)}
+  return{ore,green,paused}}
+/* Ukončenie hry: uloží a skúsi zavrieť okno (funguje v okne spusteného spúšťačom); inak ukáže, že je možné okno zavrieť. */
+function quitGame(){save();toast(t('tt.saved'));try{window.close()}catch(e){}
+  setTimeout(()=>{if(window.closed)return;closeSheet();const d=document.createElement('div');d.className='intro';d.innerHTML=`<div class="box glass" style="text-align:center"><h1 style="font-size:28px">${t('bye')}</h1><button class="go" id="byeBack">${t('btn.back')}</button></div>`;
+    document.body.appendChild(d);d.querySelector('#byeBack').onclick=()=>d.remove()},400)}
 
 let jumping=false;
 /* Skok do sektora i: krátky záblesk, potom sa sektor postaví nanovo a loď sa objaví pri stanici. */
@@ -183,6 +177,7 @@ function jumpTo(i,instant){if(jumping)return;jumping=true;const w=$('#warp');w.c
 let pendingDiff='easy';
 function setLang(l){lang=l;if(state)state.lang=l;try{localStorage.setItem('os-lang',l)}catch(e){}applyLang();if(state)save()}
 function applyLang(){document.documentElement.lang=lang;document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.dataset.t));
+  document.querySelectorAll('.dock button').forEach(b=>{const l=b.querySelector('[data-t]');const txt=l?t(l.dataset.t):'Wiki';b.setAttribute('aria-label',txt);b.title=txt});
   mini.setAttribute('aria-label',t('mini'));if(!$('#intro').hidden)renderIntro();renderSheet();lastHint='';updateHUD()}
 function renderIntro(){$('#introBox').innerHTML=`<div class="intro-top"><div class="kicker">${t('in.kicker')}</div>${langBtns()}</div>
   <h1>Orbitálne Sektory</h1><ol>${[1,2,3,4,5,6].map(i=>`<li>${t('in.'+i)}</li>`).join('')}</ol>

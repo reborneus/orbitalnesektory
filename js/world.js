@@ -37,6 +37,7 @@ function buildSector(){
   for(const f of S.fields)for(let i=0;i<f.n;i++){const a=makeAst(f.type,f,r);placeAst(a,r);asts.push(a)}
   rebuildStation();
   updateGate();
+  resetCombat();
 }
 
 function makeAst(type,f,r){const g=new THREE.Group();const S=SECTORS[state.cur];
@@ -94,7 +95,11 @@ function rebuildStation(){
     const con=new THREE.Mesh(new THREE.BoxGeometry(.35,.35,5),M.dark);con.position.copy(p).multiplyScalar(.78).setY(-.9);con.lookAt(0,-.9,0);g.add(con);
     const m=s.slots[i];
     if(!m){const e=glow('#58d0c0',3.4,.35);e.position.copy(p).setY(-.4);g.add(e);anim.blink.push({o:e,f:.4,base:3.4,soft:1})}
-    else g.add(makeModule(m,p,anim))}
+    else{g.add(makeModule(m.t,p,anim));
+      // žiara pod modulom vo farbe jeho rarity (stúpa s vylepšením +0..+10)
+      const R=modRar(m),c=RAR[R].col;const rg=glow(c,4.5+R*.5,.18+R*.04);rg.position.copy(p).setY(-.6);g.add(rg);anim.blink.push({o:rg,f:.3,base:4.5+R*.5,soft:1});
+      if(R>=6){const ring=new THREE.Mesh(new THREE.RingGeometry(2.2,2.45,36),new THREE.MeshBasicMaterial({color:new THREE.Color(c),transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+        ring.rotation.x=-Math.PI/2;ring.position.copy(p).setY(-.7);g.add(ring)}}}
   const proxy=new THREE.Mesh(new THREE.SphereGeometry(STATION_R,10,8),M.pick);proxy.userData.station=true;g.add(proxy);
   pickables=pickables.filter(p=>!p.userData.station);pickables.push(proxy);
   world.add(g);
@@ -131,31 +136,56 @@ function updateGate(){if(gate){world.remove(gate);pickables=pickables.filter(p=>
   world.add(gate);
   for(const a of asts)if(a.alive&&a.pos.distanceTo(gate.position)<12)placeAst(a,Math.random)}
 
-/* drones: mine only ore in the inner belts */
+/* ---------- Drony ----------
+   Každý dok dronov má jedného drona. Jeho vlastnosti závisia od vylepšenia doku (+0..+10) a vloženého AI jadra (čipu):
+   droneStats(m) vráti rate (t/s), cap (t), speed (m/s), dmg a range (obranný režim), res (surovina, ktorú ťaží) a def (či bráni).
+   Bez čipu ťaží len rudu vo vnútorných pásoch. AI jadro od rarity Neobyčajné povolí viridit, od Vzácne obranu, od Epické kryštály. */
+function droneStats(m){const F=MOD_FX.drone,e=m.enh||0;
+  const can={ore:true,green:chipCan(m,'green'),crystal:chipCan(m,'crystal')};
+  return{rate:F.rate*(1+F.ratePer*e)*(1+chipStat(m,'dMine')/100),cap:F.cap+F.capPer*e+chipStat(m,'dCap'),speed:F.speed*(1+F.speedPer*e)*(1+chipStat(m,'dSpeed')/100),
+    dmg:F.dmg*(1+F.dmgPer*e)*(1+chipStat(m,'dDmg')/100),range:F.range,res:can[m.res]?m.res:'ore',can,def:m.mode==='def'&&chipCan(m,'def')}}
+function towerStats(m){const F=MOD_FX.tower,e=m.enh||0;return{dmg:F.dmg*(1+F.dmgPer*e)*(1+chipStat(m,'tDmg')/100),rate:F.rate*(1+chipStat(m,'tRate')/100),range:F.range+F.rangePer*e+chipStat(m,'tRange')}}
+const sensorIncome=m=>MOD_FX.sensor.green*(1+MOD_FX.sensor.incPer*(m.enh||0))*(1+chipStat(m,'sInc')/100);
+const droneIncome=m=>MOD_FX.drone.income*(1+MOD_FX.drone.ratePer*(m.enh||0))*(1+chipStat(m,'dMine')/100);
 const DRONE_GEO=new THREE.OctahedronGeometry(.55,0);
-function syncDrones(){const s=cur();const docks=[];s.slots.forEach((m,i)=>{if(m==='drone'&&i<slotsFor(s.core))docks.push(i)});
+function syncDrones(){const s=cur();const docks=[];s.slots.forEach((m,i)=>{if(slotType(m)==='drone'&&i<slotsFor(s.core))docks.push(i)});
   while(drones.length<docks.length){const g=new THREE.Group();const b=new THREE.Mesh(DRONE_GEO,M.metal);b.scale.set(1,.6,1.7);g.add(b);
     const e=glow('#f0a644',1.8,.9);e.position.z=-.9;g.add(e);
     const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new V3(),new V3()]),new THREE.LineBasicMaterial({color:new THREE.Color('#f0a644'),transparent:true,opacity:.8,blending:THREE.AdditiveBlending}));
     line.visible=false;line.frustumCulled=false;world.add(line);
-    const d={g,line,state:'seek',t:null,load:0,home:new V3(),wait:Math.random()*1.5};g.position.copy(slotPos(docks[drones.length])).multiplyScalar(.92);world.add(g);drones.push(d)}
-  while(drones.length>docks.length){const d=drones.pop();world.remove(d.g);world.remove(d.line);if(d.t)d.t.claims=Math.max(0,d.t.claims-1);if(d.load>0)state.ore+=d.load}
-  drones.forEach((d,i)=>d.home.copy(slotPos(docks[i])).multiplyScalar(.85).setY(1))}
-/* Dron: seek (hľadá rudu v pásoch 1–2) -> go (letí) -> mine (ťaží do 15 t) -> back (vezie na stanicu). */
-function tickDrones(dt,tt){const sp=16,cap=15,rate=4;
-  for(const d of drones){const p=d.g.position;
+    const d={g,e,line,state:'seek',t:null,load:0,ltype:'ore',home:new V3(),wait:Math.random()*1.5,cd:0,slot:-1};g.position.copy(slotPos(docks[drones.length])).multiplyScalar(.92);world.add(g);drones.push(d)}
+  while(drones.length>docks.length){const d=drones.pop();world.remove(d.g);world.remove(d.line);if(d.t)d.t.claims=Math.max(0,d.t.claims-1);if(d.load>0)state[d.ltype]+=d.load}
+  drones.forEach((d,i)=>{d.slot=docks[i];d.home.copy(slotPos(docks[i])).multiplyScalar(.85).setY(1);d.e.material.color.set(RAR[modRar(s.slots[d.slot])].col)})}
+/* Dron: seek (hľadá asteroid svojej suroviny) -> go (letí) -> mine (ťaží do plnej kapacity) -> back (vezie na stanicu).
+   V obrannom režime počas nájazdu pirátov namiesto ťažby útočí (droneDefend v combat.js). Keď je stanica vyradená, drony stoja. */
+function tickDrones(dt,tt){const s=cur();
+  for(const d of drones){const p=d.g.position;const m=s.slots[d.slot];if(!m)continue;const st=droneStats(m);
+    if(stationDown>0){d.line.visible=false;moveTo(d.g,d.home,st.speed,dt,.3);continue}
+    if(st.def&&enemies.length&&droneDefend(d,st,dt)){d.line.visible=false;continue}
     if(d.wait>0){d.wait-=dt;continue}
-    if(d.state==='seek'){let best=null,bd=1e9;for(const a of asts){if(!a.alive||a.amt<=0||a.type!=='ore'||a.rmax>Z2)continue;const dd=p.distanceTo(a.pos)+a.claims*25;if(dd<bd){bd=dd;best=a}}
+    if(d.state==='seek'){let best=null,bd=1e9;for(const a of asts){if(!a.alive||a.amt<=0||a.type!==st.res||(st.res==='ore'&&a.rmax>Z2))continue;const dd=p.distanceTo(a.pos)+a.claims*25;if(dd<bd){bd=dd;best=a}}
       if(best){d.t=best;best.claims++;d.state='go'}else{d.wait=1}}
-    if(d.state==='go'){const a=d.t;if(!a.alive){a.claims=Math.max(0,a.claims-1);d.state='seek';continue}const stop=astScale(a)*1.1+2.4;const dist=moveTo(d.g,a.pos,sp,dt,stop);if(dist<=stop+.05)d.state='mine'}
+    if(d.state==='go'){const a=d.t;if(!a.alive){a.claims=Math.max(0,a.claims-1);d.state='seek';continue}const stop=astScale(a)*1.1+2.4;const dist=moveTo(d.g,a.pos,st.speed,dt,stop);if(dist<=stop+.05)d.state='mine'}
     if(d.state==='mine'){const a=d.t;if(!a.alive||a.amt<=0){a.claims=Math.max(0,a.claims-1);d.line.visible=false;d.state=d.load>0?'back':'seek';continue}
-      const take=Math.min(rate*dt,a.amt,cap-d.load);a.amt-=take;d.load+=take;setAstScale(a);
+      const take=Math.min(st.rate*MINE_RATE[a.type]*dt,a.amt,st.cap-d.load);a.amt-=take;d.load+=take;d.ltype=a.type;setAstScale(a);
       if(a.amt<=0)depleteAst(a);
       const pos=d.line.geometry.attributes.position;pos.setXYZ(0,p.x,p.y,p.z);pos.setXYZ(1,a.pos.x,a.pos.y,a.pos.z);pos.needsUpdate=true;d.line.visible=true;
-      d.line.material.opacity=.5+Math.random()*.4;
-      if(d.load>=cap-.01){a.claims=Math.max(0,a.claims-1);d.line.visible=false;d.state='back'}}
-    if(d.state==='back'){const dist=moveTo(d.g,d.home,sp,dt,.3);if(dist<=.4){state.ore+=d.load;bump('#oreTxt');d.load=0;d.state='seek';d.wait=.8}}
+      d.line.material.color.set(RCOL[a.type]);d.line.material.opacity=.5+Math.random()*.4;
+      if(d.load>=st.cap-.01){a.claims=Math.max(0,a.claims-1);d.line.visible=false;d.state='back'}}
+    if(d.state==='back'){const dist=moveTo(d.g,d.home,st.speed,dt,.3);if(dist<=.4){state[d.ltype]+=d.load;bump('#'+RCLS[d.ltype]+'Txt');d.load=0;d.state='seek';d.wait=.8}}
     d.g.position.y+=Math.sin(tt*3+d.home.x)*.004}}
+
+/* ---------- 3D náhľady modulov pre panel stanice ----------
+   Malý samostatný renderer vykreslí modul (rovnaký model ako vo vesmíre) so žiarou vo farbe rarity a uloží obrázok do medzipamäte. */
+const _thumbs={};let _thumbR=null;
+function moduleThumb(type,r){const key=type+r;if(_thumbs[key]!==undefined)return _thumbs[key];
+  try{if(!_thumbR){_thumbR=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});_thumbR.setPixelRatio(1);_thumbR.setSize(160,120,false);_thumbR.outputEncoding=THREE.sRGBEncoding;_thumbR.toneMapping=THREE.ACESFilmicToneMapping}
+    const sc=new THREE.Scene();sc.add(new THREE.HemisphereLight(col('#9fb6dd'),col('#150b1c'),.9));const dl=new THREE.DirectionalLight(col('#ffe4bd'),2);dl.position.set(4,8,6);sc.add(dl);
+    const g=makeModule(type,new V3(0,0,1),{rings:[],turrets:[],dishes:[],blink:[]});g.position.set(0,0,0);sc.add(g);
+    const gl=glow(RAR[r].col,7+r*.5,.35+r*.04);gl.position.set(0,-.4,0);sc.add(gl);
+    const cam=new THREE.PerspectiveCamera(32,4/3,.1,100);cam.position.set(4.6,4.2,5.6);cam.lookAt(0,.4,0);
+    _thumbR.render(sc,cam);_thumbs[key]=_thumbR.domElement.toDataURL('image/png')}catch(e){_thumbs[key]=''}
+  return _thumbs[key]}
 const _v=new V3();
 function moveTo(obj,target,speed,dt,stop){_v.subVectors(target,obj.position);_v.y=0;const dist=_v.length();
   if(dist>stop){const step=Math.min(speed*dt,dist-stop);_v.normalize();obj.position.addScaledVector(_v,step);obj.rotation.y=Math.atan2(_v.x,_v.z)}
