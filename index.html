@@ -119,6 +119,8 @@ body.pad .pg{display:block}
 .cost .gem{width:7px;height:7px}
 .cost.ore .gem{background:var(--ore)} .cost.grn .gem{background:var(--green)} .cost.cry .gem{background:var(--crystal)}
 .cost.lack{color:var(--warn)}
+.cost.gain{color:var(--hull)}
+.act.sell{border-color:rgba(255,123,107,.45);background:rgba(255,123,107,.08);color:var(--warn)}
 .act{grid-column:2;grid-row:1/span 2;align-self:start;border:1px solid rgba(88,208,192,.5);background:rgba(88,208,192,.12);color:var(--hull);border-radius:8px;padding:8px 14px;font-weight:700;letter-spacing:.04em;cursor:pointer;white-space:nowrap}
 .act:disabled{opacity:.38;cursor:not-allowed}
 .act.max{border-color:var(--line);background:transparent;color:var(--muted)}
@@ -281,6 +283,8 @@ sk:{
   'up.needShield':'Najprv kúp štítový generátor.','fmt.sregen':'po {d} s · {r} %/s','fmt.none':'žiadny',
   'note.easy':'Trup sa sám opraví 30 s po poslednom poškodení.','note.hard':'Na ťažkej úrovni sa trup opravuje iba na stanici.',
   'note.ship':'Trup {a}/{b}. {regen} Viridit a kryštály sa ťažia pomalšie.',
+  'sec0.name':'Kepler-12','sec1.name':'Vega Drift','sec2.name':'Orion Hlbina',
+  'mods.built':'Postavené moduly','btn.sell':'Predať','btn.sellSure':'Naozaj?','sell.d':'Predaj vráti 60 % surovín a uvoľní slot.','tt.sold':'Predané: {m} ({list})','slotN':'slot {n}',
   'sec0.sub':'Rudný pás pri žltom trpaslíkovi. Iba ruda.','sec1.sub':'Modrá hmlovina. Viridit vo vonkajších radiačných pásoch.',
   'sec2.sub':'Ďaleká hlbina. Kryštály až na okraji pri horizonte.',
   'chip.here':'Tu si','chip.won':'Obsadený','chip.free':'Voľný','chip.locked':'Zamknutý',
@@ -352,6 +356,8 @@ en:{
   'up.needShield':'Buy the shield generator first.','fmt.sregen':'after {d} s · {r} %/s','fmt.none':'none',
   'note.easy':'The hull repairs itself 30 s after the last damage.','note.hard':'On Hard the hull is repaired only at the station.',
   'note.ship':'Hull {a}/{b}. {regen} Viridite and crystals mine slower.',
+  'sec0.name':'Kepler-12','sec1.name':'Vega Drift','sec2.name':'Orion Deep',
+  'mods.built':'Built modules','btn.sell':'Sell','btn.sellSure':'Sure?','sell.d':'Selling returns 60% of the resources and frees the slot.','tt.sold':'Sold: {m} ({list})','slotN':'slot {n}',
   'sec0.sub':'Ore belt around a yellow dwarf. Ore only.','sec1.sub':'Blue nebula. Viridite in the outer radiation belts.',
   'sec2.sub':'The far deep. Crystals only at the edge, near the horizon.',
   'chip.here':'You are here','chip.won':'Claimed','chip.free':'Open','chip.locked':'Locked',
@@ -427,6 +433,7 @@ const shipVal=k=>UP[k].val(state.ship[k]);
 const cargoTotal=()=>state.cargo.ore+state.cargo.green+state.cargo.crystal;
 const shieldMax=()=>shipVal('shield');
 const capOf=i=>SECTORS[i].capture;
+const secName=i=>t('sec'+i+'.name');
 
 /* ---------- renderer ---------- */
 const canvas=$('#c');
@@ -682,6 +689,7 @@ function syncDrones(){const s=cur();const docks=[];s.slots.forEach((m,i)=>{if(m=
     const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new V3(),new V3()]),new THREE.LineBasicMaterial({color:new THREE.Color('#f0a644'),transparent:true,opacity:.8,blending:THREE.AdditiveBlending}));
     line.visible=false;line.frustumCulled=false;world.add(line);
     const d={g,line,state:'seek',t:null,load:0,home:new V3(),wait:Math.random()*1.5};g.position.copy(slotPos(docks[drones.length])).multiplyScalar(.92);world.add(g);drones.push(d)}
+  while(drones.length>docks.length){const d=drones.pop();world.remove(d.g);world.remove(d.line);if(d.t)d.t.claims=Math.max(0,d.t.claims-1);if(d.load>0)state.ore+=d.load}
   drones.forEach((d,i)=>d.home.copy(slotPos(docks[i])).multiplyScalar(.85).setY(1))}
 function tickDrones(dt,tt){const sp=16,cap=15,rate=4;
   for(const d of drones){const p=d.g.position;
@@ -921,7 +929,7 @@ function say(a){const arr=(L10N[lang].say||L10N.sk.say)[a];const s=inputMode==='
   return s.replace('{A}',g.A).replace('{B}',g.B).replace('{Y}',g.Y).replace('{M}',g.M)}
 const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
 function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const cap=capOf(state.cur);const ptr=inputMode!=='pad'&&inputMode!=='key';
-  $('#secName').textContent=SECTORS[state.cur].name;
+  $('#secName').textContent=secName(state.cur);
   const tag=$('#secTag');tag.textContent=s.captured?t('hud.won'):t('hud.unc');tag.classList.toggle('won',s.captured);
   const ib=$('#infBar');ib.style.width=Math.min(100,inf/cap*100)+'%';ib.classList.toggle('won',s.captured);
   $('#infTxt').textContent=s.captured?t('hud.infwon',{a:inf}):t('hud.inf',{a:inf,b:cap});
@@ -964,6 +972,8 @@ function toggleTab(tb){sheetTab===tb?closeSheet():openSheet(tb)}
 function cycleTab(d){const i=TABS.indexOf(sheetTab);openSheet(TABS[(i+d+TABS.length)%TABS.length])}
 function cycleGroup(d){shipGrp=GROUPS[(GROUPS.indexOf(shipGrp)+d+GROUPS.length)%GROUPS.length];focusIdx=GROUPS.indexOf(shipGrp);renderSheet()}
 function costHtml(c){let h='';for(const r of RES)if(c[r])h+=`<span class="cost ${RCLS[r]}" data-need="${r}" data-n="${c[r]}"><span class="gem"></span>${c[r]}</span>`;return h}
+function refundOf(s,k){const c=MOD[k].cost(countMod(s,k)-1);return C(Math.floor(c.ore*.6),Math.floor(c.green*.6),Math.floor(c.crystal*.6))}
+function refundHtml(c){let h='';for(const r of RES)if(c[r])h+=`<span class="cost ${RCLS[r]} gain"><span class="gem"></span>+${c[r]}</span>`;return h}
 function actBtn(act,label,c,block,extra=''){return `<button class="act" data-act="${act}" ${extra} data-ore="${c.ore}" data-green="${c.green}" data-cry="${c.crystal}" data-block="${block?1:0}">${label}</button>`}
 function langBtns(){return `<div class="langs"><button class="langb" data-act="lang" data-l="sk" aria-pressed="${lang==='sk'}">SK</button><button class="langb" data-act="lang" data-l="en" aria-pressed="${lang==='en'}">EN</button></div>`}
 function fmtUp(k,L){const v=UP[k].val(L);if(k==='sregen')return t('fmt.sregen',{d:v.delay,r:Math.round(v.rate*100)});if(k==='shield'&&L===0)return t('fmt.none');return UP[k].fmt(v)}
@@ -976,7 +986,7 @@ function upCard(k){const u=UP[k];const L=state.ship[k];
 function repairCard(){const hm=shipVal('hull');const cost=Math.ceil((hm-state.hp)/2);const near=nearStation();
   return `<div class="card"><h3>${t('rep.name')}</h3><button class="act" data-act="repair" data-ore="1" data-green="0" data-cry="0" data-block="${near?0:1}">${t('btn.repair')}</button><div class="costs">${costHtml(C(cost))}</div><p>${near?t('rep.desc'):t('rep.far')}</p><div class="stat">${t('rep.stat',{a:Math.ceil(state.hp),b:hm})}</div></div>`}
 function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
-  if(sheetTab==='station'){$('#sheetTitle').textContent=t('sh.station',{s:SECTORS[state.cur].name});const inf=influence(s),cap=capOf(state.cur);
+  if(sheetTab==='station'){$('#sheetTitle').textContent=t('sh.station',{s:secName(state.cur)});const inf=influence(s),cap=capOf(state.cur);
     if(state.hp<shipVal('hull')-.5)h+=repairCard();
     const L=s.core;
     h+=`<div class="card"><h3>${t('core.name')} <span class="lv">${t('lv',{n:L,m:CORE_MAX})}</span></h3>`;
@@ -988,6 +998,10 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     for(let i=0;i<6;i++){const m=s.slots[i];h+=i<n?`<span class="slot ${m||''}" title="${m?t('mod.'+m):''}">${m?t('mod.'+m+'.s'):''}</span>`:'<span class="slot lock"></span>'}h+='</div>';
     for(const k of Object.keys(MOD)){const md=MOD[k];const cnt=countMod(s,k);const c=md.cost(cnt);
       h+=`<div class="card"><h3>${t('mod.'+k)} <span class="lv">${t('mod.inf',{n:cnt,i:md.inf})}</span></h3>${actBtn('mod',free<0?t('btn.noslot'):t('btn.build'),c,free<0,`data-mod="${k}"`)}<div class="costs">${costHtml(c)}</div><p>${t('mod.'+k+'.d')}</p></div>`}
+    const built=[];for(let i=0;i<n;i++)if(s.slots[i])built.push(i);
+    if(built.length){h+=`<div class="sec-h"><span>${t('mods.built')}</span></div>`;
+      for(const i of built){const k=s.slots[i];const r=refundOf(s,k);
+        h+=`<div class="card"><h3>${t('mod.'+k)} <span class="lv">${t('slotN',{n:i+1})} · −${MOD[k].inf}</span></h3><button class="act sell" data-act="sell" data-i="${i}">${t('btn.sell')}</button><div class="costs">${refundHtml(r)}</div><p>${t('sell.d')}</p></div>`}}
     h+=`<p class="note">${s.captured?t('st.noteWon'):state.cur<SECTORS.length-1?t('st.note',{a:inf,b:cap}):t('st.noteLast',{a:inf,b:cap})}</p>`}
   else if(sheetTab==='ship'){$('#sheetTitle').textContent=t('sh.ship');
     h+=`<div class="segs">${GROUPS.map(g=>`<button class="seg" data-act="grp" data-g="${g}" aria-pressed="${g===shipGrp}">${t('grp.'+g)}</button>`).join('')}</div>`;
@@ -997,12 +1011,12 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
   else if(sheetTab==='map'){$('#sheetTitle').textContent=t('sh.map');
     SECTORS.forEach((S,i)=>{const sc=state.sec[i];const here=i===state.cur;
       const chip=here?`<span class="chip here">${t('chip.here')}</span>`:sc.captured?`<span class="chip won">${t('chip.won')}</span>`:sc.unlocked?`<span class="chip">${t('chip.free')}</span>`:`<span class="chip">${t('chip.locked')}</span>`;
-      h+=`<div class="card"><h3>${S.name} ${chip}</h3>`;
+      h+=`<div class="card"><h3>${secName(i)} ${chip}</h3>`;
       if(here)h+=`<button class="act max" disabled>${t('btn.here')}</button>`;
       else if(sc.unlocked)h+=`<button class="act" data-act="jump" data-i="${i}">${t('btn.jump')}</button>`;
       else h+=`<button class="act max" disabled>${t('btn.locked')}</button>`;
       h+=`<span class="gems">${S.res.map(r=>`<span class="gem" style="background:${RCOL[r]}" title="${t('res.'+r)}"></span>`).join('')}</span>`;
-      h+=`<p>${t('sec'+i+'.sub')} ${sc.unlocked?t('map.inf',{a:influence(sc),b:S.capture}):t('map.lock',{s:SECTORS[i-1].name})}</p>`;
+      h+=`<p>${t('sec'+i+'.sub')} ${sc.unlocked?t('map.inf',{a:influence(sc),b:S.capture}):t('map.lock',{s:secName(i-1)})}</p>`;
       const inc=sc.captured?passiveOf(sc):null;
       if(inc&&(inc.ore>0||inc.green>0))h+=`<div class="stat">${t('map.income',{o:Math.round(inc.ore*60),g:Math.round(inc.green*60)})}</div>`;
       h+='</div>'});
@@ -1029,6 +1043,10 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(act==='lang'){setLang(b.dataset.l);return}
   if(act==='repair'){if(!nearStation()){toast(t('rep.far'));return}const hm=shipVal('hull');const need=Math.ceil((hm-state.hp)/2);const n=Math.min(need,Math.floor(state.ore));
     if(n<=0)return;state.ore-=n;const before=state.hp;state.hp=Math.min(hm,state.hp+n*2);toast(t('tt.repaired',{n:Math.round(state.hp-before)}));changed();return}
+  if(act==='sell'){const i=+b.dataset.i;const k=s.slots[i];if(!k)return;
+    if(!b.dataset.arm||performance.now()-(+b.dataset.arm)>3000){b.dataset.arm=performance.now();b.textContent=t('btn.sellSure');setTimeout(()=>{if(b.isConnected)b.textContent=t('btn.sell')},3000);return}
+    const r=refundOf(s,k);s.slots[i]=null;const parts=[];for(const x of RES){state[x]+=r[x];if(r[x])parts.push(t('res.'+x+'.gain',{n:r[x]}))}
+    rebuildStation();toast(t('tt.sold',{m:t('mod.'+k),list:parts.join(', ')}));changed();return}
   if(act==='core'){const c=coreCost(s.core);if(s.core<CORE_MAX&&afford(c)){pay(c);s.core++;rebuildStation();toast(t('tt.coreUp',{n:s.core}));changed()}}
   else if(act==='mod'){const k=b.dataset.mod;const i=freeSlot(s);const c=MOD[k].cost(countMod(s,k));if(i>=0&&afford(c)){pay(c);s.slots[i]=k;rebuildStation();toast(t('tt.built',{m:t('mod.'+k)}));changed()}}
   else if(act==='ship'){const k=b.dataset.k;const u=UP[k];const L=state.ship[k];const c=u.cost(L);if(L<u.max&&afford(c)){pay(c);
@@ -1038,16 +1056,16 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   else if(act==='jump'){closeSheet();jumpTo(+b.dataset.i)}});
 function changed(){checkCapture();save();renderSheet();updateHUD()}
 function checkCapture(){const s=cur();if(!s.captured&&influence(s)>=capOf(state.cur)){s.captured=true;const nx=state.sec[state.cur+1];if(nx)nx.unlocked=true;rebuildStation();updateGate();
-  if(nx)toast(t('tt.captured',{s:SECTORS[state.cur].name,n:SECTORS[state.cur+1].name}),true);
+  if(nx)toast(t('tt.captured',{s:secName(state.cur),n:secName(state.cur+1)}),true);
   else if(state.sec.every(x=>x.captured))toast(t('tt.capturedAll'),true);
-  else toast(t('tt.capturedOne',{s:SECTORS[state.cur].name}),true)}}
+  else toast(t('tt.capturedOne',{s:secName(state.cur)}),true)}}
 function passiveOf(sc){return{ore:countMod(sc,'drone')*.7,green:countMod(sc,'sensor')*.06}}
 
 let jumping=false;
 function jumpTo(i,instant){if(jumping)return;jumping=true;const w=$('#warp');w.classList.add('on');
   setTimeout(()=>{state.cur=i;mineTarget=null;moveTarget=null;openOnArrive=false;stationG=null;
     ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;lastZone=1;buildSector();camTarget.copy(ship.position);save();updateHUD();
-    w.classList.remove('on');jumping=false;if(!instant)toast(t('tt.jumped',{s:SECTORS[i].name}))},instant?50:480)}
+    w.classList.remove('on');jumping=false;if(!instant)toast(t('tt.jumped',{s:secName(i)}))},instant?50:480)}
 
 /* language + intro */
 let pendingDiff='easy';
