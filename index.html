@@ -1,0 +1,675 @@
+<title>Orbitálne Sektory</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Semi+Condensed:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: full-bleed 3D canvas; HUD glass strips pinned top and bottom; build menu as a bottom sheet. Single committed dark look. */
+:root{
+  --void:#04070d;
+  --panel:rgba(9,15,27,.78);
+  --panel-solid:#0b1322;
+  --line:rgba(130,175,215,.16);
+  --text:#dde7f1;
+  --muted:#8597ab;
+  --hull:#58d0c0;
+  --ore:#f0a644;
+  --crystal:#a98bff;
+  --warn:#ff7b6b;
+  --gold:#ffd27a;
+  --f-display:"Saira Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-data:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  color-scheme:dark;
+}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--void);color:var(--text)}
+body{font-family:var(--f-display);font-size:15px;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;outline:none}
+button{font:inherit;color:inherit}
+button:focus-visible{outline:2px solid var(--hull);outline-offset:2px}
+
+.hud-top{position:fixed;left:0;right:0;top:0;z-index:5;pointer-events:none;
+  padding-top:calc(env(safe-area-inset-top,0px) + 10px);padding-bottom:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:flex-start}
+.glass{background:var(--panel);border:1px solid var(--line);border-radius:10px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.sector{padding:8px 12px;min-width:0;flex:1 1 200px;max-width:340px;display:grid;gap:6px}
+.sec-row{display:flex;align-items:baseline;gap:8px;min-width:0}
+.sec-name{font-weight:700;font-size:17px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.tag.won{color:var(--gold);border-color:rgba(255,210,122,.45)}
+.inf{display:flex;align-items:center;gap:8px}
+.bar{position:relative;flex:1;height:6px;border-radius:3px;background:rgba(130,175,215,.12);overflow:hidden;display:flex}
+.bar i{display:block;height:100%;transition:width .25s ease}
+#infBar{background:var(--hull);box-shadow:0 0 10px var(--hull)}
+#infBar.won{background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.num{font-family:var(--f-data);font-variant-numeric:tabular-nums;font-size:12px;color:var(--muted);white-space:nowrap}
+.res{padding:8px 12px;display:grid;gap:6px;flex:0 1 auto;min-width:0}
+.res-row{display:flex;gap:14px}
+.r{display:flex;align-items:center;gap:6px}
+.r b{font-family:var(--f-data);font-variant-numeric:tabular-nums;font-size:15px;font-weight:700}
+.r small{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.gem{width:9px;height:9px;transform:rotate(45deg);border-radius:2px;flex:none}
+.ore .gem{background:var(--ore);box-shadow:0 0 8px var(--ore)}
+.cry .gem{background:var(--crystal);box-shadow:0 0 8px var(--crystal)}
+.cargo{display:flex;align-items:center;gap:8px}
+.cargo .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
+#cOre{background:var(--ore)} #cCry{background:var(--crystal)}
+.cargo.full .lbl,.cargo.full .num{color:var(--warn)}
+.pulse{animation:pulse .5s ease}
+@keyframes pulse{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+
+#toasts{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 112px);z-index:6;display:grid;gap:6px;justify-items:center;pointer-events:none;width:min(92vw,420px)}
+.toast{padding:8px 14px;border-radius:8px;background:var(--panel-solid);border:1px solid var(--line);font-size:14px;font-weight:500;text-align:center;animation:tin .25s ease both}
+.toast.big{border-color:rgba(255,210,122,.5);color:var(--gold);font-weight:700;font-size:16px}
+.toast.out{animation:tout .4s ease forwards}
+@keyframes tin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes tout{to{opacity:0;transform:translateY(-6px)}}
+
+.hud-bottom{position:fixed;left:0;right:0;bottom:0;z-index:5;pointer-events:none;display:grid;justify-items:center;gap:8px;
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 12px);padding-top:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.hint{margin:0;max-width:44ch;text-align:center;font-size:14px;color:var(--text);text-shadow:0 1px 6px #000,0 0 2px #000;min-height:1.3em;text-wrap:balance}
+.dock{pointer-events:auto;display:flex;gap:6px;padding:6px;width:min(100%,460px)}
+.dock button{flex:1;min-width:0;display:grid;justify-items:center;gap:2px;padding:7px 4px 6px;border:0;border-radius:7px;background:transparent;cursor:pointer;font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.dock button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6}
+.dock button:hover,.dock button.on{color:var(--text);background:rgba(88,208,192,.10)}
+.dock button.on{color:var(--hull)}
+
+.sheet{position:fixed;z-index:8;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,560px);max-height:68%;display:flex;flex-direction:column;
+  background:var(--panel-solid);border:1px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0;box-shadow:0 -20px 60px rgba(0,0,0,.6);animation:sheetIn .22s ease}
+@keyframes sheetIn{from{transform:translate(-50%,24px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+.sheet header{display:flex;align-items:center;gap:10px;padding:14px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
+.sheet h2{margin:0;font-size:20px;font-weight:700;letter-spacing:.02em;flex:1;text-wrap:balance}
+.close{border:1px solid var(--line);background:transparent;border-radius:7px;padding:6px 12px;cursor:pointer;color:var(--muted);font-weight:600}
+.sheet .body{overflow:auto;padding:12px max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 16px) max(16px,env(safe-area-inset-left,0px));display:grid;gap:10px;-webkit-overflow-scrolling:touch}
+.sec-h{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin:6px 0 -2px;display:flex;justify-content:space-between;gap:8px}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;background:rgba(255,255,255,.015)}
+.card h3{margin:0;font-size:16px;font-weight:700;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.card h3 .lv{font-family:var(--f-data);font-size:11.5px;color:var(--hull);font-weight:500}
+.card p{margin:0;grid-column:1/-1;color:var(--muted);font-size:13.5px;line-height:1.4;max-width:60ch}
+.card .stat{grid-column:1/-1;font-family:var(--f-data);font-size:12px;color:var(--text)}
+.card .stat em{font-style:normal;color:var(--hull)}
+.costs{display:flex;gap:10px;align-items:center;grid-column:1/2}
+.cost{display:inline-flex;align-items:center;gap:5px;font-family:var(--f-data);font-size:13px;font-weight:700}
+.cost .gem{width:7px;height:7px}
+.cost.ore .gem{background:var(--ore)} .cost.cry .gem{background:var(--crystal)}
+.cost.lack{color:var(--warn)}
+.act{grid-column:2;grid-row:1/span 2;align-self:start;border:1px solid rgba(88,208,192,.5);background:rgba(88,208,192,.12);color:var(--hull);border-radius:8px;padding:8px 14px;font-weight:700;letter-spacing:.04em;cursor:pointer;white-space:nowrap}
+.act:disabled{opacity:.38;cursor:not-allowed}
+.act.max{border-color:var(--line);background:transparent;color:var(--muted)}
+.slots{display:flex;gap:6px;flex-wrap:wrap}
+.slot{width:34px;height:30px;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:rgba(130,175,215,.12);display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--void)}
+.slot.drone{background:var(--ore)} .slot.tower{background:var(--warn)} .slot.sensor{background:var(--crystal)}
+.slot.lock{background:rgba(130,175,215,.04);outline:1px dashed rgba(130,175,215,.18);outline-offset:-1px}
+.note{font-size:13px;color:var(--muted);line-height:1.45;margin:2px 0 0}
+.chip{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:2px 7px;border-radius:4px;border:1px solid var(--line);color:var(--muted)}
+.chip.here{color:var(--hull);border-color:rgba(88,208,192,.45)}
+.chip.won{color:var(--gold);border-color:rgba(255,210,122,.45)}
+.ghost{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;padding:9px 12px;cursor:pointer;font-weight:600;justify-self:start}
+.ghost.danger{color:var(--warn);border-color:rgba(255,123,107,.45)}
+
+.intro{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:radial-gradient(ellipse at 50% 40%,rgba(4,7,13,.55),rgba(4,7,13,.92));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px}
+.intro .box{width:min(100%,420px);display:grid;gap:14px;padding:22px 20px}
+.kicker{font-family:var(--f-data);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--hull)}
+.intro h1{margin:0;font-size:38px;line-height:1;font-weight:700;letter-spacing:.01em;text-wrap:balance}
+.intro ol{margin:0;padding:0;list-style:none;display:grid;gap:9px;counter-reset:s}
+.intro li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:14.5px;line-height:1.4;color:var(--text)}
+.intro li::before{counter-increment:s;content:counter(s);font-family:var(--f-data);font-size:11px;color:var(--hull);border:1px solid rgba(88,208,192,.4);border-radius:4px;height:18px;display:grid;place-items:center;margin-top:1px}
+.go{border:0;border-radius:9px;padding:13px;background:var(--hull);color:#04221e;font-weight:700;font-size:16px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.warp{position:fixed;inset:0;z-index:9;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 50%,#e9fffb 0,#58d0c0 18%,rgba(4,7,13,.95) 60%);transition:opacity .45s ease}
+.warp.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.toast,.sheet,.pulse{animation:none}.warp{transition:none}}
+@media (max-width:420px){.sector{flex-basis:100%;max-width:none}.res{flex:1 1 100%}.res-row{justify-content:space-between}#toasts{top:calc(env(safe-area-inset-top,0px) + 150px)}}
+</style>
+
+<canvas id="c" tabindex="0" aria-label="Herný priestor sektora"></canvas>
+
+<div class="hud-top">
+  <div class="sector glass">
+    <div class="sec-row"><span class="sec-name" id="secName">Kepler-12</span><span class="tag" id="secTag">Neobsadený</span></div>
+    <div class="inf"><div class="bar"><i id="infBar" style="width:12%"></i></div><span class="num" id="infTxt">12 / 100 vplyv</span></div>
+  </div>
+  <div class="res glass">
+    <div class="res-row">
+      <div class="r ore"><span class="gem"></span><b id="oreTxt">0</b><small>ruda</small></div>
+      <div class="r cry"><span class="gem"></span><b id="cryTxt">0</b><small>kryštály</small></div>
+    </div>
+    <div class="cargo" id="cargo"><span class="lbl">Náklad</span><div class="bar"><i id="cOre" style="width:0"></i><i id="cCry" style="width:0"></i></div><span class="num" id="cargoTxt">0/50</span></div>
+  </div>
+</div>
+
+<div id="toasts" aria-live="polite"></div>
+
+<div class="hud-bottom">
+  <p class="hint" id="hint"></p>
+  <nav class="dock glass" aria-label="Menu">
+    <button data-tab="station" aria-label="Stanica"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="9.5" ry="4"/><path d="M12 2.5v3M12 18.5v3"/></svg>Stanica</button>
+    <button data-tab="ship" aria-label="Loď"><svg viewBox="0 0 24 24"><path d="M12 2.5l3 9 6 3.5-6 1-3 5.5-3-5.5-6-1 6-3.5z"/></svg>Loď</button>
+    <button data-tab="map" aria-label="Mapa sektorov"><svg viewBox="0 0 24 24"><path d="M7 3.5l5 2.9v5.8l-5 2.9-5-2.9V6.4z"/><path d="M17 9.5l5 2.9v5.8l-5 2.9-5-2.9"/></svg>Mapa</button>
+    <button id="homeBtn" aria-label="Domov k stanici"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6.5 9.5V20h11V9.5"/><path d="M10 20v-5h4v5"/></svg>Domov</button>
+  </nav>
+</div>
+
+<section class="sheet" id="sheet" hidden aria-label="Menu">
+  <header><h2 id="sheetTitle">Stanica</h2><button class="close" id="sheetClose">Zavrieť</button></header>
+  <div class="body" id="sheetBody"></div>
+</section>
+
+<div class="intro" id="intro">
+  <div class="box glass">
+    <div class="kicker">Prototyp 0 · singleplayer</div>
+    <h1>Orbitálne Sektory</h1>
+    <ol>
+      <li>Ťukni do priestoru a loď tam priletí. Ak držíš prst (alebo myš), letí za ním.</li>
+      <li>Ťukni na asteroid na okraji sektora a loď ho začne ťažiť. Oranžové dávajú rudu, fialové kryštály.</li>
+      <li>Pri stanici v strede sa náklad vyloží sám. Tlačidlo Domov ťa tam vráti.</li>
+      <li>V menu Stanica stavaj moduly. Keď vplyv dosiahne 100, sektor je tvoj a odomkne sa ďalší.</li>
+    </ol>
+    <button class="go" id="goBtn">Spustiť motory</button>
+  </div>
+</div>
+<div class="warp" id="warp"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+'use strict';
+(function(){
+const $=s=>document.querySelector(s);
+const V3=THREE.Vector3;
+const col=h=>new THREE.Color(h).convertSRGBToLinear();
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const TAU=Math.PI*2;
+function rng(seed){let a=seed>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* ---------- game data ---------- */
+const SECTORS=[
+  {name:'Kepler-12',sub:'Rudný pás pri žltom trpaslíkovi',crystal:.14,rich:1,seed:11,neb:['#173a6e','#3b1e5e'],planet:'#c98a4b',pPos:[-140,-340,-120]},
+  {name:'Vega Drift',sub:'Kryštálové pole v modrej hmlovine',crystal:.38,rich:1.15,seed:23,neb:['#3a1d62','#0d4c5c'],planet:'#5fa3c9',pPos:[150,-360,-100]},
+  {name:'Orion Hlbina',sub:'Bohaté ložiská, ďaleko od všetkého',crystal:.28,rich:1.6,seed:37,neb:['#5c1b31','#1b2e6e'],planet:'#9b6bd1',pPos:[-110,-380,110]},
+];
+const MOD={
+  drone:{name:'Dok dronov',short:'D',desc:'Vypustí ťažobného drona. Sám ťaží najbližšie asteroidy a vozí suroviny na stanicu.',inf:10,cost:n=>({ore:50+30*n,crystal:0})},
+  tower:{name:'Obranná veža',short:'V',desc:'Laserová veža. Teraz zvyšuje vplyv, v ďalšom prototype bude brániť sektor pred pirátmi.',inf:14,cost:n=>({ore:70+20*n,crystal:8+4*n})},
+  sensor:{name:'Senzorové pole',short:'S',desc:'Mapuje celý sektor. Najviac zvyšuje vplyv stanice.',inf:18,cost:n=>({ore:40+20*n,crystal:18+8*n})},
+};
+const CORE_MAX=5, SHIP_MAX=5, CAPTURE=100;
+const coreCost=L=>({ore:40*L,crystal:8*(L-1)});
+const slotsFor=L=>Math.min(6,1+L);
+const SHIPUP={
+  laser:{name:'Ťažobný laser',desc:'Rýchlejšia ťažba rudy aj kryštálov.',cost:L=>({ore:40*L,crystal:5*(L-1)}),val:L=>8*(1+.35*(L-1)),fmt:v=>v.toFixed(1)+' t/s'},
+  cargo:{name:'Nákladný priestor',desc:'Viac surovín na jednu cestu.',cost:L=>({ore:35*L,crystal:4*(L-1)}),val:L=>50+25*(L-1),fmt:v=>Math.round(v)+' t'},
+  engine:{name:'Motory',desc:'Vyššia rýchlosť letu.',cost:L=>({ore:30*L,crystal:6*(L-1)}),val:L=>24*(1+.18*(L-1)),fmt:v=>v.toFixed(0)+' m/s'},
+};
+const SAVE_KEY='orbitalne-sektory-v1';
+function freshState(){return{v:1,ore:30,crystal:0,cargo:{ore:0,crystal:0},ship:{laser:1,cargo:1,engine:1},cur:0,intro:false,
+  sec:SECTORS.map((s,i)=>({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:i===0}))}}
+function loadState(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return null;const s=JSON.parse(raw);if(s&&s.v===1&&Array.isArray(s.sec))return s}catch(e){}return null}
+let state;
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch(e){}}
+
+const cur=()=>state.sec[state.cur];
+const countMod=(s,t)=>s.slots.filter(x=>x===t).length;
+function freeSlot(s){const n=slotsFor(s.core);for(let i=0;i<n;i++)if(!s.slots[i])return i;return -1}
+function influence(s){let v=s.core*12;for(const m of s.slots)if(m)v+=MOD[m].inf;return v}
+const afford=c=>state.ore>=c.ore&&state.crystal>=c.crystal;
+function pay(c){state.ore-=c.ore;state.crystal-=c.crystal}
+const shipVal=k=>SHIPUP[k].val(state.ship[k]);
+const cargoTotal=()=>state.cargo.ore+state.cargo.crystal;
+
+/* ---------- renderer ---------- */
+const canvas=$('#c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
+const isTouch=matchMedia('(pointer: coarse)').matches;
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,isTouch?1.6:2));
+renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.15;
+const scene=new THREE.Scene();
+scene.background=col('#04070d');
+const camera=new THREE.PerspectiveCamera(40,1,1,4000);
+scene.add(new THREE.HemisphereLight(col('#7f9ccf'),col('#150b1c'),.6));
+const sun=new THREE.DirectionalLight(col('#ffe4bd'),1.9);sun.position.set(90,120,50);scene.add(sun);
+const rim=new THREE.DirectionalLight(col('#4fa8ff'),.55);rim.position.set(-70,30,-90);scene.add(rim);
+
+function makeGlowTex(){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');const gr=g.createRadialGradient(64,64,0,64,64,64);
+  gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.18,'rgba(255,255,255,.65)');gr.addColorStop(.45,'rgba(255,255,255,.14)');gr.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle=gr;g.fillRect(0,0,128,128);return new THREE.CanvasTexture(c)}
+const GLOW=makeGlowTex();
+function glow(color,size,opacity=1){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:new THREE.Color(color),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity}));s.scale.set(size,size,1);return s}
+
+/* starfield (global) */
+function stars(n,spread,y,size,tint,seed){const r=rng(seed);const p=new Float32Array(n*3),c=new Float32Array(n*3);const t=new THREE.Color(tint);
+  for(let i=0;i<n;i++){p[i*3]=(r()-.5)*spread;p[i*3+1]=y+(r()-.5)*40;p[i*3+2]=(r()-.5)*spread;const k=.55+r()*.45;const w=r()<.25;
+    c[i*3]=w?k:t.r*k;c[i*3+1]=w?k:t.g*k;c[i*3+2]=w?k:t.b*k}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('color',new THREE.BufferAttribute(c,3));
+  return new THREE.Points(g,new THREE.PointsMaterial({size,map:GLOW,vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true}))}
+scene.add(stars(1400,1600,-90,2.2,'#9ec4ff',1),stars(900,2400,-220,3.6,'#ffd9b0',2),stars(500,3200,-420,6,'#c9b6ff',3));
+
+/* shared materials */
+const M={
+  metal:new THREE.MeshStandardMaterial({color:col('#b9c6d4'),metalness:.65,roughness:.35,flatShading:true}),
+  plate:new THREE.MeshStandardMaterial({color:col('#4a5a6e'),metalness:.5,roughness:.55,flatShading:true}),
+  dark:new THREE.MeshStandardMaterial({color:col('#1d2635'),metalness:.4,roughness:.7,flatShading:true}),
+  hullGlow:new THREE.MeshStandardMaterial({color:col('#0a1f1d'),emissive:col('#58d0c0'),emissiveIntensity:1.6}),
+  window:new THREE.MeshStandardMaterial({color:col('#1a1408'),emissive:col('#ffcf8a'),emissiveIntensity:1.8}),
+  amber:new THREE.MeshStandardMaterial({color:col('#2a1804'),emissive:col('#f0a644'),emissiveIntensity:1.8}),
+  red:new THREE.MeshStandardMaterial({color:col('#2a0a06'),emissive:col('#ff6a4d'),emissiveIntensity:2}),
+  panel:new THREE.MeshStandardMaterial({color:col('#173a6b'),emissive:col('#1d4f9a'),emissiveIntensity:.5,metalness:.8,roughness:.3,flatShading:true}),
+  crystal:new THREE.MeshStandardMaterial({color:col('#5a3fc4'),emissive:col('#8f6bff'),emissiveIntensity:1.3,roughness:.2,metalness:.1,flatShading:true}),
+  rock:new THREE.MeshStandardMaterial({vertexColors:true,roughness:.95,metalness:.05,flatShading:true}),
+  pad:new THREE.MeshStandardMaterial({color:col('#223047'),metalness:.6,roughness:.5,flatShading:true}),
+  pick:new THREE.MeshBasicMaterial({visible:false}),
+};
+
+/* rock geometry variants with baked color flecks */
+function rockGeo(seed,base,fleck,fleckP){const g=new THREE.IcosahedronGeometry(1,1);const p=g.attributes.position;const r=rng(seed);const cache=new Map();
+  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const k=x.toFixed(3)+','+y.toFixed(3)+','+z.toFixed(3);let d=cache.get(k);if(d===undefined){d=.72+r()*.5;cache.set(k,d)}p.setXYZ(i,x*d,y*d,z*d)}
+  const cs=new Float32Array(p.count*3);const b=col(base),f=col(fleck);
+  for(let i=0;i<p.count;i+=3){const isF=r()<fleckP;const v=.75+r()*.35;const c=isF?f:b;for(let j=0;j<3;j++){cs[(i+j)*3]=c.r*v;cs[(i+j)*3+1]=c.g*v;cs[(i+j)*3+2]=c.b*v}}
+  g.setAttribute('color',new THREE.BufferAttribute(cs,3));g.computeVertexNormals();return g}
+const ORE_GEOS=[1,2,3,4,5].map(i=>rockGeo(100+i,'#5e5148','#e0902e',.2));
+const CRY_GEOS=[1,2,3,4].map(i=>rockGeo(200+i,'#46506a','#7a62c9',.12));
+const SHARD=new THREE.OctahedronGeometry(1,0);
+
+/* ---------- ship ---------- */
+const ship=new THREE.Group();
+(function buildShip(){
+  const body=new THREE.Group();ship.add(body);ship.userData.body=body;
+  const hull=new THREE.Mesh(new THREE.ConeGeometry(1.1,4.4,6),M.metal);hull.rotation.x=Math.PI/2;body.add(hull);
+  const spine=new THREE.Mesh(new THREE.BoxGeometry(.9,.6,3.2),M.plate);spine.position.set(0,.25,-.6);body.add(spine);
+  const wing=new THREE.Mesh(new THREE.BoxGeometry(5.6,.16,1.5),M.plate);wing.position.set(0,0,-.9);body.add(wing);
+  const wing2=new THREE.Mesh(new THREE.BoxGeometry(3.2,.12,.8),M.dark);wing2.position.set(0,.12,-.2);body.add(wing2);
+  for(const s of[-1,1]){const tip=new THREE.Mesh(new THREE.BoxGeometry(.25,.25,1.3),M.hullGlow);tip.position.set(2.8*s,0,-.9);body.add(tip);
+    const eng=new THREE.Mesh(new THREE.CylinderGeometry(.42,.5,1.4,8),M.dark);eng.rotation.x=Math.PI/2;eng.position.set(.95*s,0,-2.1);body.add(eng);
+    const g=glow('#6fe3ff',2.6,.9);g.position.set(.95*s,0,-2.9);body.add(g);(ship.userData.eng||(ship.userData.eng=[])).push(g)}
+  const cock=new THREE.Mesh(new THREE.SphereGeometry(.5,12,8),M.hullGlow);cock.scale.set(1,.6,1.6);cock.position.set(0,.45,.6);body.add(cock);
+  const halo=glow('#58d0c0',9,.18);halo.position.y=-.5;ship.add(halo);
+  ship.scale.setScalar(1.15);
+})();
+scene.add(ship);
+const shipVel=new V3();let shipYaw=0;
+const NOSE=new V3(0,0,2.3);
+
+/* laser (ship) */
+const CYL=new THREE.CylinderGeometry(1,1,1,8,1,true);
+function makeBeam(color){const g=new THREE.Group();
+  const core=new THREE.Mesh(CYL,new THREE.MeshBasicMaterial({color:new THREE.Color('#ffffff'),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.95}));
+  const outer=new THREE.Mesh(CYL,new THREE.MeshBasicMaterial({color:new THREE.Color(color),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.35}));
+  g.add(core,outer);g.userData={core,outer};const hit=glow(color,4,.9);g.userData.hit=hit;scene.add(hit);g.visible=false;hit.visible=false;scene.add(g);return g}
+const beam=makeBeam('#58d0c0');
+const UP=new V3(0,1,0),_d=new V3(),_m=new V3();
+function setBeam(b,a,c,w,color){_d.subVectors(c,a);const len=_d.length();_m.addVectors(a,c).multiplyScalar(.5);b.position.copy(_m);
+  b.quaternion.setFromUnitVectors(UP,_d.normalize());b.userData.core.scale.set(w*.35,len,w*.35);b.userData.outer.scale.set(w,len,w);
+  if(color){b.userData.outer.material.color.set(color);b.userData.hit.material.color.set(color)}
+  b.userData.hit.position.copy(c);b.visible=true;b.userData.hit.visible=true}
+function hideBeam(b){b.visible=false;b.userData.hit.visible=false}
+
+/* particle pools */
+function pool(n,size){const arr=[];for(let i=0;i<n;i++){const s=glow('#ffffff',size,0);s.visible=false;scene.add(s);arr.push({s,life:0,max:1,v:new V3(),from:new V3(),to:null,size})}return arr}
+const trail=pool(70,1.6),debris=pool(40,.9);
+function emit(p,pos,color,life,vel,to){const it=p.find(x=>x.life<=0);if(!it)return;it.s.visible=true;it.s.position.copy(pos);it.from.copy(pos);it.s.material.color.set(color);
+  it.life=it.max=life;it.v.copy(vel||_zero);it.to=to||null}
+const _zero=new V3();
+function tickPool(p,dt){for(const it of p){if(it.life<=0)continue;it.life-=dt;const k=clamp(it.life/it.max,0,1);
+  if(it.to){it.s.position.lerpVectors(it.to,it.from,k*k)}else it.s.position.addScaledVector(it.v,dt);
+  it.s.material.opacity=k*.9;const sc=it.size*(it.to?1:(.4+k*.8));it.s.scale.set(sc,sc,1);if(it.life<=0)it.s.visible=false}}
+
+/* tap marker + target ring */
+const marker=new THREE.Mesh(new THREE.RingGeometry(1.1,1.3,40),new THREE.MeshBasicMaterial({color:new THREE.Color('#58d0c0'),transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+marker.rotation.x=-Math.PI/2;scene.add(marker);let markerT=0;
+const tRing=new THREE.Mesh(new THREE.RingGeometry(1,1.08,48,1,0,TAU*.82),new THREE.MeshBasicMaterial({color:new THREE.Color('#58d0c0'),transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+tRing.rotation.x=-Math.PI/2;tRing.visible=false;scene.add(tRing);
+
+/* ---------- sector world ---------- */
+let world=null,asts=[],pickables=[],stationG=null,stationAnim=null,gate=null,drones=[];
+const STATION_R=14;
+function slotPos(i){const a=i/6*TAU+Math.PI/6;return new V3(Math.cos(a)*12.5,0,Math.sin(a)*12.5)}
+
+function nebulaTex(c1,c2,seed){const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');const r=rng(seed);
+  g.fillStyle='#000';g.fillRect(0,0,512,512);g.globalCompositeOperation='lighter';
+  for(let i=0;i<26;i++){const x=r()*512,y=r()*512,rad=60+r()*190;const gr=g.createRadialGradient(x,y,0,x,y,rad);const cc=r()<.5?c1:c2;
+    gr.addColorStop(0,cc+'55');gr.addColorStop(.5,cc+'22');gr.addColorStop(1,cc+'00');g.fillStyle=gr;g.fillRect(0,0,512,512)}
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t}
+function planetTex(base,seed){const c=document.createElement('canvas');c.width=512;c.height=256;const g=c.getContext('2d');const r=rng(seed);const b=new THREE.Color(base);
+  for(let y=0;y<256;y++){const n=Math.sin(y*.07+r()*.3)*.18+Math.sin(y*.21)*.08+(r()-.5)*.06;const k=.7+n;
+    g.fillStyle=`rgb(${clamp(b.r*255*k,0,255)|0},${clamp(b.g*255*k,0,255)|0},${clamp(b.b*255*k,0,255)|0})`;g.fillRect(0,y,512,1)}
+  for(let i=0;i<40;i++){g.fillStyle=`rgba(255,255,255,${r()*.06})`;g.beginPath();g.ellipse(r()*512,r()*256,20+r()*80,2+r()*6,0,0,TAU);g.fill()}
+  const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;return t}
+
+function buildSector(){
+  if(world){scene.remove(world)}
+  world=new THREE.Group();scene.add(world);asts=[];pickables=[];drones=[];
+  const S=SECTORS[state.cur];
+  const neb=new THREE.Mesh(new THREE.PlaneGeometry(2600,2600),new THREE.MeshBasicMaterial({map:nebulaTex(S.neb[0],S.neb[1],S.seed),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.95}));
+  neb.rotation.x=-Math.PI/2;neb.position.y=-500;world.add(neb);
+  const planet=new THREE.Mesh(new THREE.SphereGeometry(110,48,32),new THREE.MeshStandardMaterial({map:planetTex(S.planet,S.seed),roughness:1,metalness:0}));
+  planet.position.set(...S.pPos);planet.rotation.z=.35;world.add(planet);world.userData.planet=planet;
+  const atm=glow(S.planet,330,.35);atm.position.copy(planet.position);world.add(atm);
+  // tactical rings
+  const ringMat=new THREE.MeshBasicMaterial({color:new THREE.Color('#58d0c0'),transparent:true,opacity:.16,depthWrite:false,side:THREE.DoubleSide});
+  const edge=new THREE.Mesh(new THREE.RingGeometry(117.6,118.2,160),ringMat);edge.rotation.x=-Math.PI/2;edge.position.y=-1.5;world.add(edge);
+  for(const rr of[35,70]){const m=new THREE.Mesh(new THREE.RingGeometry(rr-.15,rr+.15,128),new THREE.MeshBasicMaterial({color:new THREE.Color('#7fa7d0'),transparent:true,opacity:.05,depthWrite:false,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.y=-2;world.add(m)}
+  // asteroids
+  const r=rng(S.seed*97);
+  for(let i=0;i<42;i++){const type=r()<S.crystal?'crystal':'ore';const a=makeAst(type,r);placeAst(a,r);asts.push(a)}
+  rebuildStation();
+  updateGate();
+}
+
+function makeAst(type,r){const g=new THREE.Group();const isC=type==='crystal';
+  const base=isC?1.8+r()*1.6:1.6+r()*2.3;
+  const rock=new THREE.Mesh(isC?CRY_GEOS[(r()*CRY_GEOS.length)|0]:ORE_GEOS[(r()*ORE_GEOS.length)|0],M.rock);
+  rock.scale.set(1,.7+r()*.4,.85+r()*.3);rock.rotation.set(r()*TAU,r()*TAU,r()*TAU);g.add(rock);
+  if(isC){for(let k=0;k<5;k++){const s=new THREE.Mesh(SHARD,M.crystal);const d=new V3(r()-.5,r()*.8+.2,r()-.5).normalize();
+      s.position.copy(d).multiplyScalar(.75);s.quaternion.setFromUnitVectors(UP,d);s.scale.set(.18+r()*.1,.5+r()*.45,.18+r()*.1);g.add(s)}
+    const gl=glow('#9b7bff',5.5,.4);g.add(gl)}
+  else{const gl=glow('#f0a644',3.6,.16);g.add(gl)}
+  const proxy=new THREE.Mesh(new THREE.SphereGeometry(1.9,8,6),M.pick);g.add(proxy);
+  const max=Math.round(isC?base*12*SECTORS[state.cur].rich:base*30*SECTORS[state.cur].rich);
+  const a={g,type,base,amt:max,max,alive:true,respawn:0,shrink:1,claims:0,spin:new V3((r()-.5)*.5,(r()-.5)*.6,(r()-.5)*.4),pos:g.position};
+  proxy.userData.ast=a;pickables.push(proxy);world.add(g);return a}
+function placeAst(a,r){for(let t=0;t<12;t++){const ang=r()*TAU;const rad=a.type==='crystal'?82+r()*28:54+r()*52;
+    a.g.position.set(Math.cos(ang)*rad,(r()-.5)*3,Math.sin(ang)*rad);
+    if(gate&&a.g.position.distanceTo(gate.position)<12)continue;
+    if(!asts.some(o=>o!==a&&o.alive&&o.g.position.distanceTo(a.g.position)<a.base+o.base+3))break}
+  setAstScale(a)}
+function astScale(a){return a.base*(.5+.5*a.amt/a.max)*a.shrink}
+function setAstScale(a){a.g.scale.setScalar(Math.max(.001,astScale(a)))}
+
+/* station */
+function rebuildStation(){
+  if(stationG)world.remove(stationG);
+  const s=cur();const g=new THREE.Group();stationG=g;const anim={rings:[],turrets:[],dishes:[],blink:[]};stationAnim=anim;
+  const hub=new THREE.Mesh(new THREE.CylinderGeometry(2.6,3.3,4.2,12),M.metal);g.add(hub);
+  const dome=new THREE.Mesh(new THREE.SphereGeometry(2.4,16,8,0,TAU,0,Math.PI/2),M.plate);dome.position.y=2.1;g.add(dome);
+  const under=new THREE.Mesh(new THREE.ConeGeometry(3.2,3,12),M.dark);under.rotation.x=Math.PI;under.position.y=-3.6;g.add(under);
+  const ring=new THREE.Group();g.add(ring);anim.rings.push({o:ring,s:.12});
+  const tor=new THREE.Mesh(new THREE.TorusGeometry(7.2,.6,8,56),M.plate);tor.rotation.x=Math.PI/2;ring.add(tor);
+  for(let i=0;i<4;i++){const sp=new THREE.Mesh(new THREE.BoxGeometry(7,.3,.5),M.dark);sp.rotation.y=i*Math.PI/4;ring.add(sp)}
+  for(let i=0;i<18;i++){const a=i/18*TAU;const w=new THREE.Mesh(new THREE.BoxGeometry(.5,.32,.2),M.window);w.position.set(Math.cos(a)*7.85,0,Math.sin(a)*7.85);w.rotation.y=-a+Math.PI/2;ring.add(w)}
+  if(s.core>=2){const r2=new THREE.Group();r2.position.y=1.6;g.add(r2);anim.rings.push({o:r2,s:-.25});
+    const t2=new THREE.Mesh(new THREE.TorusGeometry(4.4,.32,6,40),M.metal);t2.rotation.x=Math.PI/2;r2.add(t2);
+    for(let i=0;i<10;i++){const a=i/10*TAU;const w=new THREE.Mesh(new THREE.BoxGeometry(.35,.22,.16),M.hullGlow);w.position.set(Math.cos(a)*4.75,0,Math.sin(a)*4.75);w.rotation.y=-a+Math.PI/2;r2.add(w)}}
+  if(s.core>=3){const mast=new THREE.Mesh(new THREE.CylinderGeometry(.12,.2,5,6),M.metal);mast.position.y=5.5;g.add(mast);
+    const b=glow('#ff6a4d',2.4,1);b.position.y=8.1;g.add(b);anim.blink.push({o:b,f:1.3,base:2.4})}
+  if(s.core>=4){for(const sd of[-1,1]){const arm=new THREE.Mesh(new THREE.BoxGeometry(.3,.3,6),M.dark);arm.position.set(0,-1,sd*5);g.add(arm);
+      const pan=new THREE.Mesh(new THREE.BoxGeometry(4.2,.1,3.2),M.panel);pan.position.set(0,-1,sd*9.2);g.add(pan)}}
+  if(s.core>=5){const halo=new THREE.Mesh(new THREE.TorusGeometry(10,.12,6,80),M.hullGlow);halo.rotation.x=Math.PI/2;halo.position.y=-.6;g.add(halo)}
+  const beacon=glow(s.captured?'#ffd27a':'#58d0c0',s.captured?9:6,.85);beacon.position.y=3.8;g.add(beacon);anim.blink.push({o:beacon,f:.6,base:s.captured?9:6});
+  const aura=glow(s.captured?'#ffd27a':'#58d0c0',34,.1);aura.position.y=-1;g.add(aura);
+  // slots
+  const n=slotsFor(s.core);
+  for(let i=0;i<n;i++){const p=slotPos(i);const pad=new THREE.Mesh(new THREE.CylinderGeometry(2,2,.35,6),M.pad);pad.position.copy(p).setY(-.9);g.add(pad);
+    const con=new THREE.Mesh(new THREE.BoxGeometry(.35,.35,5),M.dark);con.position.copy(p).multiplyScalar(.78).setY(-.9);con.lookAt(0,-.9,0);g.add(con);
+    const m=s.slots[i];
+    if(!m){const e=glow('#58d0c0',3.4,.35);e.position.copy(p).setY(-.4);g.add(e);anim.blink.push({o:e,f:.4,base:3.4,soft:1})}
+    else g.add(makeModule(m,p,anim))}
+  const proxy=new THREE.Mesh(new THREE.SphereGeometry(STATION_R,10,8),M.pick);proxy.userData.station=true;g.add(proxy);
+  pickables=pickables.filter(p=>!p.userData.station);pickables.push(proxy);
+  world.add(g);
+  syncDrones();
+}
+function makeModule(type,p,anim){const g=new THREE.Group();g.position.copy(p);g.lookAt(0,0,0);
+  if(type==='drone'){const b=new THREE.Mesh(new THREE.BoxGeometry(3.2,1.7,2.6),M.plate);b.position.y=.2;g.add(b);
+    const door=new THREE.Mesh(new THREE.BoxGeometry(2.2,.9,.1),M.amber);door.position.set(0,.1,-1.32);g.add(door);
+    const roof=new THREE.Mesh(new THREE.BoxGeometry(2.6,.3,2),M.dark);roof.position.y=1.2;g.add(roof);
+    const l=glow('#f0a644',3,.6);l.position.set(0,.1,-1.6);g.add(l)}
+  else if(type==='tower'){const base=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.5,1.4,8),M.plate);base.position.y=-.1;g.add(base);
+    const tur=new THREE.Group();tur.position.y=1;g.add(tur);const head=new THREE.Mesh(new THREE.BoxGeometry(1.5,.8,1.6),M.metal);tur.add(head);
+    for(const sd of[-1,1]){const br=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,2.2,6),M.dark);br.rotation.x=Math.PI/2;br.position.set(.38*sd,.1,1.5);tur.add(br);
+      const tip=glow('#ff6a4d',1.1,.9);tip.position.set(.38*sd,.1,2.6);tur.add(tip)}
+    anim.turrets.push({o:tur,ph:Math.random()*TAU})}
+  else if(type==='sensor'){const post=new THREE.Mesh(new THREE.CylinderGeometry(.18,.25,2.6,6),M.metal);post.position.y=.6;g.add(post);
+    const dg=new THREE.Group();dg.position.y=1.9;g.add(dg);
+    const dish=new THREE.Mesh(new THREE.SphereGeometry(1.7,16,6,0,TAU,0,Math.PI/3.2),M.metal);dish.material=M.metal;dish.rotation.x=Math.PI*.75;dg.add(dish);
+    const feed=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,1.4,4),M.dark);feed.rotation.x=-Math.PI/4;feed.position.set(0,.45,.45);dg.add(feed);
+    const bl=glow('#a98bff',2.4,1);bl.position.set(0,.95,.95);dg.add(bl);anim.blink.push({o:bl,f:2.1,base:2.4});anim.dishes.push({o:dg})}
+  return g}
+
+function updateGate(){if(gate){world.remove(gate);pickables=pickables.filter(p=>!p.userData.gate);gate=null}
+  const s=cur();const show=s.captured||state.cur>0;if(!show)return;
+  const r=rng(SECTORS[state.cur].seed+5);const ang=r()*TAU;
+  gate=new THREE.Group();gate.position.set(Math.cos(ang)*108,0,Math.sin(ang)*108);gate.lookAt(0,0,0);
+  const ringG=new THREE.Group();gate.add(ringG);
+  const t=new THREE.Mesh(new THREE.TorusGeometry(5.2,.55,8,48),M.plate);ringG.add(t);
+  const t2=new THREE.Mesh(new THREE.TorusGeometry(4.5,.14,6,48),M.hullGlow);ringG.add(t2);
+  for(let i=0;i<6;i++){const a=i/6*TAU;const n=new THREE.Mesh(new THREE.BoxGeometry(.9,1.4,1.4),M.metal);n.position.set(Math.cos(a)*5.4,Math.sin(a)*5.4,0);n.rotation.z=a;ringG.add(n)}
+  const core=glow('#7ef2e2',9,.55);gate.add(core);gate.userData.ring=ringG;gate.userData.core=core;
+  const proxy=new THREE.Mesh(new THREE.SphereGeometry(7,8,6),M.pick);proxy.userData.gate=true;gate.add(proxy);pickables.push(proxy);
+  world.add(gate)}
+
+/* drones */
+const DRONE_GEO=new THREE.OctahedronGeometry(.55,0);
+function syncDrones(){const s=cur();const docks=[];s.slots.forEach((m,i)=>{if(m==='drone'&&i<slotsFor(s.core))docks.push(i)});
+  while(drones.length<docks.length){const g=new THREE.Group();const b=new THREE.Mesh(DRONE_GEO,M.metal);b.scale.set(1,.6,1.7);g.add(b);
+    const e=glow('#f0a644',1.8,.9);e.position.z=-.9;g.add(e);
+    const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new V3(),new V3()]),new THREE.LineBasicMaterial({color:new THREE.Color('#f0a644'),transparent:true,opacity:.8,blending:THREE.AdditiveBlending}));
+    line.visible=false;line.frustumCulled=false;world.add(line);
+    const d={g,line,state:'seek',t:null,load:0,ltype:'ore',home:new V3(),wait:Math.random()*1.5};g.position.copy(slotPos(docks[drones.length])).multiplyScalar(.92);world.add(g);drones.push(d)}
+  drones.forEach((d,i)=>d.home.copy(slotPos(docks[i])).multiplyScalar(.85).setY(1))}
+function tickDrones(dt,t){const sp=16,cap=15,rate=4;
+  for(const d of drones){const p=d.g.position;
+    if(d.wait>0){d.wait-=dt;continue}
+    if(d.state==='seek'){let best=null,bd=1e9;for(const a of asts){if(!a.alive||a.amt<=0)continue;const dd=p.distanceTo(a.pos)+a.claims*25+(a.type==='crystal'?18:0);if(dd<bd){bd=dd;best=a}}
+      if(best){d.t=best;best.claims++;d.state='go'}else{d.wait=1}}
+    if(d.state==='go'){const a=d.t;if(!a.alive){a.claims--;d.state='seek';continue}const stop=astScale(a)*1.1+2.4;const dist=moveTo(d.g,a.pos,sp,dt,stop);if(dist<=stop+.05)d.state='mine'}
+    if(d.state==='mine'){const a=d.t;if(!a.alive||a.amt<=0){if(a.claims>0)a.claims--;d.line.visible=false;d.state=d.load>0?'back':'seek';continue}
+      const take=Math.min(rate*(a.type==='crystal'?.5:1)*dt,a.amt,cap-d.load);a.amt-=take;d.load+=take;d.ltype=a.type;setAstScale(a);
+      if(a.amt<=0)depleteAst(a);
+      const pos=d.line.geometry.attributes.position;pos.setXYZ(0,p.x,p.y,p.z);pos.setXYZ(1,a.pos.x,a.pos.y,a.pos.z);pos.needsUpdate=true;d.line.visible=true;
+      d.line.material.color.set(a.type==='crystal'?'#a98bff':'#f0a644');d.line.material.opacity=.5+Math.random()*.4;
+      if(d.load>=cap-.01){a.claims=Math.max(0,a.claims-1);d.line.visible=false;d.state='back'}}
+    if(d.state==='back'){const dist=moveTo(d.g,d.home,sp,dt,.3);if(dist<=.4){state[d.ltype==='crystal'?'crystal':'ore']+=d.load;bump(d.ltype==='crystal'?'#cryTxt':'#oreTxt');d.load=0;d.state='seek';d.wait=.8}}
+    d.g.position.y+=Math.sin(t*3+d.home.x)*.004}}
+const _v=new V3();
+function moveTo(obj,target,speed,dt,stop){_v.subVectors(target,obj.position);_v.y=0;const dist=_v.length();
+  if(dist>stop){const step=Math.min(speed*dt,dist-stop);_v.normalize();obj.position.addScaledVector(_v,step);obj.rotation.y=Math.atan2(_v.x,_v.z)}
+  obj.position.y+= (target.y-obj.position.y)*Math.min(1,dt*2);return Math.max(stop,dist-speed*dt)}
+
+function depleteAst(a){a.alive=false;a.respawn=22+Math.random()*12;if(mineTarget===a){mineTarget=null}}
+
+/* ---------- player control ---------- */
+let moveTarget=null,mineTarget=null,openOnArrive=false,fullWarned=false,mining=false,debrisT=0;
+function cmdMove(p){moveTarget=p.clone().setY(0);mineTarget=null;openOnArrive=false}
+function cmdMine(a){if(cargoTotal()>=shipVal('cargo')-.01){toast('Náklad je plný. Najprv ho vylož pri stanici.');return}
+  mineTarget=a;moveTarget=a.pos.clone().setY(0);openOnArrive=false;fullWarned=false}
+function cmdHome(){const dir=ship.position.clone().setY(0);if(dir.lengthSq()<1)dir.set(0,0,1);dir.normalize().multiplyScalar(STATION_R+2);moveTarget=dir;mineTarget=null}
+
+function tickShip(dt,t){const maxSp=shipVal('engine');
+  let desired=_zero.clone();
+  if(moveTarget){_v.subVectors(moveTarget,ship.position);_v.y=0;const dist=_v.length();
+    const stop=mineTarget?astScale(mineTarget)*1.1+4.5:.6;
+    if(dist>stop){desired.copy(_v).normalize().multiplyScalar(Math.min(maxSp,(dist-stop)*1.6+2))}else{if(!mineTarget)moveTarget=null}}
+  shipVel.lerp(desired,1-Math.exp(-dt*3.2));
+  ship.position.addScaledVector(shipVel,dt);
+  const rr=Math.hypot(ship.position.x,ship.position.z);if(rr>114){ship.position.x*=114/rr;ship.position.z*=114/rr}
+  // keep out of station core
+  if(rr<9){const k=9/Math.max(rr,.01);ship.position.x*=k;ship.position.z*=k}
+  const sp=shipVel.length();let roll=0;
+  if(sp>.5){const want=Math.atan2(shipVel.x,shipVel.z);let diff=((want-shipYaw+Math.PI)%TAU+TAU)%TAU-Math.PI;shipYaw+=diff*Math.min(1,dt*6);roll=clamp(-diff*1.2,-.6,.6)}
+  else if(mineTarget){_v.subVectors(mineTarget.pos,ship.position);const want=Math.atan2(_v.x,_v.z);let diff=((want-shipYaw+Math.PI)%TAU+TAU)%TAU-Math.PI;shipYaw+=diff*Math.min(1,dt*5)}
+  ship.rotation.y=shipYaw;const body=ship.userData.body;body.rotation.z+= (roll-body.rotation.z)*Math.min(1,dt*5);
+  ship.position.y=Math.sin(t*1.6)*.25;
+  const thr=clamp(sp/maxSp,0,1);for(const e of ship.userData.eng){const s=1.6+thr*2.4+Math.random()*.3;e.scale.set(s,s,1)}
+  if(sp>3&&Math.random()<dt*40*thr){for(const e of ship.userData.eng){const w=e.getWorldPosition(new V3());emit(trail,w,'#6fe3ff',.55+Math.random()*.3,new V3((Math.random()-.5)*1.5,0,(Math.random()-.5)*1.5))}}
+  // mining
+  mining=false;
+  if(mineTarget){const a=mineTarget;const range=astScale(a)*1.1+6;const d=ship.position.distanceTo(a.pos);
+    if(!a.alive){mineTarget=null}
+    else if(d<=range+.5){const capV=shipVal('cargo');const free=capV-cargoTotal();
+      if(free<=.01){if(!fullWarned){toast('Náklad plný. Ťukni Domov a vylož ho na stanici.');fullWarned=true}mineTarget=null}
+      else{mining=true;const rate=shipVal('laser')*(a.type==='crystal'?.5:1);const take=Math.min(rate*dt,a.amt,free);a.amt-=take;state.cargo[a.type]+=take;setAstScale(a);
+        if(a.amt<=0){depleteAst(a);toast(a.type==='crystal'?'Kryštálový asteroid vyťažený':'Asteroid vyťažený')}
+        debrisT-=dt;if(debrisT<=0){debrisT=.06;const from=a.pos.clone().add(new V3((Math.random()-.5)*2,Math.random(),(Math.random()-.5)*2).multiplyScalar(astScale(a)*.8));
+          emit(debris,from,a.type==='crystal'?'#b9a0ff':'#ffb85c',.55,null,ship.position.clone())}}}}
+  if(mining){const nose=ship.localToWorld(NOSE.clone());const to=mineTarget?mineTarget.pos.clone().lerp(nose,.12):nose;
+    setBeam(beam,nose,to,.32+Math.random()*.12,mineTarget&&mineTarget.type==='crystal'?'#a98bff':'#58d0c0')}else hideBeam(beam);
+  // unload
+  const dStation=Math.hypot(ship.position.x,ship.position.z);
+  if(dStation<STATION_R+5&&cargoTotal()>0){const o=Math.floor(state.cargo.ore),c=Math.floor(state.cargo.crystal);
+    state.ore+=state.cargo.ore;state.crystal+=state.cargo.crystal;state.cargo.ore=0;state.cargo.crystal=0;fullWarned=false;
+    const parts=[];if(o>0)parts.push(`+${o} rudy`);if(c>0)parts.push(`+${c} kryštálov`);if(parts.length)toast('Vyložené: '+parts.join(', '));
+    bump('#oreTxt');if(c>0)bump('#cryTxt');save();refreshSheet()}
+  if(openOnArrive&&dStation<STATION_R+8){openOnArrive=false;openSheet('station')}
+  if(gate&&ship.position.distanceTo(gate.position)<9&&!sheetTab&&!gateNear){gateNear=true;openSheet('map')}
+  if(gate&&ship.position.distanceTo(gate.position)>14)gateNear=false}
+let gateNear=false;
+
+/* ---------- input ---------- */
+const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),ground=new THREE.Plane(new V3(0,1,0),0);
+const pointers=new Map();let downPos=null,dragging=false,pinch0=0,zoom0=1,zoom=isTouch?1.08:1;
+function toNdc(x,y){const r=canvas.getBoundingClientRect();ndc.set((x-r.left)/r.width*2-1,-(y-r.top)/r.height*2+1);ray.setFromCamera(ndc,camera)}
+function groundAt(x,y){toNdc(x,y);const p=new V3();return ray.ray.intersectPlane(ground,p)?p:null}
+function tapAt(x,y){toNdc(x,y);const hits=ray.intersectObjects(pickables,false);
+  for(const h of hits){const u=h.object.userData;
+    if(u.ast&&u.ast.alive){cmdMine(u.ast);flashMarker(u.ast.pos,'#58d0c0');return}
+    if(u.station){const d=Math.hypot(ship.position.x,ship.position.z);if(d<STATION_R+10)openSheet('station');else{cmdHome();openOnArrive=true}return}
+    if(u.gate){cmdMove(gate.position);return}}
+  const p=groundAt(x,y);if(p){if(Math.hypot(p.x,p.z)>116)p.multiplyScalar(116/Math.hypot(p.x,p.z));cmdMove(p);flashMarker(p,'#58d0c0')}}
+function flashMarker(p,c){marker.position.set(p.x,.05,p.z);marker.material.color.set(c);markerT=.6}
+canvas.addEventListener('pointerdown',e=>{canvas.focus({preventScroll:true});pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});canvas.setPointerCapture(e.pointerId);
+  if(pointers.size===1){downPos={x:e.clientX,y:e.clientY,t:performance.now()};dragging=false}
+  else if(pointers.size===2){const [a,b]=[...pointers.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y);zoom0=zoom;downPos=null;dragging=false}});
+canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pointers.size===2){const [a,b]=[...pointers.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch0>0)zoom=clamp(zoom0*pinch0/d,.55,1.7);return}
+  if(downPos&&(dragging||Math.hypot(e.clientX-downPos.x,e.clientY-downPos.y)>10||performance.now()-downPos.t>260)){dragging=true;const p=groundAt(e.clientX,e.clientY);if(p)cmdMove(p)}});
+function endPtr(e){if(!pointers.has(e.pointerId))return;pointers.delete(e.pointerId);
+  if(downPos&&!dragging&&pointers.size===0)tapAt(e.clientX,e.clientY);
+  if(pointers.size===0){downPos=null;dragging=false;pinch0=0}}
+canvas.addEventListener('pointerup',endPtr);canvas.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);downPos=null;dragging=false});
+canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=clamp(zoom*(1+Math.sign(e.deltaY)*.08),.55,1.7)},{passive:false});
+// hold-to-fly also when the pointer is held still
+setInterval(()=>{if(downPos&&pointers.size===1&&!dragging&&performance.now()-downPos.t>300){dragging=true;const p=groundAt(downPos.x,downPos.y);if(p)cmdMove(p)}},80);
+
+/* ---------- UI ---------- */
+function toast(msg,big){const el=document.createElement('div');el.className='toast'+(big?' big':'');el.textContent=msg;const box=$('#toasts');box.appendChild(el);
+  while(box.children.length>3)box.firstChild.remove();setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400)},big?4200:2400)}
+function bump(sel){const el=$(sel).parentElement;el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse')}
+let hudT=0;
+function updateHUD(){const s=cur();const inf=influence(s);
+  $('#secName').textContent=SECTORS[state.cur].name;
+  const tag=$('#secTag');tag.textContent=s.captured?'Obsadený':'Neobsadený';tag.classList.toggle('won',s.captured);
+  const ib=$('#infBar');ib.style.width=Math.min(100,inf/CAPTURE*100)+'%';ib.classList.toggle('won',s.captured);
+  $('#infTxt').textContent=s.captured?`vplyv ${inf}`:`${inf} / ${CAPTURE} vplyv`;
+  $('#oreTxt').textContent=Math.floor(state.ore);$('#cryTxt').textContent=Math.floor(state.crystal);
+  const capV=shipVal('cargo');$('#cOre').style.width=(state.cargo.ore/capV*100)+'%';$('#cCry').style.width=(state.cargo.crystal/capV*100)+'%';
+  $('#cargoTxt').textContent=`${Math.floor(cargoTotal())}/${Math.round(capV)}`;$('#cargo').classList.toggle('full',cargoTotal()>=capV-.01);
+  let h;const full=cargoTotal()>=capV-.01;
+  if(full)h='Náklad je plný. Ťukni Domov a vylož ho na stanici.';
+  else if(mining)h=`Ťažím ${mineTarget&&mineTarget.type==='crystal'?'kryštály':'rudu'}… ${Math.floor(cargoTotal())}/${Math.round(capV)} t`;
+  else if(mineTarget)h='Letím k asteroidu…';
+  else if(cargoTotal()>0)h='Ťukni na ďalší asteroid, alebo leť Domov vyložiť náklad.';
+  else if(s.captured&&state.cur<SECTORS.length-1&&!state.sec[state.cur+1].captured)h='Sektor je tvoj. Otvor Mapu alebo leť do skokovej brány.';
+  else if(inf<CAPTURE&&(state.ore>=40))h='Máš suroviny. Otvor Stanica a postav modul.';
+  else h='Ťukni na asteroid na okraji sektora a začni ťažiť.';
+  $('#hint').textContent=h}
+
+let sheetTab=null;
+const sheet=$('#sheet'),body=$('#sheetBody');
+function openSheet(tab){sheetTab=tab;sheet.hidden=false;renderSheet();document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab))}
+function closeSheet(){sheetTab=null;sheet.hidden=true;document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.remove('on'))}
+function costHtml(c){let h='';if(c.ore)h+=`<span class="cost ore" data-need-ore="${c.ore}"><span class="gem"></span>${c.ore}</span>`;
+  if(c.crystal)h+=`<span class="cost cry" data-need-cry="${c.crystal}"><span class="gem"></span>${c.crystal}</span>`;return h||'<span class="cost">zdarma</span>'}
+function actBtn(act,label,c,block,extra=''){return `<button class="act" data-act="${act}" ${extra} data-ore="${c.ore}" data-cry="${c.crystal}" data-block="${block?1:0}">${label}</button>`}
+function renderSheet(){if(!sheetTab)return;const s=cur();let h='';
+  if(sheetTab==='station'){$('#sheetTitle').textContent='Stanica · '+SECTORS[state.cur].name;const inf=influence(s);
+    const L=s.core;const cc=coreCost(L);
+    h+=`<div class="card"><h3>Jadro stanice <span class="lv">ÚR ${L}/${CORE_MAX}</span></h3>`;
+    if(L<CORE_MAX){h+=actBtn('core','Vylepšiť',cc,false);h+=`<div class="costs">${costHtml(cc)}</div><p>Ďalšia úroveň pridá slot pre modul a +12 vplyvu.</p>`}
+    else h+=`<button class="act max" disabled>Max</button><p>Jadro je na maximálnej úrovni.</p>`;
+    h+=`<div class="stat">Slotov: <em>${slotsFor(L)}</em> · vplyv jadra <em>+${L*12}</em></div></div>`;
+    const n=slotsFor(L),free=freeSlot(s);
+    h+=`<div class="sec-h"><span>Moduly</span><span>${s.slots.slice(0,n).filter(Boolean).length} / ${n} slotov</span></div><div class="slots">`;
+    for(let i=0;i<6;i++){const m=s.slots[i];h+=i<n?`<span class="slot ${m||''}" title="${m?MOD[m].name:'voľný slot'}">${m?MOD[m].short:''}</span>`:'<span class="slot lock" title="zamknutý slot"></span>'}h+='</div>';
+    for(const k of Object.keys(MOD)){const md=MOD[k];const cnt=countMod(s,k);const c=md.cost(cnt);
+      h+=`<div class="card"><h3>${md.name} <span class="lv">${cnt}× · +${md.inf} vplyv</span></h3>${actBtn('mod',free<0?'Bez slotu':'Postaviť',c,free<0,`data-mod="${k}"`)}<div class="costs">${costHtml(c)}</div><p>${md.desc}</p></div>`}
+    h+=`<p class="note">${s.captured?`Sektor je obsadený. Jeho drony a senzory ti budú posielať suroviny, aj keď budeš inde.`:`Vplyv sektora ${inf} / ${CAPTURE}. Pri ${CAPTURE} sektor obsadíš a odomkneš ďalší.`}</p>`}
+  else if(sheetTab==='ship'){$('#sheetTitle').textContent='Loď · Prieskumník';
+    for(const k of Object.keys(SHIPUP)){const u=SHIPUP[k];const L=state.ship[k];
+      h+=`<div class="card"><h3>${u.name} <span class="lv">ÚR ${L}/${SHIP_MAX}</span></h3>`;
+      if(L<SHIP_MAX){const c=u.cost(L);h+=actBtn('ship','Vylepšiť',c,false,`data-k="${k}"`)+`<div class="costs">${costHtml(c)}</div><p>${u.desc}</p><div class="stat">${u.fmt(u.val(L))} → <em>${u.fmt(u.val(L+1))}</em></div>`}
+      else h+=`<button class="act max" disabled>Max</button><p>${u.desc}</p><div class="stat"><em>${u.fmt(u.val(L))}</em></div>`;
+      h+='</div>'}
+    h+=`<p class="note">Kryštály sa ťažia polovičnou rýchlosťou. Útočné lode a krížniky prídu v ďalšom prototype.</p>`}
+  else if(sheetTab==='map'){$('#sheetTitle').textContent='Mapa sektorov';
+    SECTORS.forEach((S,i)=>{const sc=state.sec[i];const here=i===state.cur;
+      const chip=here?'<span class="chip here">Tu si</span>':sc.captured?'<span class="chip won">Obsadený</span>':sc.unlocked?'<span class="chip">Voľný</span>':'<span class="chip">Zamknutý</span>';
+      const inc=sc.captured?passiveOf(sc):null;
+      h+=`<div class="card"><h3>${S.name} ${chip}</h3>`;
+      if(here)h+='<button class="act max" disabled>Tu si</button>';
+      else if(sc.unlocked)h+=`<button class="act" data-act="jump" data-i="${i}">Skok</button>`;
+      else h+='<button class="act max" disabled>Zamknutý</button>';
+      h+=`<p>${S.sub}. ${sc.unlocked?`Vplyv ${influence(sc)} / ${CAPTURE}.`:`Odomkneš obsadením sektora ${SECTORS[i-1].name}.`}</p>`;
+      if(inc&&(inc.ore>0||inc.crystal>0))h+=`<div class="stat">Pasívny príjem: <em>+${Math.round(inc.ore*60)} rudy</em>, <em>+${Math.round(inc.crystal*60)} kryštálov</em> za minútu</div>`;
+      h+='</div>'});
+    h+=`<p class="note">Postup sa ukladá v tomto prehliadači.</p><button class="ghost danger" id="resetBtn">Začať odznova</button>`}
+  body.innerHTML=h;refreshSheet()}
+function refreshSheet(){if(!sheetTab)return;
+  body.querySelectorAll('[data-need-ore]').forEach(el=>el.classList.toggle('lack',state.ore<+el.dataset.needOre));
+  body.querySelectorAll('[data-need-cry]').forEach(el=>el.classList.toggle('lack',state.crystal<+el.dataset.needCry));
+  body.querySelectorAll('.act[data-ore]').forEach(b=>{b.disabled=b.dataset.block==='1'||state.ore<+b.dataset.ore||state.crystal<+b.dataset.cry})}
+let resetArm=0;
+body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.id==='resetBtn'){if(performance.now()-resetArm<3000){try{localStorage.removeItem(SAVE_KEY)}catch(_){}state=freshState();state.intro=true;closeSheet();jumpTo(0,true);toast('Nová hra');return}
+    resetArm=performance.now();b.textContent='Naozaj? Ťukni znova';setTimeout(()=>{if(b.isConnected)b.textContent='Začať odznova'},3000);return}
+  const act=b.dataset.act;if(!act||b.disabled)return;const s=cur();
+  if(act==='core'){const c=coreCost(s.core);if(s.core<CORE_MAX&&afford(c)){pay(c);s.core++;rebuildStation();toast(`Jadro stanice: úroveň ${s.core}`);changed()}}
+  else if(act==='mod'){const k=b.dataset.mod;const i=freeSlot(s);const c=MOD[k].cost(countMod(s,k));if(i>=0&&afford(c)){pay(c);s.slots[i]=k;rebuildStation();toast(`${MOD[k].name} postavený`);changed()}}
+  else if(act==='ship'){const k=b.dataset.k;const L=state.ship[k];const c=SHIPUP[k].cost(L);if(L<SHIP_MAX&&afford(c)){pay(c);state.ship[k]++;toast(`${SHIPUP[k].name}: úroveň ${state.ship[k]}`);changed()}}
+  else if(act==='jump'){closeSheet();jumpTo(+b.dataset.i)}});
+function changed(){checkCapture();save();renderSheet();updateHUD()}
+function checkCapture(){const s=cur();if(!s.captured&&influence(s)>=CAPTURE){s.captured=true;const nx=state.sec[state.cur+1];if(nx)nx.unlocked=true;rebuildStation();updateGate();
+  if(nx)toast(`${SECTORS[state.cur].name} je obsadený! Odomknutý sektor ${SECTORS[state.cur+1].name}.`,true);
+  else if(state.sec.every(x=>x.captured))toast('Všetky sektory sú tvoje. Prototyp 0 je dohraný!',true);
+  else toast(`${SECTORS[state.cur].name} je obsadený!`,true)}}
+function passiveOf(sc){return{ore:countMod(sc,'drone')*.7,crystal:countMod(sc,'sensor')*.08}}
+
+let jumping=false;
+function jumpTo(i,instant){if(jumping)return;jumping=true;const w=$('#warp');w.classList.add('on');
+  setTimeout(()=>{state.cur=i;mineTarget=null;moveTarget=null;openOnArrive=false;gate=null;stationG=null;buildSector();
+    ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;camTarget.copy(ship.position);save();updateHUD();
+    w.classList.remove('on');jumping=false;if(!instant)toast(`Skok dokončený: ${SECTORS[i].name}`)},instant?50:480)}
+
+document.querySelectorAll('.dock [data-tab]').forEach(b=>b.addEventListener('click',()=>{sheetTab===b.dataset.tab?closeSheet():openSheet(b.dataset.tab)}));
+$('#sheetClose').addEventListener('click',closeSheet);
+$('#homeBtn').addEventListener('click',()=>{closeSheet();cmdHome();toast('Kurz na stanicu')});
+addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+$('#goBtn').addEventListener('click',()=>{state.intro=true;$('#intro').hidden=true;save();canvas.focus()});
+
+/* ---------- loop ---------- */
+const camTarget=new V3();
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;
+  camera.fov=w<h?52:40;camera.updateProjectionMatrix()}
+addEventListener('resize',resize);
+const clock=new THREE.Clock();let saveT=0,incomeT=0,t=0;
+function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.05);t+=dt;
+  if(!jumping){tickShip(dt,t);tickDrones(dt,t)}
+  for(const a of asts){
+    if(a.alive){a.g.rotation.x+=a.spin.x*dt;a.g.rotation.y+=a.spin.y*dt;a.g.rotation.z+=a.spin.z*dt;if(a.shrink<1){a.shrink=Math.min(1,a.shrink+dt*.8);setAstScale(a)}}
+    else{if(a.g.visible){a.shrink-=dt*3;if(a.shrink<=0){a.shrink=0;a.g.visible=false}else setAstScale(a)}
+      a.respawn-=dt;if(a.respawn<=0){a.amt=a.max;a.alive=true;a.claims=0;a.shrink=.01;a.g.visible=true;placeAst(a,Math.random)}}}
+  if(stationAnim){for(const r of stationAnim.rings)r.o.rotation.y+=r.s*dt;for(const tu of stationAnim.turrets)tu.o.rotation.y=Math.PI+Math.sin(t*.5+tu.ph)*1.4;
+    for(const d of stationAnim.dishes)d.o.rotation.y+=dt*.6;for(const b of stationAnim.blink){const k=b.soft?.75+.25*Math.sin(t*3*b.f):(Math.sin(t*TAU*b.f)>.2?1:.35);b.o.scale.setScalar(b.base*k)}}
+  if(gate){gate.userData.ring.rotation.z+=dt*.4;const k=1+Math.sin(t*2)*.12;gate.userData.core.scale.set(9*k,9*k,1)}
+  if(world&&world.userData.planet)world.userData.planet.rotation.y+=dt*.01;
+  tickPool(trail,dt);tickPool(debris,dt);
+  if(markerT>0){markerT-=dt;const k=markerT/.6;marker.material.opacity=k*.9;marker.scale.setScalar(1+(1-k)*1.8)}else marker.material.opacity=0;
+  if(mineTarget&&mineTarget.alive){tRing.visible=true;tRing.position.set(mineTarget.pos.x,mineTarget.pos.y-.2,mineTarget.pos.z);tRing.scale.setScalar(astScale(mineTarget)*1.6+1.2);tRing.rotation.z+=dt*1.2}else tRing.visible=false;
+  // passive income from other captured sectors
+  incomeT+=dt;if(incomeT>=1){incomeT=0;let gotC=false;state.sec.forEach((sc,i)=>{if(i!==state.cur&&sc.captured){const p=passiveOf(sc);state.ore+=p.ore;state.crystal+=p.crystal;if(p.crystal)gotC=true}});refreshSheet()}
+  // camera
+  const look=ship.position.clone().addScaledVector(shipVel,.35);look.y=0;camTarget.lerp(look,1-Math.exp(-dt*3.5));
+  camera.position.set(camTarget.x,52*zoom,camTarget.z+36*zoom);camera.lookAt(camTarget.x,0,camTarget.z);
+  hudT-=dt;if(hudT<=0){hudT=.12;updateHUD()}
+  saveT+=dt;if(saveT>6){saveT=0;save()}
+  renderer.render(scene,camera)}
+
+addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+window.claude?.hot?.snapshot?.(()=>({state}));
+function start(data){state=(data&&data.state)||loadState()||freshState();
+  if(state.intro)$('#intro').hidden=true;
+  resize();buildSector();ship.position.set(0,0,STATION_R+8);camTarget.copy(ship.position);updateHUD();frame()}
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+})();
+</script>
