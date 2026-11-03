@@ -83,7 +83,7 @@ const ENH_STEP=.06;        // +6 % ku všetkým vlastnostiam za každé +1
 const ILVL_SCALE=.08;      // +8 % sily vlastností za každú úroveň predmetu
 const ASTEROID_DROP=.03;   // šanca, že z bežného asteroidu (vyťaženého loďou) padne predmet
 /* Bonus k šanci na vzácnosť podľa zdroja a pásu (pridáva sa k vlastnosti mf). */
-const MF_SOURCE={asteroid:0,relic:.8,capture:1.2,enemy:.3,corsair:1};
+const MF_SOURCE={asteroid:0,relic:.8,capture:1.2,enemy:.3,corsair:1,frigate:1.6};
 const MF_ZONE={1:0,2:0,3:.25,4:.5,5:.6};
 const ILVL_ZONE={1:0,2:1,3:4,4:7,5:9};
 
@@ -105,7 +105,7 @@ function genItem(r,ilvl,bk){bk=bk||pick(SHIP_BASES);const B=BASES[bk];const R=RA
 /* Predmet, ktorý padne zo zdroja: mf zo zdroja + pásu + sektora + vlastností výbavy. */
 function dropItem(source,zone,minR=0){const mf=MF_SOURCE[source]+MF_ZONE[zone]+state.cur*.25+bonus().mf/100;
   const r=rollRarity(mf,minR);const ilvl=SECTORS[state.cur].ilvl+ILVL_ZONE[zone]+Math.floor(Math.random()*3);
-  const chip=Math.random()<(CHIP_CHANCE[source==='corsair'?'enemy':source]||0);return genItem(r,ilvl,chip?pick(CHIP_BASES):null)}
+  const chip=Math.random()<(CHIP_CHANCE[source==='corsair'||source==='frigate'?'enemy':source]||0);return genItem(r,ilvl,chip?pick(CHIP_BASES):null)}
 
 /* Skutočné hodnoty vlastností predmetu vrátane vylepšenia (+N). */
 const enhMul=it=>1+ENH_STEP*it.enh;

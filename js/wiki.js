@@ -25,7 +25,7 @@ sk:{
     'Keď výdrž stanice klesne na nulu, piráti ukradnú {st} % rudy a viriditu na stanici, odletia a moduly sú {off} s offline. Stanica sa potom sama opravuje.',
     'Za odrazený nájazd dostaneš {rb} ¢ za každého piráta. Na ťažkej obtiažnosti piráti udierajú o {hd} % silnejšie.'],
   'cmb.raid':'Nájazdy podľa sektora','cmb.sec':'Sektor','cmb.first':'Prvý nájazd po','cmb.every':'Interval','cmb.count':'Stíhačky','cmb.cors':'Šanca na korzára','cmb.none':'bez pirátov',
-  'cmb.fighter':'Stíhačka','cmb.corsair':'Korzár','cmb.shp':'Výdrž stanice: {a} + {b} × úroveň jadra.',
+  'cmb.fighter':'Stíhačka','cmb.corsair':'Korzár','cmb.frigate':'Fregata','cmb.frig':'Šanca na fregatu','cmb.shp':'Výdrž stanice: {a} + {b} × úroveň jadra.',
   title:'Príručka',search:'Hľadať v príručke…',none:'Nič sa nenašlo.',close:'Zavrieť',toc:'Obsah',
   auto:'Hodnoty v príručke sa počítajú priamo z herných dát, takže vždy zodpovedajú tejto verzii hry.',
   'start.h':'Začíname',
@@ -53,8 +53,10 @@ sk:{
   'st.mod':'Modul','st.minf':'Vplyv','st.c1':'1. kus','st.c2':'2. kus','st.c3':'3. kus','st.pas':'Príjem po obsadení',
   'st.p':'Vplyv sektora = úroveň jadra × {ci} + vplyv modulov. Každý ďalší modul rovnakého typu je drahší. Postavený modul môžeš predať, vráti sa {sell} % jeho ceny a uvoľní sa slot.',
   'st.pd':'{o} rudy/min','st.ps':'{g} viriditu/min','st.pt':'len vplyv',
-  'ship.h':'Loď a vylepšenia','ship.lv':'Úroveň','ship.val':'Hodnota','ship.cost':'Cena ďalšej úrovne',
-  'ship.p':'Loď Klepeto má {n} vylepšení v {g} skupinách. Úrovne 1–5 stoja suroviny, úrovne 6–10 aj kredity. K hodnotám sa pripočítajú bonusy z nasadených predmetov. Na ťažkej obtiažnosti je rýchlosť o 15 % nižšia.',
+  'ship.h':'Loď a vylepšenia','hg.h':'Hangár a lode',
+  'hg.p':'V paneli Loď → Hangár kupuješ ďalšie lode. Každá sa odomkne obsadením určitého sektora. Loď násobí hodnoty vylepšení (napr. Bizón má dvojnásobný náklad), ale jej vylepšenia môžu byť drahšie. Každá loď má vlastné úrovne vylepšení, nasadené predmety sa prenášajú. Prestúpiť sa dá iba pri stanici.',
+  'hg.ship':'Loď','hg.cost':'Cena','hg.unlock':'Odomkne','hg.mul':'Násobky vylepšení','hg.upc':'Cena vylepšení','hg.start':'od začiatku','ship.lv':'Úroveň','ship.val':'Hodnota','ship.cost':'Cena ďalšej úrovne',
+  'ship.p':'Každá loď má {n} vylepšení v {g} skupinách. Úrovne 1–5 stoja suroviny, úrovne 6–10 aj kredity. K hodnotám sa pripočítajú bonusy z nasadených predmetov. Na ťažkej obtiažnosti je rýchlosť o 15 % nižšia.',
   'hull.h':'Trup, štíty a nárazy',
   'hull.l':['Náraz do asteroidu poškodí loď, ak je rýchlejší ako {min} m/s: poškodenie = (rýchlosť − {min}) × {per}. Vlastnosť „Odolnosť voči nárazom“ ho znižuje (najviac o {cap} %).',
     'Štíty zachytia nárazy aj radiáciu v pásoch skôr ako trup. Začnú sa dobíjať po čase podľa úrovne Regenerácie štítov (15 s na úrovni 1).',
@@ -105,7 +107,7 @@ en:{
     'If the station’s integrity reaches zero, pirates steal {st}% of the station’s ore and viridite, fly off, and modules go offline for {off} s. The station then repairs itself.',
     'A repelled raid pays {rb} ¢ per pirate. On Hard pirates hit {hd}% harder.'],
   'cmb.raid':'Raids by sector','cmb.sec':'Sector','cmb.first':'First raid after','cmb.every':'Interval','cmb.count':'Fighters','cmb.cors':'Corsair chance','cmb.none':'no pirates',
-  'cmb.fighter':'Fighter','cmb.corsair':'Corsair','cmb.shp':'Station integrity: {a} + {b} × core level.',
+  'cmb.fighter':'Fighter','cmb.corsair':'Corsair','cmb.frigate':'Frigate','cmb.frig':'Frigate chance','cmb.shp':'Station integrity: {a} + {b} × core level.',
   title:'Handbook',search:'Search the handbook…',none:'Nothing found.',close:'Close',toc:'Contents',
   auto:'The values in this handbook are computed straight from the game data, so they always match this version of the game.',
   'start.h':'Getting started',
@@ -133,8 +135,10 @@ en:{
   'st.mod':'Module','st.minf':'Influence','st.c1':'1st','st.c2':'2nd','st.c3':'3rd','st.pas':'Income once claimed',
   'st.p':'Sector influence = core level × {ci} + module influence. Each additional module of the same type costs more. You can sell a module for {sell}% of its price, which frees the slot.',
   'st.pd':'{o} ore/min','st.ps':'{g} viridite/min','st.pt':'influence only',
-  'ship.h':'Ship and upgrades','ship.lv':'Level','ship.val':'Value','ship.cost':'Next level cost',
-  'ship.p':'The Pincer has {n} upgrades in {g} groups. Levels 1–5 cost resources, levels 6–10 also credits. Bonuses from equipped items are added on top. On Hard the speed is 15% lower.',
+  'ship.h':'Ship and upgrades','hg.h':'Hangar and ships',
+  'hg.p':'In Ship → Hangar you buy more ships. Each unlocks when you claim a certain sector. A ship multiplies upgrade values (e.g. the Bison has double cargo), but its upgrades may cost more. Each ship has its own upgrade levels; equipped items carry over. You can switch only at the station.',
+  'hg.ship':'Ship','hg.cost':'Price','hg.unlock':'Unlocks','hg.mul':'Upgrade multipliers','hg.upc':'Upgrade cost','hg.start':'from the start','ship.lv':'Level','ship.val':'Value','ship.cost':'Next level cost',
+  'ship.p':'Each ship has {n} upgrades in {g} groups. Levels 1–5 cost resources, levels 6–10 also credits. Bonuses from equipped items are added on top. On Hard the speed is 15% lower.',
   'hull.h':'Hull, shields and collisions',
   'hull.l':['Hitting an asteroid faster than {min} m/s damages the ship: damage = (speed − {min}) × {per}. The stat “Collision resistance” reduces it (up to {cap}%).',
     'Shields absorb collisions and belt radiation before the hull. They start recharging after a delay set by Shield regeneration (15 s at level 1).',
@@ -236,10 +240,10 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
       +tbl([wt('mod.lv'),wt('mod.rar'),wt('mod.cost'),wt('mod.inf')],rows)+`<p>${wt('mod.chip',{e:nf(CHIP_CHANCE.enemy*100)})}</p>`+list(capTxt)
       +`<p>${wt('mod.sell',{b:SELL_BUILD*100,e:SELL_ENH*100})}</p><p>${wt('mod.paused')}</p>`)}
   { // boj
-    const kinds=['fighter','corsair'].map(k=>{const P=PIRATES[k];return[`<b>${wt('cmb.'+k)}</b>`,P.hp.slice(1).filter(x=>x).join(' / '),P.dmg.slice(1).filter(x=>x).join(' / '),nf(P.fire,1)+' s',pct(P.drop),`${gem('cr')} ${P.cr[0]}–${P.cr[1]}`]});
-    const raids=SECTORS.map((S,i)=>{const c=PIRATES.raid[i];return c?[`<b>${secName(i)}</b>`,c.first+' s',`${c.every[0]}–${c.every[1]} s`,`${c.count[0]}–${c.count[1]}`,pct(c.corsair)]:[`<b>${secName(i)}</b>`,wt('cmb.none'),'–','–','–']});
+    const kinds=['fighter','corsair','frigate'].map(k=>{const P=PIRATES[k];return[`<b>${wt('cmb.'+k)}</b>`,P.hp.slice(1).filter(x=>x).join(' / '),P.dmg.slice(1).filter(x=>x).join(' / '),nf(P.fire,1)+' s',pct(P.drop),`${gem('cr')} ${P.cr[0]}–${P.cr[1]}`]});
+    const raids=SECTORS.map((S,i)=>{const c=PIRATES.raid[i];return c?[`<b>${secName(i)}</b>`,c.first+' s',`${c.every[0]}–${c.every[1]} s`,`${c.count[0]}–${c.count[1]}`,pct(c.corsair),pct(c.frigate||0)]:[`<b>${secName(i)}</b>`,wt('cmb.none'),'–','–','–','–']});
     H('combat',wt('cmb.h'),`<p>${wt('cmb.p',{ag:PIRATES.aggro})}</p>`+list(wt('cmb.l').map(x=>fill(x,{gr:GUN_RANGE,st:PIRATES.steal*100,off:PIRATES.offline,rb:PIRATES.repelBonus,hd:Math.round((PIRATES.hardDmg-1)*100)})))
-      +tbl([wt('cmb.kind'),wt('cmb.hp'),wt('cmb.dmg'),wt('cmb.fire'),wt('cmb.drop'),wt('cmb.cr')],kinds)+`<h4>${wt('cmb.raid')}</h4>`+tbl([wt('cmb.sec'),wt('cmb.first'),wt('cmb.every'),wt('cmb.count'),wt('cmb.cors')],raids)
+      +tbl([wt('cmb.kind'),wt('cmb.hp'),wt('cmb.dmg'),wt('cmb.fire'),wt('cmb.drop'),wt('cmb.cr')],kinds)+`<h4>${wt('cmb.raid')}</h4>`+tbl([wt('cmb.sec'),wt('cmb.first'),wt('cmb.every'),wt('cmb.count'),wt('cmb.cors'),wt('cmb.frig')],raids)
       +`<p class="wnote">${wt('cmb.shp',{a:PIRATES.stationHp(0),b:PIRATES.stationHp(1)-PIRATES.stationHp(0)})}</p>`)}
   { // misie a radiačný štít
     const types=Object.keys(MREWARD).map(k=>[`<b>${missionTitle({type:k,res:'ore'}).replace(t('res.ore'),'…')}</b>`,wt('mis.d.'+k),`${gem('cr')} ${MREWARD[k]}`+(MORE[k]?` + ${gem('ore')} ${MORE[k]}`:'')]);
@@ -253,6 +257,10 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
         const rows=[];for(let L=u.min;L<=u.max;L++)rows.push([`<b>${L}</b>`,f(L),L<u.max?costTxt(u.cost(L)):'–']);
         h+=`<details class="wdet"><summary><b>${t('up.'+k)}</b> <span>${f(u.min)} → ${f(u.max)}</span></summary><p>${t('up.'+k+'.d')}</p>${tbl([wt('ship.lv'),wt('ship.val'),wt('ship.cost')],rows)}</details>`}}
     H('ship',wt('ship.h'),h)}
+  { // hangár a lode (v0.8)
+    const rows=SHIP_IDS.map(id=>{const S=SHIPS[id];const m=Object.entries(S.mul).map(([k,v])=>`${t('up.'+k)} ×${v}`).join(', ')||'–';
+      return[`<span class="wico">${shipIcon(id,'wshipi')}</span> <b>${t('ship.'+id)}</b>`,S.cost?costTxt(S.cost):'–',S.need<0?wt('hg.start'):secName(S.need),m,'×'+S.upMul]});
+    H('hangar',wt('hg.h'),`<p>${wt('hg.p')}</p>`+tbl([wt('hg.ship'),wt('hg.cost'),wt('hg.unlock'),wt('hg.mul'),wt('hg.upc')],rows))}
   H('hull',wt('hull.h'),list(wt('hull.l').map(x=>fill(x,{min:COLL.minSpeed,per:nf(COLL.perMs,1),cap:STATS.coll.cap,hd:HULL_DELAY,hr:nf(HULL_RATE*100),rp:REPAIR_PER_ORE}))));
   { // predmety
     const types=Object.keys(BASES).map(b=>{const B=BASES[b];return[`<span class="wico">${icon(b)}</span> <b>${t('base.'+b)}</b>`,t('slot.'+B.slot),t('s.'+B.imp),B.pool.filter(k=>k!==B.imp).map(k=>t('s.'+k)).join(', ')]});

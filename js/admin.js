@@ -24,6 +24,7 @@ function renderAdmin(){const a=adm();let h='';
     <p class="note" style="margin:0">${A('Predmet sa vloží do inventára (úroveň podľa sektora +10).','The item goes to your inventory (sector level +10).')}</p></div>`;
   h+=`<div class="sec-h"><span>${A('Postup a svet','Progress and world')}</span></div><div class="card adm"><div class="admrow">
     <button class="btn" data-act="adm" data-op="maxShip">${A('Loď na max. úroveň','Max ship upgrades')}</button>
+    <button class="btn" data-act="adm" data-op="ships">${A('Všetky lode do hangára','All ships to hangar')}</button>
     <button class="btn" data-act="adm" data-op="maxCore">${A('Jadro stanice na max.','Max station core')}</button>
     <button class="btn" data-act="adm" data-op="capture">${A('Obsadiť tento sektor','Claim this sector')}</button>
     <button class="btn" data-act="adm" data-op="unlock">${A('Odomknúť všetky sektory','Unlock all sectors')}</button>
@@ -42,6 +43,7 @@ function adminAct(act,b){if(act!=='adm')return false;const op=b.dataset.op;state
     case 'item':{const r=+b.dataset.r;const it=genItem(r,SECTORS[state.cur].ilvl+10,a.ikind==='chip'?pick(CHIP_BASES):null);
       if(state.inv.length<INV_MAX)state.inv.push(it);else spawnLoot(it,ship.position.clone());toast(t('tt.loot',{r:t('r.'+RAR[r].k),n:t('base.'+it.b)}),{rar:r});break}
     case 'maxShip':for(const k in UP)state.ship[k]=UP[k].max;state.hp=shipVal('hull');state.sh=shieldMax();state.radCharge=shipVal('radShield');break;
+    case 'ships':for(const id of SHIP_IDS)if(!state.owned.includes(id)){state.owned.push(id);state.hangar[id]=baseLevels()}break;
     case 'maxCore':s.core=CORE_MAX;rebuildStation();stationHp=stationMaxHp();break;
     case 'capture':if(!s.captured){s.captured=true;s.rewarded=true;const nx=state.sec[state.cur+1];if(nx)nx.unlocked=true;rebuildStation();updateGate();toast(t('tt.capturedOne',{s:secName(state.cur)}),true)}break;
     case 'unlock':for(const x of state.sec)x.unlocked=true;updateGate();break;

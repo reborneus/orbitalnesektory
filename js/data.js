@@ -28,7 +28,23 @@ const SECTORS=[
     fields:[{type:'ore',n:34,r:[44,78]},{type:'green',n:24,r:[84,156]},{type:'ore',n:8,r:[84,150]},{type:'relic',n:4,r:[70,156]}],reward:{cr:1500,minR:4},ilvl:11},
   {name:'Orion Hlbina',seed:37,rich:1.25,neb:['#5c1b31','#1b2e6e'],planet:'#9b6bd1',pPos:[-110,-380,110],capture:240,res:['ore','green','crystal'],
     fields:[{type:'ore',n:32,r:[44,78]},{type:'green',n:18,r:[84,118]},{type:'crystal',n:16,r:[124,156]},{type:'green',n:6,r:[124,156]},{type:'relic',n:5,r:[80,156]}],reward:{cr:3000,minR:5},ilvl:21},
+  /* v0.8: sektory 4–6 – bohatšie polia (rich), silnejší piráti (PIRATES), vyššia úroveň predmetov (ilvl) */
+  {name:'Cygnus Prah',seed:53,rich:1.45,neb:['#0d5c4a','#5c3a0d'],planet:'#d1c06b',pPos:[160,-370,120],capture:290,res:['ore','green','crystal'],
+    fields:[{type:'ore',n:30,r:[44,78]},{type:'green',n:20,r:[84,124]},{type:'crystal',n:18,r:[118,156]},{type:'ore',n:6,r:[84,150]},{type:'relic',n:5,r:[70,156]}],reward:{cr:5000,minR:5},ilvl:31},
+  {name:'Andromeda Brána',seed:71,rich:1.7,neb:['#5c0d4e','#0d2a5c'],planet:'#e06b8a',pPos:[-170,-360,-90],capture:340,res:['ore','green','crystal'],
+    fields:[{type:'ore',n:28,r:[44,78]},{type:'green',n:18,r:[84,120]},{type:'crystal',n:22,r:[110,156]},{type:'relic',n:6,r:[70,156]}],reward:{cr:8000,minR:6},ilvl:41},
+  {name:'Erebus Prázdnota',seed:89,rich:2,neb:['#2a0d5c','#5c0d0d'],planet:'#8a8fa8',pPos:[120,-390,-140],capture:400,res:['ore','green','crystal'],
+    fields:[{type:'ore',n:26,r:[44,78]},{type:'green',n:16,r:[84,118]},{type:'crystal',n:26,r:[104,156]},{type:'relic',n:7,r:[70,156]}],reward:{cr:12000,minR:7},ilvl:51},
 ];
+/* Lode v hangári (v0.8). mul = násobok hodnôt vylepšení (UP) pre túto loď, upMul = násobok ceny vylepšení,
+   cost = cena kúpy, need = index sektora, ktorý musí byť obsadený, aby sa loď dala kúpiť (-1 = od začiatku).
+   Každá loď má vlastné úrovne vylepšení; nasadené predmety (výbava) sú spoločné. */
+const SHIPS={
+  klepeto:{mul:{},upMul:1,cost:null,need:-1,col:'#58d0c0',scale:1.1},
+  sokol:{mul:{speed:1.2,accel:1.25,turn:1.3,hull:.8,cargo:.6,laser:.85,gun:1.35,gunRate:1.2,shield:1.1},upMul:1.15,cost:{ore:800,green:300,crystal:0,cr:4000},need:1,col:'#ffb35a',scale:1},
+  bizon:{mul:{speed:.82,accel:.75,turn:.75,hull:1.5,cargo:2,laser:1.3,gun:.85,gunRate:.9,shield:1.3,radShield:1.25},upMul:1.3,cost:{ore:1500,green:600,crystal:250,cr:8000},need:2,col:'#b38bff',scale:1.25},
+};
+const SHIP_IDS=Object.keys(SHIPS);
 /* C(ruda, viridit, kryštály, kredity) = pomocník na zápis ceny. Kredity (cr) sa zarábajú obsadzovaním sektorov a rozoberaním predmetov. */
 const C=(o,g,c,cr)=>({ore:o||0,green:g||0,crystal:c||0,cr:cr||0});
 /* Pasívny príjem kreditov z každého obsadeného sektora (za sekundu). */
@@ -113,9 +129,14 @@ const LOOT_RANGE=8;
    fire = s medzi výstrelmi, drop = šanca na predmet, cr = kredity za zničenie, mf = bonus k vzácnosti koristi.
    stationHp(L) = výdrž stanice podľa jadra; pri zničení piráti ukradnú steal podiel rudy a viriditu a moduly sú offline sekúnd. */
 const PIRATES={
-  raid:[null,{every:[120,200],count:[2,3],corsair:0,first:90},{every:[90,160],count:[3,5],corsair:.4,first:70}],
-  fighter:{hp:[0,45,80],dmg:[0,4,7],speed:18,range:26,fire:1.5,drop:.15,cr:[6,12],mf:.3,r:1.8},
-  corsair:{hp:[0,220,260],dmg:[0,12,14],speed:12,range:32,fire:2,drop:.7,cr:[25,50],mf:1,r:3.2},
+  /* raid[i] = nájazdy v sektore i: every = interval (s), count = počet stíhačiek, corsair/frigate = šanca na korzára/fregatu */
+  raid:[null,{every:[120,200],count:[2,3],corsair:0,first:90},{every:[90,160],count:[3,5],corsair:.4,first:70},
+    {every:[85,150],count:[3,5],corsair:.55,frigate:.15,first:65},{every:[80,140],count:[4,5],corsair:.65,frigate:.3,first:60},{every:[75,130],count:[4,6],corsair:.75,frigate:.45,first:55}],
+  /* hp/dmg sú polia podľa sektora (index = sektor) */
+  fighter:{hp:[0,45,80,120,170,230],dmg:[0,4,7,9,11,13],speed:18,range:26,fire:1.5,drop:.15,cr:[6,12],mf:.3,r:1.8},
+  corsair:{hp:[0,220,260,380,520,700],dmg:[0,12,14,16,19,22],speed:12,range:32,fire:2,drop:.7,cr:[25,50],mf:1,r:3.2},
+  /* fregata (od 4. sektora): ťažká loď s veľkou výdržou, vždy zhodí predmet aspoň Vzácnej rarity */
+  frigate:{hp:[0,0,0,900,1250,1700],dmg:[0,0,0,20,24,28],speed:8,range:38,fire:2.6,drop:1,cr:[90,160],mf:2,r:4.6},
   stationHp:L=>400+150*L,stationRegen:3,steal:.15,offline:30,aggro:30,repelBonus:15,hardDmg:1.3,boltSpeed:45,playerBolt:70,
 };
 /* Kľúč uloženej hry v prehliadači. Ak ho zmeníš, hra začne odznova (stará uložená hra sa ignoruje). */

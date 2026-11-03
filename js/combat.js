@@ -20,21 +20,29 @@ function makePirate(kind){const g=new THREE.Group();const body=new THREE.Group()
   const hull=new THREE.Mesh(new THREE.ConeGeometry(.9,3.4,4),PIR_MAT);hull.rotation.x=Math.PI/2;hull.scale.z=.5;body.add(hull);
   for(const s of[-1,1]){const w=new THREE.Mesh(new THREE.BoxGeometry(2.6,.12,1.2),PIR_MAT);w.position.set(1.2*s,0,-.6);w.rotation.y=.5*s;body.add(w);
     const tip=new THREE.Mesh(new THREE.BoxGeometry(.2,.3,1),PIR_GLOW);tip.position.set(2.3*s,0,-1.1);body.add(tip)}
+  if(kind==='frigate'){ // fregata: široký trup, dve veže a štyri motory
+    const deck=new THREE.Mesh(new THREE.BoxGeometry(2.4,.7,4.2),PIR_MAT);deck.position.z=-.3;body.add(deck);
+    for(const s of[-1,1]){const tw=new THREE.Mesh(new THREE.CylinderGeometry(.45,.55,.6,6),PIR_MAT);tw.position.set(.7*s,.6,.4);body.add(tw);
+      const brl=new THREE.Mesh(new THREE.BoxGeometry(.14,.14,1.3),PIR_GLOW);brl.position.set(.7*s,.7,1.1);body.add(brl);
+      const e2=glow('#ff6a4d',2.2,.9);e2.position.set(.8*s,0,-2.5);body.add(e2)}
+    const ridge=new THREE.Mesh(new THREE.BoxGeometry(.3,.4,3.4),PIR_GLOW);ridge.position.set(0,.45,-.4);body.add(ridge)}
   if(kind==='corsair'){for(const s of[-1,1]){const sp=new THREE.Mesh(new THREE.ConeGeometry(.25,1.6,4),PIR_GLOW);sp.rotation.x=Math.PI/2;sp.position.set(.7*s,.1,1.2);body.add(sp)}}
   const eye=glow('#ff3b2f',2,.9);eye.position.z=1.3;body.add(eye);
   const eng=glow('#ff6a4d',2.6,.9);eng.position.z=-1.9;body.add(eng);
-  const sc=kind==='corsair'?1.8:1;body.scale.setScalar(sc);
+  const sc=kind==='frigate'?2.6:kind==='corsair'?1.8:1;body.scale.setScalar(sc);
   // ukazovateľ výdrže nad pirátom (vodorovný, aby bol vidieť z kamery zhora)
   const bg=new THREE.Mesh(BAR_GEO,new THREE.MeshBasicMaterial({color:new THREE.Color('#2a0808'),transparent:true,opacity:.85,depthWrite:false}));bg.rotation.x=-Math.PI/2;bg.position.set(0,3,-2.6*sc);g.add(bg);
   const bar=new THREE.Mesh(BAR_GEO,new THREE.MeshBasicMaterial({color:new THREE.Color('#ff5a4a'),depthWrite:false}));bar.rotation.x=-Math.PI/2;bar.position.set(0,3.05,-2.6*sc);g.add(bar);
   const proxy=new THREE.Mesh(new THREE.SphereGeometry(2.6*sc,8,6),M.pick);g.add(proxy);
   return{g,body,bar,proxy}}
+/* hodnota pre sektor si; ak pre neho nie je zadaná (napr. fregata v nižšom sektore cez admin), použije sa najbližšia nenulová */
+const pirStat=(a,si)=>{for(let i=Math.min(si,a.length-1);i<a.length;i++)if(a[i])return a[i];return a[a.length-1]};
 /* force = spustiť nájazd aj v sektore bez pirátov (admin panel); vtedy sa použijú hodnoty 2. sektora */
 function spawnRaid(force){const c=raidCfg()||(force?PIRATES.raid[1]:null);if(!c)return;const si=Math.max(1,state.cur);const n=c.count[0]+Math.floor(Math.random()*(c.count[1]-c.count[0]+1));const a0=Math.random()*TAU;
-  const kinds=[];for(let i=0;i<n;i++)kinds.push('fighter');if(Math.random()<c.corsair)kinds.push('corsair');
+  const kinds=[];for(let i=0;i<n;i++)kinds.push('fighter');if(Math.random()<c.corsair)kinds.push('corsair');if(c.frigate&&Math.random()<c.frigate)kinds.push('frigate');
   kinds.forEach((kind,i)=>{const P=PIRATES[kind];const v=makePirate(kind);const a=a0+(i-kinds.length/2)*.09;
     v.g.position.set(Math.cos(a)*(LIMIT-35+Math.random()*10),2,Math.sin(a)*(LIMIT-35+Math.random()*10));world.add(v.g);
-    const e={...v,kind,hp:P.hp[si]||P.hp[2],max:P.hp[si]||P.hp[2],dmg:(P.dmg[si]||P.dmg[2])*(state.diff==='hard'?PIRATES.hardDmg:1),speed:P.speed,range:P.range,fire:P.fire,r:P.r,
+    const e={...v,kind,hp:pirStat(P.hp,si),max:pirStat(P.hp,si),dmg:pirStat(P.dmg,si)*(state.diff==='hard'?PIRATES.hardDmg:1),speed:P.speed,range:P.range,fire:P.fire,r:P.r,
       cd:1+Math.random()*2,vel:new V3(),aggro:false,leaving:false,orb:Math.random()<.5?1:-1,pos:v.g.position};
     v.proxy.userData.enemy=e;pickables.push(v.proxy);enemies.push(e)});
   raidActive=true;raidCount=kinds.length;toast(t('tt.raid',{n:kinds.length}),'bad');rumble(.4,300)}
@@ -60,10 +68,10 @@ function stationDestroyed(){const o=Math.floor(state.ore*PIRATES.steal),g=Math.f
 function hitEnemy(e,dmg,side){e.hp-=dmg;if(side==='player')e.aggro=true;e.bar.scale.x=Math.max(.001,e.hp/e.max);e.bar.position.x=-1.5*(1-e.hp/e.max);
   if(e.hp<=0)killEnemy(e)}
 function killEnemy(e){const P=PIRATES[e.kind];world.remove(e.g);enemies=enemies.filter(x=>x!==e);pickables=pickables.filter(p=>p!==e.proxy);if(attackTarget===e)attackTarget=null;
-  for(let i=0;i<(e.kind==='corsair'?40:22);i++)emit(debris,e.pos,['#ff8a5c','#ffe2a8','#ff3b2f'][i%3],.6+Math.random()*.8,new V3((Math.random()-.5)*22,Math.random()*5,(Math.random()-.5)*22));
+  for(let i=0;i<(e.kind==='frigate'?70:e.kind==='corsair'?40:22);i++)emit(debris,e.pos,['#ff8a5c','#ffe2a8','#ff3b2f'][i%3],.6+Math.random()*.8,new V3((Math.random()-.5)*22,Math.random()*5,(Math.random()-.5)*22));
   missionKill();
   const cr=Math.round(rnd(P.cr[0],P.cr[1]));state.credits+=cr;bump('#crTxt');
-  if(Math.random()<P.drop){const z=Math.min(5,zoneOf(Math.hypot(e.pos.x,e.pos.z)));spawnLoot(dropItem(e.kind==='corsair'?'corsair':'enemy',Math.max(2,z),e.kind==='corsair'?3:0),e.pos)}
+  if(Math.random()<P.drop){const z=Math.min(5,zoneOf(Math.hypot(e.pos.x,e.pos.z)));spawnLoot(dropItem(e.kind==='fighter'?'enemy':e.kind,Math.max(2,z),e.kind==='frigate'?4:e.kind==='corsair'?3:0),e.pos)}
   if(raidActive&&!enemies.some(x=>!x.leaving)){raidActive=false;const bonus=PIRATES.repelBonus*raidCount;state.credits+=bonus;toast(t('tt.repelled',{c:bonus}),true);missionRaid(true);save()}}
 
 /* ---------- jednotlivé zbrane ---------- */

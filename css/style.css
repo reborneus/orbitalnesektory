@@ -409,3 +409,15 @@ body.pad .pg{display:block}
 .admrow{display:flex;flex-wrap:wrap;gap:6px}
 .admrar{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .admrar .itm{aspect-ratio:auto;padding:8px 2px}
+
+/* ===== v0.8 hangár: karta lode so siluetou vľavo (--sc = farba lode) ===== */
+.hcard{grid-template-columns:72px 1fr auto;column-gap:14px}
+.hcard .hship{grid-row:1/span 4;width:72px;height:72px;filter:drop-shadow(0 0 7px color-mix(in srgb,var(--sc) 55%,transparent))}
+.hcard h3{grid-column:2}.hcard>.act{grid-column:3;grid-row:1}.hcard>.costs{grid-column:2/-1}
+.hcard p,.hcard .stat{grid-column:2/-1}
+.hcard.on{border-color:color-mix(in srgb,var(--sc) 70%,transparent);background:color-mix(in srgb,var(--sc) 6%,transparent)}
+.hmul .up{color:var(--hull)}.hmul .dn{color:var(--warn)}
+@media (max-width:480px){.hcard{grid-template-columns:52px 1fr auto}.hcard .hship{width:52px;height:52px}}
+.wico .wshipi{width:30px;height:30px;vertical-align:-10px}
+.segs.six{grid-template-columns:repeat(6,1fr)}
+@media (max-width:480px){.segs.six{grid-template-columns:repeat(3,1fr)}}

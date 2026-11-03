@@ -1,12 +1,14 @@
 'use strict';
 /* ==================== == 3. STAV HRY ====================
    state = všetko, čo sa ukladá: suroviny na stanici (ore/green/crystal), credits = kredity, cargo = náklad v lodi,
-   ship = úrovne vylepšení, hp/sh = trup a štíty, diff = obtiažnosť, cur = index aktuálneho sektora,
+   ship = úrovne vylepšení aktívnej lode (shipId), owned = kúpené lode, hangar = úrovne ostatných kúpených lodí, hp/sh = trup a štíty, diff = obtiažnosť, cur = index aktuálneho sektora,
    sec[] = stav každého sektora (úroveň jadra, sloty s modulmi, obsadený/odomknutý, rewarded = odmena vyplatená),
    inv = inventár predmetov, eq = nasadené predmety podľa slotu (pozri items.js), nextId = ďalšie číslo predmetu,
    autoMine/autoReturn/autoPilot/autoRes = nastavenia automatizácie. */
+/* Úrovne vylepšení novej lode (každá loď v hangári má vlastné). */
+const baseLevels=()=>({speed:1,accel:1,turn:1,hull:1,cargo:1,shield:0,radShield:0,sregen:1,laser:1,range:1,gun:1,gunRate:1});
 function freshState(){return{v:3,ore:40,green:0,crystal:0,credits:0,cargo:{ore:0,green:0,crystal:0},
-  ship:{speed:1,accel:1,turn:1,hull:1,cargo:1,shield:0,radShield:0,sregen:1,laser:1,range:1,gun:1,gunRate:1},hp:100,sh:0,radCharge:0,radMode:'auto',diff:'easy',
+  ship:baseLevels(),shipId:'klepeto',owned:['klepeto'],hangar:{},hp:100,sh:0,radCharge:0,radMode:'auto',diff:'easy',
   autoMine:true,autoReturn:true,autoPilot:false,autoRes:'ore',lang,cur:0,intro:false,
   inv:[],eq:{laser:null,engine:null,hull:null,shield:null,util:null,weapon:null},nextId:1,
   sec:SECTORS.map((s,i)=>({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:i===0,rewarded:false}))}}
@@ -20,6 +22,10 @@ function migrate(s){
   // moduly stanice: staršie uloženia mali v slote len typ ('drone'), teraz je to objekt s vylepšením a čipom
   for(const x of s.sec)x.slots=x.slots.map(m=>typeof m==='string'?newModule(m):m);
   if(s.ship.turn==null)s.ship.turn=1; // v0.7.4: nové vylepšenie obratnosť
+  // v0.8: hangár s loďami a nové sektory 4–6 (odomknutý je ten, ktorého predchodca je obsadený)
+  if(!s.shipId)s.shipId='klepeto';if(!Array.isArray(s.owned))s.owned=['klepeto'];if(!s.hangar)s.hangar={};
+  for(const id in s.hangar)for(const[k,v]of Object.entries(baseLevels()))if(s.hangar[id][k]==null)s.hangar[id][k]=v;
+  while(s.sec.length<SECTORS.length){const prev=s.sec[s.sec.length-1];s.sec.push({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:!!(prev&&prev.captured),rewarded:false})}
   for(const k of['weapon'])if(s.ship.gun==null){s.ship.gun=1;s.ship.gunRate=1}
   // sektory obsadené pred v0.5: vyplatí sa ich odmena v kredítoch
   s.sec.forEach((x,i)=>{if(x.captured&&!x.rewarded){s.credits+=SECTORS[i].reward.cr;x.rewarded=true}});
@@ -49,8 +55,12 @@ const amt=r=>r==='cr'?state.credits:state[r];
 const COST_KEYS=['ore','green','crystal','cr'];
 const afford=c=>COST_KEYS.every(r=>amt(r)>=(c[r]||0));
 function pay(c){for(const r of RES)state[r]-=c[r]||0;state.credits-=c.cr||0}
-/* Hodnota vlastnosti lode = úroveň vylepšenia (UP) + bonusy z nasadených predmetov (bonus() v items.js). */
-function shipVal(k){const v=UP[k].val(state.ship[k]);const b=bonus();
+/* Aktívna loď z hangára a jej násobky. upVal = hodnota vylepšenia na úrovni L pre túto loď, upCost = cena vylepšenia. */
+const curShip=()=>SHIPS[state.shipId]||SHIPS.klepeto;
+function upVal(k,L){const v=UP[k].val(L);const m=curShip().mul[k]||1;if(m===1)return v;if(k==='sregen')return{delay:v.delay,rate:v.rate*m};return v*m}
+function upCost(k,L){const c=UP[k].cost(L),m=curShip().upMul;if(m===1)return c;const o={};for(const r of COST_KEYS)o[r]=Math.round((c[r]||0)*m);return o}
+/* Hodnota vlastnosti lode = úroveň vylepšenia (UP, × násobok lode) + bonusy z nasadených predmetov (bonus() v items.js). */
+function shipVal(k){const v=upVal(k,state.ship[k]);const b=bonus();
   switch(k){
     case'speed':return v*(1+b.speed/100);
     case'accel':return v*(1+b.accel/100);

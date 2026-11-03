@@ -63,7 +63,8 @@ function openSheet(tab){if(sheetTab!==tab)focusIdx=0;sheetTab=tab;sheet.hidden=f
 function closeSheet(){sheetTab=null;sheet.hidden=true;document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.remove('on'));lastHint=''}
 function toggleTab(tb){sheetTab===tb?closeSheet():openSheet(tb)}
 function cycleTab(d){const i=TABS.indexOf(sheetTab);openSheet(TABS[(i+d+TABS.length)%TABS.length])}
-function cycleGroup(d){shipGrp=GROUPS[(GROUPS.indexOf(shipGrp)+d+GROUPS.length)%GROUPS.length];focusIdx=GROUPS.indexOf(shipGrp);renderSheet()}
+const SHIP_TABS=['hangar',...GROUPS]; // záložky v paneli Loď: hangár + skupiny vylepšení
+function cycleGroup(d){shipGrp=SHIP_TABS[(SHIP_TABS.indexOf(shipGrp)+d+SHIP_TABS.length)%SHIP_TABS.length];focusIdx=SHIP_TABS.indexOf(shipGrp);renderSheet()}
 /* Cena ako farebné štítky; data-need/data-n slúžia na červené zvýraznenie chýbajúcej suroviny (refreshSheet). */
 function costHtml(c){let h='';for(const r of COST_KEYS)if(c[r])h+=`<span class="cost ${r==='cr'?'crd':RCLS[r]}" data-need="${r}" data-n="${c[r]}"><span class="${r==='cr'?'coin':'gem'}"></span>${c[r]}</span>`;return h}
 /* Predaj modulu vráti 60 % ceny posledného postaveného modulu toho typu. */
@@ -71,11 +72,11 @@ function refundOf(s,k){const c=MOD[k].cost(countMod(s,k)-1);return C(Math.floor(
 function refundHtml(c){let h='';for(const r of RES)if(c[r])h+=`<span class="cost ${RCLS[r]} gain"><span class="gem"></span>+${c[r]}</span>`;return h}
 function actBtn(act,label,c,block,extra=''){return `<button class="act" data-act="${act}" ${extra} data-ore="${c.ore}" data-green="${c.green}" data-cry="${c.crystal}" data-crd="${c.cr||0}" data-block="${block?1:0}">${label}</button>`}
 function langBtns(){return `<div class="langs"><button class="langb" data-act="lang" data-l="sk" aria-pressed="${lang==='sk'}">SK</button><button class="langb" data-act="lang" data-l="en" aria-pressed="${lang==='en'}">EN</button></div>`}
-function fmtUp(k,L){const v=UP[k].val(L);if(k==='radShield'&&L===0)return t('fmt.none');if(k==='sregen')return t('fmt.sregen',{d:v.delay,r:Math.round(v.rate*100)});if(k==='shield'&&L===0)return t('fmt.none');return UP[k].fmt(v)}
+function fmtUp(k,L){const v=upVal(k,L);if(k==='radShield'&&L===0)return t('fmt.none');if(k==='sregen')return t('fmt.sregen',{d:v.delay,r:Math.round(v.rate*100)});if(k==='shield'&&L===0)return t('fmt.none');return UP[k].fmt(v)}
 function upCard(k){const u=UP[k];const L=state.ship[k];
   let h=`<div class="card"><h3>${t('up.'+k)} <span class="lv">${t('lv',{n:L,m:u.max})}</span></h3>`;
   if(u.needs&&state.ship[u.needs]<1)return h+`<button class="act max" disabled>${t('btn.locked')}</button><p>${t('up.'+k+'.d')}</p><div class="stat">${t('up.needShield')}</div></div>`;
-  if(L<u.max){const c=u.cost(L);h+=actBtn('ship',(k==='shield'||k==='radShield')&&L===0?t('btn.buy'):t('btn.upgrade'),c,false,`data-k="${k}"`)+`<div class="costs">${costHtml(c)}</div><p>${t('up.'+k+'.d')}</p><div class="stat">${fmtUp(k,L)} → <em>${fmtUp(k,L+1)}</em></div>`}
+  if(L<u.max){const c=upCost(k,L);h+=actBtn('ship',(k==='shield'||k==='radShield')&&L===0?t('btn.buy'):t('btn.upgrade'),c,false,`data-k="${k}"`)+`<div class="costs">${costHtml(c)}</div><p>${t('up.'+k+'.d')}</p><div class="stat">${fmtUp(k,L)} → <em>${fmtUp(k,L+1)}</em></div>`}
   else h+=`<button class="act max" disabled>${t('btn.max')}</button><p>${t('up.'+k+'.d')}</p><div class="stat"><em>${fmtUp(k,L)}</em></div>`;
   return h+'</div>'}
 function repairCard(){const hm=shipVal('hull');const cost=Math.ceil((hm-state.hp)/REPAIR_PER_ORE);const near=nearStation();
@@ -84,8 +85,9 @@ function repairCard(){const hm=shipVal('hull');const cost=Math.ceil((hm-state.hp
    kliknutia spracúva jeden spoločný poslucháč nižšie (body.addEventListener('click', ...)). */
 function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
   if(sheetTab==='station'){$('#sheetTitle').textContent=t('sh.station',{s:secName(state.cur)});h=renderStation()}
-  else if(sheetTab==='ship'){$('#sheetTitle').textContent=t('sh.ship');
-    h+=`<div class="segs">${GROUPS.map(g=>`<button class="seg" data-act="grp" data-g="${g}" aria-pressed="${g===shipGrp}">${t('grp.'+g)}</button>`).join('')}</div>`;
+  else if(sheetTab==='ship'){$('#sheetTitle').textContent=t('sh.ship',{n:t('ship.'+state.shipId)});
+    h+=`<div class="segs six">${SHIP_TABS.map(g=>`<button class="seg" data-act="grp" data-g="${g}" aria-pressed="${g===shipGrp}">${t('grp.'+g)}</button>`).join('')}</div>`;
+    if(shipGrp==='hangar')h+=renderHangar();
     for(const k of Object.keys(UP))if(UP[k].grp===shipGrp)h+=upCard(k);
     if(shipGrp==='hull'&&state.hp<shipVal('hull')-.5)h+=repairCard();
     h+=`<p class="note">${t('note.ship',{a:Math.ceil(state.hp),b:shipVal('hull'),regen:D().regen?t('note.easy'):t('note.hard')})}</p>`}
@@ -138,17 +140,18 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   const act=b.dataset.act;if(!act||b.disabled)return;const s=cur();
   if(adminAct(act,b))return; // admin panel (admin.js)
   if(gearAct(act,b))return; // akcie obrazovky Výbava (gear.js)
-  if(act==='grp'){shipGrp=b.dataset.g;focusIdx=GROUPS.indexOf(shipGrp);renderSheet();return}
+  if(act==='grp'){shipGrp=b.dataset.g;focusIdx=SHIP_TABS.indexOf(shipGrp);renderSheet();return}
   if(act==='lang'){setLang(b.dataset.l);return}
   if(act==='opt'){const k=b.dataset.k,v=b.dataset.v==='1';if(k==='autoPilot'){if(!!state.autoPilot!==v)toggleAutopilot();return}state[k]=v;save();renderSheet();return}
   if(act==='ares'){state.autoRes=b.dataset.r;save();renderSheet();if(state.autoPilot)toast(t('tt.apOn',{r:t('res.'+state.autoRes)}));return}
   if(act==='repair'){if(!nearStation()){toast(t('rep.far'));return}const hm=shipVal('hull');const need=Math.ceil((hm-state.hp)/REPAIR_PER_ORE);const n=Math.min(need,Math.floor(state.ore));
     if(n<=0)return;state.ore-=n;const before=state.hp;state.hp=Math.min(hm,state.hp+n*REPAIR_PER_ORE);toast(t('tt.repaired',{n:Math.round(state.hp-before)}));changed();return}
   if(stationAct(act,b))return; // akcie panela stanice (station.js)
+  if(hangarAct(act,b))return; // hangár (hangar.js)
   if(act==='quit'){quitGame();return}
   if(act==='radMode'){state.radMode=b.dataset.v;save();renderSheet();return}
   if(act==='core'){const c=coreCost(s.core);if(s.core<CORE_MAX&&afford(c)){pay(c);s.core++;rebuildStation();toast(t('tt.coreUp',{n:s.core}));changed()}}
-  else if(act==='ship'){const k=b.dataset.k;const u=UP[k];const L=state.ship[k];const c=u.cost(L);if(L<u.max&&afford(c)){pay(c);
+  else if(act==='ship'){const k=b.dataset.k;const u=UP[k];const L=state.ship[k];const c=upCost(k,L);if(L<u.max&&afford(c)){pay(c);
       if(k==='radShield'){state.ship[k]++;state.radCharge=shipVal('radShield');toast(L===0?t('tt.rsOn'):t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
       else if(k==='shield'){const before=shieldMax();state.ship[k]++;state.sh=Math.min(shieldMax(),state.sh+(shieldMax()-before));if(L===0){state.sh=shieldMax();toast(t('tt.shieldOn'))}else toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
       else{state.ship[k]++;if(k==='hull')state.hp+=40;toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
@@ -195,7 +198,7 @@ function renderIntro(){$('#introBox').innerHTML=`<div class="intro-top"><div cla
 $('#introBox').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   if(b.dataset.l){setLang(b.dataset.l);return}if(b.dataset.d){pendingDiff=b.dataset.d;renderIntro();return}if(b.id==='goBtn')startGame();if(b.id==='introWiki')openWiki()});
 function startGame(){state.diff=pendingDiff;state.intro=true;state.hp=shipVal('hull');$('#intro').hidden=true;save();lastHint='';updateHUD();canvas.focus()}
-function newGame(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}state=freshState();closeSheet();for(const a of asts)a.claims=0;
+function newGame(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}state=freshState();buildShip('klepeto');closeSheet();for(const a of asts)a.claims=0;
   dead=false;ship.visible=true;hullSince=99;shSince=99;pendingDiff='easy';$('#intro').hidden=false;renderIntro();jumpTo(0,true);toast(t('tt.newGame'))}
 
 document.querySelectorAll('.dock [data-tab]').forEach(b=>b.addEventListener('click',()=>toggleTab(b.dataset.tab)));

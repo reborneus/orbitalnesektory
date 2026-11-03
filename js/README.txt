@@ -15,6 +15,7 @@ SÚBORY HRY (načítavajú sa v tomto poradí, pozri index.html)
   ui.js       == 9. ROZHRANIE – HUD, nápovedy, menu Stanica/Loď/Mapa/Brána, úvod
   gear.js     == 12. VÝBAVA – obrazovka inventára a predmetov
   station.js  == 15. PANEL STANICE – moduly, vylepšenie +10, čipy, predaj
+  hangar.js   == 16b. HANGÁR – nákup lodí (Sokol, Bizón), prestup medzi loďami, siluety lodí
   wiki.js     == 13. PRÍRUČKA – wiki v hre aj na stránke wiki.html, generovaná z herných dát
   admin.js    == 17. ADMIN PANEL – testovanie (suroviny, nesmrteľnosť, predmety, postup)
   main.js     == 10. HERNÁ SLUČKA – frame() každý snímok, start()

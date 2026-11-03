@@ -53,7 +53,7 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
 addEventListener('visibilitychange',()=>{if(document.hidden&&state)save()});
 window.claude?.hot?.snapshot?.(()=>({state}));
 /* start(): načíta uloženú hru (alebo vytvorí novú), postaví sektor a spustí slučku. */
-function start(data){const hs=data&&data.state;state=(hs&&hs.v===3)?migrate(hs):(loadState()||freshState());bonusDirty();
+function start(data){const hs=data&&data.state;state=(hs&&hs.v===3)?migrate(hs):(loadState()||freshState());bonusDirty();buildShip(state.shipId);
   let stored=null;try{stored=localStorage.getItem('os-lang')}catch(e){}
   if(!stored&&(state.lang==='sk'||state.lang==='en'))lang=state.lang;state.lang=lang;
   pendingDiff=state.diff||'easy';

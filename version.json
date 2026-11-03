@@ -1,8 +1,11 @@
 {
-  "version": "0.7.4",
-  "date": "2026-11-03",
+  "version": "0.8.0",
+  "date": "2026-11-04",
   "notes": [
-    "Nové vylepšenie lode Obratnosť (skupina Motor): ostrejšie zatáčanie bez driftu, rýchlejšie natáčanie lode",
-    "Nová vlastnosť predmetov Obratnosť na motoroch"
+    "Hangár: nové lode Sokol (rýchla stíhačka) a Bizón (ťažký nákladný ťahač), každá s vlastnými vylepšeniami",
+    "Lode sa odomykajú obsadzovaním sektorov, prestupuje sa pri stanici",
+    "Tri nové sektory: Cygnus Prah, Andromeda Brána a Erebus Prázdnota – bohatšie polia a vyššia úroveň predmetov",
+    "Nový pirát Fregata: ťažká loď s veľkou výdržou, vždy zhodí aspoň Vzácny predmet",
+    "Príručka: nová kapitola Hangár a lode, fregata v kapitole Boj"
   ]
 }
