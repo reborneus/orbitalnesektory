@@ -1,8 +1,8 @@
 {
-  "version": "0.7.3",
+  "version": "0.7.4",
   "date": "2026-11-03",
   "notes": [
-    "Rarita Mytické: celé okno jemne pulzuje (svetlo a žiara)",
-    "Rarita Prvotné: striedavo blikajúce hviezdy v pozadí a rýchlejší pulz – aj v detaile predmetu"
+    "Nové vylepšenie lode Obratnosť (skupina Motor): ostrejšie zatáčanie bez driftu, rýchlejšie natáčanie lode",
+    "Nová vlastnosť predmetov Obratnosť na motoroch"
   ]
 }

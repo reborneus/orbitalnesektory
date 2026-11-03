@@ -108,8 +108,17 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
     if(!mineTarget&&blockedAt(moveTarget)){moveTarget=null}
     else if(dist>stop){const sp=Math.min(maxSp,Math.sqrt(2*acc*.8*(dist-stop))+.4);desired.copy(_v).normalize().multiplyScalar(sp);avoid(desired)}
     else if(!mineTarget)moveTarget=null}
+  const dsp=desired.length();
   // velocity moves toward the wanted velocity no faster than the ship's acceleration allows
-  _dv.subVectors(desired,shipVel);const lim=acc*(desired.lengthSq()<shipVel.lengthSq()?1.25:1)*dt;if(_dv.length()>lim)_dv.setLength(lim);
+  /* Obratnosť: zmena rýchlosti sa rozdelí na zložku v smere letu (zrýchlenie/brzdenie, limit = accel)
+     a bočnú zložku (zatáčanie, limit = accel × obratnosť/100). Loď teda zatáča hneď, bez driftu a bez brzdenia,
+     a čím vyššia obratnosť, tým ostrejšie. */
+  _dv.subVectors(desired,shipVel);
+  {const vs=shipVel.length();const limP=acc*(desired.lengthSq()<shipVel.lengthSq()?1.25:1)*dt;
+    if(vs>.5){const ux=shipVel.x/vs,uz=shipVel.z/vs;const par=_dv.x*ux+_dv.z*uz;
+      let px=_dv.x-par*ux,pz=_dv.z-par*uz;const pl=Math.hypot(px,pz),limS=acc*shipVal('turn')/100*dt;
+      if(pl>limS){px*=limS/pl;pz*=limS/pl}const pp=clamp(par,-limP,limP);_dv.set(pp*ux+px,0,pp*uz+pz)}
+    else if(_dv.length()>limP)_dv.setLength(limP)}
   shipVel.add(_dv);shipVel.y=0;
   ship.position.addScaledVector(shipVel,dt);
   const rr=Math.hypot(ship.position.x,ship.position.z);
@@ -118,8 +127,9 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   collide();
   if(dead)return;
   const sp=shipVel.length();let roll=0;
-  if(sp>.5){const want=Math.atan2(shipVel.x,shipVel.z);let diff=((want-shipYaw+Math.PI)%TAU+TAU)%TAU-Math.PI;shipYaw+=diff*Math.min(1,dt*6);roll=clamp(-diff*1.2,-.6,.6)}
-  else if(mineTarget){_v.subVectors(mineTarget.pos,ship.position);const want=Math.atan2(_v.x,_v.z);let diff=((want-shipYaw+Math.PI)%TAU+TAU)%TAU-Math.PI;shipYaw+=diff*Math.min(1,dt*5)}
+  // nos lode sa natáča za smerom letu, rýchlejšie pri vyššej obratnosti; náklon podľa zatáčania
+  if(sp>.5){const want=Math.atan2(shipVel.x,shipVel.z);const diff=((want-shipYaw+Math.PI)%TAU+TAU)%TAU-Math.PI;shipYaw+=diff*Math.min(1,dt*6*shipVal('turn')/150);roll=clamp(-diff*1.2,-.6,.6)}
+  else if(mineTarget){_v.subVectors(mineTarget.pos,ship.position);const want=Math.atan2(_v.x,_v.z);let diff=((want-shipYaw+Math.PI)%TAU+TAU)%TAU-Math.PI;shipYaw+=diff*Math.min(1,dt*5*shipVal('turn')/150)}
   ship.rotation.y=shipYaw;const body=ship.userData.body;body.rotation.z+=(roll-body.rotation.z)*Math.min(1,dt*5);
   ship.position.y=Math.sin(tt*1.6)*.25;
   const thr=clamp(sp/maxSp,0,1);for(const e of ship.userData.eng){const s=1.4+thr*2.2+Math.random()*.3;e.scale.set(s,s,1)}

@@ -68,6 +68,9 @@ const early=(o4,g4,c4)=>[o4,[...g4,...LATE_G],[...c4,...LATE_C],[0,0,0,0,...LATE
 const UP={
   speed:{grp:'eng',vals:[14.4,19.2,24,28.8,33.6,36,38.4,40.8,43.2,45.6],costs:costTable(...early([80,180,320,500,800,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>v.toFixed(1)+' m/s'},
   accel:{grp:'eng',vals:[14.4,25.2,36,46.8,57.6,62,66,70,74,78],costs:costTable(...early([70,160,300,480,760,950,1200,1450,1750],[0,25,60,110],[0,0,0,20])),fmt:v=>v.toFixed(1)+' m/s²'},
+  /* obratnosť: ako ostro loď zatáča – bočná zmena rýchlosti = zrýchlenie × hodnota/100 (150 = 1,5× zrýchlenie).
+     Zároveň určuje, ako rýchlo sa nos lode natočí za smerom letu. Zobrazuje sa v °/s pre lepšiu predstavu. */
+  turn:{grp:'eng',vals:[150,180,210,240,270,290,310,330,350,375],costs:costTable(...early([70,160,300,480,760,950,1200,1450,1750],[0,25,60,110],[0,0,0,20])),fmt:v=>Math.round(v)+' °/s'},
   hull:{grp:'hull',vals:[100,140,180,220,260,300,340,380,420,460],costs:costTable(...early([100,220,380,600,900,1100,1350,1600,1900],[0,35,80,140],[0,0,0,30])),fmt:v=>String(Math.round(v))},
   cargo:{grp:'hull',vals:[50,75,100,125,150,175,200,225,250,280],costs:costTable(...early([90,200,340,540,820,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>Math.round(v)+' t'},
   shield:{grp:'shield',min:0,vals:[0,40,65,90,120,150,170,190,210,230,250],

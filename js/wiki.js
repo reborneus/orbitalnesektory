@@ -54,7 +54,7 @@ sk:{
   'st.p':'Vplyv sektora = úroveň jadra × {ci} + vplyv modulov. Každý ďalší modul rovnakého typu je drahší. Postavený modul môžeš predať, vráti sa {sell} % jeho ceny a uvoľní sa slot.',
   'st.pd':'{o} rudy/min','st.ps':'{g} viriditu/min','st.pt':'len vplyv',
   'ship.h':'Loď a vylepšenia','ship.lv':'Úroveň','ship.val':'Hodnota','ship.cost':'Cena ďalšej úrovne',
-  'ship.p':'Loď Klepeto má osem vylepšení v štyroch skupinách. Úrovne 1–5 stoja suroviny, úrovne 6–10 aj kredity. K hodnotám sa pripočítajú bonusy z nasadených predmetov. Na ťažkej obtiažnosti je rýchlosť o 15 % nižšia.',
+  'ship.p':'Loď Klepeto má {n} vylepšení v {g} skupinách. Úrovne 1–5 stoja suroviny, úrovne 6–10 aj kredity. K hodnotám sa pripočítajú bonusy z nasadených predmetov. Na ťažkej obtiažnosti je rýchlosť o 15 % nižšia.',
   'hull.h':'Trup, štíty a nárazy',
   'hull.l':['Náraz do asteroidu poškodí loď, ak je rýchlejší ako {min} m/s: poškodenie = (rýchlosť − {min}) × {per}. Vlastnosť „Odolnosť voči nárazom“ ho znižuje (najviac o {cap} %).',
     'Štíty zachytia nárazy aj radiáciu v pásoch skôr ako trup. Začnú sa dobíjať po čase podľa úrovne Regenerácie štítov (15 s na úrovni 1).',
@@ -134,7 +134,7 @@ en:{
   'st.p':'Sector influence = core level × {ci} + module influence. Each additional module of the same type costs more. You can sell a module for {sell}% of its price, which frees the slot.',
   'st.pd':'{o} ore/min','st.ps':'{g} viridite/min','st.pt':'influence only',
   'ship.h':'Ship and upgrades','ship.lv':'Level','ship.val':'Value','ship.cost':'Next level cost',
-  'ship.p':'The Pincer has eight upgrades in four groups. Levels 1–5 cost resources, levels 6–10 also credits. Bonuses from equipped items are added on top. On Hard the speed is 15% lower.',
+  'ship.p':'The Pincer has {n} upgrades in {g} groups. Levels 1–5 cost resources, levels 6–10 also credits. Bonuses from equipped items are added on top. On Hard the speed is 15% lower.',
   'hull.h':'Hull, shields and collisions',
   'hull.l':['Hitting an asteroid faster than {min} m/s damages the ship: damage = (speed − {min}) × {per}. The stat “Collision resistance” reduces it (up to {cap}%).',
     'Shields absorb collisions and belt radiation before the hull. They start recharging after a delay set by Shield regeneration (15 s at level 1).',
@@ -247,7 +247,7 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
     H('missions',wt('mis.h'),`<p>${wt('mis.p',{o:MISSION_OFFERS,a:MISSION_ACTIVE_MAX,r:MISSION_REFRESH/60,c:MISSION_REROLL})}</p>`+tbl([wt('mis.type'),wt('mis.what'),wt('mis.base')],types)
       +tbl([wt('mis.tier'),wt('mis.mult'),wt('mis.minR'),wt('mis.ich'),wt('mis.where')],tiers)+`<p>${wt('mis.sec',{m:MSEC_MULT.map((x,i)=>secName(i)+' × '+nf(x,1)).join(', ')})}</p><p>${wt('mis.rs',{rc:RADSHIELD_RECHARGE})}</p>`)}
   { // loď
-    let h=`<div class="wfig">${shipSvg()}<p>${wt('ship.p')}</p></div>`;
+    let h=`<div class="wfig">${shipSvg()}<p>${wt('ship.p',{n:Object.keys(UP).length,g:GROUPS.length})}</p></div>`;
     for(const g of GROUPS){h+=`<h4>${t('grp.'+g)}</h4>`;
       for(const k of Object.keys(UP).filter(k=>UP[k].grp===g)){const u=UP[k];const f=L=>{const v=u.val(L);if(k==='sregen')return t('fmt.sregen',{d:v.delay,r:Math.round(v.rate*100)});if(k==='shield'&&L===0)return t('fmt.none');return u.fmt(v)};
         const rows=[];for(let L=u.min;L<=u.max;L++)rows.push([`<b>${L}</b>`,f(L),L<u.max?costTxt(u.cost(L)):'–']);

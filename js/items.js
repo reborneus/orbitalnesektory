@@ -30,6 +30,7 @@ const STATS={
   yield:  {lo:2,  hi:4,  dec:1,u:'%'},   // výnos suroviny
   speed:  {lo:2,  hi:4,  dec:1,u:'%'},   // rýchlosť
   accel:  {lo:3,  hi:6,  dec:1,u:'%'},   // zrýchlenie
+  turn:   {lo:3,  hi:6,  dec:1,u:'%'},   // obratnosť
   hull:   {lo:6,  hi:12, dec:0,u:''},    // body trupu
   hullPct:{lo:2,  hi:4,  dec:1,u:'%'},   // trup v percentách
   coll:   {lo:2,  hi:4,  dec:1,u:'%',cap:60}, // menšie poškodenie z nárazov
@@ -59,7 +60,7 @@ const STATS={
 const SLOTS=['laser','engine','hull','shield','util','weapon'];
 const BASES={
   laser:  {slot:'laser', imp:'mine',  pool:['range','yield','mf','mine','magnet','speed']},
-  engine: {slot:'engine',imp:'speed', pool:['accel','speed','magnet','coll','cargo','rad']},
+  engine: {slot:'engine',imp:'speed', pool:['accel','turn','speed','magnet','coll','cargo','rad']},
   plating:{slot:'hull',  imp:'hull',  pool:['hullPct','coll','rad','cargo','hull','shield']},
   emitter:{slot:'shield',imp:'shield',pool:['sregen','sdelay','rad','shield','hullPct','hull']},
   cargo:  {slot:'util',  imp:'cargo', pool:['yield','mf','magnet','speed','rad','mine']},

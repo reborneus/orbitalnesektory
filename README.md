@@ -17,6 +17,7 @@ Webový prototyp (Three.js) – otvor `index.html` v prehliadači.
 - **v0.7.1** – skrytý admin panel na testovanie
 - **v0.7.2** – oprava odomykania schopností dronu, efektnejšia rarita Prvotné
 - **v0.7.3** – pulzovanie Mytických predmetov, blikajúce hviezdy a pulz Prvotných
+- **v0.7.4** – vylepšenie Obratnosť, zatáčanie bez driftu
 - **v0.7** – misie (5 typov, 3 stupne), radiačný štít s obmedzeným časom, sledovanie misií v HUD
 - **v0.6.1** – oprava: autopilot po zbere koristi s plným nákladom pokračuje na stanicu
 - **v0.6** – boj s pirátmi (zbraň lode, veže, obrana dronov), panel stanice s vylepšovaním modulov +1 až +10 a čipmi, slot Zbraň, samostatné Nastavenia s tlačidlom Ukončiť hru, pasívny príjem len pri dosiahnutom vplyve

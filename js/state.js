@@ -6,7 +6,7 @@
    inv = inventár predmetov, eq = nasadené predmety podľa slotu (pozri items.js), nextId = ďalšie číslo predmetu,
    autoMine/autoReturn/autoPilot/autoRes = nastavenia automatizácie. */
 function freshState(){return{v:3,ore:40,green:0,crystal:0,credits:0,cargo:{ore:0,green:0,crystal:0},
-  ship:{speed:1,accel:1,hull:1,cargo:1,shield:0,radShield:0,sregen:1,laser:1,range:1,gun:1,gunRate:1},hp:100,sh:0,radCharge:0,radMode:'auto',diff:'easy',
+  ship:{speed:1,accel:1,turn:1,hull:1,cargo:1,shield:0,radShield:0,sregen:1,laser:1,range:1,gun:1,gunRate:1},hp:100,sh:0,radCharge:0,radMode:'auto',diff:'easy',
   autoMine:true,autoReturn:true,autoPilot:false,autoRes:'ore',lang,cur:0,intro:false,
   inv:[],eq:{laser:null,engine:null,hull:null,shield:null,util:null,weapon:null},nextId:1,
   sec:SECTORS.map((s,i)=>({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:i===0,rewarded:false}))}}
@@ -19,6 +19,7 @@ function migrate(s){
   if(s.ship.radShield==null)s.ship.radShield=0;if(typeof s.radCharge!=='number')s.radCharge=0;if(!s.radMode)s.radMode='auto';
   // moduly stanice: staršie uloženia mali v slote len typ ('drone'), teraz je to objekt s vylepšením a čipom
   for(const x of s.sec)x.slots=x.slots.map(m=>typeof m==='string'?newModule(m):m);
+  if(s.ship.turn==null)s.ship.turn=1; // v0.7.4: nové vylepšenie obratnosť
   for(const k of['weapon'])if(s.ship.gun==null){s.ship.gun=1;s.ship.gunRate=1}
   // sektory obsadené pred v0.5: vyplatí sa ich odmena v kredítoch
   s.sec.forEach((x,i)=>{if(x.captured&&!x.rewarded){s.credits+=SECTORS[i].reward.cr;x.rewarded=true}});
@@ -53,6 +54,7 @@ function shipVal(k){const v=UP[k].val(state.ship[k]);const b=bonus();
   switch(k){
     case'speed':return v*(1+b.speed/100);
     case'accel':return v*(1+b.accel/100);
+    case'turn':return v*(1+b.turn/100);
     case'hull':return Math.round((v+b.hull)*(1+b.hullPct/100));
     case'cargo':return Math.round(v+b.cargo);
     case'shield':return Math.round(v+b.shield);
