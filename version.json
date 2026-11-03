@@ -1,7 +1,8 @@
 {
-  "version": "0.6.0",
+  "version": "0.6.1",
   "date": "2026-11-03",
   "notes": [
+    "Oprava: autopilot sa po zbere koristi s plným nákladom zastavil, teraz pokračuje na stanicu",
     "Boj: nájazdy pirátov od 2. sektora, zbraň lode, strieľajúce veže, obranný režim dronov",
     "Nový panel stanice: moduly s 3D náhľadom, vylepšenie +1 až +10 so stúpajúcou raritou",
     "Čipy do modulov (AI jadro dronu – viridit, kryštály, obrana; zameriavač veže; zosilňovač senzorov)",

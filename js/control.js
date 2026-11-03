@@ -72,17 +72,19 @@ const homeBound=()=>!mineTarget&&moveTarget&&Math.hypot(moveTarget.x,moveTarget.
 function toggleAutopilot(){state.autoPilot=!state.autoPilot;autoPause=0;toast(state.autoPilot?t('tt.apOn',{r:t('res.'+state.autoRes)}):t('tt.apOff'));save();renderSheet()}
 function tickAuto(dt){autoPause-=dt;apNoneT-=dt;
   const full=cargoTotal()>=shipVal('cargo')-.01;const ap=state.autoPilot;
-  if(full){if(!returnSent&&autoPause<=0&&(ap||state.autoReturn!==false)&&!homeBound()){cmdHome();returnSent=true;toast(t('tt.autoHome'))}}
-  else returnSent=false;
-  if(!ap||autoPause>0)return;
+  if(!full)returnSent=false;
+  if(autoPause>0)return;
+  // autopilot: korisť v okolí pozbiera ako prvú (aj s plným nákladom – predmety náklad nezaberajú)
+  if(ap&&!mineTarget&&state.inv.length<INV_MAX){const L=nearestLoot(70);if(L){if(!moveTarget||moveTarget.distanceTo(L.g.position)>1.5)moveTarget=L.g.position.clone().setY(0);return}}
+  // plný náklad: kým loď nesmeruje domov, znova nastaví kurz na stanicu (napr. po zbere koristi alebo ručnom zásahu)
+  if(full&&(ap||state.autoReturn!==false)&&!homeBound()&&Math.hypot(ship.position.x,ship.position.z)>STATION_R+5){cmdHome();if(!returnSent)toast(t('tt.autoHome'));returnSent=true}
+  if(!ap)return;
   const hm=shipVal('hull'),hr=state.hp/hm;
   if(hr<.35&&!nearStation()){if(!apHurtSent&&!homeBound()){cmdHome();apHurtSent=true;toast(t('tt.apHurt'))}return}
   apHurtSent=false;
   if(nearStation()&&hr<.7){
     if(!D().regen){const n=Math.min(Math.ceil((hm-state.hp)/REPAIR_PER_ORE),Math.floor(state.ore));if(n>0){state.ore-=n;state.hp=Math.min(hm,state.hp+n*REPAIR_PER_ORE);toast(t('tt.repaired',{n:n*REPAIR_PER_ORE}))}}
     if(state.hp/hm<.7)return}
-  // korisť v okolí: autopilot ju najprv pozbiera
-  if(!mineTarget&&state.inv.length<INV_MAX){const L=nearestLoot(70);if(L){if(!moveTarget||moveTarget.distanceTo(L.g.position)>1.5)moveTarget=L.g.position.clone().setY(0);return}}
   if(full||mineTarget||moveTarget)return;
   // relikt nablízku (do 50 m, pred horizontom): autopilot ho vyťaží kvôli koristi
   {let rl=null,rd=50;for(const a of asts){if(!a.alive||a.type!=='relic'||Math.hypot(a.pos.x,a.pos.z)>=HORIZON-2)continue;const d=ship.position.distanceTo(a.pos);if(d<rd){rd=d;rl=a}}if(rl){cmdMine(rl);return}}
