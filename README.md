@@ -13,7 +13,12 @@ Webový prototyp (Three.js) – otvor `index.html` v prehliadači.
 - **v0.4** – autopilot (ťaží zvolenú surovinu, vozí ju na stanicu, vracia sa na opravu), automatický návrat pri plnom náklade, kláves P / tlačidlo View
 - **v0.4.1** – skok do sektora iba cez skokovú bránu, Mapa je informatívna, oprava zaseknutia pri skoku počas ťažby
 - **v0.4.2** – vysvetlivky v kóde (obsah sekcií, popis herných hodnôt na ladenie balansu)
+- **v0.5** – kredity, predmety s 10 raritami (Odpad až Prvotné) a náhodnými vlastnosťami, výbava lode a inventár, vylepšovanie +1 až +20, zlaté relikty s korisťou, vylepšenia lode do úrovne 10, hra rozdelená na súbory
 
 ## Úpravy kódu
-Celá hra je v `index.html`. Na začiatku JavaScriptu je obsah sekcií; na sekciu skočíš hľadaním `== 1.` až `== 10.`.
-Ceny, zóny, radiácia, sektory a obtiažnosť sú v sekcii **== 2. HERNÉ DÁTA**. Texty v oboch jazykoch sú v sekcii **== 1. JAZYK**.
+Hra je rozdelená na súbory: `index.html` (kostra stránky), `css/style.css` (vzhľad) a `js/*.js` (logika). Prehľad súborov je v `js/README.txt`.
+Ceny, zóny, radiácia, sektory a obtiažnosť sú v `js/data.js`, rarity a predmety v `js/items.js`, texty v oboch jazykoch v `js/i18n.js`.
+Na sekciu v kóde skočíš hľadaním `== 1.` až `== 12.`.
+
+`python3 build.py` poskladá všetko do jedného súboru `dist/orbitalne-sektory.html` (dá sa otvoriť dvojklikom aj bez internetu na súbory hry).
+`version.json` obsahuje číslo aktuálnej verzie (používa ho spúšťací panel).
