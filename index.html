@@ -290,7 +290,7 @@ sk:{
   'chip.here':'Tu si','chip.won':'Obsadený','chip.free':'Voľný','chip.locked':'Zamknutý',
   'map.inf':'Vplyv {a} / {b}.','map.lock':'Odomkneš obsadením sektora {s}.',
   'map.income':'Pasívny príjem: <em>+{o} rudy</em>, <em>+{g} viriditu</em> za minútu',
-  'set.h':'Nastavenia','set.lang':'Jazyk','set.diff':'Obtiažnosť: {d}. Zmeniť ju môžeš pri novej hre.','save.note':'Postup sa ukladá v tomto prehliadači.',
+  'set.h':'Nastavenia','set.auto':'Automatická ťažba','set.auto.d':'Po vyťažení asteroidu loď sama preletí na najbližší asteroid rovnakej suroviny, kým sa nenaplní náklad.','on':'ZAP','off':'VYP','set.lang':'Jazyk','set.diff':'Obtiažnosť: {d}. Zmeniť ju môžeš pri novej hre.','save.note':'Postup sa ukladá v tomto prehliadači.',
   'diff.easy':'Ľahká','diff.hard':'Ťažká',
   'diff.easyD':'Trup sa sám opraví 30 s po poslednom poškodení. Bežná radiácia aj výnos.',
   'diff.hardD':'Trup opravíš len na stanici za rudu. Silnejšia radiácia a pomalšia loď, ale o 20 % viac surovín.',
@@ -363,7 +363,7 @@ en:{
   'chip.here':'You are here','chip.won':'Claimed','chip.free':'Open','chip.locked':'Locked',
   'map.inf':'Influence {a} / {b}.','map.lock':'Unlocks when you claim {s}.',
   'map.income':'Passive income: <em>+{o} ore</em>, <em>+{g} viridite</em> per minute',
-  'set.h':'Settings','set.lang':'Language','set.diff':'Difficulty: {d}. You can change it when starting a new game.','save.note':'Progress is saved in this browser.',
+  'set.h':'Settings','set.auto':'Auto-mining','set.auto.d':'When an asteroid is depleted, the ship moves on to the nearest asteroid of the same resource until the cargo is full.','on':'ON','off':'OFF','set.lang':'Language','set.diff':'Difficulty: {d}. You can change it when starting a new game.','save.note':'Progress is saved in this browser.',
   'diff.easy':'Easy','diff.hard':'Hard',
   'diff.easyD':'The hull repairs itself 30 s after the last damage. Normal radiation and yield.',
   'diff.hardD':'Repair the hull only at the station, for ore. Stronger radiation and a slower ship, but 20% more resources.',
@@ -418,7 +418,7 @@ const D=()=>DIFF[(state&&state.diff)||'easy'];
 const HULL_DELAY=30,HULL_RATE=.03;
 const SAVE_KEY='orbitalne-sektory-v3';
 function freshState(){return{v:3,ore:40,green:0,crystal:0,cargo:{ore:0,green:0,crystal:0},
-  ship:{speed:1,accel:1,hull:1,cargo:1,shield:0,sregen:1,laser:1,range:1},hp:100,sh:0,diff:'easy',lang,cur:0,intro:false,
+  ship:{speed:1,accel:1,hull:1,cargo:1,shield:0,sregen:1,laser:1,range:1},hp:100,sh:0,diff:'easy',autoMine:true,lang,cur:0,intro:false,
   sec:SECTORS.map((s,i)=>({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:i===0}))}}
 function loadState(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return null;const s=JSON.parse(raw);if(s&&s.v===3&&Array.isArray(s.sec))return s}catch(e){}return null}
 let state=null;
@@ -709,7 +709,11 @@ const _v=new V3();
 function moveTo(obj,target,speed,dt,stop){_v.subVectors(target,obj.position);_v.y=0;const dist=_v.length();
   if(dist>stop){const step=Math.min(speed*dt,dist-stop);_v.normalize();obj.position.addScaledVector(_v,step);obj.rotation.y=Math.atan2(_v.x,_v.z)}
   obj.position.y+=(target.y-obj.position.y)*Math.min(1,dt*2);return Math.max(stop,dist-speed*dt)}
-function depleteAst(a){a.alive=false;a.respawn=25+Math.random()*15;if(mineTarget===a)stopMining()}
+function depleteAst(a){a.alive=false;a.respawn=25+Math.random()*15;if(mineTarget===a){if(!autoNext(a))stopMining()}}
+/* optional auto-mining: move on to the nearest asteroid of the same resource while cargo has room */
+function autoNext(a){if(state.autoMine===false||cargoTotal()>=shipVal('cargo')-.01)return false;let best=null,bd=40;
+  for(const o of asts){if(o===a||!o.alive||o.type!==a.type||Math.hypot(o.pos.x,o.pos.z)>=HORIZON)continue;const d=ship.position.distanceTo(o.pos);if(d<bd){bd=d;best=o}}
+  if(!best)return false;mineTarget=best;moveTarget=best.pos.clone().setY(0);flashMarker(best.pos,'#58d0c0');return true}
 function stopMining(){mineTarget=null;moveTarget=null}
 
 /* ---------- player control ---------- */
@@ -1025,6 +1029,8 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
       if(inc&&(inc.ore>0||inc.green>0))h+=`<div class="stat">${t('map.income',{o:Math.round(inc.ore*60),g:Math.round(inc.green*60)})}</div>`;
       h+='</div>'});
     h+=`<div class="sec-h"><span>${t('set.h')}</span></div>`;
+    const am=state.autoMine!==false;
+    h+=`<div class="card"><h3>${t('set.auto')}</h3><div class="langs"><button class="langb" data-act="auto" data-v="1" aria-pressed="${am}">${t('on')}</button><button class="langb" data-act="auto" data-v="0" aria-pressed="${!am}">${t('off')}</button></div><p>${t('set.auto.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.lang')}</h3>${langBtns()}<p>${t('set.diff',{d:t('diff.'+state.diff)})}</p></div>`;
     h+=`<p class="note">${t('save.note')}</p><button class="ghost danger" id="resetBtn">${t('btn.reset')}</button>`}
   body.innerHTML=h;refreshSheet();applyFocus()}
@@ -1045,6 +1051,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   const act=b.dataset.act;if(!act||b.disabled)return;const s=cur();
   if(act==='grp'){shipGrp=b.dataset.g;focusIdx=GROUPS.indexOf(shipGrp);renderSheet();return}
   if(act==='lang'){setLang(b.dataset.l);return}
+  if(act==='auto'){state.autoMine=b.dataset.v==='1';save();renderSheet();return}
   if(act==='repair'){if(!nearStation()){toast(t('rep.far'));return}const hm=shipVal('hull');const need=Math.ceil((hm-state.hp)/2);const n=Math.min(need,Math.floor(state.ore));
     if(n<=0)return;state.ore-=n;const before=state.hp;state.hp=Math.min(hm,state.hp+n*2);toast(t('tt.repaired',{n:Math.round(state.hp-before)}));changed();return}
   if(act==='sell'){const i=+b.dataset.i;const k=s.slots[i];if(!k)return;
