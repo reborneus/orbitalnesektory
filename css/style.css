@@ -241,36 +241,47 @@ body.pad .pg{display:block}
     linear-gradient(var(--rc),var(--rc)) bottom right/10px 2px no-repeat,linear-gradient(var(--rc),var(--rc)) bottom right/2px 10px no-repeat}
 .r8::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.32) 50%,transparent 65%);transform:translateX(-120%);animation:shimmer 3.2s ease-in-out infinite}
 /* r9 PRVOTNÉ: otáčajúci sa dúhový rám (::before), pod ním živá „hmlovina" (::after) –
-   farebné oblaky, hviezdy a lúče, ktoré sa pomaly posúvajú a menia odtieň; okolo pulzuje dúhová žiara. */
+   farebné oblaky a lúče, ktoré sa pomaly posúvajú a menia odtieň; okolo pulzuje dúhová žiara. */
 .r9{--rc:#7ff6ff;border-color:transparent;overflow:hidden;isolation:isolate;background:#05070f;animation:primalGlow 6s linear infinite}
-.r9::before{content:"";position:absolute;inset:-60%;pointer-events:none;z-index:-2;background:conic-gradient(#ff3b5c,#ff8a2a,#ffd84a,#5fd36b,#7ff6ff,#4a9dff,#b36bff,#ff3b5c);animation:spin 4s linear infinite}
-.r9::after{content:"";position:absolute;inset:2px;border-radius:7px;pointer-events:none;z-index:-1;
+.r9::before{content:"";position:absolute;inset:-60%;pointer-events:none;z-index:-3;background:conic-gradient(#ff3b5c,#ff8a2a,#ffd84a,#5fd36b,#7ff6ff,#4a9dff,#b36bff,#ff3b5c);animation:spin 4s linear infinite}
+.r9::after{content:"";position:absolute;inset:2px;border-radius:7px;pointer-events:none;z-index:-2;
   background:
-    radial-gradient(1.2px 1.2px at 14% 22%,#fff 60%,transparent),radial-gradient(1px 1px at 72% 14%,#fff 60%,transparent),
-    radial-gradient(1.4px 1.4px at 86% 58%,#fff 60%,transparent),radial-gradient(1px 1px at 30% 78%,#fff 60%,transparent),
-    radial-gradient(1px 1px at 52% 40%,#cfffff 60%,transparent),radial-gradient(1.2px 1.2px at 62% 88%,#fff 60%,transparent),
     repeating-conic-gradient(from 0deg at 50% 115%,rgba(255,255,255,.09) 0 5deg,transparent 5deg 17deg),
     radial-gradient(ellipse 60% 50% at 18% 22%,rgba(255,59,92,.55),transparent 70%),
     radial-gradient(ellipse 60% 50% at 84% 26%,rgba(127,246,255,.5),transparent 70%),
     radial-gradient(ellipse 70% 55% at 50% 105%,rgba(179,107,255,.65),transparent 70%),
     radial-gradient(ellipse 45% 40% at 82% 86%,rgba(255,216,74,.4),transparent 70%),
     linear-gradient(160deg,#0b0620,#04101c 55%,#120624);
-  background-size:100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,100% 100%,180% 180%,180% 180%,160% 160%,170% 170%,100% 100%;
+  background-size:100% 100%,180% 180%,180% 180%,160% 160%,170% 170%,100% 100%;
   animation:primalNebula 9s ease-in-out infinite alternate,primalHue 12s linear infinite}
 .r9 svg,.r9 img,.r9 .ic{filter:drop-shadow(0 0 3px rgba(255,255,255,.85)) drop-shadow(0 0 7px rgba(127,246,255,.7))}
 .r9 .nm,.r9 .ttl,.r9 .rlab,.r9 .eqc-txt b{background:linear-gradient(90deg,#ff8a2a,#ffd84a,#5fd36b,#7ff6ff,#b36bff,#ff3b5c,#ff8a2a) 0 0/200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:prism 4s linear infinite;filter:drop-shadow(0 0 4px rgba(255,255,255,.35))}
 /* toast: text nesmie byť priehľadný (pod ním sú vrstvy hmloviny), preto biely s dúhovou žiarou */
+/* rýchlejší pulz ako Mytické (1,6 s): dlaždica sa zväčší a rozjasní; veľké karty (detail) sa nezväčšujú, aby text ostal ostrý. Toast má vlastné animácie. */
+.r9:not(.toast){animation:primalGlow 6s linear infinite,primalPulse 1.6s ease-in-out infinite}
+.r9:not(.itm){--pz:1}
+@keyframes primalPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(var(--pz,1.05));filter:brightness(1.25) saturate(1.2)}}
+/* blikajúce hviezdy: dve vrstvy <i class="pst"> (pridáva ich util.js do každého .r9), striedavo menia priehľadnosť.
+   Vzor hviezd sa opakuje po dlaždiciach, takže veľká karta má veľa hviezd a malá pár. */
+.r9>.pst{position:absolute;inset:2px;border-radius:7px;pointer-events:none;z-index:-1;animation:twinkle 2.2s ease-in-out infinite;
+  background:radial-gradient(circle at 22% 28%,#fff 0 1.5px,rgba(190,255,255,.6) 2.2px,transparent 5px),radial-gradient(circle at 74% 63%,#fff 0 1.2px,rgba(255,210,255,.55) 2px,transparent 4.2px),radial-gradient(circle at 48% 90%,#fff 0 1px,rgba(255,240,190,.5) 1.7px,transparent 3.4px);
+  background-size:86px 86px}
+.r9>.pst.b{animation-delay:-1.1s;background-position:31px 47px,58px 12px,9px 66px;background-size:123px 123px}
+.itm.r9>.pst{background-size:44px 44px}.itm.r9>.pst.b{background-position:17px 26px,30px 6px,4px 35px;background-size:57px 57px}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.1}}
 .toast.r9{color:#fff;font-weight:700;text-shadow:0 0 6px #ff3b5c,0 0 10px #7ff6ff,0 0 14px #b36bff}
 @keyframes primalGlow{0%,100%{box-shadow:0 0 16px rgba(255,59,92,.6),0 0 34px rgba(255,59,92,.25)}25%{box-shadow:0 0 16px rgba(255,216,74,.6),0 0 34px rgba(255,216,74,.25)}
   50%{box-shadow:0 0 18px rgba(127,246,255,.7),0 0 38px rgba(127,246,255,.3)}75%{box-shadow:0 0 16px rgba(179,107,255,.65),0 0 34px rgba(179,107,255,.28)}}
-@keyframes primalNebula{0%{background-position:0 0,0 0,0 0,0 0,0 0,0 0,0 0,0% 0%,100% 0%,50% 100%,100% 100%,0 0}
-  100%{background-position:0 0,0 0,0 0,0 0,0 0,0 0,0 0,60% 40%,30% 60%,20% 60%,40% 30%,0 0}}
+@keyframes primalNebula{0%{background-position:0 0,0% 0%,100% 0%,50% 100%,100% 100%,0 0}
+  100%{background-position:0 0,60% 40%,30% 60%,20% 60%,40% 30%,0 0}}
 @keyframes primalHue{to{filter:hue-rotate(360deg)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes shimmer{0%,40%{transform:translateX(-120%)}80%,100%{transform:translateX(120%)}}
-@keyframes mythPulse{50%{box-shadow:0 0 22px color-mix(in srgb,var(--rc) 55%,transparent),inset 0 0 16px color-mix(in srgb,var(--rc) 30%,transparent)}}
+/* r7 MYTICKÉ: celé okno jemne „dýcha" – zväčší sa, rozjasní a zosilnie žiara (veľké karty sa nezväčšujú, iba svetlo) */
+@keyframes mythPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(var(--pz,1.045));filter:brightness(1.22) saturate(1.15);box-shadow:0 0 22px color-mix(in srgb,var(--rc) 60%,transparent),inset 0 0 18px color-mix(in srgb,var(--rc) 35%,transparent)}}
+.r7:not(.itm){--pz:1.008}
 @keyframes prism{to{background-position:200% 0}}
-@media (prefers-reduced-motion:reduce){.r7,.r8::after,.r9,.r9::before,.r9::after,.r9 .nm,.r9 .ttl,.r9 .rlab,.r9 .eqc-txt b{animation:none}}
+@media (prefers-reduced-motion:reduce){.r9>.pst,.r7,.r8::after,.r9,.r9::before,.r9::after,.r9 .nm,.r9 .ttl,.r9 .rlab,.r9 .eqc-txt b{animation:none}}
 /* opravy rozloženia v0.5: položky menu sa nesmú zmršťovať (karty s overflow:hidden by inak skolabovali) */
 .sheet .body{grid-auto-rows:max-content}
 .eqc,.itd,.itm{box-sizing:border-box}

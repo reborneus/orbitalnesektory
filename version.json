@@ -1,8 +1,8 @@
 {
-  "version": "0.7.2",
+  "version": "0.7.3",
   "date": "2026-11-03",
   "notes": [
-    "Oprava: schopnosti dronu sa odomykajú podľa vyššej rarity z modulu a AI jadra (viridit a obrana od Vzácnej, kryštály od Epickej)",
-    "Rarita Prvotné: nové animované pozadie (hmlovina, hviezdy, lúče) a pulzujúca dúhová žiara"
+    "Rarita Mytické: celé okno jemne pulzuje (svetlo a žiara)",
+    "Rarita Prvotné: striedavo blikajúce hviezdy v pozadí a rýchlejší pulz – aj v detaile predmetu"
   ]
 }
