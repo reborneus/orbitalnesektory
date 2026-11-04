@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.22.0", "date": "2026-11-04", "time": "2026-11-04T22:24:31+01:00", "sha": "a4b0f61e74602f64b37e343d5276e68a257a8936", "title": "realistic backgrounds for all maps, 3D previews of ships and drones"},
   {"version": "0.21.0", "date": "2026-11-04", "time": "2026-11-04T22:03:38+01:00", "sha": "df10c645ebf09bb901a625fcf9c9973e680ae478", "title": "realistic disk-planet background for sector 1, core swirl fix"},
   {"version": "0.20.0", "date": "2026-11-04", "time": "2026-11-04T21:53:36+01:00", "sha": "888f1ec2fdc94f2a4228f53200b943643d3a953a", "title": "escort drones for Falcon and Bison (trader in sector 5)"},
   {"version": "0.19.5", "date": "2026-11-04", "time": "2026-11-04T21:46:20+01:00", "sha": "26e01f609d00269d543bf029cb6292fd6e237c36", "title": "plasma station core with state colors, detailed mining drones"},
