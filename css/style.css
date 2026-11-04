@@ -493,3 +493,8 @@ body.pad .pg{display:block}
 #arTip h3{margin:0 0 6px;font-size:15px;display:flex;gap:8px;align-items:baseline}#arTip .lv{font:500 11px var(--f-data);color:var(--hull)}
 #arTip p{margin:0 0 6px;color:var(--muted)}#arTip ul{margin:0 0 6px;padding-left:16px;color:var(--text)}#arTip li{margin:2px 0}
 .sec-row:has(#arBtns:not([hidden])) #secTag{display:none}
+/* v0.15.2 otázka po odmene v aréne */
+#arAsk{position:fixed;inset:0;z-index:15;display:grid;place-items:center;pointer-events:none}
+#arAsk[hidden]{display:none}
+.arask{pointer-events:auto;width:min(92vw,440px);padding:16px 18px;display:grid;gap:8px}
+.arask h3{margin:0;font-size:17px}.arask p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.4}

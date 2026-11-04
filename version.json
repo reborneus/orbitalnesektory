@@ -1,8 +1,9 @@
 {
-  "version": "0.15.1",
+  "version": "0.15.2",
   "date": "2026-11-04",
   "notes": [
-    "Aréna: tlačidlá ▶ Štart / ▶ Vlna N (kontrolný bod) a ■ Ukončiť priamo vedľa názvu mapy",
-    "Popis arény sa na PC ukáže ako plávajúce okno po nabehnutí myšou na tlačidlo"
+    "Aréna: vlny idú za sebou automaticky, anomália s odmenou príde po každej 5. vlne (odmena za všetkých 5 vĺn)",
+    "Po prevzatí odmeny otázka: pokračovať ďalšou vlnou, alebo beh ukončiť a vrátiť sa na základňu v 1. sektore",
+    "Po zničení lode v aréne sa loď objaví na základni v 1. sektore"
   ]
 }
