@@ -361,10 +361,43 @@ function stopMining(){mineTarget=null;moveTarget=null}
    od Legendárnej krúžok na zemi). Keď je loď bližšie ako 8 m + bonus Dosah zberu, korisť sa pritiahne a uloží do inventára. */
 let loot=[],invWarned=false;
 const LOOT_GEO=new THREE.OctahedronGeometry(.7,0);
+/* ==================== v0.24: KOZMICKÁ KOCKA (korisť a anomália) ====================
+   Predmet vo vesmíre je otáčajúca sa kocka, na ktorej stenách je „vesmír“: špirálová galaxia s jasným jadrom,
+   hmlovina vo farbe rarity, hviezdy; hrany svietia bielo, okolo je žiara. Každý predmet má iný vzor (seed) a jednu
+   z variantov: 0 = samotná kocka, 1 = vnútri menšia drôtená kocka točiaca sa opačne, 2 = okolo väčší drôtený rám.
+   Od Mytickej rarity má vždy aj rám. cosmicCube(farba, seed, variant) vráti skupinu; setColor() mení farbu (Prvotná). */
+const _CUBE_GEO=new THREE.BoxGeometry(1,1,1);
+const _CUBE_EDGES=(()=>{const e=[];const H=.5;for(const a of[-H,H])for(const b of[-H,H]){e.push([[0,a,b],[1,0,0]],[[a,0,b],[0,1,0]],[[a,b,0],[0,0,1]])}return e})();
+const CUBE_FRAG=`uniform vec3 uC;uniform float uS;uniform float uT;varying vec2 vUv;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7))+uS)*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),u.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),u.x),u.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
+void main(){vec2 p=(vUv-.5)*2.;vec2 c=vec2(sin(uS*1.7),cos(uS*2.3))*.35;vec2 q=p-c;float r=length(q);
+  float a=atan(q.y,q.x)+uT*.15;float arm=pow(.5+.5*cos(2.*(a-log(r+.03)*2.4)),2.5);
+  float neb=fbm(p*2.5+vec2(uS,uT*.05))*.8+fbm(p*6.+uS*3.)*.4;
+  vec3 col=uC*.12+uC*neb*.55+mix(uC,vec3(.6,.75,1.),.35)*arm*exp(-r*2.2)*.9+vec3(1.,.95,.9)*exp(-r*r*18.)*1.2;
+  col+=mix(uC,vec3(1.),.5)*pow(fbm(p*4.-uS),3.)*.8;
+  vec2 sc=floor(vUv*60.),sf=fract(vUv*60.)-.5;col+=vec3(1.)*step(.93,h(sc))*smoothstep(.3,0.,length(sf))*(.5+.5*sin(uT*3.+h(sc)*40.));
+  float e=max(abs(p.x),abs(p.y));col*=.7+.3*smoothstep(1.,.75,e);
+  gl_FragColor=vec4(col*1.25,1.);}`;
+function cosmicCube(col,seed,variant=0,size=1){const g=new THREE.Group(),C=new THREE.Color(col);
+  const mat=new THREE.ShaderMaterial({uniforms:{uC:{value:C.clone()},uS:{value:seed*7.31%100},uT:{value:0}},vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',fragmentShader:CUBE_FRAG});
+  const cube=new THREE.Mesh(_CUBE_GEO,mat);cube.scale.setScalar(size);g.add(cube);
+  const em=new THREE.MeshBasicMaterial({color:new THREE.Color('#ffffff').lerp(C,.25),toneMapped:false});
+  const edges=(s,w,m)=>{const eg=new THREE.Group();for(const[p,d]of _CUBE_EDGES){const b=new THREE.Mesh(new THREE.BoxGeometry(d[0]?1+w:w,d[1]?1+w:w,d[2]?1+w:w),m);b.position.set(...p);eg.add(b)}eg.scale.setScalar(s);return eg};
+  cube.add(edges(1,.035,em));
+  let inner=null,frame=null;
+  if(variant===1){inner=edges(size*.55,.05,new THREE.MeshBasicMaterial({color:C.clone(),toneMapped:false}));g.add(inner)}
+  if(variant===2){frame=edges(size*1.55,.03,new THREE.MeshBasicMaterial({color:C.clone(),transparent:true,opacity:.7,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false}));g.add(frame)}
+  g.userData={cube,inner,frame,mat,em,
+    tick(dt,tt){cube.rotation.x+=dt*.55;cube.rotation.y+=dt*.8;mat.uniforms.uT.value=tt;if(inner){inner.rotation.x-=dt*1.1;inner.rotation.z+=dt*.9}if(frame){frame.rotation.y-=dt*.35;frame.rotation.z+=dt*.2}},
+    setColor(c){mat.uniforms.uC.value.copy(c);em.color.set('#ffffff').lerp(c,.25);if(inner)inner.children[0].material.color.copy(c);if(frame)frame.children[0].material.color.copy(c)}};
+  return g}
 /* Korisť vo vesmíre svieti farbou rarity. toneMapped:false = farba sa nezmieša s tónovaním scény (ACES),
    inak by jasné farby pri prekrytí so žiarou vybledli do bielej. */
 function spawnLoot(it,pos){const g=new THREE.Group();const c=new THREE.Color(RAR[it.r].col);const tm={toneMapped:false};
-  const core=new THREE.Mesh(LOOT_GEO,new THREE.MeshBasicMaterial({color:c.clone(),...tm}));g.add(core);
+  // v0.24: kozmická kocka (variant podľa náhodného seedu; od Mytickej vždy s rámom)
+  const seed=Math.random()*1000,variant=it.r>=7?2:Math.floor(seed)%3;const core=cosmicCube(RAR[it.r].col,seed,variant,1.05);g.add(core);
   const gl=glow(RAR[it.r].col,3.2+it.r*.5,.5+it.r*.03);gl.material.toneMapped=false;g.add(gl);
   const h=5+it.r*1.8,w=.22+it.r*.045;
   const pil=new THREE.Mesh(CYL,new THREE.MeshBasicMaterial({color:c.clone(),transparent:true,opacity:.22+it.r*.03,blending:THREE.AdditiveBlending,depthWrite:false,...tm}));
@@ -383,10 +416,10 @@ function pickLoot(l){state.inv.push(l.it);world.remove(l.g);loot=loot.filter(x=>
   toast(t('tt.loot',{r:t('r.'+RAR[l.it.r].k),n:itemTitle(l.it)?'«'+itemTitle(l.it)+'» '+t('base.'+l.it.b):t('base.'+l.it.b)}),{rar:l.it.r});save();if(sheetTab==='gear')renderSheet()}
 function tickLoot(dt,tt){const mag=LOOT_RANGE+bonus().magnet;
   for(const l of loot.slice()){const k=l.it.r;
-    l.core.rotation.y+=dt*(1.2+k*.15);l.core.position.y=Math.sin(tt*2+l.ph)*.3;
+    l.core.userData.tick(dt*(1+k*.08),tt);l.core.position.y=.4+Math.sin(tt*2+l.ph)*.3;
     l.pil.material.opacity=(.18+k*.03)*(1+.35*Math.sin(tt*3+l.ph));
     if(l.ring&&k>=6){l.ring.scale.setScalar(1+.15*Math.sin(tt*2.5+l.ph));l.ring.rotation.z+=dt}
-    if(k===9){const c=new THREE.Color().setHSL((tt*.15+l.ph)%1,.85,.65);l.core.material.color.copy(c);l.pil.material.color.copy(c);l.gl.material.color.copy(c);if(l.ring)l.ring.material.color.copy(c)}
+    if(k===9){const c=new THREE.Color().setHSL((tt*.15+l.ph)%1,.85,.65);l.core.userData.setColor(c);l.pil.material.color.copy(c);l.gl.material.color.copy(c);if(l.ring)l.ring.material.color.copy(c)}
     if(dead)continue;const d=ship.position.distanceTo(l.g.position);
     if(d<mag){if(state.inv.length>=INV_MAX){if(!invWarned){toast(t('tt.invFull'),'bad');invWarned=true}continue}
       l.g.position.lerp(ship.position,Math.min(1,dt*5));if(d<2.6)pickLoot(l)}}}

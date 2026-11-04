@@ -1,9 +1,8 @@
 {
-  "version": "0.23.1",
+  "version": "0.24.0",
   "date": "2026-11-04",
   "notes": [
-    "Spúšťací panel pre Windows: nový tmavý moderný vzhľad ako menu v hre (karty so zaoblenými rohmi, tyrkysové ŠTART, tmavý titulok okna)",
-    "Panel sa spúšťa bez prázdneho okna PowerShellu (nový skrytý spúšťač .vbs); po aktualizácii v paneli klikni na „Odkaz na ploche“, aby odkaz používal nový spúšťač",
-    "Nové políčko „Po spustení hry nechať panel otvorený“ (Windows aj Mac)"
+    "Korisť vo vesmíre (z asteroidov, pirátov) je teraz otáčajúca sa kozmická kocka: na stenách vesmír (špirálová galaxia, hmlovina vo farbe rarity, blikajúce hviezdy), svietiace biele hrany; každý predmet má iný vzor a jednu z variant (samotná kocka / vnútorná drôtená kocka točiaca sa opačne / väčší drôtený rám), od Mytickej vždy s rámom; farby rarity, svetelný stĺp aj krúžok ostali",
+    "Anomália v aréne je veľká fialová kozmická kocka s rámom"
   ]
 }

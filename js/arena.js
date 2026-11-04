@@ -63,10 +63,11 @@ function spawnCarrier(w){const c=arenaEnemy('carrier',ringPos(120,130),w);c.invu
   for(const o of CMOD_OFF){const m=arenaEnemy('cmod',c.pos.clone(),w);m.host=c;m.off=new V3(...o);c.mods.push(m)}}
 
 /* ---------- anomália (odmena po vlne) ---------- */
-function spawnAnomaly(){const g=new THREE.Group();const core=glow('#c38bff',9,.95);g.add(core);const c2=glow('#7ff6ff',6,.8);g.add(c2);
+function spawnAnomaly(){const g=new THREE.Group();const core=glow('#c38bff',9,.45);g.add(core);const c2=glow('#7ff6ff',6,.35);g.add(c2);
   const ring=new THREE.Mesh(new THREE.RingGeometry(4,4.4,64),new THREE.MeshBasicMaterial({color:new THREE.Color('#c38bff'),transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,toneMapped:false}));ring.rotation.x=-Math.PI/2;g.add(ring);
   const pil=new THREE.Mesh(CYL,new THREE.MeshBasicMaterial({color:new THREE.Color('#c38bff'),transparent:true,opacity:.25,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false}));pil.scale.set(1.2,30,1.2);pil.position.y=15;g.add(pil);
-  g.position.set(0,1.5,0);world.add(g);anomaly={g,core,c2,ring};toast(t('ar.anom'),true)}
+  const cube=cosmicCube('#b06bff',Math.random()*1000,2,3.2);cube.position.y=2.2;g.add(cube);   // v0.24: veľká kozmická kocka
+  g.position.set(0,1.5,0);world.add(g);anomaly={g,core,c2,ring,cube};toast(t('ar.anom'),true)}
 function removeAnomaly(){if(anomaly){world.remove(anomaly.g);anomaly=null}}
 /* odmena za vlnu w: kredity a suroviny rastú s vlnou, počet a kvalita predmetov tiež; občas „jackpot“ ×3 */
 function anomalyReward(w){const tm=typeof tierMul==='function'?tierMul('gain'):1;const jack=Math.random()<.05+w*.002;const m=(jack?3:1)*tm;
@@ -93,7 +94,7 @@ function arenaEnd(reason){const A=astate();const q=$('#arAsk');if(q)q.hidden=tru
   removeAnomaly();arenaRun=null;if(reason)toast(t(reason,{n:Math.max(0,w)}),'bad');save()}
 function arenaEnter(){arenaRun=null;removeAnomaly()}
 function tickArena(dt,tt){if(!inArena())return;const R=arenaRun;
-  if(anomaly){anomaly.ring.rotation.z+=dt;const k=1+.2*Math.sin(tt*3);anomaly.core.scale.set(9*k,9*k,1);anomaly.c2.material.color.setHSL((tt*.2)%1,.8,.7)}
+  if(anomaly){anomaly.ring.rotation.z+=dt;anomaly.cube.userData.tick(dt,tt);anomaly.cube.position.y=2.2+Math.sin(tt*1.5)*.4;const k=1+.2*Math.sin(tt*3);anomaly.core.scale.set(9*k,9*k,1);anomaly.c2.material.color.setHSL((tt*.2)%1,.8,.7)}
   if(!R)return;
   // smrť: beh skončí a loď sa objaví na základni v 1. sektore
   if(dead){arenaEnd('ar.dead');if(!D().permadeath)setTimeout(()=>{if(inArena())jumpTo(0,true)},1800);return}
