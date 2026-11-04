@@ -2,6 +2,15 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.27
+
+### v0.27.0 · 2026-11-04
+- Nová obrazovka výbavy: loď v strede, okolo nej 6 štvorcov slotov (laser, motor, trup, štít, doplnok, zbraň) a šípky od lode k nim vo farbe rarity; prázdny slot ukazuje počet vhodných predmetov
+- Klik na predmet v inventári ho rovno nasadí / vymení s predmetom v lodi
+- Karta predmetu s možnosťami (vylepšiť, rozobrať, zamknúť, do skladu, zložiť) sa ukáže pri predmete pod myšou aj pod výberom ovládača; na širokej obrazovke vpravo vedľa okna
+- Skoková brána je 2,6× väčšia a naklonená, aby ňou vizuálne prešli aj veľké lode
+- Pri vkladaní predmetov sa dá zvoliť aj konkrétny typ predmetu
+
 ## 0.26
 
 ### v0.26.0 · 2026-11-04

@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.27.0", "date": "2026-11-04", "time": "2026-11-04T23:36:13+01:00", "sha": "dc198a2428f11e8b247cfd46485c12c82c6e094d", "title": "new loadout screen with ship and slot arrows, click to equip, item card for controller, bi"},
   {"version": "0.26.0", "date": "2026-11-04", "time": "2026-11-04T23:22:28+01:00", "sha": "1db382c348235023b12e99b1647b79507ee44a5f", "title": "3x larger station, spawn at gate after jump, passive and aggressive pirates on all maps"},
   {"version": "0.25.0", "date": "2026-11-04", "time": "2026-11-04T23:07:31+01:00", "sha": "5676a126afaf22b6b52ee74ddd516a7849e0ae00", "title": "resizable minimap, movable HUD panels (PC), centered windows"},
   {"version": "0.24.1", "date": "2026-11-04", "time": "2026-11-04T22:44:07+01:00", "sha": "e8968c6f5e81db5cd1f423da782033e1b35df86f", "title": "fix Windows launcher panel not opening"},
