@@ -14,7 +14,7 @@ const xpSecMul=()=>1+state.cur*.3;                           // vyššie sektory
 /* Schopnosti: max = najviac bodov, per = bonus za 1 bod (kľúče ako vlastnosti STATS v items.js; cr = viac kreditov) */
 const SKILLS={
   mining:{max:25,per:{mine:2,yield:1},ico:'⛏'},
-  combat:{max:25,per:{dmg:2,crit:.2,critDmg:2},ico:'✦'},
+  combat:{max:25,per:{dmg:2,crit:.2,critDmg:2,hit:.8},ico:'✦'},   // hit = presnosť (+0,8 % za bod, šanca na zásah najviac 90 %)
   flight:{max:25,per:{speed:1,turn:1.5,accel:1.5,hullPct:1},ico:'➤'},
   trade:{max:25,per:{cr:2,mf:1},ico:'¢'},
 };

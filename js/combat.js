@@ -9,7 +9,7 @@ let enemies=[],bolts=[],raidT=0,raidActive=false,raidCount=0,stationHp=0,station
 const raidCfg=()=>PIRATES.raid[state.cur];
 const stationMaxHp=()=>PIRATES.stationHp(cur().core);
 /* Zavolá sa pri stavbe sektora: vymaže nepriateľov a naplánuje prvý nájazd. */
-function resetCombat(){for(const d of dmgTexts)d.el.remove();dmgTexts.length=0;enemies=[];bolts=[];raidActive=false;raidCount=0;stationDown=0;attackTarget=null;towerCd={};
+function resetCombat(){if(typeof clearLasers==='function')clearLasers();for(const d of dmgTexts)d.el.remove();dmgTexts.length=0;enemies=[];bolts=[];raidActive=false;raidCount=0;stationDown=0;attackTarget=null;towerCd={};
   const c=raidCfg();raidT=c?c.first:0;stationHp=stationMaxHp()}
 
 /* ---------- model piráta ---------- */
@@ -54,7 +54,7 @@ const dmgTexts=[];let dmgLayer=null;
 function dmgText(pos,n,kind){if(!(n>0)||typeof camera==='undefined'||!pos.clone)return;
   if(!dmgLayer){dmgLayer=document.createElement('div');dmgLayer.id='dmgLayer';document.body.appendChild(dmgLayer)}
   if(dmgTexts.length>40){const o=dmgTexts.shift();o.el.remove()}
-  const el=document.createElement('div');el.className='dmgt '+kind;el.textContent=kind==='imm'?t('ar.imm'):(kind==='crit'?'✦ ':kind==='hurt'?'−':'')+fmtN(Math.round(n));dmgLayer.appendChild(el);
+  const el=document.createElement('div');el.className='dmgt '+kind;el.textContent=kind==='miss'?t('cmb.missT'):kind==='imm'?t('ar.imm'):(kind==='crit'?'✦ ':kind==='hurt'?'−':'')+fmtN(Math.round(n));dmgLayer.appendChild(el);
   dmgTexts.push({el,p:pos.clone().add(new V3((Math.random()-.5)*2,3,(Math.random()-.5)*2)),life:kind==='crit'?1.3:1,max:kind==='crit'?1.3:1})}
 function tickDmgText(dt){if(!dmgTexts.length)return;const W=innerWidth,H=innerHeight;
   for(const d of dmgTexts.slice()){d.life-=dt;if(d.life<=0){d.el.remove();dmgTexts.splice(dmgTexts.indexOf(d),1);continue}
@@ -94,9 +94,7 @@ function nearestEnemy(from,maxD){let best=null,bd=maxD;for(const e of enemies){i
 const gunRange=()=>GUN_RANGE+bonus().grange;
 function playerGun(dt){gunCd-=dt;if(dead||jumping)return;const R=gunRange();
   let tg=attackTarget&&enemies.includes(attackTarget)&&ship.position.distanceTo(attackTarget.pos)<=R?attackTarget:nearestEnemy(ship.position,R);
-  if(!tg||gunCd>0)return;gunCd=1/shipVal('gunRate');const crit=Math.random()<critChance();
-  const from=ship.localToWorld(NOSE.clone());const lead=tg.pos.clone().addScaledVector(tg.vel,from.distanceTo(tg.pos)/PIRATES.playerBolt);
-  fireBolt(from,lead,crit?'#ffe9a0':'#7ef2e2',shipVal('gun')*(crit?critMult():1),'player',PIRATES.playerBolt,crit)}
+  if(!tg||gunCd>0)return;gunCd=1/shipVal('gunRate');playerBurst(tg)}   // v0.16: laserová dávka (lasers.js)
 function towersFire(dt){if(stationDown>0)return;const s=cur();s.slots.forEach((m,i)=>{if(slotType(m)!=='tower'||i>=slotsFor(s.core))return;
   towerCd[i]=(towerCd[i]||0)-dt;if(towerCd[i]>0)return;const ts=towerStats(m);const tg=nearestEnemy(new V3(0,0,0),ts.range);if(!tg)return;
   towerCd[i]=1/ts.rate;const from=slotPos(i).setY(2.2);fireBolt(from,tg.pos.clone().addScaledVector(tg.vel,.4),RAR[modRar(m)].col,ts.dmg,'tower',PIRATES.playerBolt)})}
@@ -119,10 +117,8 @@ function tickEnemies(dt,tt){for(const e of enemies.slice()){
     e.cd-=dt;const inRange=dist<=e.range+(onShip?0:10);
     if(inRange&&e.cd<=0&&!(!onShip&&stationDown>0)){e.cd=e.fire*(.8+Math.random()*.4);e.body.rotation.y=Math.atan2(_ev.x,_ev.z);
       if(e.missile){fireMissile(e);continue}
-      const tgt=onShip?ship.position.clone().addScaledVector(shipVel,dist/PIRATES.boltSpeed):new V3(0,2,0);
-      fireBolt(e.pos.clone(),tgt,'#ff4b3a',e.dmg,'enemy',PIRATES.boltSpeed);
-      // boss strieľa dávku striel do vejára
-      for(let i=1;i<=e.burst;i++){const sp=(i%2?1:-1)*Math.ceil(i/2)*3;fireBolt(e.pos.clone(),tgt.clone().add(new V3(-_ev.z*sp,0,_ev.x*sp)),'#ff4b3a',e.dmg,'enemy',PIRATES.boltSpeed)}}}}
+      // v0.16: okamžitý laser so šancou na zásah (lasers.js); boss strieľa celú dávku
+      pirateShot(e,onShip);for(let i=1;i<=e.burst;i++)pirateShot(e,onShip)}}}
 /* Raketa raketovej veže (aréna): pomalšia, navádza sa na loď, ale zatáča obmedzene – dá sa jej uhnúť. */
 function fireMissile(e){const s=glow('#ff9a3a',2.6,1);s.position.copy(e.pos);world.add(s);const dir=new V3().subVectors(ship.position,e.pos).setY(0).normalize();
   bolts.push({s,vel:dir.multiplyScalar(24),life:7,dmg:e.dmg,side:'enemy',homing:1.4})}
@@ -133,5 +129,5 @@ function tickCombat(dt,tt){
   // útok na vybraného piráta: loď sa drží v dosahu zbrane (ručné ovládanie má prednosť)
   if(attackTarget&&!enemies.includes(attackTarget))attackTarget=null;
   if(attackTarget&&!mineTarget&&inVec.lengthSq()<1e-4){_ev.subVectors(ship.position,attackTarget.pos).setY(0);const d=_ev.length()||1;moveTarget=attackTarget.pos.clone().setY(0).addScaledVector(_ev,gunRange()*.6/d)}
-  tickEnemies(dt,tt);playerGun(dt);if(!inArena())towersFire(dt);tickBolts(dt);tickDmgText(dt)}
+  tickEnemies(dt,tt);playerGun(dt);tickShots(dt);if(!inArena())towersFire(dt);tickBolts(dt);tickDmgText(dt)}
 function cmdAttack(e){attackTarget=e;mineTarget=null;autoPause=6;flashMarker(e.pos,'#ff5a4a')}

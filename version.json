@@ -1,9 +1,9 @@
 {
-  "version": "0.15.2",
+  "version": "0.16.0",
   "date": "2026-11-04",
   "notes": [
-    "Aréna: vlny idú za sebou automaticky, anomália s odmenou príde po každej 5. vlne (odmena za všetkých 5 vĺn)",
-    "Po prevzatí odmeny otázka: pokračovať ďalšou vlnou, alebo beh ukončiť a vrátiť sa na základňu v 1. sektore",
-    "Po zničení lode v aréne sa loď objaví na základni v 1. sektore"
+    "Streľba lodí: okamžité laserové dávky (3 výstrely) do zameraného alebo najbližšieho piráta – piráti strieľajú rovnako",
+    "Šanca na zásah 70 %, schopnosť pilota Strelec ju zvýši až na 90 % (nová vlastnosť Presnosť); netrafené výstrely ukážu „vedľa“",
+    "Farba laserov podľa rarity zbrane: bez zbrane sivá, do Vzácnej modrá, Epická a Legendárna zlatá, Mytická červená, Božská blesky, Prvotná stály dúhový lúč s pulzmi po každej salve"
   ]
 }
