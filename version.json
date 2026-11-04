@@ -1,9 +1,9 @@
 {
-  "version": "0.8.2",
+  "version": "0.8.3",
   "date": "2026-11-04",
   "notes": [
-    "Spúšťač pre Mac: aplikácia Orbitálne Sektory má ikonu hry (staršie vytvorené aplikácie sa opravia pri otvorení)",
-    "Spúšťač pre Mac: aplikácia na ploche, aktualizácie z GitHubu, samostatné okno hry",
-    "Spúšťač pre Windows premenovaný na Orbitalne-Sektory-Windows.bat (starý spúšťač funguje ďalej)"
+    "Korisť vo vesmíre svieti farbou svojej rarity (aj z pirátov)",
+    "Predmety z reliktov idú rovno do inventára, do vesmíru padnú len pri plnom inventári",
+    "Spúšťače (Windows aj Mac): výber verzie hry na porovnanie, staršie verzie majú vlastné uložené hry"
   ]
 }

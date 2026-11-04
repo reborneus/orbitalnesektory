@@ -195,8 +195,8 @@ function moveTo(obj,target,speed,dt,stop){_v.subVectors(target,obj.position);_v.
 function depleteAst(a,byPlayer){a.alive=false;a.respawn=a.type==='relic'?rnd(RELIC_RESPAWN[0],RELIC_RESPAWN[1]):25+Math.random()*15;
   if(byPlayer){const z=Math.min(5,zoneOf(Math.hypot(a.pos.x,a.pos.z)));
     // relikt z misie: lepšia korisť podľa stupňa misie, už sa neobjaví a misia sa splní
-    if(a.mission){a.respawn=1e9;const m=mstate().active.find(x=>x.id===a.mission);spawnLoot(dropItem('relic',z,m?MTIER[m.tier].minR:2),a.pos);missionRelic(a)}
-    else if(a.type==='relic')spawnLoot(dropItem('relic',z,2),a.pos);else if(Math.random()<ASTEROID_DROP)spawnLoot(dropItem('asteroid',z),a.pos)}
+    if(a.mission){a.respawn=1e9;const m=mstate().active.find(x=>x.id===a.mission);giveItem(dropItem('relic',z,m?MTIER[m.tier].minR:2),a.pos);missionRelic(a)}
+    else if(a.type==='relic')giveItem(dropItem('relic',z,2),a.pos);else if(Math.random()<ASTEROID_DROP)spawnLoot(dropItem('asteroid',z),a.pos)}
   if(mineTarget===a){if(!autoNext(a))stopMining()}}
 /* optional auto-mining: move on to the nearest asteroid of the same resource while cargo has room */
 function autoNext(a){if(a.type==='relic'||state.autoMine===false||cargoTotal()>=shipVal('cargo')-.01)return false;let best=null,bd=40;
@@ -209,16 +209,23 @@ function stopMining(){mineTarget=null;moveTarget=null}
    od Legendárnej krúžok na zemi). Keď je loď bližšie ako 8 m + bonus Dosah zberu, korisť sa pritiahne a uloží do inventára. */
 let loot=[],invWarned=false;
 const LOOT_GEO=new THREE.OctahedronGeometry(.7,0);
-function spawnLoot(it,pos){const g=new THREE.Group();const c=new THREE.Color(RAR[it.r].col);
-  const core=new THREE.Mesh(LOOT_GEO,new THREE.MeshBasicMaterial({color:c.clone()}));g.add(core);
-  const gl=glow(RAR[it.r].col,4+it.r*.6,.9);g.add(gl);
+/* Korisť vo vesmíre svieti farbou rarity. toneMapped:false = farba sa nezmieša s tónovaním scény (ACES),
+   inak by jasné farby pri prekrytí so žiarou vybledli do bielej. */
+function spawnLoot(it,pos){const g=new THREE.Group();const c=new THREE.Color(RAR[it.r].col);const tm={toneMapped:false};
+  const core=new THREE.Mesh(LOOT_GEO,new THREE.MeshBasicMaterial({color:c.clone(),...tm}));g.add(core);
+  const gl=glow(RAR[it.r].col,3.2+it.r*.5,.5+it.r*.03);gl.material.toneMapped=false;g.add(gl);
   const h=5+it.r*1.8,w=.22+it.r*.045;
-  const pil=new THREE.Mesh(CYL,new THREE.MeshBasicMaterial({color:c.clone(),transparent:true,opacity:.22+it.r*.03,blending:THREE.AdditiveBlending,depthWrite:false}));
+  const pil=new THREE.Mesh(CYL,new THREE.MeshBasicMaterial({color:c.clone(),transparent:true,opacity:.22+it.r*.03,blending:THREE.AdditiveBlending,depthWrite:false,...tm}));
   pil.scale.set(w,h,w);pil.position.y=h/2;g.add(pil);
-  let ring=null;if(it.r>=6){ring=new THREE.Mesh(new THREE.RingGeometry(1.5,1.75,48),new THREE.MeshBasicMaterial({color:c.clone(),transparent:true,opacity:.7,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=-.4;g.add(ring)}
+  // farebný krúžok pod predmetom: od Nezvyčajnej rarity, od Mytickej väčší a pulzujúci
+  let ring=null;if(it.r>=2){const big=it.r>=6;ring=new THREE.Mesh(new THREE.RingGeometry(big?1.5:1.1,big?1.75:1.25,48),new THREE.MeshBasicMaterial({color:c.clone(),transparent:true,opacity:big?.75:.5,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,...tm}));ring.rotation.x=-Math.PI/2;ring.position.y=-.4;g.add(ring)}
   g.position.set(pos.x,.6,pos.z);world.add(g);
   loot.push({g,it,core,gl,pil,ring,ph:Math.random()*TAU,h});
   if(it.r>=6)toast(t('tt.loot',{r:t('r.'+RAR[it.r].k),n:t('base.'+it.b)}),{rar:it.r})}
+/* Predmet rovno do inventára (relikty); ak je inventár plný, objaví sa vo vesmíre ako korisť na pozícii pos. */
+function giveItem(it,pos){if(state.inv.length<INV_MAX){state.inv.push(it);
+    toast(t('tt.loot',{r:t('r.'+RAR[it.r].k),n:itemTitle(it)?'«'+itemTitle(it)+'» '+t('base.'+it.b):t('base.'+it.b)}),{rar:it.r});save();if(sheetTab==='gear')renderSheet();return true}
+  spawnLoot(it,pos);toast(t('tt.invFull'),'bad');return false}
 function nearestLoot(maxD){let best=null,bd=maxD;for(const l of loot){const d=ship.position.distanceTo(l.g.position);if(d<bd){bd=d;best=l}}return best}
 function pickLoot(l){state.inv.push(l.it);world.remove(l.g);loot=loot.filter(x=>x!==l);invWarned=false;
   toast(t('tt.loot',{r:t('r.'+RAR[l.it.r].k),n:itemTitle(l.it)?'«'+itemTitle(l.it)+'» '+t('base.'+l.it.b):t('base.'+l.it.b)}),{rar:l.it.r});save();if(sheetTab==='gear')renderSheet()}
@@ -226,7 +233,7 @@ function tickLoot(dt,tt){const mag=LOOT_RANGE+bonus().magnet;
   for(const l of loot.slice()){const k=l.it.r;
     l.core.rotation.y+=dt*(1.2+k*.15);l.core.position.y=Math.sin(tt*2+l.ph)*.3;
     l.pil.material.opacity=(.18+k*.03)*(1+.35*Math.sin(tt*3+l.ph));
-    if(l.ring){l.ring.scale.setScalar(1+.15*Math.sin(tt*2.5+l.ph));l.ring.rotation.z+=dt}
+    if(l.ring&&k>=6){l.ring.scale.setScalar(1+.15*Math.sin(tt*2.5+l.ph));l.ring.rotation.z+=dt}
     if(k===9){const c=new THREE.Color().setHSL((tt*.15+l.ph)%1,.85,.65);l.core.material.color.copy(c);l.pil.material.color.copy(c);l.gl.material.color.copy(c);if(l.ring)l.ring.material.color.copy(c)}
     if(dead)continue;const d=ship.position.distanceTo(l.g.position);
     if(d<mag){if(state.inv.length>=INV_MAX){if(!invWarned){toast(t('tt.invFull'),'bad');invWarned=true}continue}

@@ -1,0 +1,12 @@
+{"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.8.0", "date": "2026-11-03", "sha": "483ed7b2b9cbccf932633e5153c21f6c66d1e47b", "title": "hangar with Falcon and Bison ships, sectors 4-6, pirate frigate"},
+  {"version": "0.7.4", "date": "2026-11-03", "sha": "aa9419ad4c2bfe768545bd1e084e0423dba21ccb", "title": "agility upgrade, drift-free turning"},
+  {"version": "0.7.3", "date": "2026-11-03", "sha": "0953d24c9fadaf718d332d270ee8e5287ee8e524", "title": "Mythic pulse, Primal twinkling stars and faster pulse"},
+  {"version": "0.7.2", "date": "2026-11-03", "sha": "95829112482c617dbb87e134704715e24516fa86", "title": "drone abilities use max(module, chip) rarity; richer Primal visuals"},
+  {"version": "0.7.1", "date": "2026-11-03", "sha": "715139b701ac0d0cc6235b649eb70de8302ec4fc", "title": "admin panel na testovanie"},
+  {"version": "0.7", "date": "2026-11-03", "sha": "581c8278f69ace752329a36e3bd75b0c09d41fed", "title": "misie a radiačný štít"},
+  {"version": "0.6.1", "date": "2026-11-03", "sha": "5da8f3fcec6c2568de96db7cf9426c6d3b6f55ac", "title": "autopilot po zbere koristi s plným nákladom pokračuje na stanicu"},
+  {"version": "0.6", "date": "2026-11-03", "sha": "23b60e2d8fda426f2eaedcdfcd191e2667a00853", "title": "boj s pirátmi, panel stanice s vylepšovaním modulov a čipmi, samostatné Nastavenia, ukonče"},
+  {"version": "0.5.1", "date": "2026-11-03", "sha": "0d807fdd54fa95a4717e6d43ae9a03d8a6416fd7", "title": "príručka (wiki) v hre aj ako wiki.html, ikona hry, spúšťač s výberom priečinka"},
+  {"version": "0.5", "date": "2026-11-03", "sha": "fdc4a55f4431ca32f8f48478de691a226925b926", "title": "korisť a rarity, kredity, výbava lode, vylepšenia do úrovne 10, hra rozdelená na súbory"}
+]}

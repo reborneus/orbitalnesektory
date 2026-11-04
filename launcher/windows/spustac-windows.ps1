@@ -8,6 +8,7 @@
 #     profil\        profil prehliadača hry – tu sú ULOŽENÉ HRY, aktualizácia ani zmena priečinka ich nemaže
 #     icon.ico        ikona hry pre okno panela a odkaz na ploche
 #     nastavenia.json nastavenia panela (vrátane zvoleného priečinka hry)
+#     verzie\<verzia>\ staršie verzie hry na porovnanie (výber „Verzia hry“), každá má vlastný profil profil-<verzia>\
 #  Spúšťa sa súborom Orbitalne-Sektory-Windows.bat (stiahne vždy aktuálnu verziu tohto panela).
 #  Verzia pre Mac je v launcher/mac/ (spustac-mac.sh).
 # =====================================================================
@@ -54,21 +55,24 @@ function Get-RemoteVersion {
 function To-Ver($v) { try { return [version]$v.version } catch { return [version]'0.0' } }
 
 # --- aktualizácia: stiahne zip repozitára a nahradí priečinok hra\ ---
-function Update-Game {
+function Update-Game { return (Install-Zip $ZipUrl $GameDir $true) }
+# stiahne zip z $url a nainštaluje ho do $dest; $main = hlavná inštalácia (skopíruje aj ikonu a nový panel)
+function Install-Zip($url, $dest, $main) {
   $tmp = Join-Path $env:TEMP ('orbitalne-' + [guid]::NewGuid().ToString('N'))
   New-Item -ItemType Directory -Force -Path $tmp | Out-Null
   try {
     $zip = Join-Path $tmp 'hra.zip'
-    Invoke-WebRequest -Uri $ZipUrl -OutFile $zip -UseBasicParsing -TimeoutSec 120
+    Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing -TimeoutSec 120
     Expand-Archive -Path $zip -DestinationPath $tmp -Force
     $src = Get-ChildItem -Path $tmp -Directory | Select-Object -First 1
     if (-not $src -or -not (Test-Path (Join-Path $src.FullName 'index.html'))) { throw 'V stiahnutom balíku chýba index.html.' }
-    if (Test-Path $GameDir) {
-      if (Test-GameDir $GameDir) { Remove-Item $GameDir -Recurse -Force }
-      elseif ((Get-ChildItem $GameDir -Force | Measure-Object).Count -gt 0) { throw "Priečinok $GameDir nie je prázdny a nie je to priečinok hry. Vyber iný." }
-      else { Remove-Item $GameDir -Force } }
-    New-Item -ItemType Directory -Force -Path (Split-Path $GameDir -Parent) | Out-Null
-    Copy-Item -Path $src.FullName -Destination $GameDir -Recurse -Force
+    if (Test-Path $dest) {
+      if (Test-GameDir $dest) { Remove-Item $dest -Recurse -Force }
+      elseif ((Get-ChildItem $dest -Force | Measure-Object).Count -gt 0) { throw "Priečinok $dest nie je prázdny a nie je to priečinok hry. Vyber iný." }
+      else { Remove-Item $dest -Force } }
+    New-Item -ItemType Directory -Force -Path (Split-Path $dest -Parent) | Out-Null
+    Copy-Item -Path $src.FullName -Destination $dest -Recurse -Force
+    if (-not $main) { return $true }
     $ico = Join-Path $GameDir 'assets\icon.ico'; if (Test-Path $ico) { Copy-Item $ico $IconFile -Force }
     # nová verzia panela a spúšťača sa použije pri ďalšom otvorení
     foreach ($f in 'spustac-windows.ps1','Orbitalne-Sektory-Windows.bat') { $p = Join-Path $GameDir "launcher\windows\$f"; if (Test-Path $p) { Copy-Item $p (Join-Path $Root $f) -Force } }
@@ -84,12 +88,26 @@ function Find-Browser {
   foreach ($p in $c) { if ($p -and (Test-Path $p)) { return $p } }
   return $null
 }
+# --- staršie verzie na porovnanie (versions.json na GitHube) ---
+$script:versions = @()
+function Get-Versions { try { $r = Invoke-WebRequest -Uri ("$RawBase/versions.json?t=" + [DateTime]::UtcNow.Ticks) -UseBasicParsing -TimeoutSec 12
+    return @(([Text.Encoding]::UTF8.GetString($r.RawContentStream.ToArray()) | ConvertFrom-Json).versions) } catch { return @() } }
+# vybraná verzia: $null = najnovšia (hlavná inštalácia), inak objekt z versions.json
+function Selected-Version { $i = $cmbVer.SelectedIndex; if ($i -le 0 -or $i -gt $script:versions.Count) { return $null }; return $script:versions[$i - 1] }
+# priečinok a profil pre vybranú verziu; staršiu verziu stiahne, ak ešte nie je (vlastný profil = vlastné uložené hry)
+function Prepare-Version {
+  $v = Selected-Version; if (-not $v) { return @($GameDir, $ProfileDir) }
+  $dir = Join-Path $Root ('verzie\' + $v.version)
+  if (-not (Test-GameDir $dir)) { $lblLocal.Text = "Sťahujem verziu $($v.version)…"; [Windows.Forms.Application]::DoEvents()
+    [void](Install-Zip "https://github.com/$Repo/archive/$($v.sha).zip" $dir $false) }
+  return @($dir, (Join-Path $Root ('profil-' + $v.version))) }
 function Start-Game($page = 'index.html') {
-  $idx = Join-Path $GameDir $page
+  $pv = Prepare-Version; $dir = $pv[0]; $prof = $pv[1]
+  $idx = Join-Path $dir $page
   $url = ([Uri]$idx).AbsoluteUri
   $b = Find-Browser
   if (-not $b) { Start-Process $idx; return }
-  $a = @("--app=$url", "--user-data-dir=`"$ProfileDir`"", '--no-first-run', '--no-default-browser-check', '--window-size=1440,900')
+  $a = @("--app=$url", "--user-data-dir=`"$prof`"", '--no-first-run', '--no-default-browser-check', '--window-size=1440,900')
   if ($Cfg.fullscreen) { $a += '--start-fullscreen' }
   Start-Process -FilePath $b -ArgumentList $a
 }
@@ -113,7 +131,7 @@ $accent = [Drawing.Color]::FromArgb(88,208,192); $warn = [Drawing.Color]::FromAr
 $font = New-Object Drawing.Font('Segoe UI', 10)
 
 $form = New-Object Windows.Forms.Form
-$form.Text = 'Orbitálne Sektory – spúšťač pre Windows'; $form.ClientSize = New-Object Drawing.Size(560, 478)
+$form.Text = 'Orbitálne Sektory – spúšťač pre Windows'; $form.ClientSize = New-Object Drawing.Size(560, 514)
 $form.StartPosition = 'CenterScreen'; $form.FormBorderStyle = 'FixedSingle'; $form.MaximizeBox = $false
 $form.BackColor = $bg; $form.ForeColor = $fg; $form.Font = $font
 if (Test-Path $IconFile) { try { $form.Icon = New-Object Drawing.Icon($IconFile) } catch {} }
@@ -149,11 +167,16 @@ $chkAuto = New-Object Windows.Forms.CheckBox; $chkAuto.Text = 'Pri otvorení aut
 $chkAuto.Location = New-Object Drawing.Point(26, 338); $chkAuto.Size = New-Object Drawing.Size(360, 24); $chkAuto.ForeColor = $fg; $form.Controls.Add($chkAuto)
 $chkFull = New-Object Windows.Forms.CheckBox; $chkFull.Text = 'Celá obrazovka'; $chkFull.Checked = $Cfg.fullscreen
 $chkFull.Location = New-Object Drawing.Point(394, 338); $chkFull.Size = New-Object Drawing.Size(150, 24); $chkFull.ForeColor = $fg; $form.Controls.Add($chkFull)
-$btnCheck  = New-Button 'Skontrolovať' 26 370 118 36
-$btnUpdate = New-Button 'Aktualizovať' 152 370 126 36
-$btnWiki   = New-Button 'Príručka' 286 370 104 36
-$btnLink   = New-Button 'Odkaz na ploche' 398 370 136 36
-$btnStart  = New-Button 'ŠTART' 26 414 508 50 $true
+# výber verzie hry: najnovšia alebo staršia na porovnanie
+[void](New-Label 'Verzia hry' 26 374 100 20 9 'Bold' $muted)
+$cmbVer = New-Object Windows.Forms.ComboBox; $cmbVer.DropDownStyle = 'DropDownList'; $cmbVer.FlatStyle = 'Flat'
+$cmbVer.Location = New-Object Drawing.Point(130, 370); $cmbVer.Size = New-Object Drawing.Size(404, 26); $cmbVer.BackColor = $panel; $cmbVer.ForeColor = $fg
+[void]$cmbVer.Items.Add('Najnovšia (hlavná inštalácia)'); $cmbVer.SelectedIndex = 0; $form.Controls.Add($cmbVer)
+$btnCheck  = New-Button 'Skontrolovať' 26 406 118 36
+$btnUpdate = New-Button 'Aktualizovať' 152 406 126 36
+$btnWiki   = New-Button 'Príručka' 286 406 104 36
+$btnLink   = New-Button 'Odkaz na ploche' 398 406 136 36
+$btnStart  = New-Button 'ŠTART' 26 450 508 50 $true
 
 $script:remote = $null
 function Refresh-Ui {
@@ -168,12 +191,18 @@ function Refresh-Ui {
   $btnUpdate.Text = $(if (-not $loc) { 'Stiahnuť hru' } elseif ($newer) { 'Aktualizovať' } else { 'Stiahnuť znova' })
   $btnStart.Enabled = [bool]$loc; $btnWiki.Enabled = [bool]$loc -and (Test-Path (Join-Path $GameDir 'wiki.html'))
   $txtDir.Text = $GameDir
-  $btnStart.Text = $(if ($loc) { "ŠTART  ·  verzia $($loc.version)" } else { 'Najprv stiahni hru' })
+  $sv = Selected-Version
+  if ($sv) { $btnStart.Enabled = $true; $btnWiki.Enabled = $true; $btnStart.Text = "ŠTART  ·  stará verzia $($sv.version) (vlastné uložené hry)" }
+  else { $btnStart.Text = $(if ($loc) { "ŠTART  ·  verzia $($loc.version)" } else { 'Najprv stiahni hru' }) }
   return $newer
 }
 function Check-Remote {
   $lblRemote.Text = 'Najnovšia verzia: zisťujem…'; [Windows.Forms.Application]::DoEvents()
   $script:remote = Get-RemoteVersion
+  $script:versions = Get-Versions; $keep = $cmbVer.SelectedIndex
+  while ($cmbVer.Items.Count -gt 1) { $cmbVer.Items.RemoveAt(1) }
+  foreach ($v in $script:versions) { [void]$cmbVer.Items.Add("$($v.version)  ($($v.date))  –  $($v.title)") }
+  $cmbVer.SelectedIndex = $(if ($keep -lt $cmbVer.Items.Count) { [Math]::Max(0, $keep) } else { 0 })
   if (-not $script:remote) { $lblRemote.Text = 'Najnovšia verzia: nedá sa zistiť (si offline alebo je repozitár súkromný)'; $lblRemote.ForeColor = $warn }
   elseif (-not (Get-LocalVersion)) { $txtNotes.Text = (($script:remote.notes | ForEach-Object { '• ' + $_ }) -join "`r`n") + "`r`n`r`nHra ešte nie je stiahnutá. Skontroluj priečinok hry (Zmeniť…) a klikni na Stiahnuť hru." }
   else { $lblRemote.ForeColor = $fg }
@@ -188,7 +217,8 @@ function Do-Update {
 
 $btnCheck.Add_Click({ [void](Check-Remote) })
 $btnUpdate.Add_Click({ Do-Update })
-$btnWiki.Add_Click({ Start-Game 'wiki.html' })
+$btnWiki.Add_Click({ try { Start-Game 'wiki.html' } catch { [Windows.Forms.MessageBox]::Show("Verziu sa nepodarilo stiahnuť:`n$($_.Exception.Message)", 'Orbitálne Sektory', 'OK', 'Error') | Out-Null }; [void](Refresh-Ui) })
+$cmbVer.Add_SelectedIndexChanged({ [void](Refresh-Ui) })
 # zmena priečinka: hra sa uloží do podpriečinka "Orbitalne Sektory"; existujúca inštalácia sa môže presunúť
 $btnDir.Add_Click({
   $dlg = New-Object Windows.Forms.FolderBrowserDialog
@@ -208,7 +238,8 @@ $btnDir.Add_Click({
       $form.Cursor = 'Default' } }
   $script:GameDir = $new; $Cfg.gameDir = $new; Save-Cfg; [void](Refresh-Ui)
 })
-$btnStart.Add_Click({ $Cfg.autoUpdate = $chkAuto.Checked; $Cfg.fullscreen = $chkFull.Checked; Save-Cfg; Start-Game; $form.Close() })
+$btnStart.Add_Click({ $Cfg.autoUpdate = $chkAuto.Checked; $Cfg.fullscreen = $chkFull.Checked; Save-Cfg
+  try { Start-Game; $form.Close() } catch { [Windows.Forms.MessageBox]::Show("Verziu sa nepodarilo stiahnuť:`n$($_.Exception.Message)", 'Orbitálne Sektory', 'OK', 'Error') | Out-Null; [void](Refresh-Ui) } })
 $btnLink.Add_Click({ try { New-DesktopShortcut; [Windows.Forms.MessageBox]::Show('Odkaz „Orbitálne Sektory“ je na ploche.', 'Orbitálne Sektory') | Out-Null } catch { [Windows.Forms.MessageBox]::Show($_.Exception.Message, 'Orbitálne Sektory', 'OK', 'Warning') | Out-Null } })
 $chkAuto.Add_CheckedChanged({ $Cfg.autoUpdate = $chkAuto.Checked; Save-Cfg })
 $chkFull.Add_CheckedChanged({ $Cfg.fullscreen = $chkFull.Checked; Save-Cfg })

@@ -21,6 +21,7 @@ Webový prototyp (Three.js) – otvor `index.html` v prehliadači.
 - **v0.8.0** – hangár s loďami Sokol a Bizón, sektory 4–6, pirátska fregata
 - **v0.8.1** – spúšťač pre Mac, spúšťače rozlíšené podľa systému
 - **v0.8.2** – ikona aplikácie spúšťača na Macu
+- **v0.8.3** – farebná korisť, relikty do inventára, výber verzie v spúšťačoch
 - **v0.7** – misie (5 typov, 3 stupne), radiačný štít s obmedzeným časom, sledovanie misií v HUD
 - **v0.6.1** – oprava: autopilot po zbere koristi s plným nákladom pokračuje na stanicu
 - **v0.6** – boj s pirátmi (zbraň lode, veže, obrana dronov), panel stanice s vylepšovaním modulov +1 až +10 a čipmi, slot Zbraň, samostatné Nastavenia s tlačidlom Ukončiť hru, pasívny príjem len pri dosiahnutom vplyve
@@ -46,6 +47,8 @@ V priečinku `launcher/` sú spúšťače pre testerov, každý systém má vlas
 | Mac (macOS) | `launcher/mac/` | `Orbitalne-Sektory-Mac.command` | `spustac-mac.sh` |
 
 Oba panely robia to isté: ukážu nainštalovanú a najnovšiu verziu s novinkami, samy stiahnu novú verziu a spustia hru v samostatnom okne prehliadača s vlastným profilom (tam sú uložené hry). Dá sa v nich zvoliť priečinok hry (hra sa uloží do podpriečinka `Orbitalne Sektory`), otvoriť príručku a vytvoriť odkaz na ploche.
+
+**Výber verzie hry:** v paneli (Windows: rozbaľovací zoznam *Verzia hry*, Mac: položka *Verzia hry*) sa dá spustiť aj staršia verzia na porovnanie. Stiahne sa do `verzie/<verzia>` a má vlastný profil `profil-<verzia>`, takže hlavné uložené hry sa nezmenia. Zoznam verzií je v `versions.json` (generuje `python3 tools/versions.py` po každom vydaní).
 
 ### Windows
 1. Stiahni súbor **`launcher/windows/Orbitalne-Sektory-Windows.bat`** (na GitHube otvor súbor a klikni na *Download raw file*) a ulož ho napríklad na plochu.

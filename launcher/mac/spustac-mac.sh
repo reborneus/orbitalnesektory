@@ -10,6 +10,7 @@
 #     hra/                 stiahnutá hra (predvolené miesto; v paneli sa dá zvoliť iný priečinok)
 #     profil/              profil prehliadača hry – tu sú ULOŽENÉ HRY, aktualizácia ani zmena priečinka ich nemaže
 #     nastavenia.txt       nastavenia panela (riadky kľúč=hodnota)
+#     verzie/<verzia>/     staršie verzie hry na porovnanie (položka „Verzia hry“), profil-<verzia>/ = ich uložené hry
 #     spustac-mac.sh       tento panel (pri každom otvorení sa stiahne aktuálny)
 #     Orbitalne-Sektory-Mac.command   spúšťač, ktorý panel stiahne a otvorí
 #  Aplikácia „Orbitálne Sektory“ na ploche a v priečinku Aplikácie spúšťa ten istý spúšťač.
@@ -20,6 +21,7 @@
 REPO="reborneus/orbitalnesektory"; BRANCH="main"
 RAW_BASE="${OS_RAW_BASE:-https://raw.githubusercontent.com/$REPO/$BRANCH}"   # OS_RAW_BASE / OS_ZIP_URL = len na testovanie
 ZIP_URL="${OS_ZIP_URL:-https://github.com/$REPO/archive/refs/heads/$BRANCH.zip}"
+SHA_ZIP_BASE="${OS_SHA_ZIP_BASE:-https://github.com/$REPO/archive}"   # <base>/<sha>.zip = konkrétna verzia
 ROOT="${OS_ROOT:-$HOME/Library/Application Support/OrbitalneSektory}"
 DEFAULT_DIR="$ROOT/hra"
 PROFILE_DIR="$ROOT/profil"
@@ -66,19 +68,22 @@ has_newer() { [ -n "$REMOTE_VER" ] && { [ -z "$LOCAL_VER" ] || ver_gt "$REMOTE_V
 
 # ---------- aktualizácia: stiahne zip repozitára a nahradí priečinok hry ----------
 UPDATE_ERR=""
-update_game() { UPDATE_ERR=""; local tmp; tmp=$(mktemp -d "${TMPDIR:-/tmp}/orbitalne.XXXXXX") || { UPDATE_ERR="Nedá sa vytvoriť dočasný priečinok."; return 1; }
-  if ! curl -fsSL --max-time 180 -o "$tmp/hra.zip" "$ZIP_URL"; then UPDATE_ERR="Sťahovanie zlyhalo (si offline alebo je repozitár súkromný)."; rm -rf "$tmp"; return 1; fi
+update_game() { install_zip "$ZIP_URL" "$GAME_DIR" 1; }
+# install_zip URL CIEĽ HLAVNÁ – stiahne zip a nainštaluje ho do priečinka CIEĽ (HLAVNÁ=1: skopíruje aj nový panel)
+install_zip() { local url="$1" dest="$2" main="$3"; UPDATE_ERR=""; local tmp; tmp=$(mktemp -d "${TMPDIR:-/tmp}/orbitalne.XXXXXX") || { UPDATE_ERR="Nedá sa vytvoriť dočasný priečinok."; return 1; }
+  if ! curl -fsSL --max-time 180 -o "$tmp/hra.zip" "$url"; then UPDATE_ERR="Sťahovanie zlyhalo (si offline alebo je repozitár súkromný)."; rm -rf "$tmp"; return 1; fi
   if ! unzip -q "$tmp/hra.zip" -d "$tmp/x"; then UPDATE_ERR="Stiahnutý balík sa nedá rozbaliť."; rm -rf "$tmp"; return 1; fi
   local src; src=$(find "$tmp/x" -mindepth 1 -maxdepth 1 -type d | head -n 1)
   if [ -z "$src" ] || [ ! -f "$src/index.html" ]; then UPDATE_ERR="V stiahnutom balíku chýba index.html."; rm -rf "$tmp"; return 1; fi
-  if [ -e "$GAME_DIR" ]; then
-    if is_game_dir "$GAME_DIR"; then rm -rf "$GAME_DIR"
-    elif dir_empty "$GAME_DIR"; then rmdir "$GAME_DIR"
-    else UPDATE_ERR="Priečinok $GAME_DIR nie je prázdny a nie je to priečinok hry. Vyber iný."; rm -rf "$tmp"; return 1; fi
+  if [ -e "$dest" ]; then
+    if is_game_dir "$dest"; then rm -rf "$dest"
+    elif dir_empty "$dest"; then rmdir "$dest"
+    else UPDATE_ERR="Priečinok $dest nie je prázdny a nie je to priečinok hry. Vyber iný."; rm -rf "$tmp"; return 1; fi
   fi
-  mkdir -p "$(dirname "$GAME_DIR")" && mv "$src" "$GAME_DIR" || { UPDATE_ERR="Hru sa nepodarilo uložiť do $GAME_DIR."; rm -rf "$tmp"; return 1; }
+  mkdir -p "$(dirname "$dest")" && mv "$src" "$dest" || { UPDATE_ERR="Hru sa nepodarilo uložiť do $dest."; rm -rf "$tmp"; return 1; }
   # súbory stiahnuté z internetu: odstráni karanténu, aby ich macOS neblokoval
-  xattr -dr com.apple.quarantine "$GAME_DIR" 2>/dev/null
+  xattr -dr com.apple.quarantine "$dest" 2>/dev/null
+  [ "$main" = 1 ] || { rm -rf "$tmp"; return 0; }
   # nová verzia panela a spúšťača sa použije pri ďalšom otvorení
   for f in spustac-mac.sh Orbitalne-Sektory-Mac.command; do [ -f "$GAME_DIR/launcher/mac/$f" ] && cp "$GAME_DIR/launcher/mac/$f" "$ROOT/$f" && chmod +x "$ROOT/$f"; done
   rm -rf "$tmp"; return 0; }
@@ -87,10 +92,31 @@ update_game() { UPDATE_ERR=""; local tmp; tmp=$(mktemp -d "${TMPDIR:-/tmp}/orbit
 find_browser() { local a; for a in "Google Chrome" "Microsoft Edge" "Brave Browser" "Chromium"; do
     if [ -d "/Applications/$a.app" ] || [ -d "$HOME/Applications/$a.app" ]; then echo "$a"; return 0; fi; done; return 1; }
 file_url() { printf 'file://%s' "$(printf '%s' "$1" | sed -e 's/%/%25/g' -e 's/ /%20/g' -e 's/#/%23/g' -e 's/?/%3F/g')"; }
-start_game() { local page="${1:-index.html}" b; b=$(find_browser)
-  if [ -z "$b" ]; then open -a Safari "$GAME_DIR/$page" 2>/dev/null || open "$GAME_DIR/$page"; return; fi
-  mkdir -p "$PROFILE_DIR"
-  local args=("--app=$(file_url "$GAME_DIR/$page")" "--user-data-dir=$PROFILE_DIR" --no-first-run --no-default-browser-check --window-size=1440,900)
+# ---------- staršie verzie na porovnanie (versions.json: jedna verzia na riadok) ----------
+# SEL_VER prázdne = najnovšia (hlavná inštalácia); inak sa hra stiahne do verzie/<v> a má vlastný profil profil-<v>
+SEL_VER=""; SEL_SHA=""; VERSIONS=""
+read_versions() { VERSIONS=$(curl -fsSL --max-time 12 "$RAW_BASE/versions.json?t=$(date +%s)" 2>/dev/null | grep '"sha"'); }
+ver_line_field() { printf '%s' "$1" | sed -n "s/.*\"$2\": *\"\([^\"]*\)\".*/\1/p"; }
+pick_version() { [ -n "$VERSIONS" ] || read_versions
+  [ -n "$VERSIONS" ] || { msg "Zoznam verzií sa nedá stiahnuť (si offline?)." caution; return; }
+  local items="\"Najnovšia (hlavná inštalácia)\"" line v d tt choice
+  while IFS= read -r line; do v=$(ver_line_field "$line" version); d=$(ver_line_field "$line" date); tt=$(ver_line_field "$line" title)
+    items="$items, \"$(as_q "$v  ($d)  –  $tt")\""; done <<< "$VERSIONS"
+  choice=$(osa -e "choose from list {$items} with title \"$(as_q "$TITLE")\" with prompt \"Vyber verziu hry. Staršie verzie majú vlastné uložené hry, hlavný postup sa nezmení.\" OK button name \"Vybrať\" cancel button name \"Späť\"") || return
+  case "$choice" in false|"") return;; "Najnovšia"*) SEL_VER=""; SEL_SHA=""; return;; esac
+  SEL_VER="${choice%%  (*}"
+  SEL_SHA=$(printf '%s\n' "$VERSIONS" | grep "\"version\": \"$SEL_VER\"" | head -n 1); SEL_SHA=$(ver_line_field "$SEL_SHA" sha); }
+# pripraví priečinok a profil vybranej verzie: nastaví RUN_DIR a RUN_PROFILE
+prepare_version() { RUN_DIR="$GAME_DIR"; RUN_PROFILE="$PROFILE_DIR"; [ -n "$SEL_VER" ] || return 0
+  RUN_DIR="$ROOT/verzie/$SEL_VER"; RUN_PROFILE="$ROOT/profil-$SEL_VER"
+  is_game_dir "$RUN_DIR" && return 0
+  notify "Sťahujem verziu $SEL_VER…"
+  install_zip "$SHA_ZIP_BASE/$SEL_SHA.zip" "$RUN_DIR" 0 || { msg "Verziu $SEL_VER sa nepodarilo stiahnuť:
+$UPDATE_ERR" stop; return 1; }; }
+start_game() { local page="${1:-index.html}" b; prepare_version || return 1; b=$(find_browser)
+  if [ -z "$b" ]; then open -a Safari "$RUN_DIR/$page" 2>/dev/null || open "$RUN_DIR/$page"; return; fi
+  mkdir -p "$RUN_PROFILE"
+  local args=("--app=$(file_url "$RUN_DIR/$page")" "--user-data-dir=$RUN_PROFILE" --no-first-run --no-default-browser-check --window-size=1440,900)
   [ "$FULLSCREEN" = 1 ] && args+=(--start-fullscreen)
   open -na "$b" --args "${args[@]}"; }
 
@@ -169,12 +195,14 @@ Najnovšia verzia: nedá sa zistiť (si offline alebo je repozitár súkromný)"
 
 Priečinok hry: $GAME_DIR"
     if [ -z "$LOCAL_VER" ]; then upd="Stiahnuť hru"; elif has_newer; then upd="Aktualizovať na $REMOTE_VER"; else upd="Stiahnuť znova"; fi
-    items="\"▶ ŠTART\", \"$upd\", \"Príručka\", \"Skontrolovať novú verziu\", \"Zmeniť priečinok hry…\", \"Automatická aktualizácia: $onoff_a\", \"Celá obrazovka: $onoff_f\", \"Aplikácia na ploche\""
-    [ -z "$LOCAL_VER" ] && items="\"$upd\", \"Zmeniť priečinok hry…\", \"Skontrolovať novú verziu\", \"Automatická aktualizácia: $onoff_a\""
+    local vlab="Verzia hry: ${SEL_VER:-najnovšia}" startlab="▶ ŠTART"; [ -n "$SEL_VER" ] && startlab="▶ ŠTART (stará verzia $SEL_VER)"
+    items="\"$(as_q "$startlab")\", \"$vlab\", \"$upd\", \"Príručka\", \"Skontrolovať novú verziu\", \"Zmeniť priečinok hry…\", \"Automatická aktualizácia: $onoff_a\", \"Celá obrazovka: $onoff_f\", \"Aplikácia na ploche\""
+    [ -z "$LOCAL_VER" ] && [ -z "$SEL_VER" ] && items="\"$upd\", \"Zmeniť priečinok hry…\", \"Skontrolovať novú verziu\", \"Automatická aktualizácia: $onoff_a\", \"$vlab\""
     choice=$(osa -e "choose from list {$items} with title \"$(as_q "$TITLE")\" with prompt \"$(as_q "$st")\" OK button name \"Vybrať\" cancel button name \"Zavrieť\" default items {item 1 of {$items}}") || return
     case "$choice" in
       false|"") return;;
-      "▶ ŠTART") save_cfg; start_game; return;;
+      "▶ ŠTART"*) save_cfg; start_game && return;;
+      "Verzia hry: "*) pick_version;;
       "Príručka") start_game wiki.html;;
       "Stiahnuť hru"|"Aktualizovať na "*|"Stiahnuť znova") do_update;;
       "Skontrolovať novú verziu") read_remote;;
