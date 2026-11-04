@@ -2,6 +2,15 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.17
+
+### v0.17.0 · 2026-11-04
+- Nové detailné 3D modely lodí: Klepeto (biela loď s veľkými klepetami a azúrovými svetlami), Sokol (tmavá stíhačka s medenými lemami), Bizón (ťažký krížnik so svietiacimi modrými obvodmi a veliteľskou vežou)
+- Nové modely všetkých pirátov v jednotnom štýle: tmavý pancier, kruhový rám, zahnuté čepele a ružovo-fialové svetlá; každý typ má iný tvar
+- Povrch lodí má textúru plechov s drážkami, svetielkami a detailmi; dá sa priblížiť oveľa bližšie
+- Ovládač: kurzor myši páčkou (Nastavenia alebo stlačenie ľavej páčky L3) – ľavá páčka hýbe kurzorom, A klikne, pravá páčka posúva okno; loď sa vtedy páčkou neriadi
+- Ovládač: krížovým ovládačom sa v menu dá pohybovať všetkými smermi (napr. priamo medzi loďami v hangári)
+
 ## 0.16
 
 ### v0.16.4 · 2026-11-04
