@@ -463,3 +463,7 @@ body.pad .pg{display:block}
 #itemTip .tipcard.r9,#itemTip .tipcard.r8,#itemTip .tipcard.r7{background-color:transparent}
 .tiphint{font:500 11px var(--f-data);color:var(--muted);margin-top:4px}
 .itd.compact .itd-head{margin-bottom:4px}
+/* ===== v0.14.2 náhľad mapy na karte sektora ===== */
+.card.mapcard{background-image:linear-gradient(90deg,rgba(11,19,34,.93) 0%,rgba(11,19,34,.72) 38%,rgba(11,19,34,.12) 100%),var(--thumb);background-size:cover;background-position:center right;min-height:96px}
+.card.mapcard.here{border-color:color-mix(in srgb,var(--hull) 60%,transparent)}
+.card.mapcard p,.card.mapcard .stat{text-shadow:0 1px 3px #000}

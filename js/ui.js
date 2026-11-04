@@ -101,7 +101,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     if(isGate)h+=`<p class="note">${t('gate.note')}</p>`;
     SECTORS.forEach((S,i)=>{const sc=state.sec[i];const here=i===state.cur;
       const chip=here?`<span class="chip here">${t('chip.here')}</span>`:S.arena&&sc.unlocked?`<span class="chip won">${t('ar.tag')}</span>`:sc.captured?`<span class="chip won">${t('chip.won')}</span>`:sc.unlocked?`<span class="chip">${t('chip.free')}</span>`:`<span class="chip">${t('chip.locked')}</span>`;
-      h+=`<div class="card"><h3>${secName(i)} ${chip}</h3>`;
+      h+=`<div class="card mapcard${here?' here':''}" style="--thumb:url(${sectorThumb(i)})"><h3>${secName(i)} ${chip}</h3>`;
       if(isGate){if(here)h+=`<button class="act max" disabled>${t('btn.here')}</button>`;
         else if(sc.unlocked)h+=`<button class="act" data-act="jump" data-i="${i}">${t('btn.jump')}</button>`;
         else h+=`<button class="act max" disabled>${t('btn.locked')}</button>`}

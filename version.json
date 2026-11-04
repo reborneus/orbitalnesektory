@@ -1,8 +1,7 @@
 {
-  "version": "0.14.1",
+  "version": "0.14.2",
   "date": "2026-11-04",
   "notes": [
-    "PC (myš a klávesnica): vlastnosti predmetu sa ukážu ako náhľad pri ukazovateli myši (inventár, výbava, sklad, čipy), vrátane porovnania s nasadeným",
-    "Kliknutie na predmet na PC otvorí len kompaktný pruh s akciami; na dotyku a ovládači zostáva pôvodné okno"
+    "Mapa sektorov a skoková brána: každá karta má pozadie s náhľadom sektora – hmlovina a planéta v jeho farbách, pásy, horizont, asteroidy podľa surovín a stanica (pri aréne piráti a anomália)"
   ]
 }
