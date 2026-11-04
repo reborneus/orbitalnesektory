@@ -26,6 +26,7 @@ Webový prototyp (Three.js) – otvor `index.html` v prehliadači.
 - **v0.9.1** – obtiažnosť Nightmare (jedno zničenie = reset postupu)
 - **v0.10.0** – hlavný sklad v 1. sektore (mriežka, zoradenie, hľadanie, rozširovanie)
 - **v0.11.0** – levelovanie pilota (XP, 100 úrovní, 4 schopnosti)
+- **v0.11.1** – radiačný štít: max. 30 s, drahšie vylepšenia
 - **v0.7** – misie (5 typov, 3 stupne), radiačný štít s obmedzeným časom, sledovanie misií v HUD
 - **v0.6.1** – oprava: autopilot po zbere koristi s plným nákladom pokračuje na stanicu
 - **v0.6** – boj s pirátmi (zbraň lode, veže, obrana dronov), panel stanice s vylepšovaním modulov +1 až +10 a čipmi, slot Zbraň, samostatné Nastavenia s tlačidlom Ukončiť hru, pasívny príjem len pri dosiahnutom vplyve

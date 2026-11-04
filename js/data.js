@@ -4,7 +4,7 @@
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
 /* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
-const GAME_VERSION='0.11.0';
+const GAME_VERSION='0.11.1';
 const NUM=10,ECON=1.6;
 const P=c=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON);return o};
 /* Suroviny: interné názvy ore = ruda, green = viridit, crystal = kryštály. */
@@ -88,6 +88,7 @@ const early=(o4,g4,c4)=>[o4,[...g4,...LATE_G],[...c4,...LATE_C],[0,0,0,0,...LATE
    shield: body štítu (0 = nemá), sregen: [čakanie v s, podiel max. štítu za sekundu], laser: t/s, range: dosah v m,
    gun: poškodenie jedného výstrelu zbrane, gunRate: výstrelov za sekundu (zbraň strieľa sama na najbližšieho piráta v dosahu GUN_RANGE).
    Bonusy z nasadených predmetov sa pripočítajú až v shipVal() v state.js. */
+const RS_COST=3;   // násobok ceny vylepšení radiačného štítu
 const UP={
   speed:{grp:'eng',vals:[14.4,19.2,24,28.8,33.6,36,38.4,40.8,43.2,45.6],costs:costTable(...early([80,180,320,500,800,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>v.toFixed(1)+' m/s'},
   accel:{grp:'eng',vals:[14.4,25.2,36,46.8,57.6,62,66,70,74,78],costs:costTable(...early([70,160,300,480,760,950,1200,1450,1750],[0,25,60,110],[0,0,0,20])),fmt:v=>v.toFixed(1)+' m/s²'},
@@ -99,8 +100,9 @@ const UP={
   shield:{grp:'shield',min:0,vals:[0,40,65,90,120,150,170,190,210,230,250],
     costs:costTable([300,250,380,550,750,950,1150,1400,1650,1950],[0,40,90,150,220,260,320,380,440,520],[0,0,0,30,60,80,110,150,190,240],[0,0,0,0,0,300,500,800,1200,1800]),fmt:v=>fmtN(Math.round(v))},
   /* radiačný štít: počet sekúnd úplnej ochrany pred radiáciou (aj za horizontom); dobíja sa pri stanici rýchlosťou RADSHIELD_RECHARGE s/s */
-  radShield:{grp:'shield',min:0,vals:[0,20,30,45,60,80,100,120,140,160,180],
-    costs:costTable([250,300,420,600,800,1000,1250,1500,1800,2100],[20,50,90,140,200,260,320,400,480,560],[0,0,15,40,70,100,140,180,230,280],[0,0,0,0,0,300,500,800,1200,1800]),fmt:v=>v+' s'},
+  /* v0.11.1: kratšia ochrana (najviac 30 s) a o dosť drahšie vylepšenia (× RS_COST) */
+  radShield:{grp:'shield',min:0,vals:[0,4,6,8,10,13,16,19,22,26,30],
+    costs:costTable(...[[250,300,420,600,800,1000,1250,1500,1800,2100],[20,50,90,140,200,260,320,400,480,560],[0,0,15,40,70,100,140,180,230,280],[0,0,0,0,0,300,500,800,1200,1800]].map(a=>a.map(x=>x*RS_COST))),fmt:v=>v+' s'},
   sregen:{grp:'shield',needs:'shield',vals:[[15,.10],[13,.14],[11,.18],[9,.22],[7,.26],[6.5,.28],[6,.30],[5.5,.32],[5,.34],[4.5,.36]],
     costs:costTable(...early([150,280,450,650,900,1100,1350,1600,1900],[30,70,130,200],[0,0,25,50]))},
   laser:{grp:'laser',vals:[8,10.8,13.6,16.4,19.2,21,22.8,24.6,26.4,28.2],costs:costTable(...early([90,200,360,560,850,1050,1300,1550,1850],[0,30,75,130],[0,0,0,30])),fmt:v=>fmtN(Math.round(v))+' t/s'},
