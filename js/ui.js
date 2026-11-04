@@ -15,9 +15,10 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   // výdrž stanice: zobrazí sa v sektoroch s pirátmi alebo keď je stanica poškodená
   {const mh=stationMaxHp(),show=!!raidCfg()||stationHp<mh-1;$('#stRow').hidden=!show;if(show){$('#stBar').style.width=(Math.max(0,stationHp)/mh*100)+'%';$('#stBar').className=stationDown>0||stationHp<mh*.3?'low':'';$('#stTxt').textContent=stationDown>0?t('hud.down'):`${fmtN(Math.ceil(Math.max(0,stationHp)))}/${fmtN(mh)}`}}
   missionTracker();
+  if(arenaHud()){}else{
   const tag=$('#secTag');tag.textContent=(s.captured?t('hud.won'):t('hud.unc'))+(godActive()?' · ADMIN':'');tag.classList.toggle('won',s.captured);
   const ib=$('#infBar');ib.style.width=Math.min(100,inf/cap*100)+'%';ib.classList.toggle('won',s.captured);
-  $('#infTxt').textContent=s.captured?t('hud.infwon',{a:inf}):t('hud.inf',{a:inf,b:cap});
+  $('#infTxt').textContent=s.captured?t('hud.infwon',{a:inf}):t('hud.inf',{a:inf,b:cap});}
   hudPilot();$('#oreTxt').textContent=fmtN(state.ore);$('#grnTxt').textContent=fmtN(state.green);$('#cryTxt').textContent=fmtN(state.crystal);$('#crTxt').textContent=fmtN(state.credits);
   const capV=shipVal('cargo');$('#cOre').style.width=(state.cargo.ore/capV*100)+'%';$('#cGrn').style.width=(state.cargo.green/capV*100)+'%';$('#cCry').style.width=(state.cargo.crystal/capV*100)+'%';
   const full=cargoTotal()>=capV-.01;
@@ -40,6 +41,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   if(dead)h=t('h.dead');
   else if(sheetTab&&inputMode==='pad')h=t('h.pad',{A:g.A,B:g.B,LB:g.LB,RB:g.RB});
   else if(rr>=HORIZON)h=t('h.void');
+  else if(inArena())h=!arenaRun?t('ar.h.idle',{station:cap1(say('station'))}):arenaRun.phase==='reward'?t('ar.h.anom'):arenaRun.phase==='count'?t('ar.h.count',{n:arenaRun.wave,s:Math.ceil(arenaRun.t)}):enemies.some(e=>e.invuln)?t('ar.h.mods'):t('ar.h.fight',{n:enemies.length});
   else if(stationDown>0)h=t('h.stDown',{s:Math.ceil(stationDown)});
   else if(raidActive)h=ptr?t('h.raidPtr',{n:enemies.filter(e=>!e.leaving).length}):t('h.raid',{n:enemies.filter(e=>!e.leaving).length,mine:say('mine')});
   else if((state.autoPilot||returnSent)&&homeBound()&&cargoTotal()>0)h=t('h.apHome');
@@ -84,7 +86,8 @@ function repairCard(){const hm=shipVal('hull');const cost=Math.ceil((hm-state.hp
 /* sheetTab: 'station' | 'ship' | 'map' | 'gate'. Tlačidlá majú data-act (čo urobiť) a ceny v data-ore/data-green/data-cry;
    kliknutia spracúva jeden spoločný poslucháč nižšie (body.addEventListener('click', ...)). */
 function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
-  if(sheetTab==='station'){$('#sheetTitle').textContent=t('sh.station',{s:secName(state.cur)});h=renderStation()}
+  if(sheetTab==='station'&&inArena()){$('#sheetTitle').textContent=secName(state.cur);h=renderArena()}
+  else if(sheetTab==='station'){$('#sheetTitle').textContent=t('sh.station',{s:secName(state.cur)});h=renderStation()}
   else if(sheetTab==='ship'){$('#sheetTitle').textContent=t('sh.ship',{n:t('ship.'+state.shipId)});
     h+=`<div class="segs six">${SHIP_TABS.map(g=>`<button class="seg" data-act="grp" data-g="${g}" aria-pressed="${g===shipGrp}">${t('grp.'+g)}</button>`).join('')}</div>`;
     if(shipGrp==='hangar')h+=renderHangar();
@@ -97,12 +100,13 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
   else if(sheetTab==='map'||sheetTab==='gate'){const isGate=sheetTab==='gate';$('#sheetTitle').textContent=isGate?t('sh.gate'):t('sh.map');
     if(isGate)h+=`<p class="note">${t('gate.note')}</p>`;
     SECTORS.forEach((S,i)=>{const sc=state.sec[i];const here=i===state.cur;
-      const chip=here?`<span class="chip here">${t('chip.here')}</span>`:sc.captured?`<span class="chip won">${t('chip.won')}</span>`:sc.unlocked?`<span class="chip">${t('chip.free')}</span>`:`<span class="chip">${t('chip.locked')}</span>`;
+      const chip=here?`<span class="chip here">${t('chip.here')}</span>`:S.arena&&sc.unlocked?`<span class="chip won">${t('ar.tag')}</span>`:sc.captured?`<span class="chip won">${t('chip.won')}</span>`:sc.unlocked?`<span class="chip">${t('chip.free')}</span>`:`<span class="chip">${t('chip.locked')}</span>`;
       h+=`<div class="card"><h3>${secName(i)} ${chip}</h3>`;
       if(isGate){if(here)h+=`<button class="act max" disabled>${t('btn.here')}</button>`;
         else if(sc.unlocked)h+=`<button class="act" data-act="jump" data-i="${i}">${t('btn.jump')}</button>`;
         else h+=`<button class="act max" disabled>${t('btn.locked')}</button>`}
       h+=`<span class="gems">${S.res.map(r=>`<span class="gem" style="background:${RCOL[r]}" title="${t('res.'+r)}"></span>`).join('')}</span>`;
+      if(S.arena){h+=`<p>${t('sec'+i+'.sub')} ${sc.unlocked?'':t('map.lock',{s:secName(i-1)})}</p><div class="stat">${t('ar.best',{n:astate().best})}</div></div>`;return}
       h+=`<p>${t('sec'+i+'.sub')} ${sc.unlocked?t('map.inf',{a:influence(sc),b:S.capture}):t('map.lock',{s:secName(i-1)})}</p>`;
       const inc=sc.captured?passiveOf(sc):null;
       if(inc&&inc.paused)h+=`<div class="stat" style="color:var(--warn)">${t('map.paused',{a:influence(sc),b:S.capture})}</div>`;
@@ -143,6 +147,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(gearAct(act,b))return; // akcie obrazovky Výbava (gear.js)
   if(storageAct(act,b))return; // hlavný sklad (storage.js)
   if(pilotAct(act,b))return; // schopnosti pilota (pilot.js)
+  if(arenaAct(act,b))return; // aréna (arena.js)
   if(act==='grp'){shipGrp=b.dataset.g;focusIdx=SHIP_TABS.indexOf(shipGrp);renderSheet();return}
   if(act==='lang'){setLang(b.dataset.l);return}
   if(act==='opt'){const k=b.dataset.k,v=b.dataset.v==='1';if(k==='autoPilot'){if(!!state.autoPilot!==v)toggleAutopilot();return}state[k]=v;save();renderSheet();return}
@@ -162,7 +167,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   else if(act==='jump'){if(!gate||ship.position.distanceTo(gate.position)>18){toast(t('gate.far'));return}closeSheet();jumpTo(+b.dataset.i)}});
 function changed(){checkCapture();save();renderSheet();updateHUD()}
 /* Obsadenie sektora: odomkne ďalší, vyplatí kredity a dá predmet (aspoň rarity reward.minR) priamo do inventára. */
-function checkCapture(){const s=cur();if(!s.captured&&influence(s)>=capOf(state.cur)){s.captured=true;
+function checkCapture(){const s=cur();if(SECTORS[state.cur].arena)return;if(!s.captured&&influence(s)>=capOf(state.cur)){s.captured=true;
   if(!s.rewarded){const R=SECTORS[state.cur].reward;s.rewarded=true;state.credits+=Math.round(R.cr*crMul());xpAt(XP.capture);const it=dropItem('capture',4,R.minR);
     if(state.inv.length<INV_MAX)state.inv.push(it);else spawnLoot(it,new V3(0,0,STATION_R+6));setTimeout(()=>toast(t('tt.reward',{c:R.cr}),{rar:it.r}),1200)}const nx=state.sec[state.cur+1];if(nx)nx.unlocked=true;rebuildStation();updateGate();
   if(nx)toast(t('tt.captured',{s:secName(state.cur),n:secName(state.cur+1)}),true);

@@ -452,3 +452,7 @@ body.pad .pg{display:block}
 @keyframes plGlow{50%{box-shadow:0 0 14px rgba(195,139,255,.55)}}
 .plico{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;background:rgba(195,139,255,.14);color:var(--xp);font-size:13px}
 .cost.xp{color:var(--xp)}
+/* ===== v0.13 aréna ===== */
+.dmgt.imm{color:#ffd23a;font-size:12px;letter-spacing:.08em}
+.arcard .act+.act{margin-top:6px}
+.arl li{list-style:none}

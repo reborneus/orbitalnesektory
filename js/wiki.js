@@ -53,7 +53,7 @@ sk:{
   'st.mod':'Modul','st.minf':'Vplyv','st.c1':'1. kus','st.c2':'2. kus','st.c3':'3. kus','st.pas':'Príjem po obsadení',
   'st.p':'Vplyv sektora = úroveň jadra × {ci} + vplyv modulov. Každý ďalší modul rovnakého typu je drahší. Postavený modul môžeš predať, vráti sa {sell} % jeho ceny a uvoľní sa slot.',
   'st.pd':'{o} rudy/min','st.ps':'{g} viriditu/min','st.pt':'len vplyv',
-  'ship.h':'Loď a vylepšenia','hg.h':'Hangár a lode','stor.h':'Hlavný sklad','sto.k':'Rozšírenie','pil.h':'Pilot – úrovne a schopnosti',
+  'ship.h':'Loď a vylepšenia','hg.h':'Hangár a lode','stor.h':'Hlavný sklad','sto.k':'Rozšírenie','are.h':'Pirátska aréna','are.k':'Nepriateľ','are.hp':'Výdrž (vlna 1)','are.dm':'Poškodenie (vlna 1)','are.from':'Od vlny','are.g':'Výdrž rastie × {h} a poškodenie × {d} za každú vlnu (vlna 50: × {h50} / × {d50}, vlna 100: × {h100} / × {d100}).','pil.h':'Pilot – úrovne a schopnosti',
   'pil.p':'Pilot má {m} úrovní. Body skúsenosti (XP) získavaš za činnosti v tabuľke; vyšší sektor dáva viac (× 1 + 0,3 za každý sektor), Ťažká obtiažnosť × {h}, Nightmare × {n}. Každá úroveň dá 1 bod schopnosti. Body vkladáš v paneli Pilot (ťukni na úroveň pilota pod názvom sektora alebo stlač L); vrátiť ich môžeš za kredity.',
   'pil.src':'Činnosť','pil.xp':'XP','pil.lv':'Úroveň','pil.need':'XP na ďalšiu úroveň','pil.sk':'Schopnosť','pil.per':'Za 1 bod','pil.max':'Najviac',
   'pil.s':['Vyťažená tona rudy / viriditu / kryštálov','Vyťažený relikt (vo vonkajších pásoch viac)','Zničená stíhačka / korzár / fregata','Splnená misia (podľa odmeny)','Obsadenie sektora','Postavený modul (× číslo sektora)','Úspešné vylepšenie predmetu (× nové +N)'],
@@ -139,7 +139,7 @@ en:{
   'st.mod':'Module','st.minf':'Influence','st.c1':'1st','st.c2':'2nd','st.c3':'3rd','st.pas':'Income once claimed',
   'st.p':'Sector influence = core level × {ci} + module influence. Each additional module of the same type costs more. You can sell a module for {sell}% of its price, which frees the slot.',
   'st.pd':'{o} ore/min','st.ps':'{g} viridite/min','st.pt':'influence only',
-  'ship.h':'Ship and upgrades','hg.h':'Hangar and ships','stor.h':'Main storage','sto.k':'Expansion','pil.h':'Pilot – levels and skills',
+  'ship.h':'Ship and upgrades','hg.h':'Hangar and ships','stor.h':'Main storage','sto.k':'Expansion','are.h':'Pirate Arena','are.k':'Enemy','are.hp':'Integrity (wave 1)','are.dm':'Damage (wave 1)','are.from':'From wave','are.g':'Integrity grows × {h} and damage × {d} per wave (wave 50: × {h50} / × {d50}, wave 100: × {h100} / × {d100}).','pil.h':'Pilot – levels and skills',
   'pil.p':'The pilot has {m} levels. You earn experience (XP) for the activities in the table; higher sectors give more (× 1 + 0.3 per sector), Hard × {h}, Nightmare × {n}. Each level gives 1 skill point. Spend points in the Pilot panel (tap the pilot level under the sector name or press L); you can refund them for credits.',
   'pil.src':'Activity','pil.xp':'XP','pil.lv':'Level','pil.need':'XP to next level','pil.sk':'Skill','pil.per':'Per point','pil.max':'Max',
   'pil.s':['Mined ton of ore / viridite / crystals','Mined relic (more in the outer belts)','Destroyed fighter / corsair / frigate','Completed mission (by reward)','Claiming a sector','Built module (× sector number)','Successful item upgrade (× new +N)'],
@@ -270,6 +270,10 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
     const lv=[1,2,5,10,20,30,50,75,99].map(L=>[`<b>${L} → ${L+1}</b>`,nf(xpNeed(L))]);
     const sk=Object.keys(SKILLS).map(k=>[`<b>${SKILLS[k].ico} ${t('pl.sk.'+k)}</b>`,Object.entries(SKILLS[k].per).map(([s,v])=>`${t(s==='cr'?'pl.cr':'s.'+s)} +${v} %`).join(', '),SKILLS[k].max]);
     H('pilot',wt('pil.h'),`<p>${wt('pil.p',{m:PILOT_MAX,h:nf(XP_DIFF.hard,2),n:nf(XP_DIFF.nightmare,1)})}</p>`+tbl([wt('pil.src'),wt('pil.xp')],src)+tbl([wt('pil.sk'),wt('pil.per'),wt('pil.max')],sk)+tbl([wt('pil.lv'),wt('pil.need')],lv))}
+  { const from={fighter:1,swarm:3,corsair:5,turret:8,frigate:12,dread:20,carrier:100,cmod:100};const nm={fighter:t('cmb.fighter'),swarm:'Roj',corsair:t('cmb.corsair'),turret:'Raketová veža',frigate:t('cmb.frigate'),dread:'Dreadnought (boss)',carrier:'Bojový krížnik (hlavný boss)',cmod:'Modul krížnika'};
+    const rows=Object.keys(AK).map(k=>[`<b>${lang==='en'?({swarm:'Swarm',turret:'Missile turret',dread:'Dreadnought (boss)',carrier:'Battle carrier (main boss)',cmod:'Carrier module'}[k]||nm[k]):nm[k]}</b>`,nf(AK[k].hp*NUM),nf(AK[k].dmg*NUM),from[k]]);
+    const g=(b,n)=>nf(Math.pow(b,n),1);
+    H('arena',wt('are.h'),`<p>${t('ar.p',{w:ARENA_WAVES,b:ARENA_BOSS})}</p>`+list([t('ar.l1'),t('ar.l2',{b:ARENA_BOSS}),t('ar.l3'),t('ar.l4'),t('ar.note')])+tbl([wt('are.k'),wt('are.hp'),wt('are.dm'),wt('are.from')],rows)+`<p class="wnote">${wt('are.g',{h:ARENA_HP,d:ARENA_DMG,h50:g(ARENA_HP,49),d50:g(ARENA_DMG,49),h100:g(ARENA_HP,99),d100:g(ARENA_DMG,99)})}</p>`)}
   { const ex=[0,1,2,3,4].map(n=>[`<b>${STORE_CAP0+n*STORE_STEP} → ${STORE_CAP0+(n+1)*STORE_STEP}</b>`,costTxt(storeExpCost(n))]);
     H('storage',wt('stor.h'),`<p>${wt('stor.p',{s:secName(STORE_SEC),c0:STORE_CAP0,st:STORE_STEP,mx:STORE_MAX})}</p>`+tbl([wt('sto.k'),wt('ship.cost')],ex))}
   { // hangár a lode (v0.8)

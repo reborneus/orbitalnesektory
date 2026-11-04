@@ -4,7 +4,7 @@
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
 /* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
-const GAME_VERSION='0.12.0';
+const GAME_VERSION='0.13.0';
 const NUM=10,ECON=1.6;
 const P=(c,m=1)=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON*m);return o};
 /* v0.12: stavba a vylepšovanie stanice je v každom ďalšom sektore SEC_COST× drahšie (príjmy rastú len ~1,3×) */
@@ -45,6 +45,8 @@ const SECTORS=[
     fields:[{type:'ore',n:28,r:[44,78]},{type:'green',n:18,r:[84,120]},{type:'crystal',n:22,r:[110,156]},{type:'relic',n:6,r:[70,156]}],reward:{cr:2500,minR:5},ilvl:41},
   {name:'Erebus Prázdnota',seed:89,rich:3.71,rar:{max:7,top:.03},neb:['#2a0d5c','#5c0d0d'],planet:'#8a8fa8',pPos:[120,-390,-140],capture:400,res:['ore','green','crystal'],
     fields:[{type:'ore',n:26,r:[44,78]},{type:'green',n:16,r:[84,118]},{type:'crystal',n:26,r:[104,156]},{type:'relic',n:7,r:[70,156]}],reward:{cr:3400,minR:6},ilvl:51},
+  /* v0.13: PIRÁTSKA ARÉNA – špeciálna mapa bez ťažby: vlny pirátov a odmeny z anomálie (arena.js). Odomkne sa po obsadení posledného sektora. */
+  {name:'Pirátska aréna',arena:true,seed:101,rich:0,rar:{max:6,top:.3},neb:['#5c0d1a','#2a0d3a'],planet:'#b0404a',pPos:[-150,-380,130],capture:1e9,res:[],fields:[],reward:{cr:0,minR:0},ilvl:61},
 ];
 /* Lode v hangári (v0.8). mul = násobok hodnôt vylepšení (UP) pre túto loď, upMul = násobok ceny vylepšení,
    cost = cena kúpy, need = index sektora, ktorý musí byť obsadený, aby sa loď dala kúpiť (-1 = od začiatku).

@@ -39,6 +39,7 @@ function buildSector(){
   updateGate();
   resetCombat();
   missionsRebuild();
+  arenaEnter();
 }
 
 function makeAst(type,f,r){const g=new THREE.Group();const S=SECTORS[state.cur];
@@ -73,6 +74,7 @@ function setAstScale(a){a.g.scale.setScalar(Math.max(.001,astScale(a)))}
 /* Stanica sa prestavia pri každej zmene (vylepšenie jadra, stavba/predaj modulu). Vzhľad závisí od úrovne jadra. */
 function rebuildStation(){
   if(stationG)world.remove(stationG);
+  if(inArena()){stationG=null;stationAnim=null;return} // v aréne nie je stanica (v strede sa objavuje anomália)
   const s=cur();const g=new THREE.Group();stationG=g;const anim={rings:[],turrets:[],dishes:[],blink:[]};stationAnim=anim;
   const hub=new THREE.Mesh(new THREE.CylinderGeometry(2.6,3.3,4.2,12),M.metal);g.add(hub);
   const dome=new THREE.Mesh(new THREE.SphereGeometry(2.4,16,8,0,TAU,0,Math.PI/2),M.plate);dome.position.y=2.1;g.add(dome);

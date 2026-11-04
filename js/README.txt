@@ -18,6 +18,7 @@ SÚBORY HRY (načítavajú sa v tomto poradí, pozri index.html)
   hangar.js   == 16b. HANGÁR – nákup lodí (Sokol, Bizón), prestup medzi loďami, siluety lodí
   storage.js  == 16c. HLAVNÝ SKLAD – sklad na stanici v 1. sektore, zoradenie, hľadanie, rozšírenie
   pilot.js    == 16d. PILOT – body skúsenosti, úrovne, schopnosti (Ťažiar, Strelec, Navigátor, Obchodník)
+  arena.js    == 16e. PIRÁTSKA ARÉNA – vlny, noví piráti, anomália s odmenami, bossovia, krížnik s modulmi
   wiki.js     == 13. PRÍRUČKA – wiki v hre aj na stránke wiki.html, generovaná z herných dát
   admin.js    == 17. ADMIN PANEL – testovanie (suroviny, nesmrteľnosť, predmety, postup)
   main.js     == 10. HERNÁ SLUČKA – frame() každý snímok, start()

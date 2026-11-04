@@ -30,7 +30,7 @@ function genMission(sec){const types=['deliver','scan','relic'];if(PIRATES.raid[
   if(type==='hunt')m.need=MHUNT[tier];
   return m}
 /* Ponuky patria k aktuálnemu sektoru; po skoku do iného sektora sa vytvoria nové. */
-function ensureOffers(){const S=mstate();if(S.sec!==state.cur||S.offers.length<MISSION_OFFERS){if(S.sec!==state.cur)S.offers=[];S.sec=state.cur;
+function ensureOffers(){const S=mstate();if(SECTORS[state.cur].arena)return;if(S.sec!==state.cur||S.offers.length<MISSION_OFFERS){if(S.sec!==state.cur)S.offers=[];S.sec=state.cur;
   while(S.offers.length<MISSION_OFFERS)S.offers.push(genMission(state.cur))}}
 function missionTitle(m){return m.type==='deliver'?t('m.deliver',{r:t('res.'+m.res)}):t('m.'+m.type)}
 function zoneLbl(m){return m.tier===2?t('ms.void'):m.tier===1?t('ms.zone4'):t('ms.zone3')}

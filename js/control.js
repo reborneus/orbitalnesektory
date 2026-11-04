@@ -99,7 +99,7 @@ function tickAuto(dt){autoPause-=dt;apNoneT-=dt;
 /* Radiácia v bodoch za sekundu podľa vzdialenosti r od stanice: v pásoch 3–4 rastie z 0,8 na 3,5; za horizontom 12 a viac. */
 /* Radiačný filter a podobné vlastnosti predmetov (bonus().rad) znižujú radiáciu v pásoch 3–4, za horizontom nie. */
 function radBase(r){if(r<Z2)return 0;if(r<HORIZON)return RAD.start+(r-Z2)/(HORIZON-Z2)*(RAD.end-RAD.start);return RAD.voidBase+(r-HORIZON)*RAD.voidPerM}
-function radAt(r){const b=radBase(r);if(r<HORIZON)return b*D().rad*(1-bonus().rad/100);return b*D().voidM}
+function radAt(r){if(inArena())return 0;const b=radBase(r);if(r<HORIZON)return b*D().rad*(1-bonus().rad/100);return b*D().voidM}
 const zoneOf=r=>r<Z1?1:r<Z2?2:r<Z3?3:r<HORIZON?4:5;
 
 /* Pohyb lode každý snímok: loď mení rýchlosť smerom k želanej rýchlosti najviac o hodnotu zrýchlenia (preto má zotrvačnosť). */
@@ -126,7 +126,7 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   ship.position.addScaledVector(shipVel,dt);
   const rr=Math.hypot(ship.position.x,ship.position.z);
   if(rr>LIMIT){ship.position.x*=LIMIT/rr;ship.position.z*=LIMIT/rr;const ux=ship.position.x/LIMIT,uz=ship.position.z/LIMIT;const vr=shipVel.x*ux+shipVel.z*uz;if(vr>0){shipVel.x-=vr*ux;shipVel.z-=vr*uz}}
-  if(rr<9){const k=9/Math.max(rr,.01);ship.position.x*=k;ship.position.z*=k}
+  if(rr<9&&!inArena()){const k=9/Math.max(rr,.01);ship.position.x*=k;ship.position.z*=k}
   collide();
   if(dead)return;
   const sp=shipVel.length();let roll=0;

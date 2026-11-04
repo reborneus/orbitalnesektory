@@ -1,11 +1,12 @@
 {
-  "version": "0.12.0",
+  "version": "0.13.0",
   "date": "2026-11-04",
   "notes": [
-    "Vyrovnanie: každý ďalší sektor dáva asi o 30 % viac surovín, kreditov z pirátov a odmien z misií",
-    "Stavba a vylepšovanie stanice je v každom ďalšom sektore 1,45× drahšie, vylepšenia lode na úrovniach 6–10 2× drahšie",
-    "Polovičný pasívny príjem z obsadených sektorov, silnejší piráti vo vzdialenejších sektoroch",
-    "Rarita koristi podľa sektora: v 1.–2. sektore najviac Vzácne, v 3.–4. Epické, v 5.–6. Legendárne; Mytické len veľmi zriedka v poslednom sektore",
-    "Pomalší postup pilota (strmšia krivka XP)"
+    "Pirátska aréna: špeciálna mapa po obsadení posledného sektora – 100 vĺn pirátov bez ťažby",
+    "Po každej vlne kozmická anomália v strede mapy: kredity, suroviny a predmety rastúce s vlnou, občas jackpot × 3",
+    "Noví piráti: roj rýchlych dronov a statické raketové veže s navádzanými raketami",
+    "Každá 20. vlna boss Dreadnought s garantovaným Mytickým, Božským alebo Prvotným predmetom (Prvotný 30 % na vlne 100)",
+    "Vlna 100: hlavný boss bojový krížnik – nezraniteľný, kým ručne nezničíš jeho 6 modulov; vypúšťa pirátov z hangáru",
+    "Kontrolný bod po každom bossovi, príručka: kapitola Pirátska aréna"
   ]
 }
