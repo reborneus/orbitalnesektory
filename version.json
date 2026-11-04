@@ -1,11 +1,8 @@
 {
-  "version": "0.8.0",
+  "version": "0.8.1",
   "date": "2026-11-04",
   "notes": [
-    "Hangár: nové lode Sokol (rýchla stíhačka) a Bizón (ťažký nákladný ťahač), každá s vlastnými vylepšeniami",
-    "Lode sa odomykajú obsadzovaním sektorov, prestupuje sa pri stanici",
-    "Tri nové sektory: Cygnus Prah, Andromeda Brána a Erebus Prázdnota – bohatšie polia a vyššia úroveň predmetov",
-    "Nový pirát Fregata: ťažká loď s veľkou výdržou, vždy zhodí aspoň Vzácny predmet",
-    "Príručka: nová kapitola Hangár a lode, fregata v kapitole Boj"
+    "Nový spúšťač pre Mac: aplikácia Orbitálne Sektory na ploche, aktualizácie z GitHubu, samostatné okno hry",
+    "Spúšťač pre Windows premenovaný na Orbitalne-Sektory-Windows.bat (starý spúšťač funguje ďalej)"
   ]
 }

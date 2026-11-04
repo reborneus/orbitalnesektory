@@ -19,6 +19,7 @@ Webový prototyp (Three.js) – otvor `index.html` v prehliadači.
 - **v0.7.3** – pulzovanie Mytických predmetov, blikajúce hviezdy a pulz Prvotných
 - **v0.7.4** – vylepšenie Obratnosť, zatáčanie bez driftu
 - **v0.8.0** – hangár s loďami Sokol a Bizón, sektory 4–6, pirátska fregata
+- **v0.8.1** – spúšťač pre Mac, spúšťače rozlíšené podľa systému
 - **v0.7** – misie (5 typov, 3 stupne), radiačný štít s obmedzeným časom, sledovanie misií v HUD
 - **v0.6.1** – oprava: autopilot po zbere koristi s plným nákladom pokračuje na stanicu
 - **v0.6** – boj s pirátmi (zbraň lode, veže, obrana dronov), panel stanice s vylepšovaním modulov +1 až +10 a čipmi, slot Zbraň, samostatné Nastavenia s tlačidlom Ukončiť hru, pasívny príjem len pri dosiahnutom vplyve
@@ -35,13 +36,30 @@ Na sekciu v kóde skočíš hľadaním `== 1.` až `== 12.`.
 **Príručka:** `js/wiki.js` – texty v objekte `WT` (SK/EN), tabuľky sa počítajú z herných dát. V hre ju otvorí tlačidlo *Wiki* alebo kláves **K**, samostatne `wiki.html`.
 **Ikona:** `assets/icon-*.png` a `assets/icon.ico`; nakreslí ich `node tools/make_icon.js` podľa `tools/icon.html`.
 
-## Spúšťací panel pre Windows
-V priečinku `launcher/` je spúšťač pre testerov:
-1. Stiahni súbor **`launcher/Orbitalne-Sektory.bat`** (na GitHube otvor súbor a klikni na *Download raw file*) a ulož ho napríklad na plochu.
-2. Dvakrát naň klikni. Ak Windows zobrazí „Systém Windows ochránil váš počítač“, klikni na *Ďalšie informácie → Spustiť aj tak*.
-3. Otvorí sa panel: ukáže nainštalovanú a najnovšiu verziu s novinkami, sám stiahne novú verziu a tlačidlom **ŠTART** spustí hru v samostatnom okne Edge (alebo Chrome).
-4. Tlačidlo *Odkaz na ploche* vytvorí odkaz „Orbitálne Sektory“.
+## Spúšťacie panely (Windows a Mac)
+V priečinku `launcher/` sú spúšťače pre testerov, každý systém má vlastný:
 
-Hra sa predvolene inštaluje do `%LOCALAPPDATA%\OrbitalneSektory\hra`; tlačidlom *Zmeniť…* vyberieš iný disk alebo priečinok (hra sa uloží do podpriečinka `Orbitalne Sektory`, existujúca inštalácia sa môže presunúť). Uložené hry sú vždy v `%LOCALAPPDATA%\OrbitalneSektory\profil` a pri aktualizácii ani presune sa nemažú. Tlačidlo *Príručka* otvorí wiki.
+| Systém | Priečinok | Spúšťač | Panel |
+|---|---|---|---|
+| Windows | `launcher/windows/` | `Orbitalne-Sektory-Windows.bat` | `spustac-windows.ps1` |
+| Mac (macOS) | `launcher/mac/` | `Orbitalne-Sektory-Mac.command` | `spustac-mac.sh` |
+
+Oba panely robia to isté: ukážu nainštalovanú a najnovšiu verziu s novinkami, samy stiahnu novú verziu a spustia hru v samostatnom okne prehliadača s vlastným profilom (tam sú uložené hry). Dá sa v nich zvoliť priečinok hry (hra sa uloží do podpriečinka `Orbitalne Sektory`), otvoriť príručku a vytvoriť odkaz na ploche.
+
+### Windows
+1. Stiahni súbor **`launcher/windows/Orbitalne-Sektory-Windows.bat`** (na GitHube otvor súbor a klikni na *Download raw file*) a ulož ho napríklad na plochu.
+2. Dvakrát naň klikni. Ak Windows zobrazí „Systém Windows ochránil váš počítač“, klikni na *Ďalšie informácie → Spustiť aj tak*.
+3. Tlačidlo *Odkaz na ploche* vytvorí odkaz „Orbitálne Sektory“.
+
+Hra je predvolene v `%LOCALAPPDATA%\OrbitalneSektory\hra`, uložené hry v `%LOCALAPPDATA%\OrbitalneSektory\profil`. Starší spúšťač `Orbitalne-Sektory.bat` funguje ďalej – súbor `launcher/spustac.ps1` ho presmeruje na nový panel.
+
+### Mac
+1. Otvor aplikáciu **Terminál** a vlož tento riadok:
+   `curl -fsSL https://raw.githubusercontent.com/reborneus/orbitalnesektory/main/launcher/mac/instaluj-mac.sh | bash`
+2. Na ploche a v priečinku Aplikácie (vo vašom používateľskom priečinku) sa objaví aplikácia **Orbitálne Sektory** s ikonou hry a otvorí sa panel. Ďalej už stačí dvakrát kliknúť na aplikáciu.
+3. Panel je systémové okno so zoznamom: vyber položku (napr. *▶ ŠTART*) a klikni na *Vybrať*.
+
+Hra beží v Chrome, Edge, Brave alebo Chromiu (samostatné okno, vlastný profil); ak žiadny z nich nie je, otvorí sa v Safari. Hra je predvolene v `~/Library/Application Support/OrbitalneSektory/hra`, uložené hry v `…/OrbitalneSektory/profil`.
+
 Panel sťahuje súbory z GitHubu bez prihlásenia, preto musí byť repozitár **verejný**.
 Pri vydaní novej verzie treba zvýšiť číslo v `version.json` – podľa neho panel pozná, že je k dispozícii aktualizácia.
