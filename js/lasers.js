@@ -36,11 +36,17 @@ function laserFx(from,tg,o){const st=laserStyle();
   fireStreak(from,tg,{...o,col:st.col,w:st.w,st:st.k})}
 /* dopad strely hráča na cieľ */
 function landShot(o,tg){if(o.side==='enemy'){landPirate(o);return}if(!enemies.includes(tg))return;
+  if(o.fx){emit(debris,tg.pos,laserStyle().col,.25,new V3((Math.random()-.5)*6,Math.random()*3,(Math.random()-.5)*6));return}   // vizuálna salva: len iskra, bez poškodenia
   if(o.miss){dmgText(tg.pos,1,'miss');return}hitEnemy(tg,o.dmg,'player');dmgText(tg.pos,o.dmg,o.crit?'crit':'player');emit(debris,tg.pos,laserStyle().col,.3,new V3((Math.random()-.5)*6,Math.random()*3,(Math.random()-.5)*6))}
 const shotQ=[];
-function playerBurst(tg){const n=weaponMounts();for(let i=0;i<n;i++)shotQ.push({t:i*SALVO_GAP,tg,i,n})}
+/* v0.19.2: každý výstrel = 2–3 salvy tesne po sebe (VOLLEY_GAP s). Poškodenie (aj zásah/minutie a kritický zásah) nesie len
+   prvá salva; ďalšie sú iba vizuálne (fx) a letia rovnakým smerom. Tempo streľby a poškodenie za sekundu sa nemení. */
+const VOLLEY_MIN=2,VOLLEY_MAX=3,VOLLEY_GAP=.09;
+function playerBurst(tg){const n=weaponMounts(),v=VOLLEY_MIN+Math.floor(Math.random()*(VOLLEY_MAX-VOLLEY_MIN+1));
+  for(let j=0;j<v;j++)for(let i=0;i<n;i++)shotQ.push({t:j*VOLLEY_GAP+i*SALVO_GAP,tg,i,n,fx:j>0})}
 function tickShots(dt){for(const s of shotQ.slice()){s.t-=dt;if(s.t>0)continue;shotQ.splice(shotQ.indexOf(s),1);const tg=s.tg;
     if(dead||!enemies.includes(tg))continue;const from=ship.localToWorld(NOSE.clone().add(new V3((s.i-(s.n-1)/2)*1.2,0,0)));if(from.distanceTo(tg.pos)>gunRange()+tg.r+2)continue;
+    if(s.fx){laserFx(from,tg,{fx:true,miss:false,dmg:0,side:'player'});continue}   // len vizuálna salva
     const hit=Math.random()<hitChance();const crit=hit&&Math.random()<critChance();
     laserFx(from,tg,{miss:!hit,crit,dmg:shipVal('gun')/s.n*(crit?critMult():1),side:'player'});
     if(laserStyle().k==='primal'){primalTg=tg;primalT=.6}}
@@ -72,7 +78,7 @@ function clearLasers(){shotQ.length=0;streaks.length=0;for(const b of boltPool)b
    telom, red = hrubá a iskriaca, pir = pirátska (červeno-oranžová, kratšia, rozkmitaná). Pri hlavni a pri zásahu záblesk,
    za strelou drobné iskry. Božská (blesk) a Prvotná (dúhový lúč) zbraň majú vlastný vzhľad vyššie. */
 const BOLT_GEO=typeof THREE!=='undefined'?new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2):null;   // (wiki.html beží bez Three.js)   // šírka = os x, dĺžka = os z (hlavica na +z)
-const BOLT_SIZE={grey:[.95,5.2],blue:[1.25,5.6],gold:[1.75,6.6],red:[1.6,6],pir:[1.15,4.8]};   // [šírka, dĺžka]
+const BOLT_SIZE={grey:[1.3,5.2],blue:[1.7,5.6],gold:[2.35,6.6],red:[2.15,6],pir:[1.5,4.8]};   // v0.19.2: hrubšie strely   // [šírka, dĺžka]
 const _boltTex={};
 function boltTex(st,col){const key=st+col;if(_boltTex[key])return _boltTex[key];
   const W=96,H=512,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');const C=new THREE.Color(col);
