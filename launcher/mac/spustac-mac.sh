@@ -44,10 +44,11 @@ dir_empty() { [ -z "$(ls -A "$1" 2>/dev/null)" ]; }
 # text pre AppleScript: úvodzovky a spätné lomky treba ošetriť
 as_q() { printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'; }
 osa() { if [ "${OS_NO_GUI:-0}" = 1 ]; then echo "[GUI] $*" >&2; return 1; fi; osascript -e 'activate' "$@" 2>/dev/null; }
-msg() { osa -e "display dialog \"$(as_q "$1")\" with title \"$(as_q "$TITLE")\" buttons {\"OK\"} default button 1 ${2:+with icon $2}" >/dev/null; }
+dlg_icon() { if [ -n "$1" ]; then echo "with icon $1"; elif [ -s "$ICNS" ]; then echo "with icon (POSIX file \"$(as_q "$ICNS")\")"; fi; }
+msg() { osa -e "display dialog \"$(as_q "$1")\" with title \"$(as_q "$TITLE")\" buttons {\"OK\"} default button 1 $(dlg_icon "$2")" >/dev/null; }
 ask() { # ask "otázka" "tlačidlo1" "tlačidlo2" ["tlačidlo3"] → vypíše názov stlačeného tlačidla
   local b="\"$(as_q "$2")\", \"$(as_q "$3")\""; [ -n "$4" ] && b="$b, \"$(as_q "$4")\""
-  osa -e "button returned of (display dialog \"$(as_q "$1")\" with title \"$(as_q "$TITLE")\" buttons {$b} default button \"$(as_q "$2")\")"; }
+  osa -e "button returned of (display dialog \"$(as_q "$1")\" with title \"$(as_q "$TITLE")\" buttons {$b} default button \"$(as_q "$2")\" $(dlg_icon))"; }
 notify() { osa -e "display notification \"$(as_q "$1")\" with title \"Orbitálne Sektory\"" >/dev/null; }
 
 # ---------- verzie ----------
@@ -98,16 +99,34 @@ make_app() { local dest="$1" app="$1/Orbitálne Sektory.app" cmd="$ROOT/Orbitaln
   [ -f "$cmd" ] || { echo "chýba $cmd"; return 1; }
   mkdir -p "$dest"; rm -rf "$app"
   osacompile -o "$app" -e "do shell script \"/bin/bash \" & quoted form of \"$(as_q "$cmd")\" & \" --app >/dev/null 2>&1\"" 2>/dev/null || return 1
-  # ikona hry: z PNG vytvorí .icns (sips + iconutil sú súčasťou macOS)
-  local png="$GAME_DIR/assets/icon-256.png" set="${TMPDIR:-/tmp}/os-icon.$$.iconset"
-  [ -f "$GAME_DIR/assets/icon-512.png" ] && png="$GAME_DIR/assets/icon-512.png"
-  [ -f "$GAME_DIR/assets/icon-1024.png" ] && png="$GAME_DIR/assets/icon-1024.png"
+  set_icon "$app"; return 0; }
+
+# ---------- ikona aplikácie ----------
+# Z PNG ikony hry vytvorí OrbitalneSektory.icns (sips + iconutil sú súčasťou macOS). Stačí raz.
+ICNS="$ROOT/OrbitalneSektory.icns"; ICON_MARK="os-icon-2"   # ICON_MARK = značka v aplikácii, že má už správnu ikonu
+make_icns() { [ -s "$ICNS" ] && return 0
+  local png="" s d set="${TMPDIR:-/tmp}/os-icon.$$.iconset"
+  for f in icon-1024.png icon-512.png icon-256.png; do [ -z "$png" ] && [ -f "$GAME_DIR/assets/$f" ] && png="$GAME_DIR/assets/$f"; done
   # hra ešte nie je stiahnutá (prvá inštalácia): ikonu stiahne z GitHubu
-  [ -f "$png" ] || { png="$ROOT/icon-256.png"; [ -f "$png" ] || curl -fsSL --max-time 15 -o "$png" "$RAW_BASE/assets/icon-256.png" 2>/dev/null; }
-  if [ -f "$png" ]; then mkdir -p "$set"
-    for s in 16 32 128 256 512; do sips -z $s $s "$png" --out "$set/icon_${s}x${s}.png" >/dev/null 2>&1; d=$((s*2)); sips -z $d $d "$png" --out "$set/icon_${s}x${s}@2x.png" >/dev/null 2>&1; done
-    iconutil -c icns "$set" -o "$app/Contents/Resources/applet.icns" 2>/dev/null; rm -rf "$set"; touch "$app"; fi
-  return 0; }
+  if [ -z "$png" ]; then png="$ROOT/icon-1024.png"; [ -s "$png" ] || curl -fsSL --max-time 20 -o "$png" "$RAW_BASE/assets/icon-1024.png" 2>/dev/null || return 1; fi
+  mkdir -p "$set"
+  for s in 16 32 128 256 512; do sips -z $s $s "$png" --out "$set/icon_${s}x${s}.png" >/dev/null 2>&1; d=$((s*2)); sips -z $d $d "$png" --out "$set/icon_${s}x${s}@2x.png" >/dev/null 2>&1; done
+  iconutil -c icns "$set" -o "$ICNS" 2>/dev/null; rm -rf "$set"; [ -s "$ICNS" ]; }
+# Nastaví ikonu aplikácii. Novšie macOS berú ikonu z Assets.car (CFBundleIconName), nie z applet.icns –
+# preto Assets.car zmaže, v Info.plist nechá len applet.icns, aplikáciu znova podpíše (ad-hoc)
+# a navyše nastaví ikonu aj cez Finder (NSWorkspace), aby sa hneď zobrazila.
+set_icon() { local app="$1" res="$1/Contents/Resources" pl="$1/Contents/Info.plist"
+  [ -d "$res" ] || return 1; make_icns || return 1
+  cp "$ICNS" "$res/applet.icns"; rm -f "$res/Assets.car"
+  /usr/libexec/PlistBuddy -c "Delete :CFBundleIconName" "$pl" >/dev/null 2>&1
+  /usr/libexec/PlistBuddy -c "Set :CFBundleIconFile applet" "$pl" >/dev/null 2>&1 || /usr/libexec/PlistBuddy -c "Add :CFBundleIconFile string applet" "$pl" >/dev/null 2>&1
+  touch "$res/$ICON_MARK"
+  codesign --force --deep --sign - "$app" >/dev/null 2>&1
+  OS_APP="$app" OS_ICNS="$ICNS" osascript -l JavaScript -e 'ObjC.import("AppKit");const e=$.NSProcessInfo.processInfo.environment;const i=$.NSImage.alloc.initWithContentsOfFile(e.objectForKey("OS_ICNS"));$.NSWorkspace.sharedWorkspace.setIconForFileOptions(i,e.objectForKey("OS_APP"),0)' >/dev/null 2>&1
+  touch "$app"; return 0; }
+# aplikácie vytvorené staršou verziou panela (bez ikony) opraví pri štarte
+fix_icons() { local app; for app in "$HOME/Desktop/Orbitálne Sektory.app" "$HOME/Applications/Orbitálne Sektory.app"; do
+    [ -d "$app" ] && [ ! -f "$app/Contents/Resources/$ICON_MARK" ] && set_icon "$app"; done; }
 install_apps() { local ok=""; make_app "$HOME/Desktop" && ok="na ploche"; make_app "$HOME/Applications" && ok="${ok:+$ok a }v priečinku Aplikácie (vo vašom používateľskom priečinku)"; [ -n "$ok" ]; echo "$ok"; }
 
 # ---------- zmena priečinka hry ----------
@@ -171,7 +190,7 @@ case "$1" in
   --install-apps) install_apps; exit $?;;      # volá inštalátor (instaluj-mac.sh)
   --selftest) return 0 2>/dev/null || exit 0;; # testy: len načíta funkcie
 esac
-read_local; read_remote
+read_local; read_remote; fix_icons
 # prvé spustenie: nič sa nesťahuje automaticky, aby si mohol najprv zvoliť priečinok
 if [ -n "$LOCAL_VER" ] && [ "$AUTO_UPDATE" = 1 ] && has_newer; then do_update; fi
 main_menu

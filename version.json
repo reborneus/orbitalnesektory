@@ -1,8 +1,9 @@
 {
-  "version": "0.8.1",
+  "version": "0.8.2",
   "date": "2026-11-04",
   "notes": [
-    "Nový spúšťač pre Mac: aplikácia Orbitálne Sektory na ploche, aktualizácie z GitHubu, samostatné okno hry",
+    "Spúšťač pre Mac: aplikácia Orbitálne Sektory má ikonu hry (staršie vytvorené aplikácie sa opravia pri otvorení)",
+    "Spúšťač pre Mac: aplikácia na ploche, aktualizácie z GitHubu, samostatné okno hry",
     "Spúšťač pre Windows premenovaný na Orbitalne-Sektory-Windows.bat (starý spúšťač funguje ďalej)"
   ]
 }
