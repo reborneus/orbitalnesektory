@@ -2,6 +2,13 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.23
+
+### v0.23.0 · 2026-11-04
+- Orion Hlbina: nová realistická čierna diera podľa videa – čierny tieň, tenký fotónový prstenec, disk takmer z boku prechádzajúci pred tieňom, ohnutý obraz zadnej časti disku nad a pod tieňom, jedna strana jasnejšia (Dopplerov jav), dlhý šedý prachový chvost s vláknami; tmavé hviezdne pozadie
+- Náhľady lodí v hangári sú menšie a bez pozadia (len model lode); náhľady pomocných dronov tiež bez pozadia
+- Nastavenia: posuvník priehľadnosti menu (35–100 %); pri nižšej hodnote vidieť hru cez rozostrené menu
+
 ## 0.22
 
 ### v0.22.0 · 2026-11-04
