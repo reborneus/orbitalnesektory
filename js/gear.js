@@ -61,7 +61,7 @@ function gearAct(act,b){
     case 'unequip':{if(!f||f.where!=='eq')return true;if(state.inv.length>=INV_MAX){toast(t('tt.invFull'),'bad');return true}
       state.eq[f.slot]=null;state.inv.push(f.it);bonusDirty();return done()}
     case 'enh':{if(!f)return true;const it=f.it;if(it.enh>=enhMax(it))return true;const c=enhCost(it);if(!afford(c)){toast(t('tt.noRes'));return true}
-      pay(c);if(Math.random()<enhChance(it)){it.enh++;toast(t('tt.enhOk',{n:itemName(it)}),{rar:it.r})}else toast(t('tt.enhFail',{n:it.enh}),'bad');
+      pay(c);if(Math.random()<enhChance(it)){it.enh++;addXP(XP.enh*it.enh);toast(t('tt.enhOk',{n:itemName(it)}),{rar:it.r})}else toast(t('tt.enhFail',{n:it.enh}),'bad');
       if(f.where==='eq')bonusDirty();return done()}
     case 'salv':{if(!f||f.where!=='inv'||f.it.lock)return true;
       // vzácne a lepšie predmety treba potvrdiť druhým ťuknutím do 3 s

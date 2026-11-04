@@ -83,9 +83,9 @@ function hitEnemy(e,dmg,side){e.hp-=dmg;if(side==='player')e.aggro=true;e.bar.sc
 function killEnemy(e){const P=PIRATES[e.kind];world.remove(e.g);enemies=enemies.filter(x=>x!==e);pickables=pickables.filter(p=>p!==e.proxy);if(attackTarget===e)attackTarget=null;
   for(let i=0;i<(e.kind==='frigate'?70:e.kind==='corsair'?40:22);i++)emit(debris,e.pos,['#ff8a5c','#ffe2a8','#ff3b2f'][i%3],.6+Math.random()*.8,new V3((Math.random()-.5)*22,Math.random()*5,(Math.random()-.5)*22));
   missionKill();
-  const cr=Math.round(rnd(P.cr[0],P.cr[1]));state.credits+=cr;bump('#crTxt');
+  const cr=Math.round(rnd(P.cr[0],P.cr[1])*crMul());state.credits+=cr;bump('#crTxt');xpAt(XP.kill[e.kind]||0);
   if(Math.random()<P.drop){const z=Math.min(5,zoneOf(Math.hypot(e.pos.x,e.pos.z)));spawnLoot(dropItem(e.kind==='fighter'?'enemy':e.kind,Math.max(2,z),e.kind==='frigate'?4:e.kind==='corsair'?3:0),e.pos)}
-  if(raidActive&&!enemies.some(x=>!x.leaving)){raidActive=false;const bonus=PIRATES.repelBonus*raidCount;state.credits+=bonus;toast(t('tt.repelled',{c:bonus}),true);missionRaid(true);save()}}
+  if(raidActive&&!enemies.some(x=>!x.leaving)){raidActive=false;const bonus=Math.round(PIRATES.repelBonus*raidCount*crMul());state.credits+=bonus;toast(t('tt.repelled',{c:bonus}),true);missionRaid(true);save()}}
 
 /* ---------- jednotlivé zbrane ---------- */
 function nearestEnemy(from,maxD){let best=null,bd=maxD;for(const e of enemies){if(e.leaving)continue;const d=from.distanceTo(e.pos);if(d<bd){bd=d;best=e}}return best}

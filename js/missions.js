@@ -36,7 +36,7 @@ function missionTitle(m){return m.type==='deliver'?t('m.deliver',{r:t('res.'+m.r
 function zoneLbl(m){return m.tier===2?t('ms.void'):m.tier===1?t('ms.zone4'):t('ms.zone3')}
 function missionDesc(m){const v={n:m.need,r:m.res?t('res.'+m.res+'.acc'):t('r.'+RAR[MTIER[m.tier].minR].k),zone:zoneLbl(m),rad:m.rad,s:m.need};
   let d=t('md.'+m.type,v);if((m.type==='scan'||m.type==='relic')&&m.tier===2)d+=' '+t('ms.needRS');return d}
-function rewardHtml(m){const R=m.reward;let h=`<span class="cost crd gain"><span class="coin"></span>+${R.cr}</span>`;if(R.ore)h+=`<span class="cost ore gain"><span class="gem"></span>+${R.ore}</span>`;
+function rewardHtml(m){const R=m.reward;let h=`<span class="cost crd gain"><span class="coin"></span>+${fmtN(Math.round(R.cr*crMul()))}</span>`;if(R.ore)h+=`<span class="cost ore gain"><span class="gem"></span>+${fmtN(R.ore)}</span>`;h+=`<span class="cost xp gain">+${fmtN(R.cr*XP.missionPerCr*(XP_DIFF[state.diff]||1))} XP</span>`;
   if(R.item||m.type==='relic')h+=`<span class="mitem" style="color:${RAR[MTIER[m.tier].minR].col}">${t('ms.item',{r:t('r.'+RAR[MTIER[m.tier].minR].k)})}</span>`;return h}
 const progTxt=m=>m.type==='scan'?Math.floor(m.prog/m.need*100)+' %':m.type==='defend'||m.type==='relic'?'':`${Math.floor(m.prog)}/${m.need}`;
 
@@ -45,7 +45,7 @@ function acceptMission(id){const S=mstate();if(S.active.length>=MISSION_ACTIVE_M
   const m=S.offers.splice(i,1)[0];S.active.push(m);S.offers.push(genMission(state.cur));missionsRebuild();toast(t('tt.mAccept',{n:missionTitle(m)}));save()}
 function abandonMission(id){const S=mstate();S.active=S.active.filter(m=>m.id!==id);missionsRebuild();save()}
 function rerollOffers(){if(state.credits<MISSION_REROLL){toast(t('tt.noRes'));return}state.credits-=MISSION_REROLL;const S=mstate();S.offers=[];S.refreshT=MISSION_REFRESH;ensureOffers();save()}
-function completeMission(m){const S=mstate();S.active=S.active.filter(x=>x!==m);S.done++;const R=m.reward;state.credits+=R.cr;state.ore+=R.ore;
+function completeMission(m){const S=mstate();S.active=S.active.filter(x=>x!==m);S.done++;const R=m.reward;const cr=Math.round(R.cr*crMul());state.credits+=cr;state.ore+=R.ore;addXP(R.cr*XP.missionPerCr);
   if(R.item){const it=dropItem('capture',4,MTIER[m.tier].minR);if(state.inv.length<INV_MAX)state.inv.push(it);else spawnLoot(it,ship.position.clone())}
   missionsRebuild();toast(t('tt.mDone',{n:missionTitle(m)})+' +'+R.cr+' ¢',true);bump('#crTxt');save();if(sheetTab==='station')renderSheet()}
 function failMission(m){const S=mstate();S.active=S.active.filter(x=>x!==m);missionsRebuild();toast(t('tt.mFail',{n:missionTitle(m)}),'bad');save()}

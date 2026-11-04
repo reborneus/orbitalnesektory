@@ -68,7 +68,7 @@ function stationAct(act,b){if(act==='stTab'){stTab=b.dataset.v;renderSheet();ret
   const done=(msg,kind)=>{rebuildStation();if(msg)toast(msg,kind);changed();return true};
   switch(act){
     case 'mbuild':{const k=b.dataset.mod;if(m||i>=slotsFor(s.core))return true;const c=MOD[k].cost(countMod(s,k));if(!afford(c))return true;
-      pay(c);s.slots[i]=newModule(k);openSlot=i;return done(t('tt.built',{m:t('mod.'+k)}))}
+      pay(c);s.slots[i]=newModule(k);addXP(XP.build*(state.cur+1));openSlot=i;return done(t('tt.built',{m:t('mod.'+k)}))}
     case 'menh':{if(!m||m.enh>=MOD_ENH_MAX)return true;const c=modEnhCost(m.enh);if(!afford(c)){toast(t('tt.noRes'));return true}
       pay(c);m.spent=m.spent||C();for(const k of COST_KEYS)m.spent[k]=(m.spent[k]||0)+(c[k]||0);m.enh++;const R=modRar(m);
       return done(t('tt.menh',{m:t('mod.'+m.t),n:m.enh,r:t('r.'+RAR[R].k)}),{rar:R})}

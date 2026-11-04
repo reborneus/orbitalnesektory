@@ -75,7 +75,7 @@ addEventListener('keydown',e=>{const k=e.key.toLowerCase();const inUI=e.target.c
   if(k===' '){e.preventDefault();if(document.activeElement&&document.activeElement!==canvas)document.activeElement.blur();setMode('key');mineNearest()}
   else if(k==='h'){setMode('key');goHome()}
   else if(k==='p'){setMode('key');toggleAutopilot()}
-  else if(k==='1')toggleTab('station');else if(k==='2')toggleTab('ship');else if(k==='3')toggleTab('map');else if(k==='i')toggleTab('gear');else if(k==='o')toggleTab('settings')});
+  else if(k==='1')toggleTab('station');else if(k==='2')toggleTab('ship');else if(k==='3')toggleTab('map');else if(k==='i')toggleTab('gear');else if(k==='l')toggleTab('pilot');else if(k==='o')toggleTab('settings')});
 addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
 addEventListener('blur',()=>keys.clear());
 function readInput(){inVec.set(0,0,0);

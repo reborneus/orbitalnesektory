@@ -1,10 +1,11 @@
 {
-  "version": "0.10.0",
+  "version": "0.11.0",
   "date": "2026-11-04",
   "notes": [
-    "Hlavný sklad na stanici v 1. sektore (Stanica → Sklad): mriežka predmetov, zoraďovanie a vyhľadávanie",
-    "Sklad začína so 40 miestami a dá sa rozširovať až na 400; tlačidlo Uložiť celý inventár",
-    "Vo Výbave pri stanici v 1. sektore tlačidlo Do skladu",
-    "Príručka: nová kapitola Hlavný sklad"
+    "Levelovanie pilota: body skúsenosti za ťažbu, relikty, pirátov, misie, obsadenie sektora, stavbu modulov a vylepšovanie predmetov",
+    "100 úrovní, každá dá bod schopnosti: Ťažiar, Strelec, Navigátor, Obchodník (body sa dajú vrátiť za kredity)",
+    "Úroveň pilota pod názvom sektora, panel Pilot (kláves L); misie ukazujú aj odmenu v XP",
+    "Staré uloženia dostanú XP za už obsadené sektory",
+    "Príručka: nová kapitola Pilot – úrovne a schopnosti"
   ]
 }

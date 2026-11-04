@@ -53,7 +53,10 @@ sk:{
   'st.mod':'Modul','st.minf':'Vplyv','st.c1':'1. kus','st.c2':'2. kus','st.c3':'3. kus','st.pas':'Príjem po obsadení',
   'st.p':'Vplyv sektora = úroveň jadra × {ci} + vplyv modulov. Každý ďalší modul rovnakého typu je drahší. Postavený modul môžeš predať, vráti sa {sell} % jeho ceny a uvoľní sa slot.',
   'st.pd':'{o} rudy/min','st.ps':'{g} viriditu/min','st.pt':'len vplyv',
-  'ship.h':'Loď a vylepšenia','hg.h':'Hangár a lode','stor.h':'Hlavný sklad','sto.k':'Rozšírenie',
+  'ship.h':'Loď a vylepšenia','hg.h':'Hangár a lode','stor.h':'Hlavný sklad','sto.k':'Rozšírenie','pil.h':'Pilot – úrovne a schopnosti',
+  'pil.p':'Pilot má {m} úrovní. Body skúsenosti (XP) získavaš za činnosti v tabuľke; vyšší sektor dáva viac (× 1 + 0,5 za každý sektor), Ťažká obtiažnosť × {h}, Nightmare × {n}. Každá úroveň dá 1 bod schopnosti. Body vkladáš v paneli Pilot (ťukni na úroveň pilota pod názvom sektora alebo stlač L); vrátiť ich môžeš za kredity.',
+  'pil.src':'Činnosť','pil.xp':'XP','pil.lv':'Úroveň','pil.need':'XP na ďalšiu úroveň','pil.sk':'Schopnosť','pil.per':'Za 1 bod','pil.max':'Najviac',
+  'pil.s':['Vyťažená tona rudy / viriditu / kryštálov','Vyťažený relikt (vo vonkajších pásoch viac)','Zničená stíhačka / korzár / fregata','Splnená misia (podľa odmeny)','Obsadenie sektora','Postavený modul (× číslo sektora)','Úspešné vylepšenie predmetu (× nové +N)'],
   'stor.p':'Na stanici v sektore {s} je hlavný sklad (panel Stanica → Sklad). Ukladáš doň predmety z inventára lode a späť ich berieš iba pri tejto stanici; prezerať ho môžeš odkiaľkoľvek. Začína so {c0} miestami, každé rozšírenie pridá {st} miest (najviac {mx}). Predmety v sklade sa dajú zoradiť podľa rarity, úrovne, typu, vylepšenia alebo novosti a vyhľadať podľa názvu, typu, rarity či vlastnosti. Tlačidlo „Uložiť celý inventár“ presunie všetko okrem zamknutých predmetov.',
   'hg.p':'V paneli Loď → Hangár kupuješ ďalšie lode. Každá sa odomkne obsadením určitého sektora. Loď násobí hodnoty vylepšení (napr. Bizón má dvojnásobný náklad), ale jej vylepšenia môžu byť drahšie. Každá loď má vlastné úrovne vylepšení, nasadené predmety sa prenášajú. Prestúpiť sa dá iba pri stanici.',
   'hg.ship':'Loď','hg.cost':'Cena','hg.unlock':'Odomkne','hg.mul':'Násobky vylepšení','hg.upc':'Cena vylepšení','hg.start':'od začiatku','ship.lv':'Úroveň','ship.val':'Hodnota','ship.cost':'Cena ďalšej úrovne',
@@ -136,7 +139,10 @@ en:{
   'st.mod':'Module','st.minf':'Influence','st.c1':'1st','st.c2':'2nd','st.c3':'3rd','st.pas':'Income once claimed',
   'st.p':'Sector influence = core level × {ci} + module influence. Each additional module of the same type costs more. You can sell a module for {sell}% of its price, which frees the slot.',
   'st.pd':'{o} ore/min','st.ps':'{g} viridite/min','st.pt':'influence only',
-  'ship.h':'Ship and upgrades','hg.h':'Hangar and ships','stor.h':'Main storage','sto.k':'Expansion',
+  'ship.h':'Ship and upgrades','hg.h':'Hangar and ships','stor.h':'Main storage','sto.k':'Expansion','pil.h':'Pilot – levels and skills',
+  'pil.p':'The pilot has {m} levels. You earn experience (XP) for the activities in the table; higher sectors give more (× 1 + 0.5 per sector), Hard × {h}, Nightmare × {n}. Each level gives 1 skill point. Spend points in the Pilot panel (tap the pilot level under the sector name or press L); you can refund them for credits.',
+  'pil.src':'Activity','pil.xp':'XP','pil.lv':'Level','pil.need':'XP to next level','pil.sk':'Skill','pil.per':'Per point','pil.max':'Max',
+  'pil.s':['Mined ton of ore / viridite / crystals','Mined relic (more in the outer belts)','Destroyed fighter / corsair / frigate','Completed mission (by reward)','Claiming a sector','Built module (× sector number)','Successful item upgrade (× new +N)'],
   'stor.p':'The station in {s} has the main storage (Station → Storage). You move items between the ship inventory and the storage only at this station; you can browse it from anywhere. It starts with {c0} slots, each expansion adds {st} (up to {mx}). Stored items can be sorted by rarity, level, type, upgrade or newest and searched by name, type, rarity or stat. “Store the whole inventory” moves everything except locked items.',
   'hg.p':'In Ship → Hangar you buy more ships. Each unlocks when you claim a certain sector. A ship multiplies upgrade values (e.g. the Bison has double cargo), but its upgrades may cost more. Each ship has its own upgrade levels; equipped items carry over. You can switch only at the station.',
   'hg.ship':'Ship','hg.cost':'Price','hg.unlock':'Unlocks','hg.mul':'Upgrade multipliers','hg.upc':'Upgrade cost','hg.start':'from the start','ship.lv':'Level','ship.val':'Value','ship.cost':'Next level cost',
@@ -259,6 +265,11 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
         const rows=[];for(let L=u.min;L<=u.max;L++)rows.push([`<b>${L}</b>`,f(L),L<u.max?costTxt(u.cost(L)):'–']);
         h+=`<details class="wdet"><summary><b>${t('up.'+k)}</b> <span>${f(u.min)} → ${f(u.max)}</span></summary><p>${t('up.'+k+'.d')}</p>${tbl([wt('ship.lv'),wt('ship.val'),wt('ship.cost')],rows)}</details>`}}
     H('ship',wt('ship.h'),h)}
+  { const S2=wt('pil.s');const src=[[S2[0],`${XP.ton.ore} / ${XP.ton.green} / ${XP.ton.crystal}`],[S2[1],nf(XP.relic)],[S2[2],`${nf(XP.kill.fighter)} / ${nf(XP.kill.corsair)} / ${nf(XP.kill.frigate)}`],
+      [S2[3],nf(XP.missionPerCr*100)+' % ¢'],[S2[4],nf(XP.capture)],[S2[5],nf(XP.build)],[S2[6],nf(XP.enh)]].map(r=>[`<b>${r[0]}</b>`,r[1]]);
+    const lv=[1,2,5,10,20,30,50,75,99].map(L=>[`<b>${L} → ${L+1}</b>`,nf(xpNeed(L))]);
+    const sk=Object.keys(SKILLS).map(k=>[`<b>${SKILLS[k].ico} ${t('pl.sk.'+k)}</b>`,Object.entries(SKILLS[k].per).map(([s,v])=>`${t(s==='cr'?'pl.cr':'s.'+s)} +${v} %`).join(', '),SKILLS[k].max]);
+    H('pilot',wt('pil.h'),`<p>${wt('pil.p',{m:PILOT_MAX,h:nf(XP_DIFF.hard,2),n:nf(XP_DIFF.nightmare,1)})}</p>`+tbl([wt('pil.src'),wt('pil.xp')],src)+tbl([wt('pil.sk'),wt('pil.per'),wt('pil.max')],sk)+tbl([wt('pil.lv'),wt('pil.need')],lv))}
   { const ex=[0,1,2,3,4].map(n=>[`<b>${STORE_CAP0+n*STORE_STEP} → ${STORE_CAP0+(n+1)*STORE_STEP}</b>`,costTxt(storeExpCost(n))]);
     H('storage',wt('stor.h'),`<p>${wt('stor.p',{s:secName(STORE_SEC),c0:STORE_CAP0,st:STORE_STEP,mx:STORE_MAX})}</p>`+tbl([wt('sto.k'),wt('ship.cost')],ex))}
   { // hangár a lode (v0.8)

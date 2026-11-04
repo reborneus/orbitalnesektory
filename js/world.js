@@ -193,7 +193,7 @@ function moveTo(obj,target,speed,dt,stop){_v.subVectors(target,obj.position);_v.
   obj.position.y+=(target.y-obj.position.y)*Math.min(1,dt*2);return Math.max(stop,dist-speed*dt)}
 /* byPlayer = vyťažila ho loď hráča (nie dron): vtedy môže padnúť korisť. Relikt vždy, bežný asteroid so šancou ASTEROID_DROP. */
 function depleteAst(a,byPlayer){a.alive=false;a.respawn=a.type==='relic'?rnd(RELIC_RESPAWN[0],RELIC_RESPAWN[1]):25+Math.random()*15;
-  if(byPlayer){const z=Math.min(5,zoneOf(Math.hypot(a.pos.x,a.pos.z)));
+  if(byPlayer){const z=Math.min(5,zoneOf(Math.hypot(a.pos.x,a.pos.z)));if(a.type==='relic')xpAt(XP.relic*(1+z*.25));
     // relikt z misie: lepšia korisť podľa stupňa misie, už sa neobjaví a misia sa splní
     if(a.mission){a.respawn=1e9;const m=mstate().active.find(x=>x.id===a.mission);giveItem(dropItem('relic',z,m?MTIER[m.tier].minR:2),a.pos);missionRelic(a)}
     else if(a.type==='relic')giveItem(dropItem('relic',z,2),a.pos);else if(Math.random()<ASTEROID_DROP)spawnLoot(dropItem('asteroid',z),a.pos)}

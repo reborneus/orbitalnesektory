@@ -145,7 +145,7 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
       if(!isRelic&&free<=.01){if(!fullWarned){toast(t('tt.fullWarn'));fullWarned=true}stopMining()}
       else{mining=true;const rate=shipVal('laser')*MINE_RATE[a.type];
         // relikt nedáva surovinu, len sa "vyťaží" a vypadne z neho predmet
-        if(isRelic){a.amt-=Math.min(rate*dt,a.amt)}else{const take=Math.min(rate*dt,a.amt,free/y);a.amt-=take;state.cargo[a.type]+=take*y}setAstScale(a);
+        if(isRelic){a.amt-=Math.min(rate*dt,a.amt)}else{const take=Math.min(rate*dt,a.amt,free/y);a.amt-=take;state.cargo[a.type]+=take*y;xpAt(take*y*(XP.ton[a.type]||1))}setAstScale(a);
         if(a.amt<=0){const rel=isRelic;depleteAst(a,true);if(!rel)toast(t('tt.depleted'))}
         debrisT-=dt;if(debrisT<=0){debrisT=.06;const from=a.pos.clone().add(new V3((Math.random()-.5)*2,Math.random(),(Math.random()-.5)*2).multiplyScalar(astScale(a)*.8));
           emit(debris,from,a.type==='crystal'?'#b9a0ff':a.type==='green'?'#a8f080':'#ffb85c',.6,null,ship.position.clone())}}}

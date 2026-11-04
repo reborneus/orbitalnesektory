@@ -26,6 +26,8 @@
 <div class="hud-top">
   <div class="sector glass">
     <div class="sec-row"><span class="sec-name" id="secName">Kepler-12</span><span class="tag" id="secTag"></span></div>
+    <!-- v0.11: úroveň pilota a body skúsenosti; ťuknutím (alebo klávesom L) sa otvorí panel Pilot -->
+    <button class="pilotb" id="pilotBtn" type="button"><span class="plv" id="plvTxt">Lv 1</span><div class="bar"><i id="xpBar" style="width:0%"></i></div><span class="num" id="xpTxt"></span></button>
     <div class="inf"><div class="bar"><i id="infBar" style="width:12%"></i></div><span class="num" id="infTxt"></span></div>
     <div class="mtrack" id="mTrack" hidden></div>
     <div class="meter" id="stRow" hidden><span class="lbl" data-t="hud.station"></span><div class="bar"><i id="stBar" style="width:100%"></i></div><span class="num" id="stTxt"></span></div>
@@ -98,6 +100,7 @@
 <script src="js/station.js"></script>
 <script src="js/hangar.js"></script>
 <script src="js/storage.js"></script>
+<script src="js/pilot.js"></script>
 <script src="js/admin.js"></script>
 <script src="js/wiki.js"></script>
 <script src="js/main.js"></script>

@@ -31,6 +31,8 @@ function migrate(s){
     for(const it of its)for(const st of[it.imp,...(it.aff||[])])if(st&&FLAT.includes(st.k))st.v*=k;
     if(s.missions){s.missions.offers=[];for(const m of s.missions.active||[]){if(m.need&&m.type==='deliver'){m.need*=k;m.prog*=k}if(m.reward){m.reward.cr*=k;m.reward.ore*=k}}}
     s.num=k}
+  // v0.11: pilot – staré uloženie dostane XP za už obsadené sektory (pripíše sa po načítaní, pozri main.js)
+  if(!s.pilot){s.pilot={lv:1,xp:0,total:0,pts:0,sk:{mining:0,combat:0,flight:0,trade:0}};let x=0;s.sec.forEach((c,i)=>{if(c.captured)x+=4000*(1+i*.5)});if(x)s.pilotRetro=x}
   while(s.sec.length<SECTORS.length){const prev=s.sec[s.sec.length-1];s.sec.push({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:!!(prev&&prev.captured),rewarded:false})}
   for(const k of['weapon'])if(s.ship.gun==null){s.ship.gun=1;s.ship.gunRate=1}
   // sektory obsadené pred v0.5: vyplatí sa ich odmena v kredítoch

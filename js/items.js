@@ -120,6 +120,7 @@ function bonusDirty(){_bonus=null}
 function bonus(){if(_bonus)return _bonus;const b={};for(const k in STATS)b[k]=0;
   if(state&&state.eq)for(const s of SLOTS){const it=state.eq[s];if(it)for(const x of itemStats(it))b[x.k]+=x.v}
   b.mf=b.mf||0;
+  if(typeof pilotBonus==='function')pilotBonus(b); // schopnosti pilota (pilot.js)
   for(const k in STATS)if(STATS[k].cap)b[k]=Math.min(STATS[k].cap,b[k]);return _bonus=b}
 
 /* Vylepšenie predmetu: cena rastie s úrovňou a raritou; od +5 hrozí neúspech (stratia sa len suroviny a kredity). */
@@ -127,7 +128,7 @@ function enhCost(it){const n=it.enh+1;return P(C(25*n,n>5?10*(n-5):0,n>10?4*(n-1
 const enhChance=it=>it.enh<5?1:Math.max(.3,1-(it.enh-4)*.05);
 const enhMax=it=>RAR[it.r].enh;
 /* Rozobratie: kredity podľa rarity, úrovne predmetu a vylepšenia. */
-const salvValue=it=>Math.round(RAR[it.r].salv*(1+it.ilvl/10)*(1+it.enh*.15)*NUM);
+const salvValue=it=>Math.round(RAR[it.r].salv*(1+it.ilvl/10)*(1+it.enh*.15)*NUM*(typeof crMul==='function'&&state&&state.pilot?crMul():1));
 /* Mená predmetov. Ozdobné tituly pre Legendárne a vyššie sú v i18n.js (TITLES). */
 function itemName(it){return(it.enh?'+'+it.enh+' ':'')+t('base.'+it.b)}
 function itemTitle(it){return it.title>=0?(TITLES[lang]||TITLES.sk)[it.title]:''}

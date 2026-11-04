@@ -18,7 +18,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   const tag=$('#secTag');tag.textContent=(s.captured?t('hud.won'):t('hud.unc'))+(godActive()?' · ADMIN':'');tag.classList.toggle('won',s.captured);
   const ib=$('#infBar');ib.style.width=Math.min(100,inf/cap*100)+'%';ib.classList.toggle('won',s.captured);
   $('#infTxt').textContent=s.captured?t('hud.infwon',{a:inf}):t('hud.inf',{a:inf,b:cap});
-  $('#oreTxt').textContent=fmtN(state.ore);$('#grnTxt').textContent=fmtN(state.green);$('#cryTxt').textContent=fmtN(state.crystal);$('#crTxt').textContent=fmtN(state.credits);
+  hudPilot();$('#oreTxt').textContent=fmtN(state.ore);$('#grnTxt').textContent=fmtN(state.green);$('#cryTxt').textContent=fmtN(state.crystal);$('#crTxt').textContent=fmtN(state.credits);
   const capV=shipVal('cargo');$('#cOre').style.width=(state.cargo.ore/capV*100)+'%';$('#cGrn').style.width=(state.cargo.green/capV*100)+'%';$('#cCry').style.width=(state.cargo.crystal/capV*100)+'%';
   const full=cargoTotal()>=capV-.01;
   $('#cargoTxt').textContent=`${fmtN(cargoTotal()+.05)}/${fmtN(capV)}`;$('#cargoRow').classList.toggle('full',full);
@@ -58,7 +58,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
 
 let sheetTab=null,shipGrp='eng',focusIdx=0;
 const sheet=$('#sheet'),body=$('#sheetBody');
-const TABS=['station','ship','gear','map','settings'];
+const TABS=['station','ship','gear','pilot','map','settings'];
 function openSheet(tab){if(sheetTab!==tab)focusIdx=0;sheetTab=tab;sheet.hidden=false;sheet.classList.toggle('side',tab==='station');renderSheet();document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));lastHint=''}
 function closeSheet(){sheetTab=null;sheet.hidden=true;document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.remove('on'));lastHint=''}
 function toggleTab(tb){sheetTab===tb?closeSheet():openSheet(tb)}
@@ -91,6 +91,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     for(const k of Object.keys(UP))if(UP[k].grp===shipGrp)h+=upCard(k);
     if(shipGrp==='hull'&&state.hp<shipVal('hull')-.5)h+=repairCard();
     h+=`<p class="note">${t('note.ship',{a:Math.ceil(state.hp),b:shipVal('hull'),regen:D().regen?t('note.easy'):t('note.hard')})}</p>`}
+  else if(sheetTab==='pilot'){$('#sheetTitle').textContent=t('sh.pilot');h=renderPilot()}
   else if(sheetTab==='admin'){$('#sheetTitle').textContent='Admin';h=renderAdmin()}
   else if(sheetTab==='gear'){$('#sheetTitle').textContent=t('sh.gear');h=renderGear()}
   else if(sheetTab==='map'||sheetTab==='gate'){const isGate=sheetTab==='gate';$('#sheetTitle').textContent=isGate?t('sh.gate'):t('sh.map');
@@ -141,6 +142,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(adminAct(act,b))return; // admin panel (admin.js)
   if(gearAct(act,b))return; // akcie obrazovky Výbava (gear.js)
   if(storageAct(act,b))return; // hlavný sklad (storage.js)
+  if(pilotAct(act,b))return; // schopnosti pilota (pilot.js)
   if(act==='grp'){shipGrp=b.dataset.g;focusIdx=SHIP_TABS.indexOf(shipGrp);renderSheet();return}
   if(act==='lang'){setLang(b.dataset.l);return}
   if(act==='opt'){const k=b.dataset.k,v=b.dataset.v==='1';if(k==='autoPilot'){if(!!state.autoPilot!==v)toggleAutopilot();return}state[k]=v;save();renderSheet();return}
@@ -161,7 +163,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
 function changed(){checkCapture();save();renderSheet();updateHUD()}
 /* Obsadenie sektora: odomkne ďalší, vyplatí kredity a dá predmet (aspoň rarity reward.minR) priamo do inventára. */
 function checkCapture(){const s=cur();if(!s.captured&&influence(s)>=capOf(state.cur)){s.captured=true;
-  if(!s.rewarded){const R=SECTORS[state.cur].reward;s.rewarded=true;state.credits+=R.cr;const it=dropItem('capture',4,R.minR);
+  if(!s.rewarded){const R=SECTORS[state.cur].reward;s.rewarded=true;state.credits+=Math.round(R.cr*crMul());xpAt(XP.capture);const it=dropItem('capture',4,R.minR);
     if(state.inv.length<INV_MAX)state.inv.push(it);else spawnLoot(it,new V3(0,0,STATION_R+6));setTimeout(()=>toast(t('tt.reward',{c:R.cr}),{rar:it.r}),1200)}const nx=state.sec[state.cur+1];if(nx)nx.unlocked=true;rebuildStation();updateGate();
   if(nx)toast(t('tt.captured',{s:secName(state.cur),n:secName(state.cur+1)}),true);
   else if(state.sec.every(x=>x.captured))toast(t('tt.capturedAll'),true);
@@ -209,4 +211,5 @@ function newGame(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}nmDead=false;
 document.querySelectorAll('.dock [data-tab]').forEach(b=>b.addEventListener('click',()=>toggleTab(b.dataset.tab)));
 $('#sheetClose').addEventListener('click',closeSheet);
 $('#homeBtn').addEventListener('click',goHome);
+$('#pilotBtn').addEventListener('click',()=>toggleTab('pilot'));
 $('#wikiBtn').addEventListener('click',()=>openWiki());
