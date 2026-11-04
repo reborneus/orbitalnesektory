@@ -1,9 +1,11 @@
 {
-  "version": "0.14.3",
+  "version": "0.15.0",
   "date": "2026-11-04",
   "notes": [
-    "Náhľad predmetu na PC: porovnanie s nasadeným predmetom vedľa seba spolu s rozdielmi ▲▼",
-    "Nastavenia → Porovnanie predmetov: Oboje, Iba ▲▼, Vedľa seba alebo Vypnuté",
-    "Výbava: klik na prázdny slot ukáže vhodné predmety z inventára a jedným klikom ich nasadí; bez vhodných predmetov sa na slot kliknúť nedá"
+    "Mapy sú 2× väčšie, počet asteroidov ostal rovnaký – pôsobia menej nahustene",
+    "Zadávateľ misií: fialová loď v páse 2 každého sektora – menu misií po ťuknutí alebo pri priblížení (zo stanice misie zmizli)",
+    "Obchodník v 3. a 5. sektore (na hranici pásov 2/3): predáva predmety za kredity, ponuka sa mení každých 10 minút, v 5. sektore zriedka aj Epické; výkup predmetov 2,5× výhodnejší ako rozobratie",
+    "Nové rozloženie surovín: 1. ruda, 2. viridit, 3. ruda a viac viriditu, 4. viridit a málo kryštálov, 5. iba kryštály, 6. obrie zmiešané asteroidy so všetkými surovinami",
+    "Autopilot sa po skoku prepne na surovinu, ktorá v sektore je"
   ]
 }

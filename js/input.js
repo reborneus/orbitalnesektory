@@ -13,6 +13,7 @@ function tapAt(x,y){autoPause=6;toNdc(x,y);const hits=ray.intersectObjects(picka
     if(u.enemy&&enemies.includes(u.enemy)){cmdAttack(u.enemy);return}
     if(u.ast&&u.ast.alive){cmdMine(u.ast);flashMarker(u.ast.pos,'#58d0c0');return}
     if(u.station){if(nearStation())openSheet('station');else{cmdHome();openOnArrive=true}return}
+    if(u.npc){npcTap(u.npc);return}
     if(u.gate){cmdMove(gate.position);return}}
   const p=groundAt(x,y);if(p){clampLimit(p);cmdMove(p);flashMarker(p,'#58d0c0')}}
 function flashMarker(p,c){marker.position.set(p.x,.05,p.z);marker.material.color.set(c);markerT=.6}
@@ -30,7 +31,7 @@ canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=clamp(zoom*(1+Math.s
 setInterval(()=>{if(downPos&&pointers.size===1&&!dragging&&performance.now()-downPos.t>300){dragging=true;const p=groundAt(downPos.x,downPos.y);if(p)cmdMove(clampLimit(p))}},80);
 
 /* minimap: tap to fly there */
-const mini=$('#mini'),mctx=mini.getContext('2d');const MINI_R=200;
+const mini=$('#mini'),mctx=mini.getContext('2d');const MINI_R=200*MAP_SCALE;
 mini.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();setMode(e.pointerType==='touch'?'touch':'mouse');
   const r=mini.getBoundingClientRect();const x=((e.clientX-r.left)/r.width*2-1)*MINI_R,z=((e.clientY-r.top)/r.height*2-1)*MINI_R;
   const p=clampLimit(new V3(x,0,z));cmdMove(p);flashMarker(p,'#58d0c0')});
@@ -55,6 +56,8 @@ function drawMini(){const W=mini.width,c=W/2,R=c-1,k=R/MINI_R,u=W/150;const g=mc
   // piráti: červené trojuholníky v smere letu
   for(const e of enemies){const x=c+e.pos.x*k,y=c+e.pos.z*k,a=e.body.rotation.y,s=(e.kind==='frigate'?6:e.kind==='corsair'?4.5:3.2)*u,fx=Math.sin(a),fz=Math.cos(a);
     g.fillStyle=e.leaving?'rgba(255,90,74,.45)':'#ff5a4a';g.beginPath();g.moveTo(x+fx*s,y+fz*s);g.lineTo(x-fx*s*.7+fz*s*.7,y-fz*s*.7-fx*s*.7);g.lineTo(x-fx*s*.7-fz*s*.7,y-fz*s*.7+fx*s*.7);g.closePath();g.fill()}
+  // lode NPC: fialový štvorec = zadávateľ misií, zlatý = obchodník
+  for(const n of npcs){const x=c+n.pos.x*k,y=c+n.pos.z*k,s=3.4*u;g.fillStyle=n.kind==='trader'?'#ffd27a':MCOL;g.strokeStyle='#fff';g.lineWidth=.8*u;g.fillRect(x-s,y-s,s*2,s*2);g.strokeRect(x-s,y-s,s*2,s*2)}
   if(gate){g.strokeStyle='#7ef2e2';g.lineWidth=1.4*u;g.beginPath();g.arc(c+gate.position.x*k,c+gate.position.z*k,3.2*u,0,TAU);g.stroke()}
   const won=cur().captured;g.fillStyle=won?'#ffd27a':'#58d0c0';g.beginPath();for(let i=0;i<6;i++){const an=i/6*TAU;g.lineTo(c+Math.cos(an)*4*u,c+Math.sin(an)*4*u)}g.closePath();g.fill();
   g.fillStyle='#ffe2a8';for(const d of drones){g.beginPath();g.arc(c+d.g.position.x*k,c+d.g.position.z*k,1.2*u,0,TAU);g.fill()}

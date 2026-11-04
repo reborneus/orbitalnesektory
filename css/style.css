@@ -477,3 +477,10 @@ body.pad .pg{display:block}
 .eqc.empty.pickable small{color:var(--hull);font:500 11px var(--f-data)}
 .eqc.empty.pickable:hover,.eqc.empty.pickable.open{background:rgba(88,208,192,.10)}
 .slotpick{display:grid;gap:6px;padding:8px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.02)}
+/* ===== v0.15 obchodník ===== */
+.trgrid{display:grid;gap:6px}
+.trrow{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center;padding:6px 8px;border-radius:9px}
+.trrow .itm{width:52px}
+.trrow .act{min-width:96px;grid-column:3;grid-row:1}
+.trrow>.itm{grid-column:1;grid-row:1}.trrow .eqc-txt{grid-column:2;grid-row:1;min-width:0}
+.itm.arm{outline:2px solid var(--warn)}

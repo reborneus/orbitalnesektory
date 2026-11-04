@@ -22,6 +22,7 @@ SÚBORY HRY (načítavajú sa v tomto poradí, pozri index.html)
   pilot.js    == 16d. PILOT – body skúsenosti, úrovne, schopnosti (Ťažiar, Strelec, Navigátor, Obchodník)
   arena.js    == 16e. PIRÁTSKA ARÉNA – vlny, noví piráti, anomália s odmenami, bossovia, krížnik s modulmi
   tier.js     == 16f. ÚROVEŇ VÝZVY – +1 až +16, násobky výdrže/poškodenia pirátov a odmien
+  npc.js      == 16g. LODE NPC – zadávateľ misií (každý sektor), obchodník (3. a 5. sektor)
   wiki.js     == 13. PRÍRUČKA – wiki v hre aj na stránke wiki.html, generovaná z herných dát
   admin.js    == 17. ADMIN PANEL – testovanie (suroviny, nesmrteľnosť, predmety, postup)
   main.js     == 10. HERNÁ SLUČKA – frame() každý snímok, start()

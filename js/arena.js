@@ -64,7 +64,7 @@ function arenaEnemy(kind,pos,w){const A=AK[kind];const v=makeArenaPirate(kind);v
   const e={...v,kind,hp,max:hp,dmg,speed:A.speed,range:A.range,fire:A.fire,r:A.r,cd:1+Math.random()*2,vel:new V3(),aggro:true,leaving:false,orb:Math.random()<.5?1:-1,pos:v.g.position,
     arena:true,stat:!!A.stat,missile:!!A.missile,burst:A.burst||0,spawnT:A.spawn||0,manual:!!A.manual};
   v.proxy.userData.enemy=e;pickables.push(v.proxy);enemies.push(e);return e}
-const ringPos=(r0,r1)=>{const a=Math.random()*TAU,r=r0+Math.random()*(r1-r0);return new V3(Math.cos(a)*r,2,Math.sin(a)*r)};
+const ringPos=(r0,r1)=>{const a=Math.random()*TAU,r=(r0+Math.random()*(r1-r0))*MAP_SCALE;return new V3(Math.cos(a)*r,2,Math.sin(a)*r)};
 /* zloženie vlny w */
 function waveKinds(w){const k=[];const n=(c,x)=>{for(let i=0;i<x;i++)k.push(c)};
   n('fighter',Math.min(14,3+Math.floor(w/6)));if(w>=3)n('swarm',Math.min(12,Math.floor(w/4)));if(w>=5)n('corsair',Math.min(6,1+Math.floor(w/12)));

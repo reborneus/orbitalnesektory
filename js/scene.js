@@ -56,5 +56,6 @@ const GEOS={
   green:[1,2,3,4].map(i=>rockGeo(300+i,'#46564a','#7fdc4f',.24)),
   crystal:[1,2,3,4].map(i=>rockGeo(200+i,'#46506a','#7a62c9',.12)),
   relic:[1,2,3].map(i=>rockGeo(400+i,'#2a2e38','#ffd87a',.3)),
+  mix:[1,2,3].map(i=>rockGeo(500+i,'#4a4658','#e0902e',.22)),
 };
 const SHARD=new THREE.OctahedronGeometry(1,0);

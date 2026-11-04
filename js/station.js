@@ -42,10 +42,10 @@ function slotCard(s,i){const m=s.slots[i];const open=openSlot===i?' open':'';
   h+=chipHtml(m,i);
   const rf=modRefund(s,m);h+=`<div class="itd-acts"><button class="btn danger" data-act="msell" data-i="${i}">${t('btn.msell')}</button><div class="costs">${refundHtml(rf)}${rf.cr?`<span class="cost crd gain"><span class="coin"></span>+${rf.cr}</span>`:''}</div></div>`;
   return h+'</div></details>'}
-let stTab='mods';   // záložka panela stanice: 'mods' = moduly, 'miss' = misie, 'store' = hlavný sklad (storage.js)
+let stTab='mods';   // záložka panela stanice: 'mods' = moduly, 'store' = hlavný sklad (storage.js); misie má zadávateľ misií (npc.js)
 function renderStation(){const s=cur();const inf=influence(s),cap=capOf(state.cur);
-  let h=`<div class="segs three"><button class="seg" data-act="stTab" data-v="mods" aria-pressed="${stTab==='mods'}">${t('ms.tab.mods')}</button><button class="seg" data-act="stTab" data-v="miss" aria-pressed="${stTab==='miss'}">${t('ms.tab.miss')}${mstate().active.length?' · '+mstate().active.length:''}</button><button class="seg" data-act="stTab" data-v="store" aria-pressed="${stTab==='store'}">${t('sto.tab')}</button></div>`;
-  if(stTab==='miss')return h+renderMissions();
+  if(stTab==='miss')stTab='mods'; // v0.15: misie sú u zadávateľa misií (npc.js)
+  let h=`<div class="segs two"><button class="seg" data-act="stTab" data-v="mods" aria-pressed="${stTab==='mods'}">${t('ms.tab.mods')}</button><button class="seg" data-act="stTab" data-v="store" aria-pressed="${stTab==='store'}">${t('sto.tab')}</button></div>`;
   if(stTab==='store')return h+renderStorage();
   if(state.hp<shipVal('hull')-.5)h+=repairCard();
   const L=s.core,mh=stationMaxHp(),sh=Math.max(0,stationHp);

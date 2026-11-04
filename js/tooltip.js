@@ -9,7 +9,8 @@ const hoverUI=()=>canHover&&(inputMode==='mouse'||inputMode==='key');
 function findAnyItem(id){let it=state.inv.find(x=>x.id===id);if(it)return{it,where:'inv'};
   for(const s of SLOTS)if(state.eq[s]&&state.eq[s].id===id)return{it:state.eq[s],where:'eq'};
   if(state.storage){it=state.storage.items.find(x=>x.id===id);if(it)return{it,where:'st'}}
-  for(const sc of state.sec)for(const m of sc.slots)if(m&&m.chip&&m.chip.id===id)return{it:m.chip,where:'chip'};return null}
+  for(const sc of state.sec)for(const m of sc.slots)if(m&&m.chip&&m.chip.id===id)return{it:m.chip,where:'chip'};
+  if(state.trader)for(const k in state.trader){it=(state.trader[k].stock||[]).find(x=>x.id===id);if(it)return{it,where:'shop'}}return null}
 /* Porovnanie s nasadeným predmetom (Nastavenia → Porovnanie predmetov): state.cmpMode =
    'both' (vedľa seba + rozdiely), 'diff' (len rozdiely ▲▼), 'side' (len vedľa seba), 'off' (vypnuté). */
 const CMP_MODES=['both','diff','side','off'];
@@ -33,6 +34,6 @@ function tipShow(id,x,y){const f=findAnyItem(id);if(!f){tipHide();return}
 function tipMove(x,y){if(!tipEl||tipEl.hidden)return;const w=tipEl.offsetWidth,h=tipEl.offsetHeight,W=innerWidth,H=innerHeight;
   let l=x+18,tp=y+14;if(l+w>W-8)l=x-w-18;if(tp+h>H-8)tp=Math.max(8,H-h-8);tipEl.style.transform=`translate(${Math.max(8,l)}px,${tp}px)`}
 function tipHide(){if(tipEl)tipEl.hidden=true;tipId=null}
-const tipTarget=e=>{const b=e.target.closest&&e.target.closest('[data-id]');return b&&b.closest('#sheet')&&/^(sel|stSel|stSelInv|chipIn|pickEq)$/.test(b.dataset.act||'')?b:null};
+const tipTarget=e=>{const b=e.target.closest&&e.target.closest('[data-id]');return b&&b.closest('#sheet')&&/^(sel|stSel|stSelInv|chipIn|pickEq|trSel|trSell)$/.test(b.dataset.act||'')?b:null};
 document.addEventListener('pointermove',e=>{if(!hoverUI()||e.pointerType!=='mouse'){tipHide();return}const b=tipTarget(e);if(b)tipShow(+b.dataset.id,e.clientX,e.clientY);else tipHide()});
 document.addEventListener('pointerdown',()=>tipHide());

@@ -81,7 +81,7 @@ function tickAuto(dt){autoPause-=dt;apNoneT-=dt;
   if(!full)returnSent=false;
   if(autoPause>0)return;
   // autopilot: korisť v okolí pozbiera ako prvú (aj s plným nákladom – predmety náklad nezaberajú)
-  if(ap&&!mineTarget&&state.inv.length<INV_MAX){const L=nearestLoot(70);if(L){if(!moveTarget||moveTarget.distanceTo(L.g.position)>1.5)moveTarget=L.g.position.clone().setY(0);return}}
+  if(ap&&!mineTarget&&state.inv.length<INV_MAX){const L=nearestLoot(70*MAP_SCALE);if(L){if(!moveTarget||moveTarget.distanceTo(L.g.position)>1.5)moveTarget=L.g.position.clone().setY(0);return}}
   // plný náklad: kým loď nesmeruje domov, znova nastaví kurz na stanicu (napr. po zbere koristi alebo ručnom zásahu)
   if(full&&(ap||state.autoReturn!==false)&&!homeBound()&&Math.hypot(ship.position.x,ship.position.z)>STATION_R+5){cmdHome();if(!returnSent)toast(t('tt.autoHome'));returnSent=true}
   if(!ap)return;
@@ -93,8 +93,8 @@ function tickAuto(dt){autoPause-=dt;apNoneT-=dt;
     if(state.hp/hm<.7)return}
   if(full||mineTarget||moveTarget)return;
   // relikt nablízku (do 50 m, pred horizontom): autopilot ho vyťaží kvôli koristi
-  {let rl=null,rd=50;for(const a of asts){if(!a.alive||a.type!=='relic'||Math.hypot(a.pos.x,a.pos.z)>=HORIZON-2)continue;const d=ship.position.distanceTo(a.pos);if(d<rd){rd=d;rl=a}}if(rl){cmdMine(rl);return}}
-  let best=null,bd=1e9;for(const a of asts){if(!a.alive||a.type!==state.autoRes||Math.hypot(a.pos.x,a.pos.z)>=HORIZON-2)continue;const d=ship.position.distanceTo(a.pos);if(d<bd){bd=d;best=a}}
+  {let rl=null,rd=50*MAP_SCALE;for(const a of asts){if(!a.alive||a.type!=='relic'||Math.hypot(a.pos.x,a.pos.z)>=HORIZON-2)continue;const d=ship.position.distanceTo(a.pos);if(d<rd){rd=d;rl=a}}if(rl){cmdMine(rl);return}}
+  let best=null,bd=1e9;for(const a of asts){if(!a.alive||(a.type!==state.autoRes&&a.type!=='mix')||Math.hypot(a.pos.x,a.pos.z)>=HORIZON-2)continue;const d=ship.position.distanceTo(a.pos);if(d<bd){bd=d;best=a}}
   if(best)cmdMine(best);else if(apNoneT<=0){apNoneT=12;toast(t('tt.apNone',{r:t('res.'+state.autoRes)}))}}
 /* Radiácia v bodoch za sekundu podľa vzdialenosti r od stanice: v pásoch 3–4 rastie z 0,8 na 3,5; za horizontom 12 a viac. */
 /* Radiačný filter a podobné vlastnosti predmetov (bonus().rad) znižujú radiáciu v pásoch 3–4, za horizontom nie. */
@@ -145,13 +145,14 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
       if(!isRelic&&free<=.01){if(!fullWarned){toast(t('tt.fullWarn'));fullWarned=true}stopMining()}
       else{mining=true;const rate=shipVal('laser')*MINE_RATE[a.type];
         // relikt nedáva surovinu, len sa "vyťaží" a vypadne z neho predmet
-        if(isRelic){a.amt-=Math.min(rate*dt,a.amt)}else{const take=Math.min(rate*dt,a.amt,free/y);a.amt-=take;state.cargo[a.type]+=take*y;xpAt(take*y*(XP.ton[a.type]||1))}setAstScale(a);
+        if(isRelic){a.amt-=Math.min(rate*dt,a.amt)}else{const take=Math.min(rate*dt,a.amt,free/y);a.amt-=take;
+          if(a.mixp){for(const k in a.mixp){state.cargo[k]+=take*y*a.mixp[k];xpAt(take*y*a.mixp[k]*(XP.ton[k]||1))}}else{state.cargo[a.type]+=take*y;xpAt(take*y*(XP.ton[a.type]||1))}}setAstScale(a);
         if(a.amt<=0){const rel=isRelic;depleteAst(a,true);if(!rel)toast(t('tt.depleted'))}
         debrisT-=dt;if(debrisT<=0){debrisT=.06;const from=a.pos.clone().add(new V3((Math.random()-.5)*2,Math.random(),(Math.random()-.5)*2).multiplyScalar(astScale(a)*.8));
           emit(debris,from,a.type==='crystal'?'#b9a0ff':a.type==='green'?'#a8f080':'#ffb85c',.6,null,ship.position.clone())}}}
     else if(!moveTarget&&d>range*2.2){mineTarget=null}}
   if(mining&&mineTarget){const nose=ship.localToWorld(NOSE.clone());const to=mineTarget.pos.clone().lerp(nose,.12);
-    setBeam(beam,nose,to,.32+Math.random()*.12,{ore:'#58d0c0',green:'#86e05a',crystal:'#a98bff',relic:'#ffd87a'}[mineTarget.type])}else hideBeam(beam);
+    setBeam(beam,nose,to,.32+Math.random()*.12,{ore:'#58d0c0',green:'#86e05a',crystal:'#a98bff',relic:'#ffd87a',mix:'#e8d8ff'}[mineTarget.type])}else hideBeam(beam);
   const cg=ship.userData.core;const cs=(mining?4.6:3.2)*(1+Math.sin(tt*(mining?14:3))*.1);cg.scale.set(cs,cs,1);
   // unload at the station
   const dStation=Math.hypot(ship.position.x,ship.position.z);

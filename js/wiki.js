@@ -7,7 +7,7 @@
 const WT={
 sk:{
   'mis.h':'Misie a radiačný štít','mis.type':'Misia','mis.what':'Úloha','mis.base':'Kredity (ľahká, 1. sektor)','mis.tier':'Stupeň','mis.mult':'Násobok odmeny','mis.minR':'Predmet','mis.ich':'Šanca na predmet','mis.where':'Cieľ prieskumu / reliktu',
-  'mis.p':'Misie nájdeš v paneli stanice na záložke Misie. Stanica ponúka {o} misie pre aktuálny sektor, aktívne môžeš mať naraz {a}. Ponuky sa obnovia každé {r} minúty alebo hneď za {c} ¢. Aktívne misie vidíš aj v paneli sektora vľavo hore a ich ciele ako fialové stĺpy a hviezdy na minimape.',
+  'mis.p':'Misie dáva zadávateľ misií – fialová loď v páse 2 každého sektora (na minimape fialový štvorec). Ťukni na neho alebo k nemu prileť a otvorí sa menu misií. Ponúka {o} misie pre aktuálny sektor, aktívne môžeš mať naraz {a}. Ponuky sa obnovia každé {r} minúty alebo hneď za {c} ¢. Aktívne misie vidíš aj v paneli sektora vľavo hore a ich ciele ako fialové stĺpy a hviezdy na minimape.',
   'mis.sec':'Odmeny sa násobia podľa sektora: {m}. Doručenia v ďalších sektoroch vyžadujú viac suroviny.',
   'mis.rs':'Radiačný štít (skupina Štíty) na obmedzený čas úplne zachytí radiáciu v pásoch aj za horizontom, takže sa dajú splniť aj ťažké misie za horizontom. Pri stanici sa dobíja rýchlosťou {rc} s za sekundu. V Nastaveniach zvolíš, či sa zapne vždy v radiácii, alebo len za horizontom.',
   'mis.d.deliver':'dovez a vylož surovinu','mis.d.scan':'zdrž sa v okruhu bodu, kým skener nedobehne','mis.d.relic':'vyťaž označený relikt (predmet podľa stupňa)','mis.d.hunt':'znič pirátov (od 2. sektora)','mis.d.defend':'odraz nájazd bez pádu stanice (od 2. sektora)',
@@ -53,7 +53,8 @@ sk:{
   'st.mod':'Modul','st.minf':'Vplyv','st.c1':'1. kus','st.c2':'2. kus','st.c3':'3. kus','st.pas':'Príjem po obsadení',
   'st.p':'Vplyv sektora = úroveň jadra × {ci} + vplyv modulov. Každý ďalší modul rovnakého typu je drahší. Postavený modul môžeš predať, vráti sa {sell} % jeho ceny a uvoľní sa slot.',
   'st.pd':'{o} rudy/min','st.ps':'{g} viriditu/min','st.pt':'len vplyv',
-  'ship.h':'Loď a vylepšenia','hg.h':'Hangár a lode','stor.h':'Hlavný sklad','sto.k':'Rozšírenie','tie.h':'Úroveň výzvy','tie.lv':'Výzva','are.h':'Pirátska aréna','are.k':'Nepriateľ','are.hp':'Výdrž (vlna 1)','are.dm':'Poškodenie (vlna 1)','are.from':'Od vlny','are.g':'Výdrž rastie × {h} a poškodenie × {d} za každú vlnu (vlna 50: × {h50} / × {d50}, vlna 100: × {h100} / × {d100}).','pil.h':'Pilot – úrovne a schopnosti',
+  'ship.h':'Loď a vylepšenia','hg.h':'Hangár a lode','stor.h':'Hlavný sklad','sto.k':'Rozšírenie','trd.h':'Obchodník',
+  'trd.p':'Zlatá loď obchodníka stojí v sektoroch {s} na hranici pásov 2 a 3 (mimo radiácie). Predáva {n} predmetov za kredity; ponuka sa mení každých {m} minút. V sektore {s1} najviac Vzácne, v sektore {s2} výnimočne aj Epické. Predmety mu predáš za {x}× viac, než dostaneš za rozobratie.','tie.h':'Úroveň výzvy','tie.lv':'Výzva','are.h':'Pirátska aréna','are.k':'Nepriateľ','are.hp':'Výdrž (vlna 1)','are.dm':'Poškodenie (vlna 1)','are.from':'Od vlny','are.g':'Výdrž rastie × {h} a poškodenie × {d} za každú vlnu (vlna 50: × {h50} / × {d50}, vlna 100: × {h100} / × {d100}).','pil.h':'Pilot – úrovne a schopnosti',
   'pil.p':'Pilot má {m} úrovní. Body skúsenosti (XP) získavaš za činnosti v tabuľke; vyšší sektor dáva viac (× 1 + 0,3 za každý sektor), Ťažká obtiažnosť × {h}, Nightmare × {n}. Každá úroveň dá 1 bod schopnosti. Body vkladáš v paneli Pilot (ťukni na úroveň pilota pod názvom sektora alebo stlač L); vrátiť ich môžeš za kredity.',
   'pil.src':'Činnosť','pil.xp':'XP','pil.lv':'Úroveň','pil.need':'XP na ďalšiu úroveň','pil.sk':'Schopnosť','pil.per':'Za 1 bod','pil.max':'Najviac',
   'pil.s':['Vyťažená tona rudy / viriditu / kryštálov','Vyťažený relikt (vo vonkajších pásoch viac)','Zničená stíhačka / korzár / fregata','Splnená misia (podľa odmeny)','Obsadenie sektora','Postavený modul (× číslo sektora)','Úspešné vylepšenie predmetu (× nové +N)'],
@@ -82,8 +83,8 @@ sk:{
   'enh.h':'Vylepšovanie predmetov','enh.n':'Vylepšenie','enh.ch':'Šanca','enh.bonus':'Sila vlastností','enh.cr':'Kredity ({r})',
   'enh.p':'V detaile predmetu ho vylepšíš o +1. Do +5 sa vylepšenie vždy podarí, potom šanca klesá (najmenej {min} %). Pri neúspechu sa minú suroviny a kredity, predmet zostane. Najvyššie vylepšenie závisí od rarity.',
   'auto.h':'Automatizácia',
-  'auto.l':['Automatická ťažba: po vyťažení asteroidu loď prejde na najbližší asteroid tej istej suroviny do 40 m.','Automatický návrat: pri plnom náklade loď sama poletí na stanicu.',
-    'Autopilot: ťaží zvolenú surovinu, vozí ju domov, zbiera korisť do 70 m a ťaží relikty do 50 m. Pri trupe pod 35 % sa vráti a pokračuje od 70 %. Ručný zásah ho na 6 s pozastaví.','Všetko zapneš v menu Nastavenia. Autopilota aj klávesou P alebo tlačidlom View/Share.'],
+  'auto.l':['Automatická ťažba: po vyťažení asteroidu loď prejde na najbližší asteroid tej istej suroviny do 80 m.','Automatický návrat: pri plnom náklade loď sama poletí na stanicu.',
+    'Autopilot: ťaží zvolenú surovinu, vozí ju domov, zbiera korisť do 140 m a ťaží relikty do 100 m. Pri trupe pod 35 % sa vráti a pokračuje od 70 %. Ručný zásah ho na 6 s pozastaví.','Všetko zapneš v menu Nastavenia. Autopilota aj klávesou P alebo tlačidlom View/Share.'],
   'diff.h':'Obtiažnosť','diff.k':'Vlastnosť',
   'diff.rows':[['Oprava trupu','sama po 30 s','len na stanici za rudu','len na stanici za rudu'],['Radiácia v pásoch','× {e1}','× {h1}','× {n1}'],['Za horizontom','× {e2}','× {h2}','× {n2}'],['Rýchlosť lode','× {e3}','× {h3}','× {n3}'],['Výnos surovín','× {e4}','× {h4}','× {n4}'],['Poškodenie pirátov','× {e5}','× {h5}','× {n5}'],['Zničenie lode','strata nákladu','strata nákladu','koniec hry – postup sa vymaže']],
   'diff.p':'Obtiažnosť sa vyberá na začiatku hry a zmeniť ju môžeš len pri novej hre.',
@@ -93,7 +94,7 @@ sk:{
 },
 en:{
   'mis.h':'Missions and radiation shield','mis.type':'Mission','mis.what':'Task','mis.base':'Credits (easy, sector 1)','mis.tier':'Tier','mis.mult':'Reward multiplier','mis.minR':'Item','mis.ich':'Item chance','mis.where':'Survey / relic target',
-  'mis.p':'Missions are in the station panel under the Missions tab. The station offers {o} missions for the current sector, and you can have {a} active at once. Offers refresh every {r} minutes, or right away for {c} ¢. Active missions are also shown in the sector panel at the top left, and their targets as purple pillars and stars on the minimap.',
+  'mis.p':'Missions come from the mission giver – a purple ship in belt 2 of every sector (a purple square on the minimap). Tap it or fly to it and the mission menu opens. It offers {o} missions for the current sector, and you can have {a} active at once. Offers refresh every {r} minutes, or right away for {c} ¢. Active missions are also shown in the sector panel at the top left, and their targets as purple pillars and stars on the minimap.',
   'mis.sec':'Rewards are multiplied by sector: {m}. Deliveries in later sectors require more resources.',
   'mis.rs':'The radiation shield (Shields group) fully blocks radiation in the belts and beyond the horizon for a limited time, so even hard missions beyond the horizon are doable. It recharges at the station at {rc} s per second. In Settings you choose whether it turns on in any radiation or only beyond the horizon.',
   'mis.d.deliver':'bring and unload a resource','mis.d.scan':'stay within the point’s radius until the scanner finishes','mis.d.relic':'mine the marked relic (item by tier)','mis.d.hunt':'destroy pirates (from sector 2)','mis.d.defend':'repel a raid without the station falling (from sector 2)',
@@ -139,7 +140,8 @@ en:{
   'st.mod':'Module','st.minf':'Influence','st.c1':'1st','st.c2':'2nd','st.c3':'3rd','st.pas':'Income once claimed',
   'st.p':'Sector influence = core level × {ci} + module influence. Each additional module of the same type costs more. You can sell a module for {sell}% of its price, which frees the slot.',
   'st.pd':'{o} ore/min','st.ps':'{g} viridite/min','st.pt':'influence only',
-  'ship.h':'Ship and upgrades','hg.h':'Hangar and ships','stor.h':'Main storage','sto.k':'Expansion','tie.h':'Challenge level','tie.lv':'Challenge','are.h':'Pirate Arena','are.k':'Enemy','are.hp':'Integrity (wave 1)','are.dm':'Damage (wave 1)','are.from':'From wave','are.g':'Integrity grows × {h} and damage × {d} per wave (wave 50: × {h50} / × {d50}, wave 100: × {h100} / × {d100}).','pil.h':'Pilot – levels and skills',
+  'ship.h':'Ship and upgrades','hg.h':'Hangar and ships','stor.h':'Main storage','sto.k':'Expansion','trd.h':'Trader',
+  'trd.p':'The golden trader ship stands in {s} at the edge of belts 2 and 3 (outside radiation). It sells {n} items for credits; the offer changes every {m} minutes. In {s1} at most Rare, in {s2} rarely even Epic. It buys your items for {x}× more than salvage gives.','tie.h':'Challenge level','tie.lv':'Challenge','are.h':'Pirate Arena','are.k':'Enemy','are.hp':'Integrity (wave 1)','are.dm':'Damage (wave 1)','are.from':'From wave','are.g':'Integrity grows × {h} and damage × {d} per wave (wave 50: × {h50} / × {d50}, wave 100: × {h100} / × {d100}).','pil.h':'Pilot – levels and skills',
   'pil.p':'The pilot has {m} levels. You earn experience (XP) for the activities in the table; higher sectors give more (× 1 + 0.3 per sector), Hard × {h}, Nightmare × {n}. Each level gives 1 skill point. Spend points in the Pilot panel (tap the pilot level under the sector name or press L); you can refund them for credits.',
   'pil.src':'Activity','pil.xp':'XP','pil.lv':'Level','pil.need':'XP to next level','pil.sk':'Skill','pil.per':'Per point','pil.max':'Max',
   'pil.s':['Mined ton of ore / viridite / crystals','Mined relic (more in the outer belts)','Destroyed fighter / corsair / frigate','Completed mission (by reward)','Claiming a sector','Built module (× sector number)','Successful item upgrade (× new +N)'],
@@ -168,8 +170,8 @@ en:{
   'enh.h':'Upgrading items','enh.n':'Upgrade','enh.ch':'Chance','enh.bonus':'Stat strength','enh.cr':'Credits ({r})',
   'enh.p':'In the item detail you can upgrade it by +1. Up to +5 it always succeeds, then the chance drops (to at least {min}%). On failure the resources and credits are spent and the item stays. The highest upgrade depends on rarity.',
   'auto.h':'Automation',
-  'auto.l':['Auto-mining: when an asteroid is depleted, the ship moves to the nearest asteroid of the same resource within 40 m.','Auto-return: with full cargo the ship flies to the station by itself.',
-    'Autopilot: mines the chosen resource, hauls it home, picks up loot within 70 m and mines relics within 50 m. Below 35% hull it returns and continues from 70%. Manual input pauses it for 6 s.','Turn everything on in the Settings menu. The autopilot also with the P key or the View/Share button.'],
+  'auto.l':['Auto-mining: when an asteroid is depleted, the ship moves to the nearest asteroid of the same resource within 80 m.','Auto-return: with full cargo the ship flies to the station by itself.',
+    'Autopilot: mines the chosen resource, hauls it home, picks up loot within 140 m and mines relics within 100 m. Below 35% hull it returns and continues from 70%. Manual input pauses it for 6 s.','Turn everything on in the Settings menu. The autopilot also with the P key or the View/Share button.'],
   'diff.h':'Difficulty','diff.k':'Property',
   'diff.rows':[['Hull repair','by itself after 30 s','only at the station, for ore','only at the station, for ore'],['Belt radiation','× {e1}','× {h1}','× {n1}'],['Beyond the horizon','× {e2}','× {h2}','× {n2}'],['Ship speed','× {e3}','× {h3}','× {n3}'],['Resource yield','× {e4}','× {h4}','× {n4}'],['Pirate damage','× {e5}','× {h5}','× {n5}'],['Ship destroyed','cargo lost','cargo lost','game over – progress wiped']],
   'diff.p':'Difficulty is chosen at the start and can only be changed with a new game.',
@@ -221,7 +223,7 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
   H('start',wt('start.h'),`<p>${wt('start.p')}</p><h4>${wt('start.loop')}</h4><ol class="wlist">${wt('start.l').map(x=>`<li>${x}</li>`).join('')}</ol><p class="wnote">${wt('auto')}</p>`);
   H('controls',wt('ctl.h'),`<p>${wt('ctl.p')}</p>`+tbl([wt('ctl.act'),wt('ctl.touch'),wt('ctl.key'),wt('ctl.pad')],wt('ctl.rows').map(r=>[`<b>${r[0]}</b>`,r[1],`<kbd>${r[2]}</kbd>`,r[3]])));
   { // suroviny: kde sa nachádzajú (zo SECTORS.fields)
-    const where=k=>{const secs=[],belts=new Set();SECTORS.forEach((s,i)=>s.fields.forEach(f=>{if(f.type===k){if(!secs.includes(i))secs.push(i);for(let z=1;z<=4;z++){const lo=[0,Z1,Z2,Z3][z-1],hi=[Z1,Z2,Z3,HORIZON][z-1];if(f.r[0]<hi&&f.r[1]>lo)belts.add(z)}}}));
+    const where=k=>{const secs=[],belts=new Set();SECTORS.forEach((s,i)=>s.fields.forEach(f=>{if(f.type===k||f.type==='mix'){if(!secs.includes(i))secs.push(i);for(let z=1;z<=4;z++){const lo=[0,Z1,Z2,Z3][z-1],hi=[Z1,Z2,Z3,HORIZON][z-1];if(f.r[0]<hi&&f.r[1]>lo)belts.add(z)}}}));
       return `${wt('res.sec')}: ${secs.map(i=>secName(i)).join(', ')}<br>${wt('res.belts')}: ${[...belts].sort().join(', ')}`};
     const rows=['ore','green','crystal','relic'].map(k=>[`${gem(k)} <b>${k==='relic'?t('relic'):t('res.'+k)}</b>`,where(k),nf(MINE_RATE[k]*100)+' %',wt('res.use.'+k)]);
     H('res',wt('res.h'),`<p>${wt('res.p')}</p>`+tbl([wt('res.name'),wt('res.where'),wt('res.rate'),wt('res.use')],rows)+`<p>${gem('cr')} ${wt('res.cr',{c:nf(SECTOR_CREDITS*60)})}</p>`)}
@@ -233,8 +235,8 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
     rows.push([`<b>${wt('zone.beyond')}</b>`,`${HORIZON} – ${LIMIT} m`,rr(HORIZON,LIMIT,DIFF.easy.voidM,false),rr(HORIZON,LIMIT,DIFF.hard.voidM,false)]);
     H('zones',wt('zone.h'),`<div class="wfig">${zoneSvg()}<div><p>${wt('zone.p',{lim:LIMIT})}</p><p>${wt('zone.filter',{cap:STATS.rad.cap})}</p></div></div>`+tbl([wt('zone.zone'),wt('zone.range'),wt('zone.easy'),wt('zone.hard')],rows))}
   { // sektory
-    const rows=SECTORS.map((s,i)=>{const cnt={};s.fields.forEach(f=>cnt[f.type]=(cnt[f.type]||0)+f.n);
-      return[`<b>${secName(i)}</b>`,s.res.map(gem).join(' '),['ore','green','crystal'].filter(k=>cnt[k]).map(k=>`${gem(k)} ${cnt[k]}`).join(' '),cnt.relic||0,s.capture,`${gem('cr')} ${nf(s.reward.cr)} + ${rarName(s.reward.minR)}+`,`${s.ilvl} – ${s.ilvl+ILVL_ZONE[4]+2}`]});
+    const rows=SECTORS.filter(s=>!s.arena).map((s,i)=>{const cnt={};s.fields.forEach(f=>cnt[f.type]=(cnt[f.type]||0)+f.n);
+      return[`<b>${secName(i)}</b>`,s.res.map(gem).join(' '),['ore','green','crystal','mix'].filter(k=>cnt[k]).map(k=>k==='mix'?`${t('res.mix')} ${cnt[k]}`:`${gem(k)} ${cnt[k]}`).join(' '),cnt.relic||0,s.capture,`${gem('cr')} ${nf(s.reward.cr)} + ${rarName(s.reward.minR)}+`,`${s.ilvl} – ${s.ilvl+ILVL_ZONE[4]+2}`]});
     H('sectors',wt('sec.h'),`<p>${wt('sec.p')}</p>`+tbl([wt('sec.name'),wt('sec.res'),wt('sec.ast'),wt('sec.relic'),wt('sec.cap'),wt('sec.rew'),wt('sec.ilvl')],rows))}
   { // stanica
     const core=[];for(let L=1;L<=CORE_MAX;L++)core.push([`<b>${L}</b>`,slotsFor(L),L*CORE_INF,L<CORE_MAX?costTxt(coreCost(L)):'–']);
@@ -270,6 +272,7 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
     const lv=[1,2,5,10,20,30,50,75,99].map(L=>[`<b>${L} → ${L+1}</b>`,nf(xpNeed(L))]);
     const sk=Object.keys(SKILLS).map(k=>[`<b>${SKILLS[k].ico} ${t('pl.sk.'+k)}</b>`,Object.entries(SKILLS[k].per).map(([s,v])=>`${t(s==='cr'?'pl.cr':'s.'+s)} +${v} %`).join(', '),SKILLS[k].max]);
     H('pilot',wt('pil.h'),`<p>${wt('pil.p',{m:PILOT_MAX,h:nf(XP_DIFF.hard,2),n:nf(XP_DIFF.nightmare,1)})}</p>`+tbl([wt('pil.src'),wt('pil.xp')],src)+tbl([wt('pil.sk'),wt('pil.per'),wt('pil.max')],sk)+tbl([wt('pil.lv'),wt('pil.need')],lv))}
+  H('trader',wt('trd.h'),`<p>${wt('trd.p',{s:TRADER_SECS.map(secName).join(', '),s1:secName(TRADER_SECS[0]),s2:secName(TRADER_SECS[1]),n:TRADER_STOCK,m:TRADER_TIME/60,x:TRADER_SELL})}</p>`);
   { const L=[1,2,4,6,8,10,12,14,16].map(n=>[`<b>+${n}</b>`,'+'+nf((Math.pow(TIER.hp,n)-1)*100)+' %','+'+nf((Math.pow(TIER.dmg,n)-1)*100)+' %','+'+nf((Math.pow(TIER.rad,n)-1)*100)+' %','+'+nf((Math.pow(TIER.gain,n)-1)*100)+' %','+'+nf(TIER.mf*n*100)+' %']);
     H('tier',wt('tie.h'),`<p>${t('tr.p')}</p>`+tbl([wt('tie.lv'),t('tr.hp'),t('tr.dmg'),t('tr.rad'),t('tr.gain'),t('tr.mf')],L))}
   { const from={fighter:1,swarm:3,corsair:5,turret:8,frigate:12,dread:20,carrier:100,cmod:100};const nm={fighter:t('cmb.fighter'),swarm:'Roj',corsair:t('cmb.corsair'),turret:'Raketová veža',frigate:t('cmb.frigate'),dread:'Dreadnought (boss)',carrier:'Bojový krížnik (hlavný boss)',cmod:'Modul krížnika'};
@@ -304,7 +307,7 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
   H('auto',wt('auto.h'),list(wt('auto.l')));
   {const E=DIFF.easy,Hd=DIFF.hard,N=DIFF.nightmare;const v={e1:E.rad,h1:Hd.rad,n1:N.rad,e2:E.voidM,h2:Hd.voidM,n2:N.voidM,e3:E.speed,h3:Hd.speed,n3:N.speed,e4:E.yield,h4:Hd.yield,n4:N.yield,e5:E.pdmg,h5:Hd.pdmg,n5:N.pdmg};
     H('diff',wt('diff.h'),`<p>${wt('diff.p')}</p>`+tbl([wt('diff.k'),t('diff.easy'),t('diff.hard'),t('diff.nightmare')],wt('diff.rows').map(r=>[`<b>${r[0]}</b>`,fill(r[1],v),fill(r[2],v),fill(r[3],v)])))}
-  H('gate',wt('gate.h'),list(wt('gate.l').map(x=>fill(x,{g:72}))));
+  H('gate',wt('gate.h'),list(wt('gate.l').map(x=>fill(x,{g:GATE_R}))));
   return S}
 
 /* ---------- vykreslenie a vyhľadávanie ---------- */

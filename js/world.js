@@ -23,6 +23,8 @@ function buildSector(){
   if(world)scene.remove(world);
   world=new THREE.Group();scene.add(world);asts=[];pickables=[];drones=[];gate=null;loot=[];
   const S=SECTORS[state.cur];
+  // autopilot: ak sa zvolená surovina v sektore nenachádza, prepne sa na prvú dostupnú
+  if(!S.arena&&S.res.length&&!S.res.includes(state.autoRes))state.autoRes=S.res[0];
   const neb=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),new THREE.MeshBasicMaterial({map:nebulaTex(S.neb[0],S.neb[1],S.seed),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.95}));
   neb.rotation.x=-Math.PI/2;neb.position.y=-500;world.add(neb);
   const planet=new THREE.Mesh(new THREE.SphereGeometry(110,48,32),new THREE.MeshStandardMaterial({map:planetTex(S.planet,S.seed),roughness:1,metalness:0}));
@@ -40,10 +42,11 @@ function buildSector(){
   resetCombat();
   missionsRebuild();
   arenaEnter();
+  buildNpcs();
 }
 
 function makeAst(type,f,r){const g=new THREE.Group();const S=SECTORS[state.cur];
-  const base=type==='relic'?.9+r()*.45:type==='crystal'?1.8+r()*1.5:type==='green'?1.7+r()*1.9:1.6+r()*2.3;
+  const base=type==='mix'?4.2+r()*2.2:type==='relic'?.9+r()*.45:type==='crystal'?1.8+r()*1.5:type==='green'?1.7+r()*1.9:1.6+r()*2.3;
   const geos=GEOS[type];
   const rock=new THREE.Mesh(geos[(r()*geos.length)|0],M.rock);
   rock.scale.set(1,.7+r()*.4,.85+r()*.3);rock.rotation.set(r()*TAU,r()*TAU,r()*TAU);g.add(rock);
@@ -56,10 +59,15 @@ function makeAst(type,f,r){const g=new THREE.Group();const S=SECTORS[state.cur];
   else if(type==='relic'){for(let k=0;k<4;k++){const s=new THREE.Mesh(SHARD,M.relic);const d=new V3(r()-.5,r()*.7+.3,r()-.5).normalize();
       s.position.copy(d).multiplyScalar(.8);s.quaternion.setFromUnitVectors(UP_,d);s.scale.set(.16,.4+r()*.25,.16);g.add(s)}
     const sp=glow('#ffd87a',4.2,.55);g.add(sp);g.userData.spark=sp}
+  else if(type==='mix'){ // obrí zmiešaný asteroid: výbežky viriditu aj kryštálov
+    for(let k=0;k<6;k++){const s=new THREE.Mesh(SHARD,k%2?M.crystal:M.viridit);const d=new V3(r()-.5,r()*.7+.3,r()-.5).normalize();
+      s.position.copy(d).multiplyScalar(.8);s.quaternion.setFromUnitVectors(UP_,d);s.scale.set(.14,.3+r()*.25,.14);g.add(s)}
+    g.add(glow('#e8d8ff',7,.22))}
   else g.add(glow('#f0a644',3.6,.16));
   const proxy=new THREE.Mesh(new THREE.SphereGeometry(1.9,8,6),M.pick);g.add(proxy);
-  const mult={ore:30,green:20,crystal:12,relic:8}[type]*NUM;const max=Math.round(base*mult*S.rich);
+  const mult={ore:30,green:20,crystal:12,relic:8,mix:40}[type]*NUM;const max=Math.round(base*mult*S.rich);
   const a={g,type,base,amt:max,max,alive:true,respawn:0,shrink:1,claims:0,spin:new V3((r()-.5)*.5,(r()-.5)*.6,(r()-.5)*.4),pos:g.position,rmin:f.r[0],rmax:f.r[1]};
+  if(type==='mix'){const o=.25+r()*.45,gr=.2+r()*.35,c=.1+r()*.25,sum=o+gr+c;a.mixp={ore:o/sum,green:gr/sum,crystal:c/sum}}
   proxy.userData.ast=a;pickables.push(proxy);world.add(g);return a}
 function placeAst(a,r){for(let tries=0;tries<14;tries++){const ang=r()*TAU;const rad=a.rmin+r()*(a.rmax-a.rmin);
     a.g.position.set(Math.cos(ang)*rad,(r()-.5)*3,Math.sin(ang)*rad);
@@ -129,7 +137,7 @@ function makeModule(type,p,anim){const g=new THREE.Group();g.position.copy(p);g.
 function updateGate(){if(gate){world.remove(gate);pickables=pickables.filter(p=>!p.userData.gate);gate=null}
   const s=cur();if(!(s.captured||state.cur>0))return;
   const r=rng(SECTORS[state.cur].seed+5);const ang=r()*TAU;
-  gate=new THREE.Group();gate.position.set(Math.cos(ang)*72,0,Math.sin(ang)*72);gate.lookAt(0,0,0);
+  gate=new THREE.Group();gate.position.set(Math.cos(ang)*GATE_R,0,Math.sin(ang)*GATE_R);gate.lookAt(0,0,0);
   const ringG=new THREE.Group();gate.add(ringG);
   ringG.add(new THREE.Mesh(new THREE.TorusGeometry(5.2,.55,8,48),M.plate));
   ringG.add(new THREE.Mesh(new THREE.TorusGeometry(4.5,.14,6,48),M.hullGlow));
@@ -166,11 +174,11 @@ function tickDrones(dt,tt){const s=cur();
     if(stationDown>0){d.line.visible=false;moveTo(d.g,d.home,st.speed,dt,.3);continue}
     if(st.def&&enemies.length&&droneDefend(d,st,dt)){d.line.visible=false;continue}
     if(d.wait>0){d.wait-=dt;continue}
-    if(d.state==='seek'){let best=null,bd=1e9;for(const a of asts){if(!a.alive||a.amt<=0||a.type!==st.res||(st.res==='ore'&&a.rmax>Z2))continue;const dd=p.distanceTo(a.pos)+a.claims*25;if(dd<bd){bd=dd;best=a}}
+    if(d.state==='seek'){let best=null,bd=1e9;for(const a of asts){if(!a.alive||a.amt<=0||(a.type!==st.res&&a.type!=='mix')||(st.res==='ore'&&a.type!=='mix'&&a.rmax>Z2))continue;const dd=p.distanceTo(a.pos)+a.claims*25;if(dd<bd){bd=dd;best=a}}
       if(best){d.t=best;best.claims++;d.state='go'}else{d.wait=1}}
     if(d.state==='go'){const a=d.t;if(!a.alive){a.claims=Math.max(0,a.claims-1);d.state='seek';continue}const stop=astScale(a)*1.1+2.4;const dist=moveTo(d.g,a.pos,st.speed,dt,stop);if(dist<=stop+.05)d.state='mine'}
     if(d.state==='mine'){const a=d.t;if(!a.alive||a.amt<=0){a.claims=Math.max(0,a.claims-1);d.line.visible=false;d.state=d.load>0?'back':'seek';continue}
-      const take=Math.min(st.rate*MINE_RATE[a.type]*dt,a.amt,st.cap-d.load);a.amt-=take;d.load+=take;d.ltype=a.type;setAstScale(a);
+      const take=Math.min(st.rate*MINE_RATE[a.type]*dt,a.amt,st.cap-d.load);a.amt-=take;d.load+=take;d.ltype=a.type==='mix'?st.res:a.type;setAstScale(a);
       if(a.amt<=0)depleteAst(a);
       const pos=d.line.geometry.attributes.position;pos.setXYZ(0,p.x,p.y,p.z);pos.setXYZ(1,a.pos.x,a.pos.y,a.pos.z);pos.needsUpdate=true;d.line.visible=true;
       d.line.material.color.set(RCOL[a.type]);d.line.material.opacity=.5+Math.random()*.4;
@@ -201,7 +209,7 @@ function depleteAst(a,byPlayer){a.alive=false;a.respawn=a.type==='relic'?rnd(REL
     else if(a.type==='relic')giveItem(dropItem('relic',z,2),a.pos);else if(Math.random()<ASTEROID_DROP)spawnLoot(dropItem('asteroid',z),a.pos)}
   if(mineTarget===a){if(!autoNext(a))stopMining()}}
 /* optional auto-mining: move on to the nearest asteroid of the same resource while cargo has room */
-function autoNext(a){if(a.type==='relic'||state.autoMine===false||cargoTotal()>=shipVal('cargo')-.01)return false;let best=null,bd=40;
+function autoNext(a){if(a.type==='relic'||state.autoMine===false||cargoTotal()>=shipVal('cargo')-.01)return false;let best=null,bd=40*MAP_SCALE;
   for(const o of asts){if(o===a||!o.alive||o.type!==a.type||Math.hypot(o.pos.x,o.pos.z)>=HORIZON)continue;const d=ship.position.distanceTo(o.pos);if(d<bd){bd=d;best=o}}
   if(!best)return false;mineTarget=best;moveTarget=best.pos.clone().setY(0);flashMarker(best.pos,'#58d0c0');return true}
 function stopMining(){mineTarget=null;moveTarget=null}

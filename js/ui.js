@@ -94,6 +94,8 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     for(const k of Object.keys(UP))if(UP[k].grp===shipGrp)h+=upCard(k);
     if(shipGrp==='hull'&&state.hp<shipVal('hull')-.5)h+=repairCard();
     h+=`<p class="note">${t('note.ship',{a:Math.ceil(state.hp),b:shipVal('hull'),regen:D().regen?t('note.easy'):t('note.hard')})}</p>`}
+  else if(sheetTab==='missions'){$('#sheetTitle').textContent=t('npc.giver');h=renderMissions()}
+  else if(sheetTab==='trader'){$('#sheetTitle').textContent=t('npc.trader');h=renderTrader()}
   else if(sheetTab==='pilot'){$('#sheetTitle').textContent=t('sh.pilot');h=renderPilot()}
   else if(sheetTab==='admin'){$('#sheetTitle').textContent='Admin';h=renderAdmin()}
   else if(sheetTab==='gear'){$('#sheetTitle').textContent=t('sh.gear');h=renderGear()}
@@ -151,6 +153,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(pilotAct(act,b))return; // schopnosti pilota (pilot.js)
   if(arenaAct(act,b))return; // aréna (arena.js)
   if(tierAct(act,b))return; // úroveň výzvy (tier.js)
+  if(traderAct(act,b))return; // obchodník (npc.js)
   if(act==='cmpMode'){state.cmpMode=b.dataset.v;save();renderSheet();return}
   if(act==='grp'){shipGrp=b.dataset.g;focusIdx=SHIP_TABS.indexOf(shipGrp);renderSheet();return}
   if(act==='lang'){setLang(b.dataset.l);return}

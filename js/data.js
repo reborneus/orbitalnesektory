@@ -4,23 +4,27 @@
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
 /* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
-const GAME_VERSION='0.14.3';
+const GAME_VERSION='0.15.0';
 const NUM=10,ECON=1.6;
 const P=(c,m=1)=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON*m);return o};
 /* v0.12: stavba a vylepšovanie stanice je v každom ďalšom sektore SEC_COST× drahšie (príjmy rastú len ~1,3×) */
 const SEC_COST=1.45;const secMul=()=>Math.pow(SEC_COST,(typeof state!=='undefined'&&state)?state.cur:0);
 /* Suroviny: interné názvy ore = ruda, green = viridit, crystal = kryštály. */
 const RES=['ore','green','crystal'];
-const RCOL={ore:'#f0a644',green:'#86e05a',crystal:'#a98bff',relic:'#ffd87a'};
+const RCOL={ore:'#f0a644',green:'#86e05a',crystal:'#a98bff',relic:'#ffd87a',mix:'#e8d8ff'};
 const RCLS={ore:'ore',green:'grn',crystal:'cry'};
 /* Násobok rýchlosti ťažby podľa suroviny (1 = plný výkon lasera). Vzácnejšie sa ťažia pomalšie. */
-const MINE_RATE={ore:1,green:.7,crystal:.5,relic:.4};
+const MINE_RATE={ore:1,green:.7,crystal:.5,relic:.4,mix:.45};
+/* v0.15: mix = obrovský zmiešaný asteroid (6. mapa) – obsahuje rudu, viridit aj kryštály v náhodnom pomere (a.mixp), ťaží sa dlho. */
 /* Relikt (relic) = malý vzácny asteroid bez suroviny; po vyťažení z neho padne predmet (pozri items.js). Nezapĺňa náklad. */
 const RELIC_RESPAWN=[150,240];   // relikt sa znovu objaví po 150–240 s
 /* Pásy sektora = vzdialenosť od stanice v metroch:
    pás 1: 0–Z1, pás 2: Z1–Z2, pás 3: Z2–Z3 (radiácia), pás 4: Z3–HORIZON (silnejšia radiácia).
    Za HORIZON trup rýchlo ubúda a štíty nepomáhajú. LIMIT = najďalej, kam sa dá doletieť. */
-const Z1=40,Z2=80,Z3=120,HORIZON=160,LIMIT=230;
+/* v0.15: mapy sú MAP_SCALE× väčšie (počet asteroidov ostáva, takže pôsobia menej nahustene). */
+const MAP_SCALE=2;
+const Z1=40*MAP_SCALE,Z2=80*MAP_SCALE,Z3=120*MAP_SCALE,HORIZON=160*MAP_SCALE,LIMIT=230*MAP_SCALE;
+const GATE_R=72*MAP_SCALE;   // vzdialenosť skokovej brány od stanice
 /* Sektory v poradí, v akom sa odomykajú. Polia:
    name/seed ... seed určuje rozloženie asteroidov a polohu brány (iné číslo = iné rozloženie)
    rich ........ násobok množstva suroviny v jednom asteroide (v0.12: každý ďalší sektor ~ +30 %)
@@ -34,17 +38,17 @@ const Z1=40,Z2=80,Z3=120,HORIZON=160,LIMIT=230;
 const SECTORS=[
   {name:'Kepler-12',seed:11,rich:1,rar:{max:4,top:.25},neb:['#173a6e','#3b1e5e'],planet:'#c98a4b',pPos:[-140,-340,-120],capture:120,res:['ore'],
     fields:[{type:'ore',n:38,r:[44,78]},{type:'ore',n:20,r:[84,156]},{type:'relic',n:3,r:[60,156]}],reward:{cr:600,minR:3},ilvl:1},
-  {name:'Vega Drift',seed:23,rich:1.3,rar:{max:4,top:.6},neb:['#3a1d62','#0d4c5c'],planet:'#5fa3c9',pPos:[150,-360,-100],capture:180,res:['ore','green'],
-    fields:[{type:'ore',n:34,r:[44,78]},{type:'green',n:24,r:[84,156]},{type:'ore',n:8,r:[84,150]},{type:'relic',n:4,r:[70,156]}],reward:{cr:900,minR:4},ilvl:11},
-  {name:'Orion Hlbina',seed:37,rich:1.69,rar:{max:5,top:.3},neb:['#5c1b31','#1b2e6e'],planet:'#9b6bd1',pPos:[-110,-380,110],capture:240,res:['ore','green','crystal'],
-    fields:[{type:'ore',n:32,r:[44,78]},{type:'green',n:18,r:[84,118]},{type:'crystal',n:16,r:[124,156]},{type:'green',n:6,r:[124,156]},{type:'relic',n:5,r:[80,156]}],reward:{cr:1300,minR:4},ilvl:21},
+  {name:'Vega Drift',seed:23,rich:1.3,rar:{max:4,top:.6},neb:['#3a1d62','#0d4c5c'],planet:'#5fa3c9',pPos:[150,-360,-100],capture:180,res:['green'],
+    fields:[{type:'green',n:30,r:[44,78]},{type:'green',n:26,r:[84,156]},{type:'relic',n:4,r:[70,156]}],reward:{cr:900,minR:4},ilvl:11},
+  {name:'Orion Hlbina',seed:37,rich:1.69,rar:{max:5,top:.3},neb:['#5c1b31','#1b2e6e'],planet:'#9b6bd1',pPos:[-110,-380,110],capture:240,res:['ore','green'],
+    fields:[{type:'ore',n:18,r:[44,78]},{type:'green',n:22,r:[56,100]},{type:'green',n:16,r:[100,156]},{type:'relic',n:5,r:[80,156]}],reward:{cr:1300,minR:4},ilvl:21},
   /* v0.8: sektory 4–6 – bohatšie polia (rich), silnejší piráti (PIRATES), vyššia úroveň predmetov (ilvl) */
-  {name:'Cygnus Prah',seed:53,rich:2.2,rar:{max:5,top:.8},neb:['#0d5c4a','#5c3a0d'],planet:'#d1c06b',pPos:[160,-370,120],capture:290,res:['ore','green','crystal'],
-    fields:[{type:'ore',n:30,r:[44,78]},{type:'green',n:20,r:[84,124]},{type:'crystal',n:18,r:[118,156]},{type:'ore',n:6,r:[84,150]},{type:'relic',n:5,r:[70,156]}],reward:{cr:1800,minR:5},ilvl:31},
-  {name:'Andromeda Brána',seed:71,rich:2.86,rar:{max:6,top:.4},neb:['#5c0d4e','#0d2a5c'],planet:'#e06b8a',pPos:[-170,-360,-90],capture:340,res:['ore','green','crystal'],
-    fields:[{type:'ore',n:28,r:[44,78]},{type:'green',n:18,r:[84,120]},{type:'crystal',n:22,r:[110,156]},{type:'relic',n:6,r:[70,156]}],reward:{cr:2500,minR:5},ilvl:41},
+  {name:'Cygnus Prah',seed:53,rich:2.2,rar:{max:5,top:.8},neb:['#0d5c4a','#5c3a0d'],planet:'#d1c06b',pPos:[160,-370,120],capture:290,res:['green','crystal'],
+    fields:[{type:'green',n:24,r:[44,100]},{type:'green',n:12,r:[100,156]},{type:'crystal',n:10,r:[118,156]},{type:'relic',n:5,r:[70,156]}],reward:{cr:1800,minR:5},ilvl:31},
+  {name:'Andromeda Brána',seed:71,rich:2.86,rar:{max:6,top:.4},neb:['#5c0d4e','#0d2a5c'],planet:'#e06b8a',pPos:[-170,-360,-90],capture:340,res:['crystal'],
+    fields:[{type:'crystal',n:24,r:[44,100]},{type:'crystal',n:22,r:[100,156]},{type:'relic',n:6,r:[70,156]}],reward:{cr:2500,minR:5},ilvl:41},
   {name:'Erebus Prázdnota',seed:89,rich:3.71,rar:{max:7,top:.03},neb:['#2a0d5c','#5c0d0d'],planet:'#8a8fa8',pPos:[120,-390,-140],capture:400,res:['ore','green','crystal'],
-    fields:[{type:'ore',n:26,r:[44,78]},{type:'green',n:16,r:[84,118]},{type:'crystal',n:26,r:[104,156]},{type:'relic',n:7,r:[70,156]}],reward:{cr:3400,minR:6},ilvl:51},
+    fields:[{type:'mix',n:22,r:[50,156]},{type:'relic',n:7,r:[70,156]}],reward:{cr:3400,minR:6},ilvl:51},
   /* v0.13: PIRÁTSKA ARÉNA – špeciálna mapa bez ťažby: vlny pirátov a odmeny z anomálie (arena.js). Odomkne sa po obsadení posledného sektora. */
   {name:'Pirátska aréna',arena:true,seed:101,rich:0,rar:{max:6,top:.3},neb:['#5c0d1a','#2a0d3a'],planet:'#b0404a',pPos:[-150,-380,130],capture:1e9,res:[],fields:[],reward:{cr:0,minR:0},ilvl:61},
 ];
@@ -163,6 +167,7 @@ const SAVE_KEY='orbitalne-sektory-v3';
 
 /* v0.9: prepočet tabuliek na veľké čísla (pozri NUM a ECON na začiatku súboru) */
 (function scaleNumbers(){
+  for(const s of SECTORS)for(const f of s.fields)f.r=f.r.map(v=>v*MAP_SCALE);   // väčšie mapy
   for(const s of SECTORS)s.reward.cr*=NUM;
   for(const id in SHIPS)if(SHIPS[id].cost)SHIPS[id].cost=P(SHIPS[id].cost);
   for(const k of['hull','cargo','shield','laser','gun'])UP[k].vals=UP[k].vals.map(v=>v*NUM);
