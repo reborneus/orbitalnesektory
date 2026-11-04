@@ -83,6 +83,7 @@ function nearestEnemy(from,maxD){let best=null,bd=maxD;for(const e of enemies){i
 const gunRange=()=>GUN_RANGE+bonus().grange;
 function playerGun(dt){gunCd-=dt;if(dead||jumping)return;const R=gunRange();
   let tg=attackTarget&&enemies.includes(attackTarget)&&ship.position.distanceTo(attackTarget.pos)<=R?attackTarget:nearestEnemy(ship.position,R);
+  if(tg){gunTgt=tg;gunTgtT=1.6}   // posledný cieľ streľby (natáčanie lode, zameriavací krúžok)
   if(!tg||gunCd>0)return;gunCd=GUN_VIS_INT;playerBurst(tg)}   /* v0.19.3: salvy v stálom tempe; rýchlosť streľby mení len poškodenie (gunVolleyDmg) */   // v0.16: laserová dávka (lasers.js)
 function towersFire(dt){if(stationDown>0)return;const s=cur();s.slots.forEach((m,i)=>{if(slotType(m)!=='tower'||i>=slotsFor(s.core))return;
   towerCd[i]=(towerCd[i]||0)-dt;if(towerCd[i]>0)return;const ts=towerStats(m);const tg=nearestEnemy(new V3(0,0,0),ts.range);if(!tg)return;
@@ -116,6 +117,7 @@ function tickEnemies(dt,tt){for(const e of enemies.slice()){
 function fireMissile(e){const s=glow('#ff9a3a',2.6,1);s.position.copy(e.pos);world.add(s);const dir=new V3().subVectors(ship.position,e.pos).setY(0).normalize();
   bolts.push({s,vel:dir.multiplyScalar(24),life:7,dmg:e.dmg,side:'enemy',homing:1.4})}
 function tickCombat(dt,tt){
+  gunTgtT-=dt;tickLock(dt);tickEdgeArrows();
   if(stationDown>0)stationDown-=dt;
   if(!raidActive&&stationHp<stationMaxHp())stationHp=Math.min(stationMaxHp(),stationHp+PIRATES.stationRegen*dt);
   tickPassiveQ(dt);const c=raidCfg();if(c&&!raidActive&&!enemies.some(e=>!e.wasPassive)&&$('#intro').hidden){raidT-=dt;if(raidT<=0){spawnRaid();raidT=rnd(c.every[0],c.every[1])}}
@@ -154,3 +156,31 @@ function tickPassive(e,dt,tt){const dShip=dead?1e9:e.pos.distanceTo(ship.positio
   if(e.interest>0&&dist<6){_ev.subVectors(ship.position,e.pos);e.body.rotation.y=Math.atan2(_ev.x,_ev.z)}   // pri sledovaní sa natočí na hráča
   else if(e.vel.lengthSq()>.3)e.body.rotation.y=Math.atan2(e.vel.x,e.vel.z)}
 function tickPassiveQ(dt){for(const q of passiveQ.slice()){q.t-=dt;if(q.t<=0){passiveQ.splice(passiveQ.indexOf(q),1);spawnPassive(q.belt)}}}
+
+/* ==================== v0.19.4: ZAMERANIE A UKAZOVATELE NA OKRAJI ====================
+   combatTarget() = ručne zvolený cieľ útoku, alebo pirát, na ktorého zbraň strieľala za posledných 1,6 s. Loď sa naň natáča
+   (control.js) a okolo neho sa točí červený zameriavací krúžok so štyrmi zúbkami.
+   Ukazovatele na okraji obrazovky: pre pirátov mimo obrazovky bližšie ako EDGE_R (≈ polovica šírky pásu) sa pri okraji ukáže
+   šípka v smere k nim (červená = nepriateľ, oranžová = pasívny) so vzdialenosťou. */
+let gunTgt=null,gunTgtT=0,lockMk=null;
+function combatTarget(){if(dead)return null;if(attackTarget&&enemies.includes(attackTarget))return attackTarget;
+  if(gunTgt&&gunTgtT>0&&enemies.includes(gunTgt)&&!gunTgt.leaving)return gunTgt;return null}
+function tickLock(dt){const ct=combatTarget();
+  if(!lockMk){const g=new THREE.Group();const mat=new THREE.MeshBasicMaterial({color:new THREE.Color('#ff5a4a'),transparent:true,opacity:.85,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,toneMapped:false});
+    const r=new THREE.Mesh(new THREE.RingGeometry(1,1.08,48,1,0,TAU*.8),mat);g.add(r);
+    for(let i=0;i<4;i++){const tk=new THREE.Mesh(new THREE.PlaneGeometry(.12,.45),mat);const a=i/4*TAU;tk.position.set(Math.cos(a)*1.3,Math.sin(a)*1.3,0);tk.rotation.z=a+Math.PI/2;g.add(tk)}
+    g.rotation.x=-Math.PI/2;g.visible=false;scene.add(g);lockMk=g}
+  if(!ct){lockMk.visible=false;return}
+  const s=(ct.r||2)*1.35+1;lockMk.visible=true;lockMk.position.set(ct.pos.x,ct.pos.y-.4,ct.pos.z);lockMk.scale.setScalar(s*(1+.05*Math.sin(performance.now()/120)));lockMk.rotation.z+=dt*1.6}
+const EDGE_R=Z1*.5;   // polovica šírky pásu
+let edgeLayer=null;const edgeEls=[];
+function tickEdgeArrows(){if(!edgeLayer){edgeLayer=document.createElement('div');edgeLayer.id='edgeLayer';document.body.appendChild(edgeLayer)}
+  const W=innerWidth,H=innerHeight,M=34,cx=W/2,cy=H/2;let n=0;
+  if(!dead&&$('#intro').hidden&&!jumping)for(const e of enemies){if(e.leaving)continue;const d=Math.hypot(e.pos.x-ship.position.x,e.pos.z-ship.position.z);if(d>EDGE_R)continue;
+    const v=e.pos.clone().project(camera);let x=(v.x*.5+.5)*W,y=(-v.y*.5+.5)*H;if(v.z>1){x=W-x;y=H-y}
+    if(x>M&&x<W-M&&y>M&&y<H-M&&v.z<=1)continue;   // pirát je na obrazovke
+    const dx=x-cx,dy=y-cy,k=Math.min((cx-M)/Math.max(1e-3,Math.abs(dx)),(cy-M)/Math.max(1e-3,Math.abs(dy)));const px=cx+dx*k,py=cy+dy*k;
+    let el=edgeEls[n];if(!el){el=document.createElement('div');el.className='edgeArr';el.innerHTML='<i></i><span></span>';edgeLayer.appendChild(el);edgeEls.push(el)}
+    el.hidden=false;el.classList.toggle('pas',!!e.passive);el.style.transform=`translate(${px}px,${py}px)`;el.firstChild.style.transform=`translate(-6px,-9px) rotate(${Math.atan2(dy,dx)}rad)`;
+    el.lastChild.textContent=Math.round(d)+' m';el.style.opacity=(.55+.45*(1-d/EDGE_R)).toFixed(2);n++}
+  for(let i=n;i<edgeEls.length;i++)edgeEls[i].hidden=true}

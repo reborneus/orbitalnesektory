@@ -518,3 +518,10 @@ body.pad .pg{display:block}
 #hintTip{position:fixed;left:0;top:0;z-index:9998;pointer-events:none;max-width:300px;padding:7px 10px;border-radius:9px;
   background:rgba(9,16,29,.94);border:1px solid rgba(88,208,192,.35);box-shadow:0 6px 22px rgba(0,0,0,.45);color:#dde7f1;font-size:12.5px;line-height:1.35}
 #hintTip b{color:#fff}#hintTip small{color:#8597ab}
+
+/* v0.19.4: šípky k pirátom mimo obrazovky */
+#edgeLayer{position:fixed;inset:0;pointer-events:none;z-index:7}
+.edgeArr{position:absolute;left:0;top:0;width:0;height:0}
+.edgeArr i{position:absolute;left:0;top:0;width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:18px solid #ff5a4a;filter:drop-shadow(0 0 6px #ff5a4a);transform-origin:6px 9px}
+.edgeArr span{position:absolute;left:0;top:0;transform:translate(-50%,14px);font:600 11px 'JetBrains Mono',monospace;color:#ffb0a6;text-shadow:0 0 4px #000;white-space:nowrap}
+.edgeArr.pas i{border-left-color:#ffb35a;filter:drop-shadow(0 0 6px #ffb35a)}.edgeArr.pas span{color:#ffd6a0}

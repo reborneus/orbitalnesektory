@@ -131,7 +131,11 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   if(dead)return;
   const sp=shipVel.length();let roll=0;
   // nos lode sa natáča za smerom letu, rýchlejšie pri vyššej obratnosti; náklon podľa zatáčania
-  if(sp>.5){const want=Math.atan2(shipVel.x,shipVel.z);const diff=((want-shipYaw+Math.PI)%TAU+TAU)%TAU-Math.PI;shipYaw+=diff*Math.min(1,dt*6*shipVal('turn')/150);roll=clamp(-diff*1.2,-.6,.6)}
+  // v0.19.4: počas boja je nos lode vždy natočený na cieľ (loď môže letieť bokom), inak za smerom letu
+  const ct=combatTarget();
+  if(ct){_v.subVectors(ct.pos,ship.position);const want=Math.atan2(_v.x,_v.z);const diff=((want-shipYaw+Math.PI)%TAU+TAU)%TAU-Math.PI;shipYaw+=diff*Math.min(1,dt*8*shipVal('turn')/150);
+    if(sp>.5){const vd=((Math.atan2(shipVel.x,shipVel.z)-shipYaw+Math.PI)%TAU+TAU)%TAU-Math.PI;roll=clamp(-Math.sin(vd)*.35,-.35,.35)}}
+  else if(sp>.5){const want=Math.atan2(shipVel.x,shipVel.z);const diff=((want-shipYaw+Math.PI)%TAU+TAU)%TAU-Math.PI;shipYaw+=diff*Math.min(1,dt*6*shipVal('turn')/150);roll=clamp(-diff*1.2,-.6,.6)}
   else if(mineTarget){_v.subVectors(mineTarget.pos,ship.position);const want=Math.atan2(_v.x,_v.z);let diff=((want-shipYaw+Math.PI)%TAU+TAU)%TAU-Math.PI;shipYaw+=diff*Math.min(1,dt*5*shipVal('turn')/150)}
   ship.rotation.y=shipYaw;const body=ship.userData.body;body.rotation.z+=(roll-body.rotation.z)*Math.min(1,dt*5);
   ship.position.y=Math.sin(tt*1.6)*.25;
