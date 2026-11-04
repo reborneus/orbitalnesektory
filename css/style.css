@@ -542,3 +542,23 @@ img.escico{width:26px;height:26px;stroke:none;object-fit:contain;vertical-align:
 
 /* v0.23: posuvník nepriehľadnosti menu */
 .rangerow{grid-column:1/-1;display:flex;align-items:center;gap:12px}.rangerow input{flex:1;accent-color:var(--hull)}.rangerow b{font-family:var(--f-data);min-width:44px;text-align:right}
+
+/* v0.25: minimapa s ovládaním veľkosti */
+.miniwrap{position:relative;pointer-events:auto;align-self:flex-end}
+.minictl{position:absolute;left:0;bottom:0;display:flex;gap:3px;opacity:.55;transition:opacity .15s}
+.miniwrap:hover .minictl{opacity:1}
+.minictl button{width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:rgba(6,11,20,.85);color:var(--text);font:700 15px/1 var(--f-data);cursor:pointer;padding:0}
+.minictl button:hover{border-color:var(--hull);color:var(--hull)}
+body.pad .minictl{display:none}
+/* v0.25: režim úpravy rozloženia HUD */
+body.hudedit .hud-top .sector,body.hudedit .hud-top .res,body.hudedit #miniWrap,body.hudedit .dock{pointer-events:auto;cursor:move;outline:2px dashed rgba(88,208,192,.75);outline-offset:3px;box-shadow:0 0 0 9999px rgba(0,0,0,0)}
+body.hudedit .hud-top .sector *,body.hudedit .hud-top .res *,body.hudedit #miniWrap *,body.hudedit .dock *{pointer-events:none}
+#hudBar{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:20;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;
+  background:rgba(9,16,29,.95);border:1px solid var(--hull);box-shadow:0 10px 40px rgba(0,0,0,.6);font-size:14px}
+#hudBar .act{position:static}
+/* v0.25: na PC sa okná (hangár, vylepšenia, výbava…) otvárajú v strede obrazovky nad dolnou lištou */
+@media (min-width:900px) and (hover:hover){
+  .sheet:not(.side){top:calc((100vh - 110px)/2);bottom:auto;transform:translate(-50%,-50%);max-height:calc(100vh - 150px);border-radius:14px;border-bottom:1px solid var(--line);
+    box-shadow:0 20px 60px rgba(0,0,0,.6);animation:sheetInC .22s ease}
+}
+@keyframes sheetInC{from{transform:translate(-50%,calc(-50% + 18px));opacity:0}to{transform:translate(-50%,-50%);opacity:1}}

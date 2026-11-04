@@ -44,7 +44,7 @@ document.addEventListener('pointerdown',()=>hoverHide());
 const HOVER_TIPS=[['[data-tab="station"]','ht.station'],['[data-tab="ship"]','ht.ship'],['[data-tab="gear"]','ht.gear'],['[data-tab="map"]','ht.map'],
   ['[data-tab="settings"]','ht.settings'],['#wikiBtn','ht.wiki'],['#homeBtn','ht.home'],['#pilotBtn','ht.pilot'],['.sector .inf','ht.inf'],['#stRow','ht.st'],
   ['.res .r.ore','ht.ore'],['.res .r.grn','ht.grn'],['.res .r.cry','ht.cry'],['.res .r.crd','ht.cr'],['#cargoRow','ht.cargo'],['#rsRow','ht.rs'],['#shRow','ht.sh'],
-  ['.res .meter:not([id])','ht.hp'],['#mini','ht.mini'],['#sheetClose','ht.close']];
+  ['.res .meter:not([id])','ht.hp'],['.minictl','ht.mz'],['#mini','ht.mini'],['#sheetClose','ht.close']];
 let hintEl=null,hintKey=null,pmHover=false,_wtT=0,_wtLast=null;
 function hintShow(text,x,y){if(!hintEl){hintEl=document.createElement('div');hintEl.id='hintTip';document.body.appendChild(hintEl)}
   if(hintKey!==text){hintEl.innerHTML=text;hintKey=text}hintEl.hidden=false;

@@ -126,6 +126,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`;
     h+=tierCard();
+    if(canHover)h+=`<div class="card"><h3>${t('set.hud')}</h3><button class="act" data-act="hudEdit">${t('set.hud.b')}</button><p>${t('set.hud.d')}</p></div>`;   // len PC
     h+=`<div class="card"><h3>${t('set.ma')}</h3><div class="rangerow"><input type="range" id="menuAlpha" min="35" max="100" step="5" value="${state.menuAlpha||100}"><b id="menuAlphaV">${state.menuAlpha||100} %</b></div><p>${t('set.ma.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.pm')}</h3><div class="langs">${['on','off'].map(v=>`<button class="langb" data-act="padMouse" data-v="${v}" aria-pressed="${padMouseOn()===(v==='on')}">${t(v)}</button>`).join('')}</div><p>${t('set.pm.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.cmp')}</h3><div class="langs">${CMP_MODES.map(m=>`<button class="langb" data-act="cmpMode" data-v="${m}" aria-pressed="${cmpMode()===m}">${t('cmp.'+m)}</button>`).join('')}</div><p>${t('set.cmp.d')}</p></div>`;
@@ -167,6 +168,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(arenaAct(act,b))return; // aréna (arena.js)
   if(tierAct(act,b))return; // úroveň výzvy (tier.js)
   if(traderAct(act,b))return; // obchodník (npc.js)
+  if(act==='hudEdit'){closeSheet();hudEdit(true);return}
   if(act==='padMouse'){setPadMouse(b.dataset.v==='on');return}
   if(act==='cmpMode'){state.cmpMode=b.dataset.v;save();renderSheet();return}
   if(act==='grp'){shipGrp=b.dataset.g;focusIdx=SHIP_TABS.indexOf(shipGrp);renderSheet();return}
@@ -244,3 +246,40 @@ $('#wikiBtn').addEventListener('click',()=>openWiki());
 /* v0.23: nepriehľadnosť menu (Nastavenia → posuvník); ukladá sa do state.menuAlpha (35–100 %) */
 function applyMenuAlpha(){document.documentElement.style.setProperty('--menu-a',((state&&state.menuAlpha)||100)/100)}
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='menuAlpha'){state.menuAlpha=+e.target.value;applyMenuAlpha();const v=$('#menuAlphaV');if(v)v.textContent=state.menuAlpha+' %';save()}});
+
+/* ==================== v0.25: VEĽKOSŤ MINIMAPY ====================
+   Tlačidlá − / + pri minimape, koliesko myši nad minimapou, R3 na ovládači (dookola). state.miniSize = index v MINI_SIZES. */
+const MINI_SIZES=[110,150,200,260,330];
+function applyMini(){const i=state&&state.miniSize;const m=$('#mini');if(!m)return;if(i==null){m.style.width=m.style.height=''}else{const s=MINI_SIZES[i]+'px';m.style.width=m.style.height=s}
+  if(typeof sizeMini==='function')sizeMini();clampHud()}
+function miniZoom(d,wrap){if(!state)return;let i=state.miniSize==null?1:state.miniSize;i+=d;if(wrap)i=(i+MINI_SIZES.length)%MINI_SIZES.length;else i=clamp(i,0,MINI_SIZES.length-1);state.miniSize=i;applyMini();save()}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.minictl button');if(!b)return;e.stopPropagation();miniZoom(+b.dataset.mz)},true);
+$('#mini').addEventListener('wheel',e=>{e.preventDefault();e.stopPropagation();miniZoom(e.deltaY<0?1:-1)},{passive:false});
+
+/* ==================== v0.25: ROZLOŽENIE HUD (PC) ====================
+   Nastavenia → Rozloženie HUD → Upraviť: panely HUD_MOVE sa dajú ťahať myšou; po „Hotovo“ sa polohy uložia do state.hudPos
+   (px od ľavého horného rohu). Presunutý panel má position:fixed; pri zmene veľkosti okna sa posunie späť do obrazovky. */
+const HUD_MOVE={sector:'.hud-top .sector',res:'.hud-top .res',mini:'#miniWrap',dock:'.dock'};
+let hudEditing=false,hudBar=null;
+function hudEl(k){return document.querySelector(HUD_MOVE[k])}
+function placeHud(k,x,y){const el=hudEl(k);if(!el)return;const r=el.getBoundingClientRect();
+  if(!el.style.width&&k!=='mini')el.style.width=r.width+'px';
+  el.style.position='fixed';el.style.margin='0';el.style.zIndex='6';el.style.left=clamp(x,0,innerWidth-Math.min(r.width,innerWidth))+'px';el.style.top=clamp(y,0,innerHeight-Math.min(r.height,innerHeight))+'px';el.style.right='auto';el.style.bottom='auto'}
+function applyHud(){if(!state||!state.hudPos)return;for(const k in state.hudPos){const p=state.hudPos[k];placeHud(k,p.x,p.y)}}
+function clampHud(){if(!state||!state.hudPos)return;for(const k in state.hudPos){const el=hudEl(k);if(el&&el.style.position==='fixed')placeHud(k,parseFloat(el.style.left),parseFloat(el.style.top))}}
+function resetHud(){for(const k in HUD_MOVE){const el=hudEl(k);if(!el)continue;for(const p of['position','margin','zIndex','left','top','right','bottom','width'])el.style[p]=''}if(state)delete state.hudPos;save()}
+function hudEdit(on){hudEditing=on;document.body.classList.toggle('hudedit',on);
+  // najprv zmerať všetky panely, potom ich naraz pripnúť (inak by sa ostatné po vybratí jedného z toku posunuli)
+  if(on){const R={};for(const k in HUD_MOVE){const el=hudEl(k);if(el){const r=el.getBoundingClientRect();R[k]=[r.left,r.top,r.width]}}
+    for(const k in R){const el=hudEl(k);if(!el.style.width&&k!=='mini')el.style.width=R[k][2]+'px'}for(const k in R)placeHud(k,R[k][0],R[k][1])
+    if(!hudBar){hudBar=document.createElement('div');hudBar.id='hudBar';document.body.appendChild(hudBar);
+      hudBar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.h==='reset'){resetHud();hudEdit(true)}else hudEdit(false)})}
+    hudBar.innerHTML=`<span>${t('hud.edit')}</span><button class="act" data-h="reset">${t('hud.reset')}</button><button class="act" data-h="done">${t('hud.done')}</button>`;hudBar.hidden=false}
+  else{if(hudBar)hudBar.hidden=true;state.hudPos={};for(const k in HUD_MOVE){const el=hudEl(k);if(el&&el.style.position==='fixed')state.hudPos[k]={x:parseFloat(el.style.left),y:parseFloat(el.style.top)}}save()}}
+// ťahanie panelov v režime úprav (zachytí udalosti skôr, než sa dostanú k hre alebo tlačidlám)
+{let drag=null;
+  document.addEventListener('pointerdown',e=>{if(!hudEditing)return;for(const k in HUD_MOVE){const el=hudEl(k);if(el&&el.contains(e.target)){e.preventDefault();e.stopPropagation();const r=el.getBoundingClientRect();drag={k,dx:e.clientX-r.left,dy:e.clientY-r.top};return}}},true);
+  document.addEventListener('pointermove',e=>{if(drag){placeHud(drag.k,e.clientX-drag.dx,e.clientY-drag.dy)}},true);
+  document.addEventListener('pointerup',()=>{drag=null},true);
+  document.addEventListener('click',e=>{if(hudEditing&&!(hudBar&&hudBar.contains(e.target))){e.preventDefault();e.stopPropagation()}},true)}
+addEventListener('resize',()=>clampHud());

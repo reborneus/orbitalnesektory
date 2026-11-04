@@ -125,6 +125,7 @@ function pollPad(dt){let pads=[];try{pads=navigator.getGamepads?navigator.getGam
     if(press(3))toggleTab('station');if(press(2))toggleTab('ship');if(press(9))toggleTab('map');if(press(6))toggleTab('gear')}
   else{if(!pm){padVec.set(lx+dx,0,ly+dy);if(padVec.lengthSq()>1)padVec.normalize()}   // s kurzorom myši je ovládanie lode páčkou vypnuté
     if(press(8))toggleAutopilot();if(!pm&&(press(0)||press(7)))padAct();if(!pm&&(press(4)||press(5)))padCycle(press(5)?1:-1);if(press(1))goHome();if(press(3))openSheet('station');if(press(2))openSheet('ship');if(press(9))openSheet('map');if(press(6))openSheet('gear')}
+  if(press(11))miniZoom(1,true);   // R3 = ďalšia veľkosť minimapy (dookola)
   const ry=p.axes[3]||0;if(!pm&&Math.abs(ry)>.2)zoom=clamp(zoom*(1+ry*dt*1.2),ZMIN,ZMAX);
   padTargetTick(dt,inputMode==='pad'&&!pm&&!sheetTab&&!dead&&$('#intro').hidden&&!wikiOpen());
   padPrev=p.buttons.map((b,i)=>btn(i))}
