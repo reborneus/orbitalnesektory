@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.9.0", "date": "2026-11-04", "sha": "7343da752225c7d30ba32b72e32472f8bee5eadf", "title": "big numbers with K/M/B format, pricier economy, critical hits, damage numbers"},
   {"version": "0.8.3", "date": "2026-11-04", "sha": "b871bff2c6b17206871ab60801257bf934b3e337", "title": "rarity-colored loot, relic items to inventory, version picker in launchers"},
   {"version": "0.8.0", "date": "2026-11-03", "sha": "483ed7b2b9cbccf932633e5153c21f6c66d1e47b", "title": "hangar with Falcon and Bison ships, sectors 4-6, pirate frigate"},
   {"version": "0.7.4", "date": "2026-11-03", "sha": "aa9419ad4c2bfe768545bd1e084e0423dba21ccb", "title": "agility upgrade, drift-free turning"},
