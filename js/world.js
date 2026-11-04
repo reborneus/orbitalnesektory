@@ -7,6 +7,7 @@ let world=null,asts=[],pickables=[],stationG=null,stationAnim=null,gate=null,dro
 const STATION_R=42;   // v0.26: 3× väčšia stanica (dosah stanice, vykladanie, štart lode)
 /* v0.18: stanica (megaštruktúra) je zapustená STATION_Y pod rovinou letu – loď nad ňou prelieta. DECK_R = polomer palubného
    prstenca, na ktorom stoja moduly (slotPos vracia polohu modulu v rovine stanice). */
+const GATE_K=2.6;   // v0.27: mierka brány
 const ST_SCALE=3,STATION_Y=-40,DECK_R=13,DECK_TOP=.75*ST_SCALE;   // v0.26: konštrukcia ST_SCALE× väčšia; DECK_TOP = výška paluby v stanici
 function slotPos(i){const a=i/6*TAU+Math.PI/6,R=DECK_R*ST_SCALE;return new V3(Math.cos(a)*R,0,Math.sin(a)*R)}
 let _stMats=null;
@@ -118,7 +119,7 @@ function makeAst(type,f,r){const g=new THREE.Group();const S=SECTORS[state.cur];
   proxy.userData.ast=a;pickables.push(proxy);world.add(g);return a}
 function placeAst(a,r){for(let tries=0;tries<14;tries++){const ang=r()*TAU;const rad=a.rmin+r()*(a.rmax-a.rmin);
     a.g.position.set(Math.cos(ang)*rad,(r()-.5)*3,Math.sin(ang)*rad);
-    if(gate&&a.g.position.distanceTo(gate.position)<12)continue;
+    if(gate&&a.g.position.distanceTo(gate.position)<12*GATE_K)continue;
     if(a.g.position.distanceTo(ship.position)<16)continue;
     if(!asts.some(o=>o!==a&&o.alive&&o.g.position.distanceTo(a.g.position)<a.base+o.base+3))break}
   setAstScale(a)}
@@ -219,14 +220,16 @@ function updateGate(){if(gate){world.remove(gate);pickables=pickables.filter(p=>
   const s=cur();if(!(s.captured||state.cur>0))return;
   const r=rng(SECTORS[state.cur].seed+5);const ang=r()*TAU;
   gate=new THREE.Group();gate.position.set(Math.cos(ang)*GATE_R,0,Math.sin(ang)*GATE_R);gate.lookAt(0,0,0);
-  const ringG=new THREE.Group();gate.add(ringG);
+  // v0.27: brána GATE_K× väčšia (prejdú ňou aj veľké lode); stred je o niečo nižšie, aby vrch neprekážal kamere
+  const tilt=new THREE.Group();tilt.rotation.x=-1.1;tilt.position.y=-7;gate.add(tilt);   // naklonená dozadu: zhora vidno otvor brány
+  const ringG=new THREE.Group();ringG.scale.setScalar(GATE_K);tilt.add(ringG);
   ringG.add(new THREE.Mesh(new THREE.TorusGeometry(5.2,.55,8,48),M.plate));
   ringG.add(new THREE.Mesh(new THREE.TorusGeometry(4.5,.14,6,48),M.hullGlow));
   for(let i=0;i<6;i++){const a=i/6*TAU;const n=new THREE.Mesh(new THREE.BoxGeometry(.9,1.4,1.4),M.metal);n.position.set(Math.cos(a)*5.4,Math.sin(a)*5.4,0);n.rotation.z=a;ringG.add(n)}
-  const core=glow('#7ef2e2',9,.55);gate.add(core);gate.userData.ring=ringG;gate.userData.core=core;
-  const proxy=new THREE.Mesh(new THREE.SphereGeometry(7,8,6),M.pick);proxy.userData.gate=true;gate.add(proxy);pickables.push(proxy);
+  const core=glow('#7ef2e2',9*GATE_K,.5);core.position.y=-7;gate.add(core);gate.userData.ring=ringG;gate.userData.core=core;
+  const proxy=new THREE.Mesh(new THREE.SphereGeometry(7*GATE_K,8,6),M.pick);proxy.userData.gate=true;gate.add(proxy);pickables.push(proxy);
   world.add(gate);
-  for(const a of asts)if(a.alive&&a.pos.distanceTo(gate.position)<12)placeAst(a,Math.random)}
+  for(const a of asts)if(a.alive&&a.pos.distanceTo(gate.position)<12*GATE_K)placeAst(a,Math.random)}
 
 /* ---------- Drony ----------
    Každý dok dronov má jedného drona. Jeho vlastnosti závisia od vylepšenia doku (+0..+10) a vloženého AI jadra (čipu):

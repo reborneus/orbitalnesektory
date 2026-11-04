@@ -39,34 +39,55 @@ function detailHtml(f){const it=f.it,R=RAR[it.r],title=itemTitle(it),slot=BASES[
   else h+=`<p class="note" style="margin:0">${t('gear.maxEnh',{n:enhMax(it)})}</p>`;
   return h+'</div>'}
 
+/* v0.27: ROZLOŽENIE VÝBAVY – loď v strede, okolo nej 6 štvorcov slotov (vľavo laser, motor, trup; vpravo štít, doplnok, zbraň),
+   od lode k nim vedú šípky. Klik na predmet v inventári ho rovno nasadí / vymení s tým v lodi (čipy sa nasádzajú do modulov).
+   Inšpektor (prilepený dole v okne) ukazuje predmet pod myšou alebo pod výberom ovládača: na ovládači celú kartu s vlastnosťami
+   a porovnaním, na PC kompaktne (vlastnosti sú v plávajúcom náhľade) – vždy s akciami: vylepšiť, rozobrať, zamknúť, do skladu, zložiť. */
+const LO_POS={laser:[24,20],engine:[24,50],hull:[24,80],shield:[176,20],util:[176,50],weapon:[176,80]};   // stredy slotov v súradniciach 200×100
+function loadoutHtml(){const src=typeof shipPreviewSrc==='function'?shipPreviewSrc(state.shipId):'';
+  let svg=`<svg class="lo-svg" viewBox="0 0 200 100" preserveAspectRatio="none"><defs><marker id="loArr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>`;
+  let boxes='';
+  for(const s of SLOTS){const[x,y]=LO_POS[s],it=state.eq[s],dir=x<100?1:-1;const ex=x+dir*15;   // koniec šípky pri okraji štvorca
+    svg+=`<path class="lo-ln${it?' on':''}" d="M${100-dir*20} ${50+(y-50)*.25} C ${100-dir*44} ${50+(y-50)*.4}, ${ex+dir*24} ${y}, ${ex} ${y}" ${it?`style="color:${RAR[it.r].col}"`:''} marker-end="url(#loArr)"/>`;
+    const pos=`style="left:${x/2}%;top:${y}%${it?`;--rc:${RAR[it.r].col}`:''}"`;
+    if(it)boxes+=`<button class="lo-slot it r${it.r}${gearSel===it.id?' sel':''}" ${pos} data-act="sel" data-id="${it.id}">${icon(it.b)}${it.enh?`<span class="enh">+${it.enh}</span>`:''}<span class="il">${it.ilvl}</span><small>${t('slot.'+s)}</small></button>`;
+    else{const n=state.inv.filter(q=>BASES[q.b].slot===s).length;
+      boxes+=n?`<button class="lo-slot empty pickable${gearPick===s?' open':''}" ${pos} data-act="slotPick" data-slot="${s}"><b>+${n}</b><small>${t('slot.'+s)}</small></button>`:`<div class="lo-slot empty" ${pos}><small>${t('slot.'+s)}</small></div>`}}
+  svg+='</svg>';
+  return `<div class="loadout">${svg}${src?`<img class="lo-ship" src="${src}" alt="">`:`<div class="lo-ship">${shipIconSvg(state.shipId,'lo-svgship')}</div>`}${boxes}</div>`}
 function renderGear(){let h='';
   const junk=state.inv.filter(x=>x.r<=1&&!x.lock).length;
   h+=`<div class="gear-top"><span class="credits"><span class="coin"></span>${fmtN(state.credits)} ¢</span>${junk?`<button class="ghost" data-act="salvJunk">${t('gear.salvJunk',{n:junk})}</button>`:''}</div>`;
-  const f=gearSel!=null?findItem(gearSel):null;if(!f)gearSel=null;else h+=detailHtml(f);
-  h+=`<div class="sec-h"><span>${t('gear.eq')}</span></div><div class="eqs">`;
-  for(const s of SLOTS){const it=state.eq[s];
-    if(!it){const fit=state.inv.filter(x=>BASES[x.b].slot===s).sort(byRarity);
-      // prázdny slot: ak má hráč vhodné predmety, kliknutím sa ukážu a jedným klikom sa nasadia; inak sa naň kliknúť nedá
-      if(!fit.length){h+=`<div class="eqc empty"><span>${t('gear.empty')}: ${t('slot.'+s)}</span></div>`;continue}
-      h+=`<button class="eqc empty pickable${gearPick===s?' open':''}" data-act="slotPick" data-slot="${s}"><span>${t('gear.empty')}: ${t('slot.'+s)}</span><small>${t('gear.pickN',{n:fit.length})}</small></button>`;
-      if(gearPick===s)h+=`<div class="slotpick"><p class="note" style="margin:0">${t('gear.pickH')}</p><div class="inv">${fit.map(x=>`<button class="itm it r${x.r}" ${rc(x)} data-act="pickEq" data-id="${x.id}" title="${t('r.'+RAR[x.r].k)} ${t('base.'+x.b)}">${icon(x.b)}${x.enh?`<span class="enh">+${x.enh}</span>`:''}<span class="il">${x.ilvl}</span></button>`).join('')}</div></div>`;
-      continue}
-    const st=itemStats(it).slice(0,2).map(x=>`${t('s.'+x.k)} ${fmtStat(x.k,x.v)}`).join(' · ');
-    h+=`<button class="eqc it r${it.r}${gearSel===it.id?' sel':''}" ${rc(it)} data-act="sel" data-id="${it.id}">${icon(it.b)}<span class="eqc-txt"><b>${itemName(it)}</b><small>${t('r.'+RAR[it.r].k)} · ${t('slot.'+s)} · ${t('gear.ilvl',{n:it.ilvl})}</small><small>${st}</small></span></button>`}
-  h+=`</div><div class="sec-h"><span>${t('gear.inv',{a:state.inv.length,b:INV_MAX})}</span>${state.inv.length?`<button class="ghost sm" data-act="markMode">${gearMark?t('mk.done'):t('mk.start')}</button>`:''}</div>`;
+  if(gearSel!=null&&!findItem(gearSel))gearSel=null;
+  h+=loadoutHtml();
+  // výber pre prázdny slot (klik na „+N“)
+  if(gearPick&&!state.eq[gearPick]){const fit=state.inv.filter(x=>BASES[x.b].slot===gearPick).sort(byRarity);
+    if(fit.length)h+=`<div class="slotpick"><p class="note" style="margin:0">${t('gear.pickH')} (${t('slot.'+gearPick)})</p><div class="inv">${fit.map(x=>`<button class="itm it r${x.r}" ${rc(x)} data-act="pickEq" data-id="${x.id}">${icon(x.b)}${x.enh?`<span class="enh">+${x.enh}</span>`:''}<span class="il">${x.ilvl}</span></button>`).join('')}</div></div>`}
+  h+=`<div class="sec-h"><span>${t('gear.inv',{a:state.inv.length,b:INV_MAX})}</span>${state.inv.length?`<button class="ghost sm" data-act="markMode">${gearMark?t('mk.done'):t('mk.start')}</button>`:''}</div>`;
   if(gearMark){const sel=state.inv.filter(x=>gearMark.has(x.id));const val=sel.reduce((a,x)=>a+salvValue(x),0);
     h+=`<div class="markbar"><div class="langs">${[0,1,2,3,4].map(r=>`<button class="langb" data-act="markR" data-r="${r}" style="color:${RAR[r].col}">≤ ${t('r.'+RAR[r].k)}</button>`).join('')}<button class="langb" data-act="markR" data-r="-1">${t('mk.none')}</button></div>
       <button class="btn danger" data-act="markSalv" ${sel.length?'':'disabled'}>${t('mk.salv',{n:sel.length,c:val})}</button><span class="note" style="margin:0">${t('mk.hint')}</span></div>`}
   if(!state.inv.length)h+=`<p class="note">${t('gear.none')}</p>`;
-  else h+=`<div class="inv${gearMark?' marking':''}">${state.inv.slice().sort(byRarity).map(it=>`<button class="itm it r${it.r}${gearSel===it.id&&!gearMark?' sel':''}${gearMark&&gearMark.has(it.id)?' marked':''}" ${rc(it)} data-act="${gearMark?'mark':'sel'}" data-id="${it.id}" title="${t('r.'+RAR[it.r].k)} ${t('base.'+it.b)}">${icon(it.b)}${it.enh?`<span class="enh">+${it.enh}</span>`:''}<span class="il">${it.ilvl}</span>${it.nw&&!gearMark?'<i class="nw"></i>':''}${gearMark&&gearMark.has(it.id)?'<i class="mk">✕</i>':''}${it.lock&&gearMark?'<i class="lk">🔒</i>':''}</button>`).join('')}</div>`;
+  else h+=`<div class="inv${gearMark?' marking':''}">${state.inv.slice().sort(byRarity).map(it=>{const chip=BASES[it.b].slot==='chip';
+    return `<button class="itm it r${it.r}${gearSel===it.id&&!gearMark?' sel':''}${gearMark&&gearMark.has(it.id)?' marked':''}" ${rc(it)} data-act="${gearMark?'mark':chip?'sel':'eqItem'}" data-id="${it.id}">${icon(it.b)}${it.enh?`<span class="enh">+${it.enh}</span>`:''}<span class="il">${it.ilvl}</span>${it.nw&&!gearMark?'<i class="nw"></i>':''}${gearMark&&gearMark.has(it.id)?'<i class="mk">✕</i>':''}${it.lock&&gearMark?'<i class="lk">🔒</i>':''}</button>`}).join('')}</div>`;
+  if(!gearMark)h+=`<p class="note">${t('gear.loHint')}</p>`;
+  // inšpektor: karta predmetu s akciami (prilepená dole v okne)
+  const f=gearSel!=null?findItem(gearSel):null;h+=`<div class="gear-insp" id="gearInsp"${f?'':' hidden'}>${f?detailHtml(f):''}</div>`;
   return h}
-
+/* zobrazí v inšpektore predmet id (pri prejdení myšou alebo výbere ovládačom) bez prekreslenia celého okna */
+function gearInspect(id){if(sheetTab!=='gear'||gearMark||id===gearSel)return;const f=findItem(id);if(!f)return;gearSel=id;f.it.nw=false;
+  const el=$('#gearInsp');if(!el)return;el.innerHTML=detailHtml(f);el.hidden=false;
+  body.querySelectorAll('.inv .itm.sel,.lo-slot.sel').forEach(b=>b.classList.remove('sel'));const b=body.querySelector(`[data-id="${id}"]:not(#gearInsp *)`);if(b)b.classList.add('sel')}
+document.addEventListener('pointerover',e=>{if(sheetTab!=='gear')return;const b=e.target.closest&&e.target.closest('#sheet [data-id]');if(b&&!b.closest('#gearInsp')&&/^(sel|eqItem|pickEq)$/.test(b.dataset.act||''))gearInspect(+b.dataset.id)});
 function gearAct(act,b){
   const f=gearSel!=null?findItem(gearSel):null;
   const done=()=>{save();renderSheet();updateHUD();return true};
   switch(act){
-    case 'sel':{gearSel=+b.dataset.id;const g=findItem(gearSel);if(g)g.it.nw=false;renderSheet();body.scrollTop=0;focusIdx=0;applyFocus();return true}
-    case 'desel':gearSel=null;renderSheet();return true;
+    case 'sel':{gearSel=null;gearInspect(+b.dataset.id);return true}
+    // v0.27: klik na predmet v inventári ho rovno nasadí (vymení s nasadeným v rovnakom slote)
+    case 'eqItem':{const i=state.inv.findIndex(x=>x.id===+b.dataset.id);if(i<0)return true;const it=state.inv[i],slot=BASES[it.b].slot;if(slot==='chip')return true;
+      const old=state.eq[slot];state.inv.splice(i,1);state.eq[slot]=it;if(old)state.inv.push(old);it.nw=false;gearSel=it.id;bonusDirty();toast(t('tt.equipped',{n:itemName(it)}),{rar:it.r});return done()}
+    case 'desel':gearSel=null;{const el=$('#gearInsp');if(el)el.hidden=true}return true;
     case 'markMode':gearMark=gearMark?null:new Set();gearSel=null;renderSheet();return true;
     case 'mark':{const id=+b.dataset.id;const it=state.inv.find(x=>x.id===id);if(!it)return true;if(it.lock){toast(t('gear.locked'));return true}
       gearMark.has(id)?gearMark.delete(id):gearMark.add(id);renderSheet();return true}

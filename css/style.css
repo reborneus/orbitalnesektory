@@ -562,3 +562,31 @@ body.hudedit .hud-top .sector *,body.hudedit .hud-top .res *,body.hudedit #miniW
     box-shadow:0 20px 60px rgba(0,0,0,.6);animation:sheetInC .22s ease}
 }
 @keyframes sheetInC{from{transform:translate(-50%,calc(-50% + 18px));opacity:0}to{transform:translate(-50%,-50%);opacity:1}}
+
+/* v0.27: výbava – loď v strede, sloty okolo, šípky */
+.loadout{position:relative;width:100%;aspect-ratio:2/1;max-height:300px;margin:2px auto 4px;border:1px solid var(--line);border-radius:12px;
+  background:radial-gradient(ellipse at 50% 55%,rgba(88,208,192,.10),transparent 60%),rgba(255,255,255,.012)}
+.lo-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;color:rgba(127,167,208,.45)}
+.lo-ln{fill:none;stroke:currentColor;stroke-width:1.6;vector-effect:non-scaling-stroke;stroke-dasharray:4 3}
+.lo-ln.on{stroke-dasharray:none;filter:drop-shadow(0 0 3px currentColor)}
+.lo-ship{position:absolute;left:50%;top:50%;width:46%;transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+.lo-ship .lo-svgship{width:100%;height:auto}
+.lo-slot{position:absolute;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:10px;display:grid;place-items:center;padding:0;cursor:pointer;
+  border:1.5px solid var(--rc,var(--line));background:color-mix(in srgb,var(--rc,#0b1322) 14%,#0b1322);box-shadow:0 0 12px color-mix(in srgb,var(--rc,transparent) 35%,transparent)}
+.lo-slot .ico{width:58%;height:58%}
+.lo-slot small{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:3px;font-size:10.5px;color:var(--muted);white-space:nowrap;letter-spacing:.04em}
+.lo-slot .enh{position:absolute;right:3px;top:2px;font:700 10px var(--f-data);color:var(--text)}
+.lo-slot .il{position:absolute;right:4px;bottom:2px;font:500 9.5px var(--f-data);color:var(--muted)}
+.lo-slot.empty{border-style:dashed;border-color:var(--line);box-shadow:none;background:rgba(11,19,34,.7);cursor:default}
+.lo-slot.empty.pickable{cursor:pointer;border-color:rgba(88,208,192,.6)}.lo-slot.empty b{color:var(--hull);font:700 14px var(--f-data)}
+.lo-slot.sel{outline:2px solid #fff;outline-offset:2px}
+.lo-slot:hover{filter:brightness(1.2)}
+/* inšpektor: na úzkej obrazovke hore v okne; na širokej ako panel vpravo vedľa okna (okno má transform → fixed = voči oknu) */
+.gear-insp{order:-1;border:1px solid var(--line);border-radius:12px;background:rgba(11,19,34,.97)}
+@media (min-width:1180px) and (hover:hover){
+  .gear-insp{position:fixed;left:calc(100% + 12px);top:0;width:330px;max-height:100%;overflow:auto;z-index:3;box-shadow:0 20px 50px rgba(0,0,0,.55);background:rgba(11,19,34,var(--menu-a,1));backdrop-filter:blur(12px)}
+}
+.gear-insp .itd{border:0}
+
+/* v0.27: admin – výber typu predmetu */
+.admbase{flex-wrap:wrap}.admbase .langb{display:inline-flex;align-items:center;gap:5px}.admbase .ico{width:16px;height:16px}

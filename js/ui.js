@@ -141,7 +141,8 @@ function refreshSheet(){if(!sheetTab)return;
 function focusables(){return[...body.querySelectorAll('.seg,.act,.langb:not(:disabled),.ghost,.btn,.itm,.eqc,summary')]}
 function applyFocus(){body.querySelectorAll('.pad-focus').forEach(el=>el.classList.remove('pad-focus'));if(inputMode!=='pad'||!sheetTab)return;
   const f=focusables();if(!f.length)return;focusIdx=clamp(focusIdx,0,f.length-1);const el=f[focusIdx];const box=el.classList.contains('act')?(el.closest('.card')||el):el;
-  box.classList.add('pad-focus');box.scrollIntoView({block:'nearest',behavior:'smooth'})}
+  box.classList.add('pad-focus');box.scrollIntoView({block:'nearest',behavior:'smooth'});
+  if(sheetTab==='gear'&&el.dataset.id&&!el.closest('#gearInsp')&&typeof gearInspect==='function')gearInspect(+el.dataset.id)}   // v0.27
 function moveFocus(v){focusIdx+=v;applyFocus()}
 /* v0.17: priestorový pohyb výberu (krížový ovládač) – vyberie najbližší prvok v danom smere podľa polohy na obrazovke,
    takže sa dá ísť napr. priamo doprava/doľava medzi kartami lodí bez prechádzania celého zoznamu. */
@@ -188,7 +189,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
       else if(k==='shield'){const before=shieldMax();state.ship[k]++;state.sh=Math.min(shieldMax(),state.sh+(shieldMax()-before));if(L===0){state.sh=shieldMax();toast(t('tt.shieldOn'))}else toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
       else{state.ship[k]++;if(k==='hull')state.hp+=40*NUM;toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
       changed()}}
-  else if(act==='jump'){if(!gate||ship.position.distanceTo(gate.position)>18){toast(t('gate.far'));return}closeSheet();jumpTo(+b.dataset.i)}});
+  else if(act==='jump'){if(!gate||ship.position.distanceTo(gate.position)>18*GATE_K){toast(t('gate.far'));return}closeSheet();jumpTo(+b.dataset.i)}});
 function changed(){checkCapture();save();renderSheet();updateHUD()}
 /* Obsadenie sektora: odomkne ďalší, vyplatí kredity a dá predmet (aspoň rarity reward.minR) priamo do inventára. */
 function checkCapture(){const s=cur();if(SECTORS[state.cur].arena)return;if(!s.captured&&influence(s)>=capOf(state.cur)){s.captured=true;
@@ -215,7 +216,7 @@ function jumpTo(i,instant){if(jumping)return;jumping=true;const w=$('#warp');w.c
   setTimeout(()=>{try{state.cur=i;mining=false;mineTarget=null;moveTarget=null;openOnArrive=false;stationG=null;gateNear=true;
     ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;lastZone=1;buildSector();
     // v0.26: po skoku sa loď objaví pri bráne (nos smerom k stanici), nie v strede pri stanici
-    if(gate&&!SECTORS[i].arena){const d=gate.position.clone().setY(0);const L=d.length()||1;ship.position.copy(d).addScaledVector(d,-18/L);shipYaw=Math.atan2(-d.x,-d.z);ship.rotation.y=shipYaw;lastZone=zoneOf(ship.position.length())}
+    if(gate&&!SECTORS[i].arena){const d=gate.position.clone().setY(0);const L=d.length()||1;ship.position.copy(d).addScaledVector(d,-15*GATE_K/L);shipYaw=Math.atan2(-d.x,-d.z);ship.rotation.y=shipYaw;lastZone=zoneOf(ship.position.length())}
     camTarget.copy(ship.position);save();updateHUD();
     if(!instant)toast(t('tt.jumped',{s:secName(i)}))}catch(e){console.error(e)}finally{w.classList.remove('on');jumping=false}},instant?50:480)}
 

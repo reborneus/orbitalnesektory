@@ -164,6 +164,6 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
     for(const r of RES){const n=Math.floor(state.cargo[r]);if(state.cargo[r]>0)missionDeliver(r,state.cargo[r]);state[r]+=state.cargo[r];state.cargo[r]=0;if(n>0){parts.push(t('res.'+r+'.gain',{n}));bump('#'+RCLS[r]+'Txt')}}
     fullWarned=false;if(parts.length)toast(t('tt.unloaded',{list:parts.join(', ')}));save();refreshSheet()}
   if(openOnArrive&&dStation<STATION_R+8){openOnArrive=false;openSheet('station')}
-  if(gate&&ship.position.distanceTo(gate.position)<9&&!sheetTab&&!gateNear){gateNear=true;openSheet('gate')}
-  if(gate&&ship.position.distanceTo(gate.position)>14)gateNear=false}
+  if(gate&&ship.position.distanceTo(gate.position)<9*GATE_K&&!sheetTab&&!gateNear){gateNear=true;openSheet('gate')}
+  if(gate&&ship.position.distanceTo(gate.position)>14*GATE_K)gateNear=false}
 let gateNear=false;

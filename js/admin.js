@@ -20,6 +20,7 @@ function renderAdmin(){const a=adm();let h='';
     `<button class="btn" data-act="adm" data-op="heal">${A('Opraviť trup, štíty a radiačný štít','Restore hull, shields and radiation shield')}</button></div>`;
   h+=`<div class="sec-h"><span>${A('Predmety','Items')}</span></div><div class="card adm"><div class="mctl"><span>${A('Typ','Type')}</span><div class="langs">
     <button class="langb" data-act="adm" data-op="ikind" data-v="ship" aria-pressed="${a.ikind!=='chip'}">${A('Modul lode','Ship module')}</button><button class="langb" data-act="adm" data-op="ikind" data-v="chip" aria-pressed="${a.ikind==='chip'}">${A('Čip','Chip')}</button></div></div>
+    <div class="mctl"><span>${A('Predmet','Item')}</span><div class="langs admbase"><button class="langb" data-act="adm" data-op="ibase" data-v="" aria-pressed="${!a.ibase}">${A('Náhodný','Random')}</button>${(a.ikind==='chip'?CHIP_BASES:SHIP_BASES).map(k=>`<button class="langb" data-act="adm" data-op="ibase" data-v="${k}" aria-pressed="${a.ibase===k}">${icon(k)} ${t('base.'+k)}</button>`).join('')}</div></div>
     <div class="admrar">${RAR.map((R,i)=>`<button class="itm it r${i}" style="--rc:${R.col}" data-act="adm" data-op="item" data-r="${i}" title="${t('r.'+R.k)}"><span style="font-size:11px;font-weight:700;color:${R.col}">${t('r.'+R.k)}</span></button>`).join('')}</div>
     <p class="note" style="margin:0">${A('Predmet sa vloží do inventára (úroveň podľa sektora +10).','The item goes to your inventory (sector level +10).')}</p></div>`;
   h+=`<div class="sec-h"><span>${A('Postup a svet','Progress and world')}</span></div><div class="card adm"><div class="admrow">
@@ -41,8 +42,9 @@ function adminAct(act,b){if(act!=='adm')return false;const op=b.dataset.op;state
     case 'all':for(const r of RES)state[r]+=10000*NUM;state.credits+=50000*NUM;break;
     case 'tog':a[b.dataset.k]=b.dataset.v==='1';break;
     case 'heal':state.hp=shipVal('hull');state.sh=shieldMax();state.radCharge=shipVal('radShield');break;
-    case 'ikind':a.ikind=b.dataset.v;break;
-    case 'item':{const r=+b.dataset.r;const it=genItem(r,SECTORS[state.cur].ilvl+10,a.ikind==='chip'?pick(CHIP_BASES):null);
+    case 'ikind':a.ikind=b.dataset.v;a.ibase='';break;
+    case 'ibase':a.ibase=b.dataset.v;break;   // v0.27: konkrétny typ predmetu (prázdne = náhodný)
+    case 'item':{const r=+b.dataset.r;const kinds=a.ikind==='chip'?CHIP_BASES:SHIP_BASES;const it=genItem(r,SECTORS[state.cur].ilvl+10,a.ibase&&kinds.includes(a.ibase)?a.ibase:a.ikind==='chip'?pick(CHIP_BASES):null);
       if(state.inv.length<INV_MAX)state.inv.push(it);else spawnLoot(it,ship.position.clone());toast(t('tt.loot',{r:t('r.'+RAR[r].k),n:t('base.'+it.b)}),{rar:r});break}
     case 'maxShip':for(const k in UP)state.ship[k]=UP[k].max;state.hp=shipVal('hull');state.sh=shieldMax();state.radCharge=shipVal('radShield');break;
     case 'lvl':case 'lvl10':{const P=pstate();for(let i=0;i<(op==='lvl'?1:10);i++)addXP(xpNeed(P.lv)-P.xp+1);break}
