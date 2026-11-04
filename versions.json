@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.16.3", "date": "2026-11-04", "sha": "3777b6bd8ecdc047ae98596a67cea686472af227", "title": "laser salvos per mounted weapon, bulk salvage"},
   {"version": "0.16.2", "date": "2026-11-04", "sha": "957f6a9d55fdd7375cbbaae541c26807e362bd3e", "title": "pirate range relative to player, 8x maps"},
   {"version": "0.16.1", "date": "2026-11-04", "sha": "671ae6152ae324edec26f09869e4a0b5baf3b851", "title": "maps 2x larger again"},
   {"version": "0.16.0", "date": "2026-11-04", "sha": "92b6cb381ca05dba1326a98459c7b6751f2dc95e", "title": "laser bursts with rarity colors and hit chance"},
