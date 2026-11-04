@@ -467,3 +467,13 @@ body.pad .pg{display:block}
 .card.mapcard{background-image:linear-gradient(90deg,rgba(11,19,34,.93) 0%,rgba(11,19,34,.72) 38%,rgba(11,19,34,.12) 100%),var(--thumb);background-size:cover;background-position:center right;min-height:96px}
 .card.mapcard.here{border-color:color-mix(in srgb,var(--hull) 60%,transparent)}
 .card.mapcard p,.card.mapcard .stat{text-shadow:0 1px 3px #000}
+/* v0.14.3 porovnanie vedľa seba */
+#itemTip:has(.tipwrap.side){width:auto}
+.tipwrap.side{display:grid;grid-template-columns:300px 300px;gap:8px;align-items:start}
+.tiplabel{font:700 10px var(--f-data);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+@media (max-width:700px){.tipwrap.side{grid-template-columns:1fr}}
+/* v0.14.3 výber predmetu do prázdneho slotu */
+.eqc.empty.pickable{cursor:pointer;display:grid;gap:2px;text-align:left;border-style:dashed;border-color:color-mix(in srgb,var(--hull) 45%,transparent);color:var(--text);background:rgba(88,208,192,.04);font:inherit}
+.eqc.empty.pickable small{color:var(--hull);font:500 11px var(--f-data)}
+.eqc.empty.pickable:hover,.eqc.empty.pickable.open{background:rgba(88,208,192,.10)}
+.slotpick{display:grid;gap:6px;padding:8px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.02)}

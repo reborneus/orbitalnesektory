@@ -1,7 +1,9 @@
 {
-  "version": "0.14.2",
+  "version": "0.14.3",
   "date": "2026-11-04",
   "notes": [
-    "Mapa sektorov a skoková brána: každá karta má pozadie s náhľadom sektora – hmlovina a planéta v jeho farbách, pásy, horizont, asteroidy podľa surovín a stanica (pri aréne piráti a anomália)"
+    "Náhľad predmetu na PC: porovnanie s nasadeným predmetom vedľa seba spolu s rozdielmi ▲▼",
+    "Nastavenia → Porovnanie predmetov: Oboje, Iba ▲▼, Vedľa seba alebo Vypnuté",
+    "Výbava: klik na prázdny slot ukáže vhodné predmety z inventára a jedným klikom ich nasadí; bez vhodných predmetov sa na slot kliknúť nedá"
   ]
 }

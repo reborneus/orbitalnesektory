@@ -5,6 +5,7 @@
    Akcie (data-act): sel = vybrať predmet, desel = zavrieť detail, equip/unequip = nasadiť/zložiť,
    enh = vylepšiť +1, salv = rozobrať na kredity, salvJunk = rozobrať všetok Odpad a Bežné, lock = zamknúť/odomknúť. */
 let gearSel=null;   // id predmetu, ktorého detail je otvorený (null = žiadny)
+let gearPick=null;  // v0.14.3: slot, pre ktorý je otvorený výber predmetov (klik na prázdny slot)
 
 /* Nájde predmet podľa id v inventári alebo medzi nasadenými. */
 function findItem(id){const i=state.inv.findIndex(x=>x.id===id);if(i>=0)return{it:state.inv[i],where:'inv',i};
@@ -23,7 +24,7 @@ function detailHtml(f){const it=f.it,R=RAR[it.r],title=itemTitle(it),slot=BASES[
     <div class="itd-head">${icon(it.b)}<div class="itd-names">${title?`<div class="ttl">«${title}»</div>`:''}<div class="nm">${itemName(it)}</div>
       <div class="meta"><span class="rlab">${t('r.'+R.k)}</span> · ${t('slot.'+slot)} · ${t('gear.ilvl',{n:it.ilvl})}${it.lock?' · '+t('gear.isLocked'):''}</div></div></div>
     ${cmp?'':`<ul class="stats">${itemStats(it).map(x=>`<li class="${x.imp?'imp':''}"><span>${t('s.'+x.k)}</span><b>${fmtStat(x.k,x.v)}</b></li>`).join('')}</ul>`}`;
-  if(!cmp&&f.where==='inv'&&slot!=='chip'&&state.eq[slot])h+=cmpHtml(it,state.eq[slot]);
+  if(!cmp&&f.where==='inv'&&slot!=='chip'&&state.eq[slot]&&(state.cmpMode||'both')!=='off')h+=cmpHtml(it,state.eq[slot]);
   h+=`<div class="itd-acts">`;
   if(slot==='chip')h+=`<p class="note" style="margin:0;flex-basis:100%">${t('gear.chipNote')}</p>`;
   else h+=f.where==='inv'?`<button class="btn prim" data-act="equip">${t('btn.equip')}</button>`:`<button class="btn" data-act="unequip">${t('btn.unequip')}</button>`;
@@ -42,7 +43,12 @@ function renderGear(){let h='';
   const f=gearSel!=null?findItem(gearSel):null;if(!f)gearSel=null;else h+=detailHtml(f);
   h+=`<div class="sec-h"><span>${t('gear.eq')}</span></div><div class="eqs">`;
   for(const s of SLOTS){const it=state.eq[s];
-    if(!it){h+=`<div class="eqc empty"><span>${t('gear.empty')}: ${t('slot.'+s)}</span></div>`;continue}
+    if(!it){const fit=state.inv.filter(x=>BASES[x.b].slot===s).sort(byRarity);
+      // prázdny slot: ak má hráč vhodné predmety, kliknutím sa ukážu a jedným klikom sa nasadia; inak sa naň kliknúť nedá
+      if(!fit.length){h+=`<div class="eqc empty"><span>${t('gear.empty')}: ${t('slot.'+s)}</span></div>`;continue}
+      h+=`<button class="eqc empty pickable${gearPick===s?' open':''}" data-act="slotPick" data-slot="${s}"><span>${t('gear.empty')}: ${t('slot.'+s)}</span><small>${t('gear.pickN',{n:fit.length})}</small></button>`;
+      if(gearPick===s)h+=`<div class="slotpick"><p class="note" style="margin:0">${t('gear.pickH')}</p><div class="inv">${fit.map(x=>`<button class="itm it r${x.r}" ${rc(x)} data-act="pickEq" data-id="${x.id}" title="${t('r.'+RAR[x.r].k)} ${t('base.'+x.b)}">${icon(x.b)}${x.enh?`<span class="enh">+${x.enh}</span>`:''}<span class="il">${x.ilvl}</span></button>`).join('')}</div></div>`;
+      continue}
     const st=itemStats(it).slice(0,2).map(x=>`${t('s.'+x.k)} ${fmtStat(x.k,x.v)}`).join(' · ');
     h+=`<button class="eqc it r${it.r}${gearSel===it.id?' sel':''}" ${rc(it)} data-act="sel" data-id="${it.id}">${icon(it.b)}<span class="eqc-txt"><b>${itemName(it)}</b><small>${t('r.'+RAR[it.r].k)} · ${t('slot.'+s)} · ${t('gear.ilvl',{n:it.ilvl})}</small><small>${st}</small></span></button>`}
   h+=`</div><div class="sec-h"><span>${t('gear.inv',{a:state.inv.length,b:INV_MAX})}</span></div>`;
@@ -56,6 +62,9 @@ function gearAct(act,b){
   switch(act){
     case 'sel':{gearSel=+b.dataset.id;const g=findItem(gearSel);if(g)g.it.nw=false;renderSheet();body.scrollTop=0;focusIdx=0;applyFocus();return true}
     case 'desel':gearSel=null;renderSheet();return true;
+    case 'slotPick':gearPick=gearPick===b.dataset.slot?null:b.dataset.slot;renderSheet();return true;
+    case 'pickEq':{const i=state.inv.findIndex(x=>x.id===+b.dataset.id);if(i<0)return true;const it=state.inv[i],slot=BASES[it.b].slot;if(slot==='chip')return true;
+      const old=state.eq[slot];state.inv.splice(i,1);state.eq[slot]=it;if(old)state.inv.push(old);gearPick=null;bonusDirty();toast(t('tt.equipped',{n:itemName(it)}),{rar:it.r});return done()}
     case 'equip':{if(!f||f.where!=='inv'||BASES[f.it.b].slot==='chip')return true;const slot=BASES[f.it.b].slot;const old=state.eq[slot];
       state.inv.splice(f.i,1);state.eq[slot]=f.it;if(old)state.inv.push(old);bonusDirty();toast(t('tt.equipped',{n:itemName(f.it)}),{rar:f.it.r});return done()}
     case 'unequip':{if(!f||f.where!=='eq')return true;if(state.inv.length>=INV_MAX){toast(t('tt.invFull'),'bad');return true}
