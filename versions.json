@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.20.0", "date": "2026-11-04", "time": "2026-11-04T21:53:36+01:00", "sha": "888f1ec2fdc94f2a4228f53200b943643d3a953a", "title": "escort drones for Falcon and Bison (trader in sector 5)"},
   {"version": "0.19.5", "date": "2026-11-04", "time": "2026-11-04T21:46:20+01:00", "sha": "26e01f609d00269d543bf029cb6292fd6e237c36", "title": "plasma station core with state colors, detailed mining drones"},
   {"version": "0.19.4", "date": "2026-11-04", "time": "2026-11-04T21:21:24+01:00", "sha": "3caa0799a01c252c9dba51fdc4242d6502c8f741", "title": "ship faces combat target with lock ring, off-screen enemy edge arrows"},
   {"version": "0.19.3", "date": "2026-11-04", "time": "2026-11-04T21:16:27+01:00", "sha": "c8143955c7b63adad84eedaa4a7f797a56c43a3c", "title": "controller target marker + RT action, fixed volley cadence, hover hints"},
