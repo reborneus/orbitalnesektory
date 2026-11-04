@@ -5,7 +5,9 @@
    Akcie (data-act): sel = vybrať predmet, desel = zavrieť detail, equip/unequip = nasadiť/zložiť,
    enh = vylepšiť +1, salv = rozobrať na kredity, salvJunk = rozobrať všetok Odpad a Bežné, lock = zamknúť/odomknúť. */
 let gearSel=null;   // id predmetu, ktorého detail je otvorený (null = žiadny)
-let gearPick=null;  // v0.14.3: slot, pre ktorý je otvorený výber predmetov (klik na prázdny slot)
+let gearPick=null;
+/* v0.16.3: hromadné rozoberanie – v režime označovania (gearMark ≠ null) ťuknutie predmet označí/odznačí; gearMark = Set id */
+let gearMark=null;  // v0.14.3: slot, pre ktorý je otvorený výber predmetov (klik na prázdny slot)
 
 /* Nájde predmet podľa id v inventári alebo medzi nasadenými. */
 function findItem(id){const i=state.inv.findIndex(x=>x.id===id);if(i>=0)return{it:state.inv[i],where:'inv',i};
@@ -51,9 +53,12 @@ function renderGear(){let h='';
       continue}
     const st=itemStats(it).slice(0,2).map(x=>`${t('s.'+x.k)} ${fmtStat(x.k,x.v)}`).join(' · ');
     h+=`<button class="eqc it r${it.r}${gearSel===it.id?' sel':''}" ${rc(it)} data-act="sel" data-id="${it.id}">${icon(it.b)}<span class="eqc-txt"><b>${itemName(it)}</b><small>${t('r.'+RAR[it.r].k)} · ${t('slot.'+s)} · ${t('gear.ilvl',{n:it.ilvl})}</small><small>${st}</small></span></button>`}
-  h+=`</div><div class="sec-h"><span>${t('gear.inv',{a:state.inv.length,b:INV_MAX})}</span></div>`;
+  h+=`</div><div class="sec-h"><span>${t('gear.inv',{a:state.inv.length,b:INV_MAX})}</span>${state.inv.length?`<button class="ghost sm" data-act="markMode">${gearMark?t('mk.done'):t('mk.start')}</button>`:''}</div>`;
+  if(gearMark){const sel=state.inv.filter(x=>gearMark.has(x.id));const val=sel.reduce((a,x)=>a+salvValue(x),0);
+    h+=`<div class="markbar"><div class="langs">${[0,1,2,3,4].map(r=>`<button class="langb" data-act="markR" data-r="${r}" style="color:${RAR[r].col}">≤ ${t('r.'+RAR[r].k)}</button>`).join('')}<button class="langb" data-act="markR" data-r="-1">${t('mk.none')}</button></div>
+      <button class="btn danger" data-act="markSalv" ${sel.length?'':'disabled'}>${t('mk.salv',{n:sel.length,c:val})}</button><span class="note" style="margin:0">${t('mk.hint')}</span></div>`}
   if(!state.inv.length)h+=`<p class="note">${t('gear.none')}</p>`;
-  else h+=`<div class="inv">${state.inv.slice().sort(byRarity).map(it=>`<button class="itm it r${it.r}${gearSel===it.id?' sel':''}" ${rc(it)} data-act="sel" data-id="${it.id}" title="${t('r.'+RAR[it.r].k)} ${t('base.'+it.b)}">${icon(it.b)}${it.enh?`<span class="enh">+${it.enh}</span>`:''}<span class="il">${it.ilvl}</span>${it.nw?'<i class="nw"></i>':''}</button>`).join('')}</div>`;
+  else h+=`<div class="inv${gearMark?' marking':''}">${state.inv.slice().sort(byRarity).map(it=>`<button class="itm it r${it.r}${gearSel===it.id&&!gearMark?' sel':''}${gearMark&&gearMark.has(it.id)?' marked':''}" ${rc(it)} data-act="${gearMark?'mark':'sel'}" data-id="${it.id}" title="${t('r.'+RAR[it.r].k)} ${t('base.'+it.b)}">${icon(it.b)}${it.enh?`<span class="enh">+${it.enh}</span>`:''}<span class="il">${it.ilvl}</span>${it.nw&&!gearMark?'<i class="nw"></i>':''}${gearMark&&gearMark.has(it.id)?'<i class="mk">✕</i>':''}${it.lock&&gearMark?'<i class="lk">🔒</i>':''}</button>`).join('')}</div>`;
   return h}
 
 function gearAct(act,b){
@@ -62,6 +67,14 @@ function gearAct(act,b){
   switch(act){
     case 'sel':{gearSel=+b.dataset.id;const g=findItem(gearSel);if(g)g.it.nw=false;renderSheet();body.scrollTop=0;focusIdx=0;applyFocus();return true}
     case 'desel':gearSel=null;renderSheet();return true;
+    case 'markMode':gearMark=gearMark?null:new Set();gearSel=null;renderSheet();return true;
+    case 'mark':{const id=+b.dataset.id;const it=state.inv.find(x=>x.id===id);if(!it)return true;if(it.lock){toast(t('gear.locked'));return true}
+      gearMark.has(id)?gearMark.delete(id):gearMark.add(id);renderSheet();return true}
+    case 'markR':{const r=+b.dataset.r;gearMark=new Set(r<0?[]:state.inv.filter(x=>!x.lock&&x.r<=r).map(x=>x.id));renderSheet();return true}
+    case 'markSalv':{const sel=state.inv.filter(x=>gearMark&&gearMark.has(x.id)&&!x.lock);if(!sel.length)return true;
+      // ak sú medzi označenými Vzácne a lepšie, treba potvrdiť druhým ťuknutím do 3 s
+      if(sel.some(x=>x.r>=4)&&(!b.dataset.arm||performance.now()-(+b.dataset.arm)>3000)){b.dataset.arm=performance.now();b.textContent=t('btn.sellSure');return true}
+      let c=0;for(const x of sel)c+=salvValue(x);state.inv=state.inv.filter(x=>!gearMark.has(x.id)||x.lock);state.credits+=c;gearMark=new Set();invWarned=false;toast(t('tt.salvMany',{n:sel.length,c}));return done()}
     case 'slotPick':gearPick=gearPick===b.dataset.slot?null:b.dataset.slot;renderSheet();return true;
     case 'pickEq':{const i=state.inv.findIndex(x=>x.id===+b.dataset.id);if(i<0)return true;const it=state.inv[i],slot=BASES[it.b].slot;if(slot==='chip')return true;
       const old=state.eq[slot];state.inv.splice(i,1);state.eq[slot]=it;if(old)state.inv.push(old);gearPick=null;bonusDirty();toast(t('tt.equipped',{n:itemName(it)}),{rar:it.r});return done()}

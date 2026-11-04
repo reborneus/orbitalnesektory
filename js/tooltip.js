@@ -34,6 +34,6 @@ function tipShow(id,x,y){const f=findAnyItem(id);if(!f){tipHide();return}
 function tipMove(x,y){if(!tipEl||tipEl.hidden)return;const w=tipEl.offsetWidth,h=tipEl.offsetHeight,W=innerWidth,H=innerHeight;
   let l=x+18,tp=y+14;if(l+w>W-8)l=x-w-18;if(tp+h>H-8)tp=Math.max(8,H-h-8);tipEl.style.transform=`translate(${Math.max(8,l)}px,${tp}px)`}
 function tipHide(){if(tipEl)tipEl.hidden=true;tipId=null}
-const tipTarget=e=>{const b=e.target.closest&&e.target.closest('[data-id]');return b&&b.closest('#sheet')&&/^(sel|stSel|stSelInv|chipIn|pickEq|trSel|trSell)$/.test(b.dataset.act||'')?b:null};
+const tipTarget=e=>{const b=e.target.closest&&e.target.closest('[data-id]');return b&&b.closest('#sheet')&&/^(sel|mark|stSel|stSelInv|chipIn|pickEq|trSel|trSell)$/.test(b.dataset.act||'')?b:null};
 document.addEventListener('pointermove',e=>{if(!hoverUI()||e.pointerType!=='mouse'){tipHide();return}const b=tipTarget(e);if(b)tipShow(+b.dataset.id,e.clientX,e.clientY);else tipHide()});
 document.addEventListener('pointerdown',()=>tipHide());

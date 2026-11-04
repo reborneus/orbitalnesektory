@@ -1,9 +1,9 @@
 {
-  "version": "0.16.2",
+  "version": "0.16.3",
   "date": "2026-11-04",
   "notes": [
-    "Dostrel: bežní piráti strieľajú kratšie ako tvoja zbraň (stíhačky 82 %, korzári 88 %, fregaty 95 %), bossovia ďalej (Dreadnought 120 %, krížnik 135 %); posúva sa s vylepšením dosahu",
-    "Mapy ešte 2× väčšie (spolu 8× oproti v0.14), väčšie pozadie hmloviny",
-    "Nájazdy pirátov prilietajú z pásu 4, aby na veľkých mapách neleteli príliš dlho"
+    "Lasery: krátke salvy – jedna letiaca laserová strela za každú osadenú zbraň (lode s viac slotmi pre zbrane vystrelia viac naraz); poškodenie sa započíta pri dopade",
+    "Piráti strieľajú rovnakými krátkymi strelami",
+    "Výbava: hromadné rozoberanie – Označiť na rozobratie, výber ťuknutím alebo podľa rarity, zamknuté predmety sa preskočia"
   ]
 }

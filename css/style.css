@@ -499,3 +499,10 @@ body.pad .pg{display:block}
 .arask{pointer-events:auto;width:min(92vw,440px);padding:16px 18px;display:grid;gap:8px}
 .arask h3{margin:0;font-size:17px}.arask p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.4}
 .dmgt.miss{color:#8a97a8;font-size:11px;font-weight:500;text-shadow:0 0 3px #000}
+/* v0.16.3 hromadné rozoberanie */
+.sec-h .ghost.sm{padding:3px 9px;font-size:11px;pointer-events:auto}
+.markbar{display:grid;gap:8px;padding:8px;border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:9px;background:rgba(255,123,107,.05)}
+.markbar .langs{flex-wrap:wrap}
+.inv.marking .itm:not(.marked){opacity:.55}
+.itm.marked{outline:2px solid var(--warn);outline-offset:2px;opacity:1}
+.itm .mk{position:absolute;top:2px;right:5px;font:700 11px var(--f-data);font-style:normal;color:var(--warn);z-index:2}
