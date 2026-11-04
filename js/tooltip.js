@@ -66,7 +66,7 @@ function hoverAt(x,y,el){if(!el){hoverHide();return}
 /* popis 3D objektu pod kurzorom */
 function worldTip(x,y){toNdc(x,y);const hits=ray.intersectObjects(pickables,false);
   for(const h of hits){const u=h.object.userData;
-    if(u.enemy&&enemies.includes(u.enemy)){const e=u.enemy;return `<b>${t('pk.'+e.kind)}</b>${e.passive?t('ht.w.pas'):''}<br>${t('ht.w.en',{n:'',h:fmtN(Math.max(0,Math.round(e.hp))),m:fmtN(Math.round(e.max))}).replace(/^ · /,'')}<br><small>${t('ht.w.clickE')}</small>`}
+    if(u.enemy&&enemies.includes(u.enemy)){const e=u.enemy;return `<b>${t('pk.'+e.kind)}</b>${e.passive&&!e.hostile?t('ht.w.pas'):''}<br>${t('ht.w.en',{n:'',h:fmtN(Math.max(0,Math.round(e.hp))),m:fmtN(Math.round(e.max))}).replace(/^ · /,'')}<br><small>${t('ht.w.clickE')}</small>`}
     if(u.ast&&u.ast.alive){const a=u.ast;return `<b>${a.type==='mix'?t('res.mix'):cap1(t('res.'+a.type))}</b> · ${fmtN(Math.round(a.amt))} t<br><small>${t('ht.w.click')}</small>`}
     if(u.station)return t('ht.w.station');if(u.npc)return t(u.npc==='trader'?'ht.w.trader':'ht.w.giver');if(u.gate)return t('ht.w.gate')}
   return null}

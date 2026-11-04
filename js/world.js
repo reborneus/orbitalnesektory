@@ -4,11 +4,11 @@
    Asteroid (objekt a): type, amt/max = zostávajúce/pôvodné množstvo, alive, respawn = sekundy do znovuobjavenia,
    rmin/rmax = pás, v ktorom sa smie objaviť, claims = koľko dronov si ho práve zabralo. */
 let world=null,asts=[],pickables=[],stationG=null,stationAnim=null,gate=null,drones=[];
-const STATION_R=14;
+const STATION_R=42;   // v0.26: 3× väčšia stanica (dosah stanice, vykladanie, štart lode)
 /* v0.18: stanica (megaštruktúra) je zapustená STATION_Y pod rovinou letu – loď nad ňou prelieta. DECK_R = polomer palubného
    prstenca, na ktorom stoja moduly (slotPos vracia polohu modulu v rovine stanice). */
-const STATION_Y=-13,DECK_R=13;
-function slotPos(i){const a=i/6*TAU+Math.PI/6;return new V3(Math.cos(a)*DECK_R,0,Math.sin(a)*DECK_R)}
+const ST_SCALE=3,STATION_Y=-40,DECK_R=13,DECK_TOP=.75*ST_SCALE;   // v0.26: konštrukcia ST_SCALE× väčšia; DECK_TOP = výška paluby v stanici
+function slotPos(i){const a=i/6*TAU+Math.PI/6,R=DECK_R*ST_SCALE;return new V3(Math.cos(a)*R,0,Math.sin(a)*R)}
 let _stMats=null;
 /* ==================== v0.19.5: ENERGETICKÉ JADRO STANICE ====================
    Plazmová guľa (podľa videa): biele horúce jadro, okolo vírivé svietiace žilky (ridged šum deformovaný ďalším šumom),
@@ -135,12 +135,13 @@ function rebuildStation(){
      Časti: žiariace guľové jadro s mriežkou, ostré veže hore a (dlhšia) dole so svetelným pásom, veľký palubný prstenec
      s oknami a modulmi, rebrá. S úrovňou jadra pribúda: 2 = vnútorný otáčavý prstenec, 3 = vedľajšie veže + maják,
      4 = veľký naklonený gyroskopický prstenec, 5 = žiariace halo. */
-  g.position.y=STATION_Y;const K=stationMats(),P=kitParts();
+  // v0.26: celá konštrukcia je v skupine S3 zväčšenej ST_SCALE× (moduly ostávajú v pôvodnej veľkosti na palube)
+  g.position.y=STATION_Y;const S3=new THREE.Group();S3.scale.setScalar(ST_SCALE);g.add(S3);const K=stationMats(),P=kitParts();
   // jadro: modrá žiariaca guľa + tmavá mriežka okolo
   // v0.19.5: energetické jadro (plazmová guľa so svietiacimi žilkami) – makeCoreOrb nižšie, farba podľa stavu stanice
-  const orb=makeCoreOrb();g.add(orb);anim.orb=orb;
-  const lat=new THREE.Mesh(new THREE.IcosahedronGeometry(4.1,2),K.lattice);g.add(lat);anim.rings.push({o:lat,s:.05});
-  const cg=glow('#4f9bff',26,.5);g.add(cg);anim.coreGlow=cg;
+  const orb=makeCoreOrb();S3.add(orb);anim.orb=orb;
+  const lat=new THREE.Mesh(new THREE.IcosahedronGeometry(4.1,2),K.lattice);S3.add(lat);anim.rings.push({o:lat,s:.05});
+  const cg=glow('#4f9bff',26,.5);S3.add(cg);anim.coreGlow=cg;
   for(const y of[-1,1]){P.add(K.hull,new THREE.CylinderGeometry(2.6,3.4,1.2,12),{p:[0,3.7*y,0],r:[y<0?Math.PI:0,0,0]});P.add(K.glow,new THREE.TorusGeometry(3.1,.07,4,32),{p:[0,3.2*y,0],r:[HALF,0,0]})}
   // veže: faceted (8-hranný kosoštvorcový prierez), hore kratšia (pod rovinou letu), dole dlhá
   const spire=(h0,h1,w,y0)=>kitLoft([{z:h0,w,h:w},{z:h0+(h1-h0)*.25,w:w*1.15,h:w*1.15},{z:h0+(h1-h0)*.7,w:w*.6,h:w*.6},{z:h1,w:.05,h:.05}],{n:8,p:1.5});
@@ -165,32 +166,32 @@ function rebuildStation(){
   const RR=rng(11);for(let i=0;i<90;i++){const a=RR()*TAU;let near=false;for(let k=0;k<6;k++){const sa=k/6*TAU+Math.PI/6;if(Math.abs(Math.atan2(Math.sin(a-sa),Math.cos(a-sa)))<.28)near=true}if(near)continue;
     const r=DECK_R-2+RR()*4;P.add(RR()<.85?K.dark:K.hull,box(.2+RR()*.9,.15+RR()*.5,.2+RR()*.9),{p:[Math.cos(a)*r,.75,Math.sin(a)*r],r:[0,-a,0]})}
   for(let i=0;i<24;i++){const a=i/24*TAU;P.add(K.amber,box(.1,.1,.1),{p:[Math.cos(a)*(DECK_R-2.3),.8,Math.sin(a)*(DECK_R-2.3)]})}
-  P.done(g);
-  if(s.core>=2){const r2=new THREE.Group();r2.position.y=-1.2;r2.rotation.x=.12;g.add(r2);anim.rings.push({o:r2,s:-.2});const Q=kitParts();
+  P.done(S3);
+  if(s.core>=2){const r2=new THREE.Group();r2.position.y=-1.2;r2.rotation.x=.12;S3.add(r2);anim.rings.push({o:r2,s:-.2});const Q=kitParts();
     Q.add(K.hull,new THREE.TorusGeometry(7.4,.42,6,56),{r:[HALF,0,0]});
     for(let i=0;i<20;i++){const a=i/20*TAU;Q.add(i%2?K.glow:K.amber,box(.3,.18,.12),{p:[Math.cos(a)*7.86,0,Math.sin(a)*7.86],r:[0,-a+HALF,0]})}
     for(let i=0;i<4;i++)Q.add(K.dark,box(7.6,.22,.3),{r:[0,i*Math.PI/4,0]});
     Q.done(r2)}
   if(s.core>=3){const Q=kitParts();for(const a of[Math.PI/4,3*Math.PI/4,5*Math.PI/4,7*Math.PI/4]){const x=Math.cos(a)*2.4,z=Math.sin(a)*2.4;
-      Q.add(K.hull,spire(0,4.5,.8),{p:[x,4.6,z],r:[-HALF+Math.sin(a)*.2,0,-Math.cos(a)*.2]});Q.add(K.hull,spire(0,9,1),{p:[x,-4.6,z],r:[HALF-Math.sin(a)*.15,0,Math.cos(a)*.15]})}Q.done(g);
-    const b=glow('#ff6a4d',2.4,1);b.position.y=10.8;g.add(b);anim.blink.push({o:b,f:1.3,base:2.4})}
-  if(s.core>=4){const gy=new THREE.Group();gy.rotation.x=.38;g.add(gy);const sp=new THREE.Group();gy.add(sp);anim.rings.push({o:sp,s:.07});const Q=kitParts();
+      Q.add(K.hull,spire(0,4.5,.8),{p:[x,4.6,z],r:[-HALF+Math.sin(a)*.2,0,-Math.cos(a)*.2]});Q.add(K.hull,spire(0,9,1),{p:[x,-4.6,z],r:[HALF-Math.sin(a)*.15,0,Math.cos(a)*.15]})}Q.done(S3);
+    const b=glow('#ff6a4d',2.4,1);b.position.y=10.8;S3.add(b);anim.blink.push({o:b,f:1.3,base:2.4})}
+  if(s.core>=4){const gy=new THREE.Group();gy.rotation.x=.38;S3.add(gy);const sp=new THREE.Group();gy.add(sp);anim.rings.push({o:sp,s:.07});const Q=kitParts();
     Q.add(K.dark,new THREE.TorusGeometry(DECK_R+7,.45,6,96),{r:[HALF,0,0]});Q.add(K.glow,new THREE.TorusGeometry(DECK_R+7,.08,4,96),{p:[0,.45,0],r:[HALF,0,0]});
     for(let i=0;i<16;i++){const a=i/16*TAU;Q.add(K.hull,box(1.8,.9,1.1),{p:[Math.cos(a)*(DECK_R+7),0,Math.sin(a)*(DECK_R+7)],r:[0,-a,0]})}
     Q.done(sp)}
-  if(s.core>=5){const halo=new THREE.Mesh(new THREE.TorusGeometry(DECK_R+11,.12,6,120),M.hullGlow);halo.rotation.x=HALF;halo.position.y=-1;g.add(halo)}
-  const beacon=glow(s.captured?'#ffd27a':'#58d0c0',s.captured?11:8,.85);beacon.position.y=11;g.add(beacon);anim.blink.push({o:beacon,f:.6,base:s.captured?11:8});
-  const aura=glow(s.captured?'#ffd27a':'#58d0c0',70,.1);aura.position.y=-1;g.add(aura);
+  if(s.core>=5){const halo=new THREE.Mesh(new THREE.TorusGeometry(DECK_R+11,.12,6,120),M.hullGlow);halo.rotation.x=HALF;halo.position.y=-1;S3.add(halo)}
+  const beacon=glow(s.captured?'#ffd27a':'#58d0c0',s.captured?11:8,.85);beacon.position.y=11;S3.add(beacon);anim.blink.push({o:beacon,f:.6,base:s.captured?11:8});
+  const aura=glow(s.captured?'#ffd27a':'#58d0c0',40,.1);aura.position.y=-1;S3.add(aura);
   const n=slotsFor(s.core);
-  for(let i=0;i<n;i++){const p=slotPos(i);const pad=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.4,.35,6),M.pad);pad.position.copy(p).setY(.75);g.add(pad);
-    const m=s.slots[i];const mp=p.clone().setY(1.6);
-    if(!m){const e=glow('#58d0c0',3.4,.35);e.position.copy(p).setY(1.3);g.add(e);anim.blink.push({o:e,f:.4,base:3.4,soft:1})}
+  for(let i=0;i<n;i++){const p=slotPos(i);const pad=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.4,.35,6),M.pad);pad.position.copy(p).setY(DECK_TOP);g.add(pad);
+    const m=s.slots[i];const mp=p.clone().setY(DECK_TOP+.85);
+    if(!m){const e=glow('#58d0c0',3.4,.35);e.position.copy(p).setY(DECK_TOP+.55);g.add(e);anim.blink.push({o:e,f:.4,base:3.4,soft:1})}
     else{g.add(makeModule(m.t,mp,anim));
       // žiara pod modulom vo farbe jeho rarity (stúpa s vylepšením +0..+10)
-      const R=modRar(m),c=RAR[R].col;const rg=glow(c,4.5+R*.5,.18+R*.04);rg.position.copy(p).setY(1.1);g.add(rg);anim.blink.push({o:rg,f:.3,base:4.5+R*.5,soft:1});
+      const R=modRar(m),c=RAR[R].col;const rg=glow(c,4.5+R*.5,.18+R*.04);rg.position.copy(p).setY(DECK_TOP+.35);g.add(rg);anim.blink.push({o:rg,f:.3,base:4.5+R*.5,soft:1});
       if(R>=6){const ring=new THREE.Mesh(new THREE.RingGeometry(2.4,2.65,36),new THREE.MeshBasicMaterial({color:new THREE.Color(c),transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
-        ring.rotation.x=-HALF;ring.position.copy(p).setY(1.0);g.add(ring)}}}
-  const proxy=new THREE.Mesh(new THREE.SphereGeometry(DECK_R+4,10,8),M.pick);proxy.userData.station=true;g.add(proxy);
+        ring.rotation.x=-HALF;ring.position.copy(p).setY(DECK_TOP+.25);g.add(ring)}}}
+  const proxy=new THREE.Mesh(new THREE.SphereGeometry((DECK_R+4)*ST_SCALE,10,8),M.pick);proxy.userData.station=true;g.add(proxy);
   pickables=pickables.filter(p=>!p.userData.station);pickables.push(proxy);
   world.add(g);
   syncDrones();

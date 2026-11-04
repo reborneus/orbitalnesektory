@@ -213,7 +213,10 @@ function jumpTo(i,instant){if(jumping)return;jumping=true;const w=$('#warp');w.c
   mining=false;mineTarget=null;moveTarget=null;hideBeam(beam);
   if(!instant)collectAllLoot();
   setTimeout(()=>{try{state.cur=i;mining=false;mineTarget=null;moveTarget=null;openOnArrive=false;stationG=null;gateNear=true;
-    ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;lastZone=1;buildSector();camTarget.copy(ship.position);save();updateHUD();
+    ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;lastZone=1;buildSector();
+    // v0.26: po skoku sa loď objaví pri bráne (nos smerom k stanici), nie v strede pri stanici
+    if(gate&&!SECTORS[i].arena){const d=gate.position.clone().setY(0);const L=d.length()||1;ship.position.copy(d).addScaledVector(d,-18/L);shipYaw=Math.atan2(-d.x,-d.z);ship.rotation.y=shipYaw;lastZone=zoneOf(ship.position.length())}
+    camTarget.copy(ship.position);save();updateHUD();
     if(!instant)toast(t('tt.jumped',{s:secName(i)}))}catch(e){console.error(e)}finally{w.classList.remove('on');jumping=false}},instant?50:480)}
 
 /* language + intro */

@@ -4,7 +4,7 @@
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
 /* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
-const GAME_VERSION='0.25.0';
+const GAME_VERSION='0.26.0';
 const NUM=10,ECON=1.6;
 const P=(c,m=1)=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON*m);return o};
 /* v0.12: stavba a vylepšovanie stanice je v každom ďalšom sektore SEC_COST× drahšie (príjmy rastú len ~1,3×) */
@@ -154,7 +154,15 @@ const LOOT_RANGE=8;
 /* v0.18: PASÍVNI PIRÁTI – pokojní piráti rozmiestnení po pásoch sektora. Chvíľu hráča sledujú, ale zaútočia, až keď ich
    hráč napadne (ručne ťukne/zameria). belts = {číslo pásu: počet}, kind = typ, mul = násobok výdrže a poškodenia (oproti 2. sektoru),
    respawn = za koľko sekúnd sa zničený pirát vráti. Zatiaľ len v 1. mape; ak sa to osvedčí, pridáme ich aj inde. */
-const PASSIVE={0:{kind:'fighter',belts:{2:3,3:5,4:5},mul:.6,respawn:[90,150]}};
+/* v0.26: v každej mape (okrem arény) – počty po pásoch, mix = podiel typov, aggr = podiel agresívnych (zaútočia, keď sa
+   priblížiš na PIRATES.aggro m, ale k stanici neletia), mul = násobok výdrže/poškodenia oproti bežným pirátom daného sektora. */
+const PASSIVE={
+  0:{belts:{2:6,3:10,4:10},mix:{fighter:1},aggr:0,mul:.6,respawn:[90,150]},
+  1:{belts:{2:8,3:13,4:13},mix:{fighter:1},aggr:0,mul:.85,respawn:[90,150]},
+  2:{belts:{2:8,3:13,4:13},mix:{fighter:.7,corsair:.3},aggr:.25,mul:1,respawn:[100,160]},
+  3:{belts:{2:9,3:14,4:14},mix:{fighter:.6,corsair:.3,frigate:.1},aggr:.35,mul:1,respawn:[100,160]},
+  4:{belts:{2:10,3:15,4:15},mix:{fighter:.5,corsair:.35,frigate:.15},aggr:.45,mul:1.05,respawn:[110,170]},
+  5:{belts:{2:10,3:16,4:16},mix:{fighter:.4,corsair:.4,frigate:.2},aggr:.55,mul:1.1,respawn:[110,170]}};
 const PIRATES={
   /* raid[i] = nájazdy v sektore i: every = interval (s), count = počet stíhačiek, corsair/frigate = šanca na korzára/fregatu */
   raid:[null,{every:[120,200],count:[2,3],corsair:0,first:90},{every:[90,160],count:[3,5],corsair:.4,first:70},

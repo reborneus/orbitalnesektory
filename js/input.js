@@ -55,7 +55,7 @@ function drawMini(){const W=mini.width,c=W/2,R=c-1,k=R/MINI_R,u=W/150;const g=mc
   for(const mk of mMarks){const x=c+mk.m.pos.x*k,y=c+mk.m.pos.z*k;g.fillStyle=MCOL;g.strokeStyle='#fff';g.lineWidth=.8*u;g.beginPath();for(let i=0;i<10;i++){const an=i/10*TAU-Math.PI/2,rr=(i%2?2.2:5)*u;g.lineTo(x+Math.cos(an)*rr,y+Math.sin(an)*rr)}g.closePath();g.fill();g.stroke()}
   // piráti: červené trojuholníky v smere letu
   for(const e of enemies){const x=c+e.pos.x*k,y=c+e.pos.z*k,a=e.body.rotation.y,s=(e.kind==='frigate'?6:e.kind==='corsair'?4.5:3.2)*u,fx=Math.sin(a),fz=Math.cos(a);
-    g.fillStyle=e.leaving?'rgba(255,90,74,.45)':e.passive?'#ffb35a':'#ff5a4a';   // oranžová = pasívny pirát
+    g.fillStyle=e.leaving?'rgba(255,90,74,.45)':e.passive&&!e.hostile?'#ffb35a':'#ff5a4a';   // oranžová = pasívny pirát
     g.beginPath();g.moveTo(x+fx*s,y+fz*s);g.lineTo(x-fx*s*.7+fz*s*.7,y-fz*s*.7-fx*s*.7);g.lineTo(x-fx*s*.7-fz*s*.7,y-fz*s*.7+fx*s*.7);g.closePath();g.fill()}
   // lode NPC: fialový štvorec = zadávateľ misií, zlatý = obchodník
   for(const n of npcs){const x=c+n.pos.x*k,y=c+n.pos.z*k,s=3.4*u;g.fillStyle=n.kind==='trader'?'#ffd27a':MCOL;g.strokeStyle='#fff';g.lineWidth=.8*u;g.fillRect(x-s,y-s,s*2,s*2);g.strokeRect(x-s,y-s,s*2,s*2)}
@@ -173,7 +173,7 @@ function padTargetTick(dt,show){if(!show){if(padMk)padMk.visible=false;padTgt=nu
     // ručne vybraný cieľ (LB/RB) sa drží, kým je v dosahu; inak ukazovateľ skočí na najbližší
     const keep=padTgt&&padTgt.manual?L.findIndex(x=>x.o===padTgt.o):-1;padTgt=!L.length?null:keep>=0?Object.assign(L[keep],{manual:true}):L[0]}
   const m=padMarker();if(!padTgt){m.visible=false;return}
-  const o=padTgt.o,col=padTgt.en?(o.passive?'#ffb35a':'#ff5a4a'):'#58d0c0';m.userData.mat.color.set(col);m.userData.gl.material.color.set(col);
+  const o=padTgt.o,col=padTgt.en?(o.passive&&!o.hostile?'#ffb35a':'#ff5a4a'):'#58d0c0';m.userData.mat.color.set(col);m.userData.gl.material.color.set(col);
   const tt=performance.now()/1000,h=padTgt.en?3.4*(o.body?o.body.scale.x:1)+1.5:astScale(o)+2.2;
   m.visible=true;m.position.set(o.pos.x,o.pos.y+h+Math.abs(Math.sin(tt*5))*1.1,o.pos.z);m.rotation.y+=dt*3;const s=zoom<.6?.7:1;m.scale.setScalar(s)}
 function padCycle(d){const L=padTargets();if(!L.length)return;let i=padTgt?L.findIndex(x=>x.o===padTgt.o):-1;i=((i+d)%L.length+L.length)%L.length;padTgt=Object.assign(L[i],{manual:true});padTgtIdx=i;padMkT=.2}
