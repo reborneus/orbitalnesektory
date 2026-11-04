@@ -81,7 +81,7 @@ sk:{
   'auto.l':['Automatická ťažba: po vyťažení asteroidu loď prejde na najbližší asteroid tej istej suroviny do 40 m.','Automatický návrat: pri plnom náklade loď sama poletí na stanicu.',
     'Autopilot: ťaží zvolenú surovinu, vozí ju domov, zbiera korisť do 70 m a ťaží relikty do 50 m. Pri trupe pod 35 % sa vráti a pokračuje od 70 %. Ručný zásah ho na 6 s pozastaví.','Všetko zapneš v menu Nastavenia. Autopilota aj klávesou P alebo tlačidlom View/Share.'],
   'diff.h':'Obtiažnosť','diff.k':'Vlastnosť',
-  'diff.rows':[['Oprava trupu','sama po 30 s','len na stanici za rudu'],['Radiácia v pásoch','× {e1}','× {h1}'],['Za horizontom','× {e2}','× {h2}'],['Rýchlosť lode','× {e3}','× {h3}'],['Výnos surovín','× {e4}','× {h4}']],
+  'diff.rows':[['Oprava trupu','sama po 30 s','len na stanici za rudu','len na stanici za rudu'],['Radiácia v pásoch','× {e1}','× {h1}','× {n1}'],['Za horizontom','× {e2}','× {h2}','× {n2}'],['Rýchlosť lode','× {e3}','× {h3}','× {n3}'],['Výnos surovín','× {e4}','× {h4}','× {n4}'],['Poškodenie pirátov','× {e5}','× {h5}','× {n5}'],['Zničenie lode','strata nákladu','strata nákladu','koniec hry – postup sa vymaže']],
   'diff.p':'Obtiažnosť sa vyberá na začiatku hry a zmeniť ju môžeš len pri novej hre.',
   'gate.h':'Skoková brána, ukladanie a spúšťač',
   'gate.l':['Do iného sektora sa dostaneš iba skokovou bránou (tyrkysový krúžok na minimape, {g} m od stanice). V prvom sektore sa objaví po jeho obsadení.','Pred skokom brána pozbiera korisť, ktorá zostala ležať v sektore.',
@@ -163,7 +163,7 @@ en:{
   'auto.l':['Auto-mining: when an asteroid is depleted, the ship moves to the nearest asteroid of the same resource within 40 m.','Auto-return: with full cargo the ship flies to the station by itself.',
     'Autopilot: mines the chosen resource, hauls it home, picks up loot within 70 m and mines relics within 50 m. Below 35% hull it returns and continues from 70%. Manual input pauses it for 6 s.','Turn everything on in the Settings menu. The autopilot also with the P key or the View/Share button.'],
   'diff.h':'Difficulty','diff.k':'Property',
-  'diff.rows':[['Hull repair','by itself after 30 s','only at the station, for ore'],['Belt radiation','× {e1}','× {h1}'],['Beyond the horizon','× {e2}','× {h2}'],['Ship speed','× {e3}','× {h3}'],['Resource yield','× {e4}','× {h4}']],
+  'diff.rows':[['Hull repair','by itself after 30 s','only at the station, for ore','only at the station, for ore'],['Belt radiation','× {e1}','× {h1}','× {n1}'],['Beyond the horizon','× {e2}','× {h2}','× {n2}'],['Ship speed','× {e3}','× {h3}','× {n3}'],['Resource yield','× {e4}','× {h4}','× {n4}'],['Pirate damage','× {e5}','× {h5}','× {n5}'],['Ship destroyed','cargo lost','cargo lost','game over – progress wiped']],
   'diff.p':'Difficulty is chosen at the start and can only be changed with a new game.',
   'gate.h':'Jump gate, saving and launcher',
   'gate.l':['You reach another sector only through the jump gate (cyan ring on the minimap, {g} m from the station). In the first sector it appears once you claim it.','Before a jump the gate collects any loot left in the sector.',
@@ -281,8 +281,8 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
     const rows=[];for(let n=0;n<20;n++){const it={enh:n,r:4},c=enhCost(it);rows.push([`<b>+${n+1}</b>`,pct(enhChance(it)),costTxt(C(c.ore,c.green,c.crystal)),`${gem('cr')} ${nf(c.cr)}`,`${gem('cr')} ${nf(enhCost({enh:n,r:6}).cr)}`,`${gem('cr')} ${nf(enhCost({enh:n,r:9}).cr)}`,'+'+nf((n+1)*ENH_STEP*100)+' %'])}
     H('enh',wt('enh.h'),`<p>${wt('enh.p',{min:30})}</p>`+tbl([wt('enh.n'),wt('enh.ch'),t('res.ore')+' / '+t('res.green')+' / '+t('res.crystal'),wt('enh.cr',{r:t('r.rare')}),wt('enh.cr',{r:t('r.legendary')}),wt('enh.cr',{r:t('r.primal')}),wt('enh.bonus')],rows,'wsmall'))}
   H('auto',wt('auto.h'),list(wt('auto.l')));
-  {const E=DIFF.easy,Hd=DIFF.hard;const v={e1:E.rad,h1:Hd.rad,e2:E.voidM,h2:Hd.voidM,e3:E.speed,h3:Hd.speed,e4:E.yield,h4:Hd.yield};
-    H('diff',wt('diff.h'),`<p>${wt('diff.p')}</p>`+tbl([wt('diff.k'),t('diff.easy'),t('diff.hard')],wt('diff.rows').map(r=>[`<b>${r[0]}</b>`,fill(r[1],v),fill(r[2],v)])))}
+  {const E=DIFF.easy,Hd=DIFF.hard,N=DIFF.nightmare;const v={e1:E.rad,h1:Hd.rad,n1:N.rad,e2:E.voidM,h2:Hd.voidM,n2:N.voidM,e3:E.speed,h3:Hd.speed,n3:N.speed,e4:E.yield,h4:Hd.yield,n4:N.yield,e5:E.pdmg,h5:Hd.pdmg,n5:N.pdmg};
+    H('diff',wt('diff.h'),`<p>${wt('diff.p')}</p>`+tbl([wt('diff.k'),t('diff.easy'),t('diff.hard'),t('diff.nightmare')],wt('diff.rows').map(r=>[`<b>${r[0]}</b>`,fill(r[1],v),fill(r[2],v),fill(r[3],v)])))}
   H('gate',wt('gate.h'),list(wt('gate.l').map(x=>fill(x,{g:72}))));
   return S}
 

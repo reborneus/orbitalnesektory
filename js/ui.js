@@ -186,19 +186,23 @@ function jumpTo(i,instant){if(jumping)return;jumping=true;const w=$('#warp');w.c
 
 /* language + intro */
 let pendingDiff='easy';
+/* posledná prehratá Nightmare hra (uložená pri zničení lode) */
+function nmRecord(){let r=null;try{r=JSON.parse(localStorage.getItem(SAVE_KEY+'-nm')||'null')}catch(e){}
+  return r?`<p class="note nmrec">${t('in.nmRec',{s:secName(r.sec),c:r.cap,cr:r.cr})}</p>`:''}
 function setLang(l){lang=l;if(state)state.lang=l;try{localStorage.setItem('os-lang',l)}catch(e){}applyLang();if(state)save()}
 function applyLang(){document.documentElement.lang=lang;document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.dataset.t));
   document.querySelectorAll('.dock button').forEach(b=>{const l=b.querySelector('[data-t]');const txt=l?t(l.dataset.t):'Wiki';b.setAttribute('aria-label',txt);b.title=txt});
   mini.setAttribute('aria-label',t('mini'));if(!$('#intro').hidden)renderIntro();renderSheet();lastHint='';updateHUD()}
-function renderIntro(){$('#introBox').innerHTML=`<div class="intro-top"><div class="kicker">${t('in.kicker')}</div>${langBtns()}</div>
+function renderIntro(){$('#introBox').innerHTML=`<div class="intro-top"><div class="kicker">${t('in.kicker',{v:GAME_VERSION})}</div>${langBtns()}</div>
   <h1>Orbitálne Sektory</h1><ol>${[1,2,3,4,5,6].map(i=>`<li>${t('in.'+i)}</li>`).join('')}</ol>
   <div class="sec-h"><span>${t('in.diff')}</span></div>
-  <div class="diffs">${['easy','hard'].map(d=>`<button class="diff ${d}" data-d="${d}" aria-pressed="${pendingDiff===d}"><b>${t('diff.'+d)}</b><span>${t('diff.'+d+'D')}</span></button>`).join('')}</div>
+  <div class="diffs">${DIFFS.map(d=>`<button class="diff ${d}" data-d="${d}" aria-pressed="${pendingDiff===d}"><b>${d==='nightmare'?'☠ ':''}${t('diff.'+d)}</b><span>${t('diff.'+d+'D')}</span></button>`).join('')}</div>
+  ${nmRecord()}
   <button class="go" id="goBtn">${t('in.go')}</button><button class="ghost" id="introWiki" style="justify-self:center">${t('dock.wiki')}</button>`}
 $('#introBox').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   if(b.dataset.l){setLang(b.dataset.l);return}if(b.dataset.d){pendingDiff=b.dataset.d;renderIntro();return}if(b.id==='goBtn')startGame();if(b.id==='introWiki')openWiki()});
 function startGame(){state.diff=pendingDiff;state.intro=true;state.hp=shipVal('hull');$('#intro').hidden=true;save();lastHint='';updateHUD();canvas.focus()}
-function newGame(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}state=freshState();buildShip('klepeto');closeSheet();for(const a of asts)a.claims=0;
+function newGame(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}nmDead=false;state=freshState();buildShip('klepeto');closeSheet();for(const a of asts)a.claims=0;
   dead=false;ship.visible=true;hullSince=99;shSince=99;pendingDiff='easy';$('#intro').hidden=false;renderIntro();jumpTo(0,true);toast(t('tt.newGame'))}
 
 document.querySelectorAll('.dock [data-tab]').forEach(b=>b.addEventListener('click',()=>toggleTab(b.dataset.tab)));

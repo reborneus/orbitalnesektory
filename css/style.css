@@ -153,7 +153,8 @@ body.pad .pg{display:block}
 .intro ol{margin:0;padding:0;list-style:none;display:grid;gap:9px;counter-reset:s}
 .intro li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:14.5px;line-height:1.4;color:var(--text)}
 .intro li::before{counter-increment:s;content:counter(s);font-family:var(--f-data);font-size:11px;color:var(--hull);border:1px solid rgba(88,208,192,.4);border-radius:4px;height:18px;display:grid;place-items:center;margin-top:1px}
-.diffs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.diffs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (max-width:520px){.diffs{grid-template-columns:1fr}}
 .diff{border:1px solid var(--line);border-radius:9px;padding:10px 12px;text-align:left;background:transparent;cursor:pointer;display:grid;gap:4px;align-content:start}
 .diff b{font-size:17px}
 .diff span{font-size:12.5px;color:var(--muted);line-height:1.35}
@@ -428,3 +429,7 @@ body.pad .pg{display:block}
 .dmgt.tower,.dmgt.drone{color:#ffe2a8;font-size:12px}
 .dmgt.crit{color:#ffd84a;font-size:20px;text-shadow:0 0 4px #000,0 0 12px rgba(255,200,60,.9)}
 .dmgt.hurt{color:#ff7b6b;font-size:13px;text-shadow:0 0 4px #000,0 0 8px rgba(255,80,60,.6)}
+/* v0.9.1 Nightmare */
+.diff.nightmare b{color:#ff7bd0}
+.diff.nightmare[aria-pressed="true"]{border-color:#ff4fb0;background:rgba(255,79,176,.10);box-shadow:0 0 14px rgba(255,79,176,.25)}
+.nmrec{margin:0;color:#ff9ad6}

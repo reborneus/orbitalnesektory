@@ -3,6 +3,8 @@
 /* v0.9 VEĽKÉ ČÍSLA: NUM = násobok všetkých množstiev (suroviny, náklad, trup, štíty, poškodenie, kredity, výdrž pirátov),
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
+/* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
+const GAME_VERSION='0.9.1';
 const NUM=10,ECON=1.6;
 const P=c=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON);return o};
 /* Suroviny: interné názvy ore = ruda, green = viridit, crystal = kryštály. */
@@ -115,8 +117,11 @@ const GROUPS=['eng','hull','shield','laser','weapon'];
 const GUN_RANGE=28;
 const RADSHIELD_RECHARGE=12;   // o koľko sekúnd sa radiačný štít dobije za sekundu pri stanici   // dosah zbrane lode v m (+ vlastnosť Dosah zbrane)
 /* Obtiažnosť: regen = trup sa sám opravuje, rad = násobok radiácie v pásoch 3–4, voidM = násobok za horizontom,
-   speed = násobok rýchlosti lode, yield = násobok vyťaženej suroviny (1.2 = o 20 % viac). */
-const DIFF={easy:{regen:true,rad:1,voidM:1,speed:1,yield:1},hard:{regen:false,rad:1.6,voidM:1.3,speed:.85,yield:1.2}};
+   speed = násobok rýchlosti lode, yield = násobok vyťaženej suroviny (1.2 = o 20 % viac), pdmg = násobok poškodenia pirátov,
+   permadeath = jedno zničenie lode vymaže celý postup (Nightmare, v0.9.1). */
+const DIFF={easy:{regen:true,rad:1,voidM:1,speed:1,yield:1,pdmg:1},hard:{regen:false,rad:1.6,voidM:1.3,speed:.85,yield:1.2,pdmg:1.3},
+  nightmare:{regen:false,rad:2,voidM:1.6,speed:.85,yield:1.4,pdmg:1.6,permadeath:true}};
+const DIFFS=Object.keys(DIFF);
 const D=()=>DIFF[(state&&state.diff)||'easy'];
 /* Oprava trupu (len na ľahkej): začne HULL_DELAY sekúnd po poslednom poškodení, rýchlosťou HULL_RATE z maxima za sekundu. */
 const HULL_DELAY=30,HULL_RATE=.03;

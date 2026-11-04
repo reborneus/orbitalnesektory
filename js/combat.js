@@ -42,7 +42,7 @@ function spawnRaid(force){const c=raidCfg()||(force?PIRATES.raid[1]:null);if(!c)
   const kinds=[];for(let i=0;i<n;i++)kinds.push('fighter');if(Math.random()<c.corsair)kinds.push('corsair');if(c.frigate&&Math.random()<c.frigate)kinds.push('frigate');
   kinds.forEach((kind,i)=>{const P=PIRATES[kind];const v=makePirate(kind);const a=a0+(i-kinds.length/2)*.09;
     v.g.position.set(Math.cos(a)*(LIMIT-35+Math.random()*10),2,Math.sin(a)*(LIMIT-35+Math.random()*10));world.add(v.g);
-    const e={...v,kind,hp:pirStat(P.hp,si),max:pirStat(P.hp,si),dmg:pirStat(P.dmg,si)*(state.diff==='hard'?PIRATES.hardDmg:1),speed:P.speed,range:P.range,fire:P.fire,r:P.r,
+    const e={...v,kind,hp:pirStat(P.hp,si),max:pirStat(P.hp,si),dmg:pirStat(P.dmg,si)*D().pdmg,speed:P.speed,range:P.range,fire:P.fire,r:P.r,
       cd:1+Math.random()*2,vel:new V3(),aggro:false,leaving:false,orb:Math.random()<.5?1:-1,pos:v.g.position};
     v.proxy.userData.enemy=e;pickables.push(v.proxy);enemies.push(e)});
   raidActive=true;raidCount=kinds.length;toast(t('tt.raid',{n:kinds.length}),'bad');rumble(.4,300)}

@@ -65,6 +65,9 @@ function destroyShip(){dead=true;mineTarget=null;moveTarget=null;hideBeam(beam);
   for(let i=0;i<60;i++)emit(debris,ship.position,['#ffe2a8','#ff9a4d','#58d0c0'][i%3],.8+Math.random()*.9,new V3((Math.random()-.5)*30,Math.random()*8,(Math.random()-.5)*30));
   ship.visible=false;const lost=Math.floor(cargoTotal()+.05);for(const r of RES)state.cargo[r]=0;
   toast(lost>0?t('tt.destroyed',{n:lost}):t('tt.destroyed0'),'bad');
+  // Nightmare: uložená hra sa zmaže hneď (nedá sa obísť obnovením stránky) a po výbuchu začne nová hra
+  if(D().permadeath){nmDead=true;try{localStorage.removeItem(SAVE_KEY);localStorage.setItem(SAVE_KEY+'-nm',JSON.stringify({sec:state.cur,cap:state.sec.filter(x=>x.captured).length,cr:Math.floor(state.credits)}))}catch(e){}
+    toast(t('tt.nmOver'),'bad');setTimeout(()=>$('#warp').classList.add('on'),900);setTimeout(()=>{$('#warp').classList.remove('on');newGame();pendingDiff='nightmare';renderIntro()},2600);return}
   setTimeout(()=>$('#warp').classList.add('on'),900);
   setTimeout(()=>{ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;state.hp=shipVal('hull');state.sh=shieldMax();hullSince=99;shSince=99;lastZone=1;
     ship.visible=true;dead=false;$('#warp').classList.remove('on');toast(t('tt.respawn'));save()},1500)}

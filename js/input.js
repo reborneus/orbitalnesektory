@@ -107,7 +107,7 @@ function pollPad(dt){let pads=[];try{pads=navigator.getGamepads?navigator.getGam
   padVec.set(0,0,0);
   if(wikiOpen()){const m=$('#wikiMain');if(m)m.scrollTop+=(ly+dy)*dt*900;if(press(1)||press(9))closeWiki();if(press(4))wikiStep(-1);if(press(5))wikiStep(1);padPrev=p.buttons.map((b,i)=>btn(i));return}
   if(!$('#intro').hidden){
-    if(press(14)){pendingDiff='easy';renderIntro()}if(press(15)){pendingDiff='hard';renderIntro()}
+    if(press(14)||press(15)){const i=DIFFS.indexOf(pendingDiff);pendingDiff=DIFFS[(i+(press(15)?1:DIFFS.length-1))%DIFFS.length];renderIntro()}
     if(press(2))setLang(lang==='sk'?'en':'sk');if(press(0)||press(9))startGame()}
   else if(sheetTab){
     const v=dy||(Math.abs(ly)>.55?Math.sign(ly):0);navT-=dt;
