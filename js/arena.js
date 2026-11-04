@@ -86,7 +86,7 @@ function spawnAnomaly(){const g=new THREE.Group();const core=glow('#c38bff',9,.9
 function removeAnomaly(){if(anomaly){world.remove(anomaly.g);anomaly=null}}
 /* odmena za vlnu w: kredity a suroviny rastú s vlnou, počet a kvalita predmetov tiež; občas „jackpot“ ×3 */
 function anomalyReward(w){const tm=typeof tierMul==='function'?tierMul('gain'):1;const jack=Math.random()<.05+w*.002;const m=(jack?3:1)*tm;
-  const cr=Math.round(400*NUM*(1+.12*w)*m*crMul()),ore=Math.round(600*NUM*(1+.1*w)*m),green=Math.round(150*NUM*(1+.1*w)*m),cry=Math.round(50*NUM*(1+.1*w)*m);
+  const cr=Math.round(400*NUM*(1+.12*w)*m*(1+(bonus().cr||0)/100)),ore=Math.round(600*NUM*(1+.1*w)*m),green=Math.round(150*NUM*(1+.1*w)*m),cry=Math.round(50*NUM*(1+.1*w)*m);
   state.credits+=cr;state.ore+=ore;state.green+=green;state.crystal+=cry;
   const items=[];const n=1+Math.floor(w/10)+(Math.random()<.3+w*.004?1:0)+(jack?1:0);
   const cap={max:6,top:Math.min(1.5,.2+w*.012)};
@@ -136,5 +136,5 @@ function renderArena(){const A=astate(),R=arenaRun;let h='';
 function arenaAct(act,b){if(act==='arGo'){if(arenaRun)return true;arenaStart(+b.dataset.w);closeSheet();return true}
   if(act==='arQuit'){arenaEnd('ar.quitT');renderSheet();return true}return false}
 function arenaHud(){if(!inArena())return false;const A=astate(),R=arenaRun;
-  $('#secTag').textContent=t('ar.tag');$('#infBar').style.width=((R?R.wave-1:A.best)/ARENA_WAVES*100)+'%';
+  $('#secTag').textContent=t('ar.tag')+(state.tier?' · V+'+state.tier:'');$('#infBar').style.width=((R?R.wave-1:A.best)/ARENA_WAVES*100)+'%';
   $('#infTxt').textContent=R?t('ar.hud',{n:R.wave,m:ARENA_WAVES,e:enemies.length}):t('ar.hudIdle',{n:A.best});return true}

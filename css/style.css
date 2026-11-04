@@ -456,3 +456,4 @@ body.pad .pg{display:block}
 .dmgt.imm{color:#ffd23a;font-size:12px;letter-spacing:.08em}
 .arcard .act+.act{margin-top:6px}
 .arl li{list-style:none}
+.trst{grid-column:1/-1;margin:2px 0}

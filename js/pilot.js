@@ -24,10 +24,10 @@ function pstate(){if(!state.pilot)state.pilot={lv:1,xp:0,total:0,pts:0,sk:{minin
 function pilotBonus(b){if(!state||!state.pilot)return;for(const k in SKILLS){const n=state.pilot.sk[k]||0;if(!n)continue;
   for(const[s,v]of Object.entries(SKILLS[k].per))b[s]=(b[s]||0)+v*n}}
 /* násobok kreditov zo zničených pirátov, misií, odmien a rozoberania (schopnosť Obchodník) */
-const crMul=()=>1+(bonus().cr||0)/100;
+const crMul=()=>(1+(bonus().cr||0)/100)*(typeof tierMul==='function'?tierMul('gain'):1);
 let lvlFlash=0;
 function addXP(n,src){if(!(n>0)||!state)return;const P=pstate();if(P.lv>=PILOT_MAX)return;
-  const g=n*(XP_DIFF[state.diff]||1);P.xp+=g;P.total+=g;let up=0;
+  const g=n*(XP_DIFF[state.diff]||1)*(typeof tierMul==='function'?tierMul('gain'):1);P.xp+=g;P.total+=g;let up=0;
   while(P.lv<PILOT_MAX&&P.xp>=xpNeed(P.lv)){P.xp-=xpNeed(P.lv);P.lv++;P.pts++;up++}
   if(P.lv>=PILOT_MAX)P.xp=0;
   if(up){toast(t('pl.up',{n:P.lv}),true);lvlFlash=1.2;bump('#pilotBtn');save();if(sheetTab==='pilot')renderSheet()}}

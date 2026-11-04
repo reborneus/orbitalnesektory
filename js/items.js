@@ -111,8 +111,9 @@ function genItem(r,ilvl,bk){bk=bk||pick(SHIP_BASES);const B=BASES[bk];const R=RA
   return{id:state.nextId++,b:bk,r,ilvl,enh:0,imp:{k:B.imp,v:rollStat(B.imp,ilvl,r,2)},aff:pool.map(k=>({k,v:rollStat(k,ilvl,r)})),
     title:r>=6?Math.floor(Math.random()*TITLE_COUNT):-1,lock:false,nw:true}}
 /* Predmet, ktorý padne zo zdroja: mf zo zdroja + pásu + sektora + vlastností výbavy. */
-function dropItem(source,zone,minR=0,cap){const mf=MF_SOURCE[source]+MF_ZONE[zone]+state.cur*.25+bonus().mf/100;
-  const r=rollRarity(mf,minR,cap===undefined?secRar(state.cur):cap);const ilvl=SECTORS[state.cur].ilvl+ILVL_ZONE[zone]+Math.floor(Math.random()*3);
+function dropItem(source,zone,minR=0,cap){const tm=typeof tierMul==='function';const mf=MF_SOURCE[source]+MF_ZONE[zone]+state.cur*.25+bonus().mf/100+(tm?tierMul('mf'):0);
+  let c=cap===undefined?secRar(state.cur):cap;if(c&&tm&&state.tier)c={max:c.max,top:Math.min(2,c.top*tierMul('top'))};
+  const r=rollRarity(mf,minR,c);const ilvl=SECTORS[state.cur].ilvl+ILVL_ZONE[zone]+Math.floor(Math.random()*3);
   const chip=Math.random()<(CHIP_CHANCE[source==='corsair'||source==='frigate'?'enemy':source]||0);return genItem(r,ilvl,chip?pick(CHIP_BASES):null)}
 
 /* Skutočné hodnoty vlastností predmetu vrátane vylepšenia (+N). */

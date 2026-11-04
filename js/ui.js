@@ -16,7 +16,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   {const mh=stationMaxHp(),show=!!raidCfg()||stationHp<mh-1;$('#stRow').hidden=!show;if(show){$('#stBar').style.width=(Math.max(0,stationHp)/mh*100)+'%';$('#stBar').className=stationDown>0||stationHp<mh*.3?'low':'';$('#stTxt').textContent=stationDown>0?t('hud.down'):`${fmtN(Math.ceil(Math.max(0,stationHp)))}/${fmtN(mh)}`}}
   missionTracker();
   if(arenaHud()){}else{
-  const tag=$('#secTag');tag.textContent=(s.captured?t('hud.won'):t('hud.unc'))+(godActive()?' · ADMIN':'');tag.classList.toggle('won',s.captured);
+  const tag=$('#secTag');tag.textContent=(s.captured?t('hud.won'):t('hud.unc'))+(state.tier?' · V+'+state.tier:'')+(godActive()?' · ADMIN':'');tag.classList.toggle('won',s.captured);
   const ib=$('#infBar');ib.style.width=Math.min(100,inf/cap*100)+'%';ib.classList.toggle('won',s.captured);
   $('#infTxt').textContent=s.captured?t('hud.infwon',{a:inf}):t('hud.inf',{a:inf,b:cap});}
   hudPilot();$('#oreTxt').textContent=fmtN(state.ore);$('#grnTxt').textContent=fmtN(state.green);$('#cryTxt').textContent=fmtN(state.crystal);$('#crTxt').textContent=fmtN(state.credits);
@@ -123,6 +123,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     h+=`<div class="card"><h3>${t('set.ret')}</h3>${onoff('autoReturn',state.autoReturn!==false)}<p>${t('set.ret.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`;
+    h+=tierCard();
     h+=`<div class="sec-h"><span>${t('set.h')}</span></div>`;
     h+=`<div class="card"><h3>${t('set.lang')}</h3>${langBtns()}<p>${t('set.diff',{d:t('diff.'+state.diff)})}</p></div>`;
     h+=`<div class="card"><h3>${t('set.quit')}</h3><button class="act" data-act="quit">${t('btn.quit')}</button><p>${t('set.quit.d')}</p></div>`;
@@ -148,6 +149,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(storageAct(act,b))return; // hlavný sklad (storage.js)
   if(pilotAct(act,b))return; // schopnosti pilota (pilot.js)
   if(arenaAct(act,b))return; // aréna (arena.js)
+  if(tierAct(act,b))return; // úroveň výzvy (tier.js)
   if(act==='grp'){shipGrp=b.dataset.g;focusIdx=SHIP_TABS.indexOf(shipGrp);renderSheet();return}
   if(act==='lang'){setLang(b.dataset.l);return}
   if(act==='opt'){const k=b.dataset.k,v=b.dataset.v==='1';if(k==='autoPilot'){if(!!state.autoPilot!==v)toggleAutopilot();return}state[k]=v;save();renderSheet();return}

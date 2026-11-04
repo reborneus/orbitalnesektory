@@ -1,12 +1,10 @@
 {
-  "version": "0.13.0",
+  "version": "0.14.0",
   "date": "2026-11-04",
   "notes": [
-    "Pirátska aréna: špeciálna mapa po obsadení posledného sektora – 100 vĺn pirátov bez ťažby",
-    "Po každej vlne kozmická anomália v strede mapy: kredity, suroviny a predmety rastúce s vlnou, občas jackpot × 3",
-    "Noví piráti: roj rýchlych dronov a statické raketové veže s navádzanými raketami",
-    "Každá 20. vlna boss Dreadnought s garantovaným Mytickým, Božským alebo Prvotným predmetom (Prvotný 30 % na vlne 100)",
-    "Vlna 100: hlavný boss bojový krížnik – nezraniteľný, kým ručne nezničíš jeho 6 modulov; vypúšťa pirátov z hangáru",
-    "Kontrolný bod po každom bossovi, príručka: kapitola Pirátska aréna"
+    "Úroveň výzvy +1 až +16 (Nastavenia, pri stanici): silnejší piráti a radiácia, ale viac surovín, kreditov, XP a vzácnejšia korisť",
+    "Účinky výzvy sa ukazujú v percentách, napr. výzva +16: piráti +12 071 % výdrže, odmeny +1 133 %",
+    "Výzva platí aj v Pirátskej aréne; aktuálna výzva je vidieť pri názve sektora (V+N)",
+    "Príručka: tabuľka úrovní výzvy"
   ]
 }
