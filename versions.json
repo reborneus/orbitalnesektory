@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.16.1", "date": "2026-11-04", "sha": "671ae6152ae324edec26f09869e4a0b5baf3b851", "title": "maps 2x larger again"},
   {"version": "0.16.0", "date": "2026-11-04", "sha": "92b6cb381ca05dba1326a98459c7b6751f2dc95e", "title": "laser bursts with rarity colors and hit chance"},
   {"version": "0.15.2", "date": "2026-11-04", "sha": "6499ba95eee6971a6a52dcb6c05d0a1d1c221cd7", "title": "arena anomaly every 5th wave, continue or return prompt, respawn at base"},
   {"version": "0.15.1", "date": "2026-11-04", "sha": "72d73fc1a0bf3a453b7c5b1d4d1a6bb6e5c2c2b5", "title": "arena start buttons next to map name with hover info"},
