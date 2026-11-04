@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.14.0", "date": "2026-11-04", "sha": "18620341d5a1583ff5909157a3a2f645d6b6fc88", "title": "challenge levels +1 to +16"},
   {"version": "0.13.0", "date": "2026-11-04", "sha": "618bf32f7745f17781075957fa36093aa302f438", "title": "Pirate Arena with 100 waves, anomaly rewards, bosses and carrier"},
   {"version": "0.12.0", "date": "2026-11-04", "sha": "678d9154f05b78fecd015620866c18dfdbec39d8", "title": "economy and difficulty rebalance, rarity cap per sector"},
   {"version": "0.11.2", "date": "2026-11-04", "sha": "1c21e1b495227b1cc0ecca483fd6f2d30d617a88", "title": "fix frame error after an asteroid is depleted with no next target"},
