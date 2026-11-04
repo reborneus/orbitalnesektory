@@ -126,7 +126,7 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   ship.position.addScaledVector(shipVel,dt);
   const rr=Math.hypot(ship.position.x,ship.position.z);
   if(rr>LIMIT){ship.position.x*=LIMIT/rr;ship.position.z*=LIMIT/rr;const ux=ship.position.x/LIMIT,uz=ship.position.z/LIMIT;const vr=shipVel.x*ux+shipVel.z*uz;if(vr>0){shipVel.x-=vr*ux;shipVel.z-=vr*uz}}
-  if(rr<9&&!inArena()){const k=9/Math.max(rr,.01);ship.position.x*=k;ship.position.z*=k}
+  // v0.18: stanica je zapustená pod rovinou letu – loď nad ňou prelieta (žiadne odtláčanie od stredu)
   collide();
   if(dead)return;
   const sp=shipVel.length();let roll=0;

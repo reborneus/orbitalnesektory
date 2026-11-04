@@ -4,7 +4,7 @@
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
 /* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
-const GAME_VERSION='0.17.0';
+const GAME_VERSION='0.18.0';
 const NUM=10,ECON=1.6;
 const P=(c,m=1)=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON*m);return o};
 /* v0.12: stavba a vylepšovanie stanice je v každom ďalšom sektore SEC_COST× drahšie (príjmy rastú len ~1,3×) */
@@ -151,6 +151,10 @@ const LOOT_RANGE=8;
    first = prvý nájazd po príchode do sektora. fighter/corsair: hp, dmg (poškodenie výstrelu) podľa sektora, speed m/s, range dosah streľby,
    fire = s medzi výstrelmi, drop = šanca na predmet, cr = kredity za zničenie, mf = bonus k vzácnosti koristi.
    stationHp(L) = výdrž stanice podľa jadra; pri zničení piráti ukradnú steal podiel rudy a viriditu a moduly sú offline sekúnd. */
+/* v0.18: PASÍVNI PIRÁTI – pokojní piráti rozmiestnení po pásoch sektora. Chvíľu hráča sledujú, ale zaútočia, až keď ich
+   hráč napadne (ručne ťukne/zameria). belts = {číslo pásu: počet}, kind = typ, mul = násobok výdrže a poškodenia (oproti 2. sektoru),
+   respawn = za koľko sekúnd sa zničený pirát vráti. Zatiaľ len v 1. mape; ak sa to osvedčí, pridáme ich aj inde. */
+const PASSIVE={0:{kind:'fighter',belts:{2:3,3:5,4:5},mul:.6,respawn:[90,150]}};
 const PIRATES={
   /* raid[i] = nájazdy v sektore i: every = interval (s), count = počet stíhačiek, corsair/frigate = šanca na korzára/fregatu */
   raid:[null,{every:[120,200],count:[2,3],corsair:0,first:90},{every:[90,160],count:[3,5],corsair:.4,first:70},

@@ -43,7 +43,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   else if(rr>=HORIZON)h=t('h.void');
   else if(inArena())h=!arenaRun?t('ar.h.idle',{station:cap1(say('station'))}):arenaRun.phase==='ask'?t('ar.h.ask'):arenaRun.phase==='reward'?t('ar.h.anom'):arenaRun.phase==='count'?t('ar.h.count',{n:arenaRun.wave,s:Math.ceil(arenaRun.t)}):enemies.some(e=>e.invuln)?t('ar.h.mods'):t('ar.h.fight',{n:enemies.length});
   else if(stationDown>0)h=t('h.stDown',{s:Math.ceil(stationDown)});
-  else if(raidActive)h=ptr?t('h.raidPtr',{n:enemies.filter(e=>!e.leaving).length}):t('h.raid',{n:enemies.filter(e=>!e.leaving).length,mine:say('mine')});
+  else if(raidActive)h=ptr?t('h.raidPtr',{n:enemies.filter(e=>!e.leaving&&!e.wasPassive).length}):t('h.raid',{n:enemies.filter(e=>!e.leaving&&!e.wasPassive).length,mine:say('mine')});
   else if((state.autoPilot||returnSent)&&homeBound()&&cargoTotal()>0)h=t('h.apHome');
   else if(full)h=t('h.full',{home:cap1(say('home'))});
   else if(state.autoPilot&&autoPause>0&&!mining)h=t('h.apPause');

@@ -9,8 +9,8 @@ let enemies=[],bolts=[],raidT=0,raidActive=false,raidCount=0,stationHp=0,station
 const raidCfg=()=>PIRATES.raid[state.cur];
 const stationMaxHp=()=>PIRATES.stationHp(cur().core);
 /* Zavolá sa pri stavbe sektora: vymaže nepriateľov a naplánuje prvý nájazd. */
-function resetCombat(){if(typeof clearLasers==='function')clearLasers();for(const d of dmgTexts)d.el.remove();dmgTexts.length=0;enemies=[];bolts=[];raidActive=false;raidCount=0;stationDown=0;attackTarget=null;towerCd={};
-  const c=raidCfg();raidT=c?c.first:0;stationHp=stationMaxHp()}
+function resetCombat(){if(typeof clearLasers==='function')clearLasers();for(const d of dmgTexts)d.el.remove();dmgTexts.length=0;enemies=[];bolts=[];raidActive=false;raidCount=0;stationDown=0;attackTarget=null;towerCd={};passiveQ.length=0;
+  const c=raidCfg();raidT=c?c.first:0;stationHp=stationMaxHp();spawnPassives()}
 
 /* ---------- model piráta ---------- */
 const PIR_MAT=new THREE.MeshStandardMaterial({color:col('#3a1218'),metalness:.6,roughness:.4,flatShading:true});
@@ -66,20 +66,20 @@ function tickBolts(dt){for(const b of bolts.slice()){b.life-=dt;
 /* ---------- zásahy ---------- */
 function stationHit(d){stationHp-=d;if(stationHp<=0)stationDestroyed()}
 function stationDestroyed(){const o=Math.floor(state.ore*PIRATES.steal),g=Math.floor(state.green*PIRATES.steal);state.ore-=o;state.green-=g;
-  stationDown=PIRATES.offline;stationHp=stationMaxHp()*.4;raidActive=false;for(const e of enemies)e.leaving=true;
+  stationDown=PIRATES.offline;stationHp=stationMaxHp()*.4;raidActive=false;for(const e of enemies)if(!e.wasPassive)e.leaving=true;
   for(let i=0;i<40;i++)emit(debris,new V3(0,2,0),i%2?'#ff8a5c':'#ffe2a8',1+Math.random(),new V3((Math.random()-.5)*26,Math.random()*6,(Math.random()-.5)*26));
   toast(t('tt.stDown',{o,g,s:PIRATES.offline}),'bad');shake=.8;missionRaid(false);save()}
-function hitEnemy(e,dmg,side){if(e.invuln)dmg=arenaHitFilter(e,dmg);e.hp-=dmg;if(side==='player')e.aggro=true;e.bar.scale.x=Math.max(.001,e.hp/e.max);e.bar.position.x=-1.5*(1-e.hp/e.max);
+function hitEnemy(e,dmg,side){if(e.invuln)dmg=arenaHitFilter(e,dmg);e.hp-=dmg;if(side==='player'){e.aggro=true;if(e.passive)provoke(e)}e.bar.scale.x=Math.max(.001,e.hp/e.max);e.bar.position.x=-1.5*(1-e.hp/e.max);
   if(e.hp<=0)killEnemy(e)}
 function killEnemy(e){const P=PIRATES[e.kind];world.remove(e.g);enemies=enemies.filter(x=>x!==e);pickables=pickables.filter(p=>p!==e.proxy);if(attackTarget===e)attackTarget=null;
   for(let i=0;i<(e.kind==='carrier'?160:e.kind==='dread'?110:e.kind==='frigate'?70:e.kind==='corsair'?40:22);i++)emit(debris,e.pos,['#ff8a5c','#ffe2a8','#ff3b2f'][i%3],.6+Math.random()*.8,new V3((Math.random()-.5)*22,Math.random()*5,(Math.random()-.5)*22));
-  missionKill();
+  missionKill();if(e.wasPassive)passiveQ.push({belt:e.belt,t:rnd(...(PASSIVE[state.cur]||{respawn:[120,120]}).respawn)});
   const cr=Math.round(rnd(P.cr[0],P.cr[1])*secGain(state.cur)*crMul());state.credits+=cr;bump('#crTxt');xpAt(XP.kill[e.kind]||0);
   if(Math.random()<P.drop){const z=Math.min(5,zoneOf(Math.hypot(e.pos.x,e.pos.z)));spawnLoot(dropItem(e.kind==='fighter'||e.kind==='swarm'?'enemy':e.kind,Math.max(2,z),e.kind==='frigate'?4:e.kind==='corsair'?3:0),e.pos)}
-  if(raidActive&&!enemies.some(x=>!x.leaving)){raidActive=false;const bonus=Math.round(PIRATES.repelBonus*raidCount*crMul());state.credits+=bonus;toast(t('tt.repelled',{c:bonus}),true);missionRaid(true);save()}}
+  if(raidActive&&!enemies.some(x=>!x.leaving&&!x.wasPassive)){raidActive=false;const bonus=Math.round(PIRATES.repelBonus*raidCount*crMul());state.credits+=bonus;toast(t('tt.repelled',{c:bonus}),true);missionRaid(true);save()}}
 
 /* ---------- jednotlivé zbrane ---------- */
-function nearestEnemy(from,maxD){let best=null,bd=maxD;for(const e of enemies){if(e.leaving||e.manual||e.invuln)continue;const d=from.distanceTo(e.pos);if(d<bd){bd=d;best=e}}return best}
+function nearestEnemy(from,maxD){let best=null,bd=maxD;for(const e of enemies){if(e.leaving||e.manual||e.invuln||e.passive)continue;/* pasívnych automaticky nestrieľame */const d=from.distanceTo(e.pos);if(d<bd){bd=d;best=e}}return best}
 const gunRange=()=>GUN_RANGE+bonus().grange;
 function playerGun(dt){gunCd-=dt;if(dead||jumping)return;const R=gunRange();
   let tg=attackTarget&&enemies.includes(attackTarget)&&ship.position.distanceTo(attackTarget.pos)<=R?attackTarget:nearestEnemy(ship.position,R);
@@ -98,9 +98,10 @@ const _ev=new V3(),_tp=new V3();
    zaostávajú), bossovia ďalej ako hráč. Raketová veža má rakety na veľkú vzdialenosť. Keď hráč vylepší dosah, posunú sa aj piráti. */
 const enemyRange=e=>gunRange()*(RANGE_F[e.kind]||.9);
 function tickEnemies(dt,tt){for(const e of enemies.slice()){
+    if(e.passive){tickPassive(e,dt,tt);continue}
     if(e.leaving){_ev.copy(e.pos).setY(0).normalize().multiplyScalar(e.speed*1.4);e.pos.addScaledVector(_ev,dt);e.vel.copy(_ev);e.body.rotation.y=Math.atan2(_ev.x,_ev.z);
       if(Math.hypot(e.pos.x,e.pos.z)>LIMIT+20){world.remove(e.g);enemies=enemies.filter(x=>x!==e);pickables=pickables.filter(p=>p!==e.proxy)}continue}
-    const dShip=dead?1e9:e.pos.distanceTo(ship.position);if(dShip<PIRATES.aggro)e.aggro=true;if(!e.arena&&(dead||dShip>PIRATES.aggro*2.2))e.aggro=false;if(e.arena)e.aggro=!dead;
+    const dShip=dead?1e9:e.pos.distanceTo(ship.position);if(dShip<PIRATES.aggro)e.aggro=true;if(!e.arena&&(dead||dShip>PIRATES.aggro*2.2)){e.aggro=false;if(e.wasPassive){e.passive=true;e.interest=0;e.bored=20}}/* pasívny sa po úteku hráča upokojí */if(e.arena)e.aggro=!dead;
     const onShip=e.aggro;if(onShip)_tp.copy(ship.position).setY(e.pos.y);else _tp.set(0,e.pos.y,0);
     _ev.subVectors(_tp,e.pos);_ev.y=0;const dist=_ev.length();const eR=enemyRange(e);const want=eR*.75+(onShip?0:10);_ev.normalize();
     const desired=new V3();if(dist>want+2)desired.copy(_ev).multiplyScalar(e.speed);else desired.set(-_ev.z*e.orb,0,_ev.x*e.orb).multiplyScalar(e.speed*.6).addScaledVector(_ev,(dist-want)*.8);
@@ -117,9 +118,39 @@ function fireMissile(e){const s=glow('#ff9a3a',2.6,1);s.position.copy(e.pos);wor
 function tickCombat(dt,tt){
   if(stationDown>0)stationDown-=dt;
   if(!raidActive&&stationHp<stationMaxHp())stationHp=Math.min(stationMaxHp(),stationHp+PIRATES.stationRegen*dt);
-  const c=raidCfg();if(c&&!raidActive&&!enemies.length&&$('#intro').hidden){raidT-=dt;if(raidT<=0){spawnRaid();raidT=rnd(c.every[0],c.every[1])}}
+  tickPassiveQ(dt);const c=raidCfg();if(c&&!raidActive&&!enemies.some(e=>!e.wasPassive)&&$('#intro').hidden){raidT-=dt;if(raidT<=0){spawnRaid();raidT=rnd(c.every[0],c.every[1])}}
   // útok na vybraného piráta: loď sa drží v dosahu zbrane (ručné ovládanie má prednosť)
   if(attackTarget&&!enemies.includes(attackTarget))attackTarget=null;
   if(attackTarget&&!mineTarget&&inVec.lengthSq()<1e-4){_ev.subVectors(ship.position,attackTarget.pos).setY(0);const d=_ev.length()||1;moveTarget=attackTarget.pos.clone().setY(0).addScaledVector(_ev,gunRange()*.6/d)}
   tickEnemies(dt,tt);playerGun(dt);tickShots(dt);if(!inArena())towersFire(dt);tickBolts(dt);tickDmgText(dt)}
 function cmdAttack(e){attackTarget=e;mineTarget=null;autoPause=6;flashMarker(e.pos,'#ff5a4a')}
+
+/* ==================== v0.18: PASÍVNI PIRÁTI (nastavenie PASSIVE v data.js) ====================
+   Pokojne krúžia okolo svojho miesta v páse. Keď sa hráč priblíži (PAS_SEE), chvíľu ho sledujú v odstupe (PAS_FOLLOW s),
+   potom stratia záujem a na chvíľu (bored) sa vrátia na svoje miesto. Nestrieľajú; zbraň lode, veže ani drony na nich
+   automaticky nestrieľajú. Keď ich hráč zasiahne (po ťuknutí/zameraní), zaútočia – a s nimi aj ostatní pasívni do PAS_PACK m. */
+const PAS_SEE=60,PAS_FOLLOW=12,PAS_GAP=16,PAS_PACK=70;
+const passiveQ=[];   // čakajúce znovuzrodenia {belt, t}
+const beltRange=b=>[[0,Z1],[Z1,Z2],[Z2,Z3],[Z3,HORIZON]][Math.max(0,Math.min(3,b-1))];
+function spawnPassives(){const C=PASSIVE[state.cur];if(!C||inArena())return;for(const b in C.belts)for(let i=0;i<C.belts[b];i++)spawnPassive(+b)}
+function spawnPassive(belt){const C=PASSIVE[state.cur];if(!C)return;const kind=C.kind,P=PIRATES[kind];const v=makePirate(kind);
+  const[r0,r1]=beltRange(belt),a=Math.random()*TAU,r=r0+(r1-r0)*(.2+Math.random()*.6);v.g.position.set(Math.cos(a)*r,2,Math.sin(a)*r);world.add(v.g);
+  const hp=pirStat(P.hp,1)*C.mul*tierMul('hp');
+  const e={...v,kind,hp,max:hp,dmg:pirStat(P.dmg,1)*C.mul*D().pdmg*tierMul('dmg'),speed:P.speed,range:P.range,fire:P.fire,r:P.r,cd:1+Math.random()*2,vel:new V3(),
+    aggro:false,leaving:false,orb:Math.random()<.5?1:-1,pos:v.g.position,passive:true,wasPassive:true,belt,home:v.g.position.clone(),wander:null,interest:0,bored:0};
+  v.bar.visible=false;v.g.children.forEach(c=>{if(c.geometry===BAR_GEO)c.visible=false});   // pásik výdrže sa ukáže až v boji
+  v.proxy.userData.enemy=e;pickables.push(v.proxy);enemies.push(e)}
+function provoke(e){for(const o of enemies)if(o.passive&&(o===e||o.pos.distanceTo(e.pos)<PAS_PACK)){o.passive=false;o.aggro=true;o.g.children.forEach(c=>{if(c.geometry===BAR_GEO)c.visible=true})}}
+function tickPassive(e,dt,tt){const dShip=dead?1e9:e.pos.distanceTo(ship.position);e.bored-=dt;
+  if(e.interest<=0&&e.bored<=0&&dShip<PAS_SEE&&!inArena()){e.interest=PAS_FOLLOW*(.7+Math.random()*.6)}
+  let tgt;
+  if(e.interest>0){e.interest-=dt;if(e.interest<=0||dShip>PAS_SEE*1.6){e.interest=0;e.bored=25+Math.random()*20}
+    // sleduje loď v odstupe PAS_GAP, mierne krúži okolo nej
+    _ev.subVectors(e.pos,ship.position).setY(0);const d=_ev.length()||1;_ev.multiplyScalar(PAS_GAP/d);
+    tgt=_tp.copy(ship.position).add(_ev).add(new V3(-_ev.z*.3*e.orb,0,_ev.x*.3*e.orb))}
+  else{if(!e.wander||e.pos.distanceTo(e.wander)<4){const a=Math.random()*TAU,r=8+Math.random()*30;e.wander=e.home.clone().add(new V3(Math.cos(a)*r,0,Math.sin(a)*r))}tgt=e.wander}
+  _ev.subVectors(tgt,e.pos).setY(0);const dist=_ev.length();const sp=e.interest>0?Math.min(e.speed,dist*.9):e.speed*.35;
+  const desired=dist>.5?_ev.multiplyScalar(sp/dist):new V3();e.vel.lerp(desired,Math.min(1,dt*1.5));e.pos.addScaledVector(e.vel,dt);e.pos.y=2+Math.sin(tt*1.5+e.orb)*.3;
+  if(e.interest>0&&dist<6){_ev.subVectors(ship.position,e.pos);e.body.rotation.y=Math.atan2(_ev.x,_ev.z)}   // pri sledovaní sa natočí na hráča
+  else if(e.vel.lengthSq()>.3)e.body.rotation.y=Math.atan2(e.vel.x,e.vel.z)}
+function tickPassiveQ(dt){for(const q of passiveQ.slice()){q.t-=dt;if(q.t<=0){passiveQ.splice(passiveQ.indexOf(q),1);spawnPassive(q.belt)}}}
