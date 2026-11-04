@@ -1,9 +1,7 @@
 {
-  "version": "0.16.3",
+  "version": "0.16.4",
   "date": "2026-11-04",
   "notes": [
-    "Lasery: krátke salvy – jedna letiaca laserová strela za každú osadenú zbraň (lode s viac slotmi pre zbrane vystrelia viac naraz); poškodenie sa započíta pri dopade",
-    "Piráti strieľajú rovnakými krátkymi strelami",
-    "Výbava: hromadné rozoberanie – Označiť na rozobratie, výber ťuknutím alebo podľa rarity, zamknuté predmety sa preskočia"
+    "Oprava: lode pirátov z nájazdov neboli vidieť (chyba z v0.16.2) – teraz sa opäť zobrazujú"
   ]
 }

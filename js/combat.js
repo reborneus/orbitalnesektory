@@ -41,7 +41,7 @@ const pirStat=(a,si)=>{for(let i=Math.min(si,a.length-1);i<a.length;i++)if(a[i])
 function spawnRaid(force){const c=raidCfg()||(force?PIRATES.raid[1]:null);if(!c)return;const si=Math.max(1,state.cur);const n=c.count[0]+Math.floor(Math.random()*(c.count[1]-c.count[0]+1));const a0=Math.random()*TAU;
   const kinds=[];for(let i=0;i<n;i++)kinds.push('fighter');if(Math.random()<c.corsair)kinds.push('corsair');if(c.frigate&&Math.random()<c.frigate)kinds.push('frigate');
   kinds.forEach((kind,i)=>{const P=PIRATES[kind];const v=makePirate(kind);const a=a0+(i-kinds.length/2)*.09;
-    const sr=Z3+Math.random()*40;v.g.position.set(Math.cos(a)*sr,2,Math.sin(a)*sr);   // v0.16.2: na veľkých mapách prilietajú z pásu 4world.add(v.g);
+    const sr=Z3+Math.random()*40;v.g.position.set(Math.cos(a)*sr,2,Math.sin(a)*sr);world.add(v.g); /* v0.16.2: na veľkých mapách prilietajú z pásu 4 */
     const e={...v,kind,hp:pirStat(P.hp,si)*tierMul('hp'),max:pirStat(P.hp,si)*tierMul('hp'),dmg:pirStat(P.dmg,si)*D().pdmg*tierMul('dmg'),speed:P.speed,range:P.range,fire:P.fire,r:P.r,
       cd:1+Math.random()*2,vel:new V3(),aggro:false,leaving:false,orb:Math.random()<.5?1:-1,pos:v.g.position};
     v.proxy.userData.enemy=e;pickables.push(v.proxy);enemies.push(e)});
