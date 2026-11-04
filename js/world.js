@@ -334,8 +334,8 @@ function modelPreview(key,build,o={}){if(_prevs[key]!==undefined)return _prevs[k
     const rimL=new THREE.DirectionalLight(col('#5aa8ff'),1.1);rimL.position.set(-6,3,-8);sc.add(rimL);const fill=new THREE.DirectionalLight(col('#ffb070'),.35);fill.position.set(-7,-2,4);sc.add(fill);
     const m=build();sc.add(m);m.updateMatrixWorld(true);const box=new THREE.Box3().setFromObject(m),c=box.getCenter(new V3()),sz=box.getSize(new V3());const r=Math.max(sz.x,sz.y,sz.z)*.5;
     // spot / odraz pod modelom
-    const sp=glow(o.spot||'#58d0c0',r*3.6,.32);sp.position.set(c.x,box.min.y-r*.15,c.z);sc.add(sp);
-    const fl=new THREE.Mesh(new THREE.CircleGeometry(r*1.7,48),new THREE.MeshBasicMaterial({color:new THREE.Color(o.spot||'#58d0c0'),transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false}));fl.rotation.x=-Math.PI/2;fl.position.set(c.x,box.min.y-r*.2,c.z);sc.add(fl);
+    if(o.spot){const sp=glow(o.spot,r*3.6,.32);sp.position.set(c.x,box.min.y-r*.15,c.z);sc.add(sp);
+    const fl=new THREE.Mesh(new THREE.CircleGeometry(r*1.7,48),new THREE.MeshBasicMaterial({color:new THREE.Color(o.spot||'#58d0c0'),transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false}));fl.rotation.x=-Math.PI/2;fl.position.set(c.x,box.min.y-r*.2,c.z);sc.add(fl)}   // spot pod modelom (len ak o.spot)
     const cam=new THREE.PerspectiveCamera(28,W/H,.01,1000);const d=new V3(...(o.dir||[.55,.32,1])).normalize();const dist=r/Math.sin(14*Math.PI/180)*(o.fit||.82);
     cam.position.copy(c).addScaledVector(d,dist);cam.lookAt(c.x,c.y-r*.08,c.z);_prevR.render(sc,cam);_prevs[key]=_prevR.domElement.toDataURL('image/png')}catch(e){_prevs[key]=''}
   return _prevs[key]}

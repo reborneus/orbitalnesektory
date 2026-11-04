@@ -87,7 +87,7 @@ function escortModesHtml(){const L=escList();if(!L.length)return'';
     <p>${t('esc.m.'+e.mode+'.d',{d:Math.round(ESCORT.dmg*100),m:Math.round(ESCORT.mine*100)})}</p>${ESCORT.ships.includes(state.shipId)?'':`<div class="stat" style="color:var(--warn)">${t('esc.ships')}</div>`}</div>`).join('')}
 const escIconSvg=()=>`<svg class="escico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.6"/><path d="M3.5 7.5l2 1v7l-2 1M20.5 7.5l-2 1v7l2 1"/></svg>`;
 /* v0.22: náhľad z 3D modelu (mode = farba svetiel), inak SVG ikona */
-const escPreview=(mode='gun')=>typeof modelPreview==='function'?modelPreview('esc_'+mode,()=>{const g=escortModel(mode);g.scale.setScalar(1);return g},{w:220,h:220,dir:[.7,.35,1],spot:mode==='mine'?'#2ee6ff':'#ff7a2a',fit:.9}):'';
+const escPreview=(mode='gun')=>typeof modelPreview==='function'?modelPreview('esc_'+mode,()=>{const g=escortModel(mode);g.scale.setScalar(1);return g},{w:220,h:220,dir:[.7,.35,1],fit:.9}):'';
 const escIcon=(mode='gun',big)=>{const s=escPreview(mode);return s?`<img class="escico${big?' big':''}" src="${s}" alt="">`:escIconSvg()};
 function escortAct(act,b){if(act!=='escBuy'&&act!=='escMode')return false;const L=escList();
   if(act==='escBuy'){if(state.cur!==ESCORT.sec||L.length>=ESCORT.max)return true;if(!nearNpc('trader')){toast(t('trd.far'));return true}

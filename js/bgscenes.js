@@ -11,7 +11,7 @@
    Spoločný je hlboký podklad deepMat (dym, hmloviny vo farbách sektora S.neb, prachové pásy, iskry, hviezdy).
    buildBg(i, parent) → funkcia tick(dt, tt); bgThumb(i, W, H) → canvas s náhľadom pre kartu mapy. */
 const BG_POS={nebula:[-300,-1500,-1250],blackhole:[-480,-1500,-1250],sun:[-620,-1600,-1350],galaxy:[-380,-1500,-1250],remnant:[-420,-1500,-1250],giant:[-560,-1500,-1250]};
-const BG_K={nebula:1.6,blackhole:1.5,sun:1.9,galaxy:2.1,remnant:1.8,giant:2.0};   // mierka scény (pre kameru náhľadu)
+const BG_K={nebula:1.6,blackhole:2.4,sun:1.9,galaxy:2.1,remnant:1.8,giant:2.0};   // mierka scény (pre kameru náhľadu)
 
 /* spoločný hlboký podklad */
 function deepMat(o){const C=c=>new THREE.Color(c);
@@ -54,23 +54,39 @@ void main(){vec2 p=(vUv-.5)*2.;float r=length(p);vec2 w=vec2(fbm(p*1.8+uT*.01),f
   col+=vec3(1.,.95,.9)*exp(-r*r*30.)*.6;gl_FragColor=vec4(col,1.);}`,{uA:{value:new THREE.Color('#2ee8c8')},uB:{value:new THREE.Color('#e04ad8')}});
     mats.push(m);const n=billboard(m,2600,P,parent,bbs);n.renderOrder=-5;
     const R=rng(S.seed);for(let i=0;i<14;i++){const s=starSprite(R()<.5?'#bfe8ff':'#ffe8d0',60+R()*160,.9);s.position.copy(P).add(new V3((R()-.5)*1400,(R()-.5)*300,(R()-.5)*1000));parent.add(s)}},
-  /* ---------- čierna diera ---------- */
-  blackhole(parent,S,P,mats,bbs){deepPlane(parent,{a:'#3050c8',b:'#8040b0',dust:'#12141c',k:.45,e:.15,s:1.6,c:[P.x,0,P.z]},mats);const R=200;
-    const hole=new THREE.Mesh(new THREE.SphereGeometry(R,48,32),new THREE.MeshBasicMaterial({color:new THREE.Color('#000000')}));hole.position.copy(P);parent.add(hole);
-    const diskFrag=`uniform float uT,uIn,uOut,uL;varying vec2 vUv;varying vec3 vW;
-void main(){vec2 v=(vUv-.5)*2.*uOut;float r=length(v);float t=(r-uIn)/(uOut-uIn);if(t<0.||t>1.)discard;
-  float a=atan(v.y,v.x)-uT*.05;a=mod(a+3.14159,6.28318)-3.14159;float wq=(a+3.14159)/6.28318;
-  float b=mix(fbm(vec2(t*30.,a*3.)),fbm(vec2(t*30.,(a-6.28318)*3.)),wq);
-  vec3 c=mix(vec3(1.,.96,.88),vec3(1.,.55,.15),smoothstep(0.,.5,t));c=mix(c,vec3(.5,.12,.04),smoothstep(.5,1.,t));
-  float k=(1.25-t)*(.45+.8*b)*smoothstep(0.,.04,t)*(1.-smoothstep(.8,1.,t));
-  float lens=uL>.5?pow(abs(sin(atan(v.y,v.x))),1.5):1.;                      // ohnutý obraz: najjasnejší hore a dole
-  gl_FragColor=vec4(c*k*lens*1.2+vec3(1.,.9,.75)*exp(-t*40.)*1.5*lens,1.);}`;
-    const dm=bbMat(diskFrag,{uIn:{value:R*1.5},uOut:{value:R*4.2},uL:{value:0}});mats.push(dm);
-    const disk=new THREE.Mesh(new THREE.PlaneGeometry(R*8.4,R*8.4),dm);disk.position.copy(P);disk.rotation.order='YXZ';disk.rotation.set(-1.82,.4,0);parent.add(disk);
-    const lm=bbMat(diskFrag,{uIn:{value:R*1.04},uOut:{value:R*1.75},uL:{value:1}});lm.uniforms.uK={value:1};mats.push(lm);const lens=billboard(lm,R*3.8,P,parent,bbs);lens.renderOrder=2;
-    const pr=bbMat(`uniform float uT;varying vec2 vUv;void main(){float r=length((vUv-.5)*2.);float k=exp(-pow((r-.52)*90.,2.))*1.6+exp(-pow((r-.52)*14.,2.))*.25;gl_FragColor=vec4(vec3(1.,.85,.6)*k,1.);}`);
-    mats.push(pr);billboard(pr,R*3.9,P,parent,bbs).renderOrder=3;
-    const gl=glow('#ffb060',R*7,.16);gl.position.copy(P);parent.add(gl)},
+  /* ---------- čierna diera (v0.23, podľa videa) ----------
+     Jedna plocha natočená ku kamere s analytickým modelom tenkého disku pri veľkom sklone (takmer z boku):
+     tieň (čierny kruh, zakryje hviezdy), tenký fotónový prstenec, priamy obraz disku (predná polovica cez tieň, zadná za ním),
+     gravitačne ohnutý obraz zadnej časti disku ako oblúk nad tieňom (širší) a pod ním (užší), Dopplerov jas (jedna strana
+     jasnejšia), horúce bielo-zlaté vnútro → oranžová → široký šedý prachový chvost s vláknami. Jednotka = polomer tieňa. */
+  blackhole(parent,S,P,mats,bbs){deepPlane(parent,{a:'#3a3a48',b:'#4a3a30',dust:'#0d0e12',k:.12,e:0,s:1.8,c:[P.x,0,P.z]},mats);
+    const m=new THREE.ShaderMaterial({uniforms:{uT:{value:0}},transparent:true,depthWrite:false,side:THREE.DoubleSide,
+      blending:THREE.CustomBlending,blendSrc:THREE.OneFactor,blendDst:THREE.OneMinusSrcAlphaFactor,vertexShader:BG_VERT,fragmentShader:BG_NOISE+`
+uniform float uT;varying vec2 vUv;
+const float RIN=1.55;
+float strk(float rho,float a){return fbm(vec2(rho*5.,a*2.2))*.55+fbm(vec2(rho*17.,a*6.))*.3+fbm(vec2(rho*45.,a*11.))*.15;}
+float emis(float rho,float ang){if(rho<RIN)return 0.;float x=(rho-RIN)/10.;
+  float a=ang-uT*.035;a=mod(a+3.14159,6.28318)-3.14159;float w=(a+3.14159)/6.28318;
+  float s=mix(strk(rho,a),strk(rho,a-6.28318),w);
+  float core=exp(-x*2.4)*smoothstep(0.,.025,x);float dust=exp(-x*.32)*.16*smoothstep(.15,.6,x);
+  return core*(.35+1.3*s)+dust*pow(s,1.6)*2.2;}
+vec3 tcol(float rho){float x=(rho-RIN)/10.;vec3 c=mix(vec3(1.,.96,.9),vec3(1.,.68,.32),smoothstep(0.,.22,x));c=mix(c,vec3(.95,.45,.2),smoothstep(.2,.5,x));return mix(c,vec3(.62,.58,.6),smoothstep(.45,1.2,x));}
+void main(){vec2 p=(vUv-.5)*64.;float r=length(p);
+  float cp=cos(.5),sp=sin(.5);vec2 q=vec2(p.x*cp+p.y*sp,-p.x*sp+p.y*cp);const float CI=.17;      // sklon disku (cos), natočenie zošikma
+  float rho=length(vec2(q.x,q.y/CI));float ang=atan(q.y/CI,q.x);
+  float beam=1.+.6*cos(ang+.4);                                                                     // Dopplerov jas
+  vec3 direct=tcol(rho)*emis(rho,ang)*beam;
+  if(q.y>0.&&r<1.)direct*=0.;                                                                       // zadná polovica je za tieňom
+  // ohnutý obraz zadnej časti disku okolo tieňa
+  float th=atan(q.y,q.x);float up=step(0.,q.y);float span=mix(.7,2.1,up)*(.35+.65*pow(abs(sin(th)),.8));
+  float s=(r-1.07)/span;vec3 lens=vec3(0.);
+  if(s>0.&&s<1.){float rl=RIN+.15+s*5.;lens=tcol(rl)*emis(rl,th+3.)*(1.-s)*1.9*(.65+.55*up)*(1.+.4*cos(th+.4));}
+  float ring=exp(-pow((r-1.035)*55.,2.))*1.7+exp(-pow((r-1.05)*14.,2.))*.22;vec3 rc=vec3(.85,.9,1.)*ring;   // fotónový prstenec
+  float sh=smoothstep(1.01,.985,r);
+  vec3 col=lens*(1.-sh)+rc+direct;
+  gl_FragColor=vec4(col,sh);}`});
+    mats.push(m);billboard(m,5200,P,parent,bbs);
+    const R=rng(S.seed+3);for(let i=0;i<8;i++){const s=starSprite('#e8eeff',40+R()*90,.8);s.position.copy(P).add(new V3((R()-.5)*2600,-200,(R()-.5)*1800));parent.add(s)}},
   /* ---------- hviezda (slnko) ---------- */
   sun(parent,S,P,mats,bbs){deepPlane(parent,{a:'#c08020',b:'#2a8a7a',dust:'#1c1a16',k:.35,e:.25,s:1,c:[P.x,0,P.z]},mats);const R=260;
     const sm=new THREE.ShaderMaterial({uniforms:{uT:{value:0}},vertexShader:'varying vec3 vN;varying vec3 vV;varying vec3 vP;void main(){vec4 w=modelMatrix*vec4(position,1.);vP=position;vN=normalize(mat3(modelMatrix)*normal);vV=normalize(cameraPosition-w.xyz);gl_Position=projectionMatrix*viewMatrix*w;}',

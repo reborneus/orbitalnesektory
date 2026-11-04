@@ -61,7 +61,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
 let sheetTab=null,shipGrp='eng',focusIdx=0;
 const sheet=$('#sheet'),body=$('#sheetBody');
 const TABS=['station','ship','gear','pilot','map','settings'];
-function openSheet(tab){if(sheetTab!==tab)focusIdx=0;sheetTab=tab;sheet.hidden=false;sheet.classList.toggle('side',tab==='station');renderSheet();document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));lastHint=''}
+function openSheet(tab){applyMenuAlpha();if(sheetTab!==tab)focusIdx=0;sheetTab=tab;sheet.hidden=false;sheet.classList.toggle('side',tab==='station');renderSheet();document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));lastHint=''}
 function closeSheet(){if(typeof tipHide==='function')tipHide();sheetTab=null;sheet.hidden=true;document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.remove('on'));lastHint=''}
 function toggleTab(tb){sheetTab===tb?closeSheet():openSheet(tb)}
 function cycleTab(d){const i=TABS.indexOf(sheetTab);openSheet(TABS[(i+d+TABS.length)%TABS.length])}
@@ -126,6 +126,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`;
     h+=tierCard();
+    h+=`<div class="card"><h3>${t('set.ma')}</h3><div class="rangerow"><input type="range" id="menuAlpha" min="35" max="100" step="5" value="${state.menuAlpha||100}"><b id="menuAlphaV">${state.menuAlpha||100} %</b></div><p>${t('set.ma.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.pm')}</h3><div class="langs">${['on','off'].map(v=>`<button class="langb" data-act="padMouse" data-v="${v}" aria-pressed="${padMouseOn()===(v==='on')}">${t(v)}</button>`).join('')}</div><p>${t('set.pm.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.cmp')}</h3><div class="langs">${CMP_MODES.map(m=>`<button class="langb" data-act="cmpMode" data-v="${m}" aria-pressed="${cmpMode()===m}">${t('cmp.'+m)}</button>`).join('')}</div><p>${t('set.cmp.d')}</p></div>`;
     h+=`<div class="sec-h"><span>${t('set.h')}</span></div>`;
@@ -239,3 +240,7 @@ $('#sheetClose').addEventListener('click',closeSheet);
 $('#homeBtn').addEventListener('click',goHome);
 $('#pilotBtn').addEventListener('click',()=>toggleTab('pilot'));
 $('#wikiBtn').addEventListener('click',()=>openWiki());
+
+/* v0.23: nepriehľadnosť menu (Nastavenia → posuvník); ukladá sa do state.menuAlpha (35–100 %) */
+function applyMenuAlpha(){document.documentElement.style.setProperty('--menu-a',((state&&state.menuAlpha)||100)/100)}
+document.addEventListener('input',e=>{if(e.target&&e.target.id==='menuAlpha'){state.menuAlpha=+e.target.value;applyMenuAlpha();const v=$('#menuAlphaV');if(v)v.textContent=state.menuAlpha+' %';save()}});

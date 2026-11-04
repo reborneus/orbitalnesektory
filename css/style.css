@@ -100,7 +100,8 @@ body.pad .pg{display:block}
 
 /* --- Vysúvacie menu zdola (Stanica, Loď, Mapa, Skoková brána); karty, tlačidlá, ceny --- */
 .sheet{position:fixed;z-index:8;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,560px);max-height:70%;display:flex;flex-direction:column;
-  background:var(--panel-solid);border:1px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0;box-shadow:0 -20px 60px rgba(0,0,0,.6);animation:sheetIn .22s ease}
+  background:rgba(11,19,34,var(--menu-a,1));backdrop-filter:blur(calc((1 - var(--menu-a,1)) * 16px));-webkit-backdrop-filter:blur(calc((1 - var(--menu-a,1)) * 16px));
+  border:1px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0;box-shadow:0 -20px 60px rgba(0,0,0,.6);animation:sheetIn .22s ease}   /* v0.23: --menu-a = nepriehľadnosť menu (Nastavenia) */
 @keyframes sheetIn{from{transform:translate(-50%,24px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 .sheet header{display:flex;align-items:center;gap:10px;padding:14px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
 .sheet h2{margin:0;font-size:20px;font-weight:700;letter-spacing:.02em;flex:1;text-wrap:balance}
@@ -530,11 +531,14 @@ body.pad .pg{display:block}
 .escico{width:22px;height:22px;vertical-align:-5px;fill:none;stroke:#ff9a4a;stroke-width:1.6}
 
 /* v0.22: náhľady z 3D modelov – loď v hangári ako na výstave, pomocné drony */
-.hcard.big{grid-template-columns:1fr auto}
-.hcard.big .hprev{grid-column:1/-1;grid-row:auto;width:100%;height:auto;aspect-ratio:520/280;object-fit:cover;border-radius:10px;margin:-2px 0 6px;filter:none;
-  background:radial-gradient(ellipse at 50% 85%,color-mix(in srgb,var(--sc) 22%,transparent),transparent 65%),linear-gradient(180deg,#0b1220,#05080f)}
-.hcard.big h3{grid-column:1}.hcard.big>.act{grid-column:2;grid-row:auto}.hcard.big>.costs,.hcard.big p,.hcard.big .stat{grid-column:1/-1}
+.hcard.big{grid-template-columns:132px 1fr auto}
+.hcard.big .hprev{grid-column:1;grid-row:1/span 4;width:132px;height:auto;aspect-ratio:360/220;object-fit:contain;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+.hcard.big h3{grid-column:2}.hcard.big>.act{grid-column:3;grid-row:1}.hcard.big>.costs,.hcard.big p,.hcard.big .stat{grid-column:2/-1}
+@media (max-width:480px){.hcard.big{grid-template-columns:96px 1fr auto}.hcard.big .hprev{width:96px}}
 img.escico{width:26px;height:26px;stroke:none;object-fit:contain;vertical-align:-7px}
-.escard img.escico.big{float:none;grid-row:1/span 3;width:92px;height:92px;margin:0;border-radius:10px;background:radial-gradient(circle at 50% 70%,rgba(255,122,42,.18),transparent 70%)}
+.escard img.escico.big{float:none;grid-row:1/span 3;width:92px;height:92px;margin:0;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
 .escard{grid-template-columns:92px 1fr auto}.escard h3{grid-column:2}.escard>.act{grid-column:3;grid-row:1}.escard>.costs{grid-column:2/-1}.escard p,.escard .stat{grid-column:2/-1}
 .wico img.wshipi{width:64px;height:auto;vertical-align:middle;border-radius:6px}
+
+/* v0.23: posuvník nepriehľadnosti menu */
+.rangerow{grid-column:1/-1;display:flex;align-items:center;gap:12px}.rangerow input{flex:1;accent-color:var(--hull)}.rangerow b{font-family:var(--f-data);min-width:44px;text-align:right}
