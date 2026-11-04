@@ -4,6 +4,9 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 
 ## 0.16
 
+### v0.16.4 · 2026-11-04
+- Oprava: lode pirátov z nájazdov neboli vidieť (chyba z v0.16.2) – teraz sa opäť zobrazujú
+
 ### v0.16.3 · 2026-11-04
 - Lasery: krátke salvy – jedna letiaca laserová strela za každú osadenú zbraň (lode s viac slotmi pre zbrane vystrelia viac naraz); poškodenie sa započíta pri dopade
 - Piráti strieľajú rovnakými krátkymi strelami
