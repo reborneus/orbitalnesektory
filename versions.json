@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.11.2", "date": "2026-11-04", "sha": "1c21e1b495227b1cc0ecca483fd6f2d30d617a88", "title": "fix frame error after an asteroid is depleted with no next target"},
   {"version": "0.11.1", "date": "2026-11-04", "sha": "5538716c42996849e024228500beccf8154db257", "title": "shorter radiation shield (max 30 s), 3x pricier upgrades"},
   {"version": "0.11.0", "date": "2026-11-04", "sha": "f4fc742bf0ef8334b62132d0f61c937dba39a13e", "title": "pilot levels with XP and skills"},
   {"version": "0.10.0", "date": "2026-11-04", "sha": "ac1f9a4d6e296c8a8c75ad37c17e0560c4796804", "title": "main storage at the sector 1 station with grid, sort, search and expansion"},
