@@ -4,7 +4,7 @@
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),ground=new THREE.Plane(new V3(0,1,0),0);
 const pointers=new Map();let downPos=null,dragging=false,pinch0=0,zoom0=1,zoom=isTouch?1.08:1;
 let inputMode=isTouch?'touch':'mouse';
-const ZMIN=.55,ZMAX=2;
+const ZMIN=.26,ZMAX=2;   // v0.17: bližší zoom (ZMIN .55 → .26), aby bolo vidieť detaily lodí
 function toNdc(x,y){const r=canvas.getBoundingClientRect();ndc.set((x-r.left)/r.width*2-1,-(y-r.top)/r.height*2+1);ray.setFromCamera(ndc,camera)}
 function groundAt(x,y){toNdc(x,y);const p=new V3();return ray.ray.intersectPlane(ground,p)?p:null}
 function clampLimit(p){const r=Math.hypot(p.x,p.z);if(r>LIMIT-2)p.multiplyScalar((LIMIT-2)/r);return p}
@@ -93,7 +93,7 @@ const GLY={xbox:{A:'A',B:'B',X:'X',Y:'Y',LB:'LB',RB:'RB',LT:'LT',M:'Menu',V:'Vie
 let padType='xbox',padPrev=[],activePad=null,navT=0,navLast=0;
 const G=()=>GLY[padType];
 const padKind=id=>/054c|dualsense|dualshock|playstation|wireless controller/i.test(id||'')?'ps':'xbox';
-function setMode(m){if(inputMode===m)return;inputMode=m;document.body.classList.toggle('pad',m==='pad');
+function setMode(m){if(pmSynth||inputMode===m)return;inputMode=m;document.body.classList.toggle('pad',m==='pad');
   document.querySelectorAll('.pg').forEach(el=>el.textContent=G()[el.dataset.g]);applyFocus();lastHint=''}
 addEventListener('gamepadconnected',e=>{padType=padKind(e.gamepad.id);inputMode='';setMode('pad');toast(t('tt.padOn',{k:padType==='ps'?'PlayStation':'Xbox'}))});
 addEventListener('gamepaddisconnected',()=>{activePad=null;padVec.set(0,0,0);if(inputMode==='pad')setMode(isTouch?'touch':'mouse');toast(t('tt.padOff'))});
@@ -108,17 +108,43 @@ function pollPad(dt){let pads=[];try{pads=navigator.getGamepads?navigator.getGam
   const dx=(btn(15)?1:0)-(btn(14)?1:0),dy=(btn(13)?1:0)-(btn(12)?1:0);
   if(inputMode!=='pad'&&(m>=.2||p.buttons.some((b,i)=>btn(i)))){padType=padKind(p.id);setMode('pad')}
   padVec.set(0,0,0);
-  if(wikiOpen()){const m=$('#wikiMain');if(m)m.scrollTop+=(ly+dy)*dt*900;if(press(1)||press(9))closeWiki();if(press(4))wikiStep(-1);if(press(5))wikiStep(1);padPrev=p.buttons.map((b,i)=>btn(i));return}
+  if(press(10)&&state)setPadMouse(!padMouseOn());   // stlačenie ľavej páčky (L3) = zapnúť/vypnúť kurzor myši
+  const pm=padMouseOn()&&$('#intro').hidden;pmCursor(pm);
+  if(pm){pmMove(lx,ly,dt);const rx=p.axes[2]||0,ry2=p.axes[3]||0;pmScroll(rx,ry2,dt);if(press(0))pmClick()}
+  if(wikiOpen()){const m=$('#wikiMain');if(m)m.scrollTop+=((pm?0:ly)+dy)*dt*900;if(press(1)||press(9))closeWiki();if(press(4))wikiStep(-1);if(press(5))wikiStep(1);padPrev=p.buttons.map((b,i)=>btn(i));return}
   if(!$('#intro').hidden){
     if(press(14)||press(15)){const i=DIFFS.indexOf(pendingDiff);pendingDiff=DIFFS[(i+(press(15)?1:DIFFS.length-1))%DIFFS.length];renderIntro()}
     if(press(2))setLang(lang==='sk'?'en':'sk');if(press(0)||press(9))startGame()}
   else if(sheetTab){
-    const v=dy||(Math.abs(ly)>.55?Math.sign(ly):0);navT-=dt;
-    if(v&&(v!==navLast||navT<=0)){moveFocus(v);navT=v===navLast?.14:.38}navLast=v;
-    if(sheetTab==='ship'){if(press(14))cycleGroup(-1);if(press(15))cycleGroup(1)}
-    if(press(0))activateFocus();if(press(1))closeSheet();if(press(4))cycleTab(-1);if(press(5))cycleTab(1);
+    // v0.17: pohyb výberu v menu všetkými 4 smermi (krížový ovládač; ľavá páčka len ak nie je zapnutý kurzor myši)
+    let vx=dx,vy=dy;if(!vx&&!vy&&!pm){if(Math.abs(lx)>.55&&Math.abs(lx)>=Math.abs(ly))vx=Math.sign(lx);else if(Math.abs(ly)>.55)vy=Math.sign(ly)}
+    const key=vx*3+vy;navT-=dt;
+    if(key&&(key!==navLast||navT<=0)){moveFocusDir(vx,vy);navT=key===navLast?.14:.38}navLast=key;
+    if(press(0)&&!pm)activateFocus();if(press(1))closeSheet();if(press(4))cycleTab(-1);if(press(5))cycleTab(1);
     if(press(3))toggleTab('station');if(press(2))toggleTab('ship');if(press(9))toggleTab('map');if(press(6))toggleTab('gear')}
-  else{padVec.set(lx+dx,0,ly+dy);if(padVec.lengthSq()>1)padVec.normalize();
-    if(press(8))toggleAutopilot();if(press(0)||press(7))mineNearest();if(press(1))goHome();if(press(3))openSheet('station');if(press(2))openSheet('ship');if(press(9))openSheet('map');if(press(6))openSheet('gear')}
-  const ry=p.axes[3]||0;if(Math.abs(ry)>.2)zoom=clamp(zoom*(1+ry*dt*1.2),ZMIN,ZMAX);
+  else{if(!pm){padVec.set(lx+dx,0,ly+dy);if(padVec.lengthSq()>1)padVec.normalize()}   // s kurzorom myši je ovládanie lode páčkou vypnuté
+    if(press(8))toggleAutopilot();if(!pm&&(press(0)||press(7)))mineNearest();if(press(1))goHome();if(press(3))openSheet('station');if(press(2))openSheet('ship');if(press(9))openSheet('map');if(press(6))openSheet('gear')}
+  const ry=p.axes[3]||0;if(!pm&&Math.abs(ry)>.2)zoom=clamp(zoom*(1+ry*dt*1.2),ZMIN,ZMAX);
   padPrev=p.buttons.map((b,i)=>btn(i))}
+
+/* ==================== v0.17: MYŠ OVLÁDAČOM ====================
+   Nastavenia → „Kurzor myši ovládačom“ (alebo stlačenie ľavej páčky L3). Ľavá páčka hýbe kurzorom po obrazovke, A = kliknutie
+   (na tlačidlo v menu, na mapu = let/ťažba/útok ako klik myšou), pravá páčka posúva obsah okna pod kurzorom (nad hrou mení priblíženie).
+   Kým je kurzor zapnutý, loď sa páčkou neriadi. Krížový ovládač naďalej posúva výber v oknách. */
+let pmX=innerWidth/2,pmY=innerHeight/2,pmEl=null,pmSynth=false;
+const padMouseOn=()=>!!(state&&state.padMouse);
+function setPadMouse(on){if(!state)return;state.padMouse=on;save();toast(t(on?'pm.on':'pm.off'));if(sheetTab)renderSheet()}
+function pmCursor(show){if(!pmEl){pmEl=document.createElement('div');pmEl.id='padCursor';document.body.appendChild(pmEl)}
+  pmEl.hidden=!show;if(show)pmEl.style.transform=`translate(${pmX}px,${pmY}px)`}
+function pmMove(lx,ly,dt){const m=Math.hypot(lx,ly);if(!m)return;const sp=250+1150*m*m;   // zrýchľovanie: jemný pohyb pri malom vychýlení
+  pmX=clamp(pmX+lx/m*sp*m*dt,0,innerWidth-2);pmY=clamp(pmY+ly/m*sp*m*dt,0,innerHeight-2)}
+/* posun obsahu pod kurzorom: nájde najbližší rodičovský prvok, ktorý sa dá posúvať */
+function pmScroll(rx,ry,dt){if(Math.abs(rx)<.2&&Math.abs(ry)<.2)return;const el=pmTarget();
+  if(!el||el===canvas){if(Math.abs(ry)>.2)zoom=clamp(zoom*(1+ry*dt*1.2),ZMIN,ZMAX);return}
+  let s=el;while(s&&s!==document.body){const cs=getComputedStyle(s);if(/(auto|scroll)/.test(cs.overflowY+cs.overflowX)&&(s.scrollHeight>s.clientHeight||s.scrollWidth>s.clientWidth)){s.scrollTop+=ry*dt*900;s.scrollLeft+=rx*dt*900;return}s=s.parentElement}}
+function pmTarget(){if(pmEl)pmEl.hidden=true;const el=document.elementFromPoint(pmX,pmY);if(pmEl)pmEl.hidden=false;return el}
+/* kliknutie A: na plochu hry = ťuknutie (tapAt), inak udalosti ako pri myši + click */
+function pmClick(){const el=pmTarget();if(!el)return;if(pmEl){pmEl.classList.remove('clk');void pmEl.offsetWidth;pmEl.classList.add('clk')}
+  if(el===canvas){tapAt(pmX,pmY);return}
+  pmSynth=true;try{const o={bubbles:true,cancelable:true,clientX:pmX,clientY:pmY,pointerType:'mouse',pointerId:99,button:0,view:window};
+    el.dispatchEvent(new PointerEvent('pointerdown',o));el.dispatchEvent(new PointerEvent('pointerup',o));el.dispatchEvent(new MouseEvent('click',o))}finally{pmSynth=false}}

@@ -35,23 +35,7 @@ let anomaly=null;
 /* ---------- modely nových pirátov ---------- */
 function makeArenaPirate(kind){if(kind==='fighter'||kind==='corsair'||kind==='frigate')return makePirate(kind);
   const g=new THREE.Group();const body=new THREE.Group();g.add(body);const A=AK[kind];let sc=1;
-  if(kind==='swarm'){const h=new THREE.Mesh(new THREE.OctahedronGeometry(.9,0),PIR_MAT);h.scale.set(1,.5,1.4);body.add(h);const e=glow('#ff5a3a',2.2,.9);body.add(e);sc=1}
-  else if(kind==='turret'){const base=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.8,1.2,8),PIR_MAT);body.add(base);
-    const top=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.6,1,6),PIR_MAT);top.position.y=1;body.add(top);
-    for(const s of[-1,1]){const tube=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,2.6),PIR_GLOW);tube.position.set(.8*s,1.3,.8);body.add(tube)}
-    const e=glow('#ff9a3a',5,.7);e.position.y=1.5;body.add(e);sc=1.2}
-  else if(kind==='cmod'){const m=new THREE.Mesh(new THREE.BoxGeometry(2.4,1.4,2.4),PIR_MAT);body.add(m);const c=new THREE.Mesh(new THREE.IcosahedronGeometry(.8,0),PIR_GLOW);c.position.y=1;body.add(c);
-    const e=glow('#ffd23a',5,.8);e.position.y=1.2;body.add(e);sc=1}
-  else{ // dread / carrier: veľký trup s mostíkom, motormi a (krížnik) hangárom
-    const big=kind==='carrier';
-    const hull=new THREE.Mesh(new THREE.BoxGeometry(4,1.6,10),PIR_MAT);body.add(hull);
-    const nose=new THREE.Mesh(new THREE.ConeGeometry(2,4,4),PIR_MAT);nose.rotation.x=Math.PI/2;nose.position.z=7;body.add(nose);
-    const br=new THREE.Mesh(new THREE.BoxGeometry(1.8,1.6,2.2),PIR_MAT);br.position.set(0,1.5,-2);body.add(br);
-    const ridge=new THREE.Mesh(new THREE.BoxGeometry(.4,.5,8),PIR_GLOW);ridge.position.set(0,.9,0);body.add(ridge);
-    for(const s of[-1,1]){const w=new THREE.Mesh(new THREE.BoxGeometry(3,.4,5),PIR_MAT);w.position.set(3.2*s,0,-1);body.add(w);
-      const e=glow('#ff6a4d',4,.9);e.position.set(1.4*s,0,-5.4);body.add(e)}
-    if(big){const hg=new THREE.Mesh(new THREE.BoxGeometry(2.6,1,3),PIR_GLOW);hg.position.set(0,-.4,3.5);body.add(hg)}
-    sc=big?2.6:1.6}
+  body.add(pirModel(kind));   // v0.17: detailný model (pirmodels.js), mierka je v PIR_SHAPE
   body.scale.setScalar(sc);const R=(A.r||2);
   const bg=new THREE.Mesh(BAR_GEO,new THREE.MeshBasicMaterial({color:new THREE.Color('#2a0808'),transparent:true,opacity:.85,depthWrite:false}));bg.rotation.x=-Math.PI/2;bg.position.set(0,3,-R-1);g.add(bg);
   const bar=new THREE.Mesh(BAR_GEO,new THREE.MeshBasicMaterial({color:new THREE.Color(kind==='cmod'?'#ffd23a':'#ff5a4a'),depthWrite:false}));bar.rotation.x=-Math.PI/2;bar.position.set(0,3.05,-R-1);g.add(bar);

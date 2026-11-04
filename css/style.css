@@ -506,3 +506,10 @@ body.pad .pg{display:block}
 .inv.marking .itm:not(.marked){opacity:.55}
 .itm.marked{outline:2px solid var(--warn);outline-offset:2px;opacity:1}
 .itm .mk{position:absolute;top:2px;right:5px;font:700 11px var(--f-data);font-style:normal;color:var(--warn);z-index:2}
+
+/* v0.17: kurzor myši ovládaný ovládačom */
+#padCursor{position:fixed;left:0;top:0;width:22px;height:22px;margin:-2px 0 0 -2px;z-index:9999;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M2 2l7 18 2.6-7.4L19 10z' fill='%23e8fffb' stroke='%2304130f' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat;
+  filter:drop-shadow(0 0 6px rgba(88,208,192,.8))}
+#padCursor.clk{animation:pmclk .25s}
+@keyframes pmclk{50%{filter:drop-shadow(0 0 12px #58d0c0) brightness(1.6)}}

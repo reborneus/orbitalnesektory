@@ -17,23 +17,12 @@ const PIR_MAT=new THREE.MeshStandardMaterial({color:col('#3a1218'),metalness:.6,
 const PIR_GLOW=new THREE.MeshStandardMaterial({color:col('#2a0505'),emissive:col('#ff3b2f'),emissiveIntensity:1.8});
 const BAR_GEO=new THREE.PlaneGeometry(3,.3);
 function makePirate(kind){const g=new THREE.Group();const body=new THREE.Group();g.add(body);
-  const hull=new THREE.Mesh(new THREE.ConeGeometry(.9,3.4,4),PIR_MAT);hull.rotation.x=Math.PI/2;hull.scale.z=.5;body.add(hull);
-  for(const s of[-1,1]){const w=new THREE.Mesh(new THREE.BoxGeometry(2.6,.12,1.2),PIR_MAT);w.position.set(1.2*s,0,-.6);w.rotation.y=.5*s;body.add(w);
-    const tip=new THREE.Mesh(new THREE.BoxGeometry(.2,.3,1),PIR_GLOW);tip.position.set(2.3*s,0,-1.1);body.add(tip)}
-  if(kind==='frigate'){ // fregata: široký trup, dve veže a štyri motory
-    const deck=new THREE.Mesh(new THREE.BoxGeometry(2.4,.7,4.2),PIR_MAT);deck.position.z=-.3;body.add(deck);
-    for(const s of[-1,1]){const tw=new THREE.Mesh(new THREE.CylinderGeometry(.45,.55,.6,6),PIR_MAT);tw.position.set(.7*s,.6,.4);body.add(tw);
-      const brl=new THREE.Mesh(new THREE.BoxGeometry(.14,.14,1.3),PIR_GLOW);brl.position.set(.7*s,.7,1.1);body.add(brl);
-      const e2=glow('#ff6a4d',2.2,.9);e2.position.set(.8*s,0,-2.5);body.add(e2)}
-    const ridge=new THREE.Mesh(new THREE.BoxGeometry(.3,.4,3.4),PIR_GLOW);ridge.position.set(0,.45,-.4);body.add(ridge)}
-  if(kind==='corsair'){for(const s of[-1,1]){const sp=new THREE.Mesh(new THREE.ConeGeometry(.25,1.6,4),PIR_GLOW);sp.rotation.x=Math.PI/2;sp.position.set(.7*s,.1,1.2);body.add(sp)}}
-  const eye=glow('#ff3b2f',2,.9);eye.position.z=1.3;body.add(eye);
-  const eng=glow('#ff6a4d',2.6,.9);eng.position.z=-1.9;body.add(eng);
-  const sc=kind==='frigate'?2.6:kind==='corsair'?1.8:1;body.scale.setScalar(sc);
+  body.add(pirModel(kind));   // v0.17: detailný model (pirmodels.js); fighter / corsair / frigate
+  const sc=kind==='frigate'?1.6:kind==='corsair'?1.45:1;const sc0=kind==='frigate'?2.6:kind==='corsair'?1.8:1;body.scale.setScalar(sc);
   // ukazovateľ výdrže nad pirátom (vodorovný, aby bol vidieť z kamery zhora)
-  const bg=new THREE.Mesh(BAR_GEO,new THREE.MeshBasicMaterial({color:new THREE.Color('#2a0808'),transparent:true,opacity:.85,depthWrite:false}));bg.rotation.x=-Math.PI/2;bg.position.set(0,3,-2.6*sc);g.add(bg);
-  const bar=new THREE.Mesh(BAR_GEO,new THREE.MeshBasicMaterial({color:new THREE.Color('#ff5a4a'),depthWrite:false}));bar.rotation.x=-Math.PI/2;bar.position.set(0,3.05,-2.6*sc);g.add(bar);
-  const proxy=new THREE.Mesh(new THREE.SphereGeometry(2.6*sc,8,6),M.pick);g.add(proxy);
+  const bg=new THREE.Mesh(BAR_GEO,new THREE.MeshBasicMaterial({color:new THREE.Color('#2a0808'),transparent:true,opacity:.85,depthWrite:false}));bg.rotation.x=-Math.PI/2;bg.position.set(0,3,-2.6*sc0);g.add(bg);
+  const bar=new THREE.Mesh(BAR_GEO,new THREE.MeshBasicMaterial({color:new THREE.Color('#ff5a4a'),depthWrite:false}));bar.rotation.x=-Math.PI/2;bar.position.set(0,3.05,-2.6*sc0);g.add(bar);
+  const proxy=new THREE.Mesh(new THREE.SphereGeometry(2.6*sc0,8,6),M.pick);g.add(proxy);
   return{g,body,bar,proxy}}
 /* hodnota pre sektor si; ak pre neho nie je zadaná (napr. fregata v nižšom sektore cez admin), použije sa najbližšia nenulová */
 const pirStat=(a,si)=>{for(let i=Math.min(si,a.length-1);i<a.length;i++)if(a[i])return a[i];return a[a.length-1]};

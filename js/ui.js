@@ -126,6 +126,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`;
     h+=tierCard();
+    h+=`<div class="card"><h3>${t('set.pm')}</h3><div class="langs">${['on','off'].map(v=>`<button class="langb" data-act="padMouse" data-v="${v}" aria-pressed="${padMouseOn()===(v==='on')}">${t(v)}</button>`).join('')}</div><p>${t('set.pm.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.cmp')}</h3><div class="langs">${CMP_MODES.map(m=>`<button class="langb" data-act="cmpMode" data-v="${m}" aria-pressed="${cmpMode()===m}">${t('cmp.'+m)}</button>`).join('')}</div><p>${t('set.cmp.d')}</p></div>`;
     h+=`<div class="sec-h"><span>${t('set.h')}</span></div>`;
     h+=`<div class="card"><h3>${t('set.lang')}</h3>${langBtns()}<p>${t('set.diff',{d:t('diff.'+state.diff)})}</p></div>`;
@@ -140,6 +141,17 @@ function applyFocus(){body.querySelectorAll('.pad-focus').forEach(el=>el.classLi
   const f=focusables();if(!f.length)return;focusIdx=clamp(focusIdx,0,f.length-1);const el=f[focusIdx];const box=el.classList.contains('act')?(el.closest('.card')||el):el;
   box.classList.add('pad-focus');box.scrollIntoView({block:'nearest',behavior:'smooth'})}
 function moveFocus(v){focusIdx+=v;applyFocus()}
+/* v0.17: priestorový pohyb výberu (krížový ovládač) – vyberie najbližší prvok v danom smere podľa polohy na obrazovke,
+   takže sa dá ísť napr. priamo doprava/doľava medzi kartami lodí bez prechádzania celého zoznamu. */
+function moveFocusDir(dx,dy){const f=focusables(),cur=f[focusIdx];if(!cur||!cur.getClientRects().length){focusIdx=0;applyFocus();return}
+  const a=cur.getBoundingClientRect(),ax=a.left+a.width/2,ay=a.top+a.height/2;let best=-1,bs=1e9;
+  f.forEach((el,i)=>{if(i===focusIdx)return;const r=el.getBoundingClientRect();if(!r.width||!r.height)return;
+    const cx=r.left+r.width/2,cy=r.top+r.height/2;
+    const prim=dx?(cx-ax)*dx:(cy-ay)*dy;if(prim<=4)return;   // musí ležať v smere pohybu
+    const ov=dx?Math.max(0,Math.min(a.bottom,r.bottom)-Math.max(a.top,r.top)):Math.max(0,Math.min(a.right,r.right)-Math.max(a.left,r.left));
+    const perp=ov>0?0:dx?Math.abs(cy-ay):Math.abs(cx-ax);if(dx&&!ov&&perp>Math.max(a.height,r.height))return;   // doľava/doprava len v rovnakom riadku
+    const sc=prim+perp*3;if(sc<bs){bs=sc;best=i}});
+  if(best>=0){focusIdx=best;applyFocus()}else if(dy)moveFocus(dy)}
 function activateFocus(){const el=focusables()[focusIdx];if(!el)return;if(!el.disabled){el.click();return}
   if(el.dataset.act==='repair')toast(t('rep.far'));else if(el.dataset.block==='1')toast(t('tt.noSlot'));else if(el.dataset.ore)toast(t('tt.noRes'))}
 let resetArm=0;
@@ -154,6 +166,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(arenaAct(act,b))return; // aréna (arena.js)
   if(tierAct(act,b))return; // úroveň výzvy (tier.js)
   if(traderAct(act,b))return; // obchodník (npc.js)
+  if(act==='padMouse'){setPadMouse(b.dataset.v==='on');return}
   if(act==='cmpMode'){state.cmpMode=b.dataset.v;save();renderSheet();return}
   if(act==='grp'){shipGrp=b.dataset.g;focusIdx=SHIP_TABS.indexOf(shipGrp);renderSheet();return}
   if(act==='lang'){setLang(b.dataset.l);return}
