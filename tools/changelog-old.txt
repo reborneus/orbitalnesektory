@@ -1,0 +1,41 @@
+v0.1	prototyp 0: ťažba, stanica a moduly, 3 sektory, ukladanie hry
+v0.2	ovládač Xbox/PS a klávesnica, zrýchlenie a max. rýchlosť ako vylepšenia, loď „Klepeto“, kolízie s asteroidmi, integrita trupu
+v0.3	tretia surovina viridit, 4 pásy + horizont, radiácia, štíty, oprava trupu po 30 s, menu vylepšení po skupinách, minimapa, SK/EN, obtiažnosť Ľahká/Ťažká, nová ekonomika
+v0.3.1	predaj modulov stanice (60 % späť), anglický názov sektora Orion Deep
+v0.3.2	loď po skončení ťažby zastaví namiesto narážania do asteroidu, presnejší údaj o plnom náklade
+v0.3.3	voliteľná automatická ťažba (Mapa → Nastavenia)
+v0.4	autopilot (ťaží zvolenú surovinu, vozí ju na stanicu, vracia sa na opravu), automatický návrat pri plnom náklade, kláves P / tlačidlo View
+v0.4.1	skok do sektora iba cez skokovú bránu, Mapa je informatívna, oprava zaseknutia pri skoku počas ťažby
+v0.4.2	vysvetlivky v kóde (obsah sekcií, popis herných hodnôt na ladenie balansu)
+v0.5	kredity, predmety s 10 raritami (Odpad až Prvotné) a náhodnými vlastnosťami, výbava lode a inventár, vylepšovanie +1 až +20, zlaté relikty s korisťou, vylepšenia lode do úrovne 10, hra rozdelená na súbory
+v0.7.1	skrytý admin panel na testovanie
+v0.7.2	oprava odomykania schopností dronu, efektnejšia rarita Prvotné
+v0.7.3	pulzovanie Mytických predmetov, blikajúce hviezdy a pulz Prvotných
+v0.7.4	vylepšenie Obratnosť, zatáčanie bez driftu
+v0.8.0	hangár s loďami Sokol a Bizón, sektory 4–6, pirátska fregata
+v0.8.1	spúšťač pre Mac, spúšťače rozlíšené podľa systému
+v0.8.2	ikona aplikácie spúšťača na Macu
+v0.8.3	farebná korisť, relikty do inventára, výber verzie v spúšťačoch
+v0.9.0	veľké čísla (K/M/B), drahšia ekonomika, kritické zásahy, čísla poškodenia
+v0.9.1	obtiažnosť Nightmare (jedno zničenie = reset postupu)
+v0.10.0	hlavný sklad v 1. sektore (mriežka, zoradenie, hľadanie, rozširovanie)
+v0.11.0	levelovanie pilota (XP, 100 úrovní, 4 schopnosti)
+v0.11.1	radiačný štít: max. 30 s, drahšie vylepšenia
+v0.11.2	oprava chyby po vyťažení asteroidu
+v0.12.0	vyrovnanie ekonomiky a obtiažnosti, strop rarity podľa sektora
+v0.13.0	Pirátska aréna (100 vĺn, anomália, bossovia, krížnik s modulmi)
+v0.14.0	úroveň výzvy +1 až +16 (silnejší piráti, väčšie odmeny)
+v0.14.1	náhľad vlastností predmetu pri myši na PC
+v0.14.2	náhľad sektora na pozadí kariet mapy
+v0.14.3	porovnanie predmetov vedľa seba (nastaviteľné), výber predmetu do prázdneho slotu
+v0.15.0	2× väčšie mapy, zadávateľ misií a obchodník, nové rozloženie surovín, obrie zmiešané asteroidy
+v0.15.1	spustenie arény tlačidlom pri názve mapy, popis pri myši
+v0.15.2	aréna: anomália po každej 5. vlne, otázka pokračovať/návrat, po smrti na základňu
+v0.16.0	laserové dávky s farbou podľa rarity zbrane, šanca na zásah 70–90 %
+v0.16.1	mapy ešte 2× väčšie
+v0.16.2	dostrel pirátov podľa sily, mapy 8× väčšie
+v0.16.3	laserové salvy podľa počtu zbraní, hromadné rozoberanie
+v0.7	misie (5 typov, 3 stupne), radiačný štít s obmedzeným časom, sledovanie misií v HUD
+v0.6.1	oprava: autopilot po zbere koristi s plným nákladom pokračuje na stanicu
+v0.6	boj s pirátmi (zbraň lode, veže, obrana dronov), panel stanice s vylepšovaním modulov +1 až +10 a čipmi, slot Zbraň, samostatné Nastavenia s tlačidlom Ukončiť hru, pasívny príjem len pri dosiahnutom vplyve
+v0.5.1	príručka (wiki) v hre aj ako stránka `wiki.html`, ikona hry, spúšťač s výberom priečinka
