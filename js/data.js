@@ -4,7 +4,7 @@
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
 /* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
-const GAME_VERSION='0.16.1';
+const GAME_VERSION='0.16.2';
 const NUM=10,ECON=1.6;
 const P=(c,m=1)=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON*m);return o};
 /* v0.12: stavba a vylepšovanie stanice je v každom ďalšom sektore SEC_COST× drahšie (príjmy rastú len ~1,3×) */
@@ -22,7 +22,7 @@ const RELIC_RESPAWN=[150,240];   // relikt sa znovu objaví po 150–240 s
    pás 1: 0–Z1, pás 2: Z1–Z2, pás 3: Z2–Z3 (radiácia), pás 4: Z3–HORIZON (silnejšia radiácia).
    Za HORIZON trup rýchlo ubúda a štíty nepomáhajú. LIMIT = najďalej, kam sa dá doletieť. */
 /* v0.15: mapy sú MAP_SCALE× väčšie (počet asteroidov ostáva, takže pôsobia menej nahustene). */
-const MAP_SCALE=4;   // v0.16.1: ešte 2× väčšie (spolu 4× oproti v0.14)
+const MAP_SCALE=8;   // v0.16.2: ešte 2× väčšie (spolu 8× oproti v0.14)
 const Z1=40*MAP_SCALE,Z2=80*MAP_SCALE,Z3=120*MAP_SCALE,HORIZON=160*MAP_SCALE,LIMIT=230*MAP_SCALE;
 const GATE_R=72*MAP_SCALE;   // vzdialenosť skokovej brány od stanice
 /* Sektory v poradí, v akom sa odomykajú. Polia:
@@ -162,6 +162,8 @@ const PIRATES={
   frigate:{hp:[0,0,0,1400,2200,3400],dmg:[0,0,0,30,45,65],speed:8,range:38,fire:2.6,drop:1,cr:[90,160],mf:2,r:4.6},
   stationHp:L=>400+150*L,stationRegen:3,steal:.15,offline:30,aggro:30,repelBonus:15,hardDmg:1.3,boltSpeed:45,playerBolt:70,
 };
+/* v0.16.2: dostrel pirátov ako podiel dostrelu zbrane hráča (combat.js → enemyRange) */
+const RANGE_F={swarm:.7,fighter:.82,corsair:.88,frigate:.95,cmod:1.1,dread:1.2,carrier:1.35,turret:2.6};
 /* Kľúč uloženej hry v prehliadači. Ak ho zmeníš, hra začne odznova (stará uložená hra sa ignoruje). */
 const SAVE_KEY='orbitalne-sektory-v3';
 

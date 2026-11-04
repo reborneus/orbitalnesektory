@@ -1,8 +1,9 @@
 {
-  "version": "0.16.1",
+  "version": "0.16.2",
   "date": "2026-11-04",
   "notes": [
-    "Mapy ešte 2× väčšie (spolu 4× oproti v0.14), počet asteroidov ostal rovnaký",
-    "Pásy, horizont, brána, obchodník, zadávateľ misií aj aréna sa zväčšili s mapou; autopilot hľadá ciele do väčšej vzdialenosti"
+    "Dostrel: bežní piráti strieľajú kratšie ako tvoja zbraň (stíhačky 82 %, korzári 88 %, fregaty 95 %), bossovia ďalej (Dreadnought 120 %, krížnik 135 %); posúva sa s vylepšením dosahu",
+    "Mapy ešte 2× väčšie (spolu 8× oproti v0.14), väčšie pozadie hmloviny",
+    "Nájazdy pirátov prilietajú z pásu 4, aby na veľkých mapách neleteli príliš dlho"
   ]
 }

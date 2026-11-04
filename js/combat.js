@@ -41,7 +41,7 @@ const pirStat=(a,si)=>{for(let i=Math.min(si,a.length-1);i<a.length;i++)if(a[i])
 function spawnRaid(force){const c=raidCfg()||(force?PIRATES.raid[1]:null);if(!c)return;const si=Math.max(1,state.cur);const n=c.count[0]+Math.floor(Math.random()*(c.count[1]-c.count[0]+1));const a0=Math.random()*TAU;
   const kinds=[];for(let i=0;i<n;i++)kinds.push('fighter');if(Math.random()<c.corsair)kinds.push('corsair');if(c.frigate&&Math.random()<c.frigate)kinds.push('frigate');
   kinds.forEach((kind,i)=>{const P=PIRATES[kind];const v=makePirate(kind);const a=a0+(i-kinds.length/2)*.09;
-    v.g.position.set(Math.cos(a)*(LIMIT-35+Math.random()*10),2,Math.sin(a)*(LIMIT-35+Math.random()*10));world.add(v.g);
+    const sr=Z3+Math.random()*40;v.g.position.set(Math.cos(a)*sr,2,Math.sin(a)*sr);   // v0.16.2: na veľkých mapách prilietajú z pásu 4world.add(v.g);
     const e={...v,kind,hp:pirStat(P.hp,si)*tierMul('hp'),max:pirStat(P.hp,si)*tierMul('hp'),dmg:pirStat(P.dmg,si)*D().pdmg*tierMul('dmg'),speed:P.speed,range:P.range,fire:P.fire,r:P.r,
       cd:1+Math.random()*2,vel:new V3(),aggro:false,leaving:false,orb:Math.random()<.5?1:-1,pos:v.g.position};
     v.proxy.userData.enemy=e;pickables.push(v.proxy);enemies.push(e)});
@@ -105,16 +105,19 @@ function droneDefend(d,st,dt){const tg=nearestEnemy(new V3(0,0,0),70);if(!tg)ret
 
 /* ---------- správanie pirátov a nájazdy ---------- */
 const _ev=new V3(),_tp=new V3();
+/* v0.16.2: dostrel pirátov = dostrel zbrane hráča × RANGE_F. Bežní piráti dostrelia menej ako hráč (silnejší menej
+   zaostávajú), bossovia ďalej ako hráč. Raketová veža má rakety na veľkú vzdialenosť. Keď hráč vylepší dosah, posunú sa aj piráti. */
+const enemyRange=e=>gunRange()*(RANGE_F[e.kind]||.9);
 function tickEnemies(dt,tt){for(const e of enemies.slice()){
     if(e.leaving){_ev.copy(e.pos).setY(0).normalize().multiplyScalar(e.speed*1.4);e.pos.addScaledVector(_ev,dt);e.vel.copy(_ev);e.body.rotation.y=Math.atan2(_ev.x,_ev.z);
       if(Math.hypot(e.pos.x,e.pos.z)>LIMIT+20){world.remove(e.g);enemies=enemies.filter(x=>x!==e);pickables=pickables.filter(p=>p!==e.proxy)}continue}
     const dShip=dead?1e9:e.pos.distanceTo(ship.position);if(dShip<PIRATES.aggro)e.aggro=true;if(!e.arena&&(dead||dShip>PIRATES.aggro*2.2))e.aggro=false;if(e.arena)e.aggro=!dead;
     const onShip=e.aggro;if(onShip)_tp.copy(ship.position).setY(e.pos.y);else _tp.set(0,e.pos.y,0);
-    _ev.subVectors(_tp,e.pos);_ev.y=0;const dist=_ev.length();const want=e.range*.75+(onShip?0:10);_ev.normalize();
+    _ev.subVectors(_tp,e.pos);_ev.y=0;const dist=_ev.length();const eR=enemyRange(e);const want=eR*.75+(onShip?0:10);_ev.normalize();
     const desired=new V3();if(dist>want+2)desired.copy(_ev).multiplyScalar(e.speed);else desired.set(-_ev.z*e.orb,0,_ev.x*e.orb).multiplyScalar(e.speed*.6).addScaledVector(_ev,(dist-want)*.8);
     if(e.stat){desired.set(0,0,0);e.vel.set(0,0,0)}else{e.vel.lerp(desired,Math.min(1,dt*2.5));e.pos.addScaledVector(e.vel,dt);e.pos.y=2+Math.sin(tt*2+e.orb)*.3}
     if(e.vel.lengthSq()>.5)e.body.rotation.y=Math.atan2(e.vel.x,e.vel.z);
-    e.cd-=dt;const inRange=dist<=e.range+(onShip?0:10);
+    e.cd-=dt;const inRange=dist<=eR+(onShip?0:10);
     if(inRange&&e.cd<=0&&!(!onShip&&stationDown>0)){e.cd=e.fire*(.8+Math.random()*.4);e.body.rotation.y=Math.atan2(_ev.x,_ev.z);
       if(e.missile){fireMissile(e);continue}
       // v0.16: okamžitý laser so šancou na zásah (lasers.js); boss strieľa celú dávku

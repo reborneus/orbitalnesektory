@@ -25,7 +25,7 @@ function buildSector(){
   const S=SECTORS[state.cur];
   // autopilot: ak sa zvolená surovina v sektore nenachádza, prepne sa na prvú dostupnú
   if(!S.arena&&S.res.length&&!S.res.includes(state.autoRes))state.autoRes=S.res[0];
-  const neb=new THREE.Mesh(new THREE.PlaneGeometry(3000,3000),new THREE.MeshBasicMaterial({map:nebulaTex(S.neb[0],S.neb[1],S.seed),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.95}));
+  const neb=new THREE.Mesh(new THREE.PlaneGeometry(3000+LIMIT*4,3000+LIMIT*4),new THREE.MeshBasicMaterial({map:nebulaTex(S.neb[0],S.neb[1],S.seed),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.95}));
   neb.rotation.x=-Math.PI/2;neb.position.y=-500;world.add(neb);
   const planet=new THREE.Mesh(new THREE.SphereGeometry(110,48,32),new THREE.MeshStandardMaterial({map:planetTex(S.planet,S.seed),roughness:1,metalness:0}));
   planet.position.set(...S.pPos);planet.rotation.z=.35;world.add(planet);world.userData.planet=planet;
