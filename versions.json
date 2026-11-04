@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.25.0", "date": "2026-11-04", "time": "2026-11-04T23:07:31+01:00", "sha": "5676a126afaf22b6b52ee74ddd516a7849e0ae00", "title": "resizable minimap, movable HUD panels (PC), centered windows"},
   {"version": "0.24.1", "date": "2026-11-04", "time": "2026-11-04T22:44:07+01:00", "sha": "e8968c6f5e81db5cd1f423da782033e1b35df86f", "title": "fix Windows launcher panel not opening"},
   {"version": "0.24.0", "date": "2026-11-04", "time": "2026-11-04T22:38:43+01:00", "sha": "8fcaa2d13fbb06c8624ca036f31c00827dfa2335", "title": "cosmic cube loot and arena anomaly"},
   {"version": "0.23.1", "date": "2026-11-04", "time": "2026-11-04T22:35:45+01:00", "sha": "9e0030ffd19902eb0ba2832fd75f015cef37fcdd", "title": "launcher: modern dark panel, hidden console via vbs, keep-open option"},
