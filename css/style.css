@@ -457,3 +457,9 @@ body.pad .pg{display:block}
 .arcard .act+.act{margin-top:6px}
 .arl li{list-style:none}
 .trst{grid-column:1/-1;margin:2px 0}
+/* ===== v0.14.1 náhľad predmetu pri myši ===== */
+#itemTip{position:fixed;left:0;top:0;z-index:20;pointer-events:none;width:300px;max-width:calc(100vw - 16px)}
+#itemTip .tipcard{box-shadow:0 10px 30px rgba(0,0,0,.55);background-color:var(--panel-solid)}
+#itemTip .tipcard.r9,#itemTip .tipcard.r8,#itemTip .tipcard.r7{background-color:transparent}
+.tiphint{font:500 11px var(--f-data);color:var(--muted);margin-top:4px}
+.itd.compact .itd-head{margin-bottom:4px}

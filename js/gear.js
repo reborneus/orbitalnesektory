@@ -18,12 +18,12 @@ function cmpHtml(it,eq){const a=statSum(it),b=statSum(eq);const keys=[...new Set
     return `<li class="${d>0?'up':'down'}"><span>${t('s.'+k)}</span><b>${d>0?'▲':'▼'} ${fmtStat(k,Math.abs(d)).slice(1)}</b></li>`}).join('');
   return rows?`<div class="sec-h"><span>${t('gear.cmp')}</span></div><ul class="stats">${rows}</ul>`:''}
 
-function detailHtml(f){const it=f.it,R=RAR[it.r],title=itemTitle(it),slot=BASES[it.b].slot;
-  let h=`<div class="itd it r${it.r}" ${rc(it)}>
+function detailHtml(f){const it=f.it,R=RAR[it.r],title=itemTitle(it),slot=BASES[it.b].slot;const cmp=hoverUI(); // na PC sú vlastnosti v náhľade pri myši
+  let h=`<div class="itd it r${it.r}${cmp?' compact':''}" ${rc(it)}>
     <div class="itd-head">${icon(it.b)}<div class="itd-names">${title?`<div class="ttl">«${title}»</div>`:''}<div class="nm">${itemName(it)}</div>
       <div class="meta"><span class="rlab">${t('r.'+R.k)}</span> · ${t('slot.'+slot)} · ${t('gear.ilvl',{n:it.ilvl})}${it.lock?' · '+t('gear.isLocked'):''}</div></div></div>
-    <ul class="stats">${itemStats(it).map(x=>`<li class="${x.imp?'imp':''}"><span>${t('s.'+x.k)}</span><b>${fmtStat(x.k,x.v)}</b></li>`).join('')}</ul>`;
-  if(f.where==='inv'&&slot!=='chip'&&state.eq[slot])h+=cmpHtml(it,state.eq[slot]);
+    ${cmp?'':`<ul class="stats">${itemStats(it).map(x=>`<li class="${x.imp?'imp':''}"><span>${t('s.'+x.k)}</span><b>${fmtStat(x.k,x.v)}</b></li>`).join('')}</ul>`}`;
+  if(!cmp&&f.where==='inv'&&slot!=='chip'&&state.eq[slot])h+=cmpHtml(it,state.eq[slot]);
   h+=`<div class="itd-acts">`;
   if(slot==='chip')h+=`<p class="note" style="margin:0;flex-basis:100%">${t('gear.chipNote')}</p>`;
   else h+=f.where==='inv'?`<button class="btn prim" data-act="equip">${t('btn.equip')}</button>`:`<button class="btn" data-act="unequip">${t('btn.unequip')}</button>`;

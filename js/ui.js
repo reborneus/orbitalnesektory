@@ -62,7 +62,7 @@ let sheetTab=null,shipGrp='eng',focusIdx=0;
 const sheet=$('#sheet'),body=$('#sheetBody');
 const TABS=['station','ship','gear','pilot','map','settings'];
 function openSheet(tab){if(sheetTab!==tab)focusIdx=0;sheetTab=tab;sheet.hidden=false;sheet.classList.toggle('side',tab==='station');renderSheet();document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));lastHint=''}
-function closeSheet(){sheetTab=null;sheet.hidden=true;document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.remove('on'));lastHint=''}
+function closeSheet(){if(typeof tipHide==='function')tipHide();sheetTab=null;sheet.hidden=true;document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.remove('on'));lastHint=''}
 function toggleTab(tb){sheetTab===tb?closeSheet():openSheet(tb)}
 function cycleTab(d){const i=TABS.indexOf(sheetTab);openSheet(TABS[(i+d+TABS.length)%TABS.length])}
 const SHIP_TABS=['hangar',...GROUPS]; // záložky v paneli Loď: hangár + skupiny vylepšení

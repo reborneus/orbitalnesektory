@@ -31,9 +31,9 @@ function storeGridHtml(){const S=sstate(),L=storeList();
   return `<div class="inv sgrid">${L.map(it=>cellHtml(it,'stSel')).join('')}${'<span class="itm slot0"></span>'.repeat(Math.max(0,free))}</div>`}
 function storeDetail(){if(!stSel)return'';const S=sstate();const it=(stSel.where==='st'?S.items:state.inv).find(x=>x.id===stSel.id);if(!it){stSel=null;return''}
   const R=RAR[it.r],title=itemTitle(it),near=atStore();
-  let h=`<div class="itd it r${it.r}" ${rc(it)}><div class="itd-head">${icon(it.b)}<div class="itd-names">${title?`<div class="ttl">«${title}»</div>`:''}<div class="nm">${itemName(it)}</div>
+  const cmp=hoverUI();let h=`<div class="itd it r${it.r}${cmp?' compact':''}" ${rc(it)}><div class="itd-head">${icon(it.b)}<div class="itd-names">${title?`<div class="ttl">«${title}»</div>`:''}<div class="nm">${itemName(it)}</div>
     <div class="meta"><span class="rlab">${t('r.'+R.k)}</span> · ${t('slot.'+BASES[it.b].slot)} · ${t('gear.ilvl',{n:it.ilvl})} · ${stSel.where==='st'?t('sto.inStore'):t('sto.inInv')}</div></div></div>
-    <ul class="stats">${itemStats(it).map(x=>`<li class="${x.imp?'imp':''}"><span>${t('s.'+x.k)}</span><b>${fmtStat(x.k,x.v)}</b></li>`).join('')}</ul><div class="itd-acts">`;
+    ${cmp?'':`<ul class="stats">${itemStats(it).map(x=>`<li class="${x.imp?'imp':''}"><span>${t('s.'+x.k)}</span><b>${fmtStat(x.k,x.v)}</b></li>`).join('')}</ul>`}<div class="itd-acts">`;
   if(stSel.where==='st')h+=`<button class="btn prim" data-act="stOut" ${near?'':'disabled'}>${t('sto.toInv')}</button>`;
   else h+=`<button class="btn prim" data-act="stIn" ${near?'':'disabled'}>${t('sto.toStore')}</button>`;
   h+=`<button class="btn" data-act="stLock">${it.lock?t('btn.unlock'):t('btn.lock')}</button>`;

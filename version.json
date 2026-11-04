@@ -1,10 +1,8 @@
 {
-  "version": "0.14.0",
+  "version": "0.14.1",
   "date": "2026-11-04",
   "notes": [
-    "Úroveň výzvy +1 až +16 (Nastavenia, pri stanici): silnejší piráti a radiácia, ale viac surovín, kreditov, XP a vzácnejšia korisť",
-    "Účinky výzvy sa ukazujú v percentách, napr. výzva +16: piráti +12 071 % výdrže, odmeny +1 133 %",
-    "Výzva platí aj v Pirátskej aréne; aktuálna výzva je vidieť pri názve sektora (V+N)",
-    "Príručka: tabuľka úrovní výzvy"
+    "PC (myš a klávesnica): vlastnosti predmetu sa ukážu ako náhľad pri ukazovateli myši (inventár, výbava, sklad, čipy), vrátane porovnania s nasadeným",
+    "Kliknutie na predmet na PC otvorí len kompaktný pruh s akciami; na dotyku a ovládači zostáva pôvodné okno"
   ]
 }
