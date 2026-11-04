@@ -7,14 +7,17 @@ const _secThumbs={};
 function sectorThumb(i){if(_secThumbs[i])return _secThumbs[i];const S=SECTORS[i];const W=560,H=200;
   const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');if(!g)return'';const r=rng(S.seed*13+7);
   g.fillStyle='#04070e';g.fillRect(0,0,W,H);
+  // v0.21: sektor s vlastným 3D pozadím (planéta s diskom) – náhľad sa vykreslí z rovnakých shaderov
+  const bgc=S.bg==='disk'&&typeof diskBgThumb==='function'?diskBgThumb(W,H):null;
+  if(bgc)g.drawImage(bgc,0,0);
   // hmlovina
-  g.globalCompositeOperation='lighter';
+  if(!bgc){g.globalCompositeOperation='lighter';
   for(let k=0;k<18;k++){const x=r()*W,y=r()*H,rad=40+r()*140,cc=r()<.5?S.neb[0]:S.neb[1];const gr=g.createRadialGradient(x,y,0,x,y,rad);
     gr.addColorStop(0,cc+'88');gr.addColorStop(.5,cc+'30');gr.addColorStop(1,cc+'00');g.fillStyle=gr;g.fillRect(0,0,W,H)}
   for(let k=0;k<90;k++){g.fillStyle=`rgba(255,255,255,${.25+r()*.6})`;g.fillRect(r()*W,r()*H,r()<.1?2:1,r()<.1?2:1)}
-  g.globalCompositeOperation='source-over';
+  g.globalCompositeOperation='source-over';}
   // planéta vpravo hore
-  {const px=W*.9,py=H*.28,pr=40;const gr=g.createRadialGradient(px-pr*.4,py-pr*.4,pr*.1,px,py,pr);gr.addColorStop(0,S.planet);gr.addColorStop(1,'#05070c');
+  if(!bgc){const px=W*.9,py=H*.28,pr=40;const gr=g.createRadialGradient(px-pr*.4,py-pr*.4,pr*.1,px,py,pr);gr.addColorStop(0,S.planet);gr.addColorStop(1,'#05070c');
     g.fillStyle=gr;g.beginPath();g.arc(px,py,pr,0,TAU);g.fill();g.strokeStyle=S.planet+'55';g.lineWidth=6;g.beginPath();g.arc(px,py,pr+4,0,TAU);g.stroke()}
   // pohľad zhora na sektor (zošikmená elipsa): stred vľavo
   const cx=W*.6,cy=H*.56,sx=W*.3/LIMIT,sy=H*.42/LIMIT;const P=(d,a)=>[cx+Math.cos(a)*d*sx,cy+Math.sin(a)*d*sy];

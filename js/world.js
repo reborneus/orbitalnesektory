@@ -25,7 +25,9 @@ float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);return mix(mix(h
 float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
 float ridge(vec2 p){float v=0.,a=.55;for(int i=0;i<5;i++){float k=1.-abs(n(p)*2.-1.);v+=a*k*k*k;p=p*2.07+vec2(3.1,1.3);a*=.5;}return v;}
 void main(){vec2 p=vUv*2.-1.;float r=length(p);if(r>1.)discard;
-  float a=uT*.35*(1.2-r);float cs=cos(a),sn=sin(a);vec2 q=mat2(cs,-sn,sn,cs)*p;              // vír: vnútro sa točí rýchlejšie
+  /* v0.21: rovnomerné otáčanie + ohraničené kývanie vnútra. (Pôvodné „vnútro rýchlejšie“ sa s časom stále viac
+     skrúcalo a po pár minútach z gule vznikol vír.) */
+  float a=uT*.12+.55*sin(uT*.3+r*3.)*(1.-r);float cs=cos(a),sn=sin(a);vec2 q=mat2(cs,-sn,sn,cs)*p;
   vec2 w=vec2(fbm(q*2.2+vec2(uT*.13,0.)),fbm(q*2.2+vec2(5.2,-uT*.11)));
   float v1=ridge(q*3.2+w*2.4+vec2(uT*.07,-uT*.05));float v2=ridge(q*6.5-w*1.6+vec2(-uT*.12,uT*.09));
   float veins=pow(clamp(v1*1.15,0.,1.),5.)*1.8+pow(clamp(v2,0.,1.),6.)*.9;
@@ -67,11 +69,14 @@ function buildSector(){
   const S=SECTORS[state.cur];
   // autopilot: ak sa zvolená surovina v sektore nenachádza, prepne sa na prvú dostupnú
   if(!S.arena&&S.res.length&&!S.res.includes(state.autoRes))state.autoRes=S.res[0];
+  world.userData.bgTick=null;
+  if(S.bg==='disk')world.userData.bgTick=buildDiskBg(world);   // v0.21: planéta s ohnivým diskom (bgdisk.js)
+  else{
   const neb=new THREE.Mesh(new THREE.PlaneGeometry(3000+LIMIT*4,3000+LIMIT*4),new THREE.MeshBasicMaterial({map:nebulaTex(S.neb[0],S.neb[1],S.seed),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.95}));
   neb.rotation.x=-Math.PI/2;neb.position.y=-500;world.add(neb);
   const planet=new THREE.Mesh(new THREE.SphereGeometry(110,48,32),new THREE.MeshStandardMaterial({map:planetTex(S.planet,S.seed),roughness:1,metalness:0}));
   planet.position.set(...S.pPos);planet.rotation.z=.35;world.add(planet);world.userData.planet=planet;
-  const atm=glow(S.planet,330,.35);atm.position.copy(planet.position);world.add(atm);
+  const atm=glow(S.planet,330,.35);atm.position.copy(planet.position);world.add(atm)}
   // zones: rings at the belt borders, a faint amber wash over the radiation belts 3-4, red past the horizon
   for(const rr of[Z1,Z2,Z3])world.add(flatRing(rr-.2,rr+.2,'#7fa7d0',.09,false,-2));
   world.add(flatRing(Z2,HORIZON,'#ff9a4d',.035,true,-2.2));

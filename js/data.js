@@ -4,7 +4,7 @@
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
 /* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
-const GAME_VERSION='0.20.0';
+const GAME_VERSION='0.21.0';
 const NUM=10,ECON=1.6;
 const P=(c,m=1)=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON*m);return o};
 /* v0.12: stavba a vylepšovanie stanice je v každom ďalšom sektore SEC_COST× drahšie (príjmy rastú len ~1,3×) */
@@ -36,7 +36,7 @@ const GATE_R=72*MAP_SCALE;   // vzdialenosť skokovej brány od stanice
    reward ...... odmena za obsadenie: kredity (cr) a najnižšia rarita garantovaného predmetu (minR, index v RAR v items.js)
    ilvl ........ úroveň predmetov, ktoré v sektore padajú (základ; vonkajšie pásy pridávajú) */
 const SECTORS=[
-  {name:'Kepler-12',seed:11,rich:1,rar:{max:4,top:.25},neb:['#173a6e','#3b1e5e'],planet:'#c98a4b',pPos:[-140,-340,-120],capture:120,res:['ore'],
+  {name:'Kepler-12',bg:'disk',seed:11,rich:1,rar:{max:4,top:.25},neb:['#173a6e','#3b1e5e'],planet:'#c98a4b',pPos:[-140,-340,-120],capture:120,res:['ore'],
     fields:[{type:'ore',n:38,r:[44,78]},{type:'ore',n:20,r:[84,156]},{type:'relic',n:3,r:[60,156]}],reward:{cr:600,minR:3},ilvl:1},
   {name:'Vega Drift',seed:23,rich:1.3,rar:{max:4,top:.6},neb:['#3a1d62','#0d4c5c'],planet:'#5fa3c9',pPos:[150,-360,-100],capture:180,res:['green'],
     fields:[{type:'green',n:30,r:[44,78]},{type:'green',n:26,r:[84,156]},{type:'relic',n:4,r:[70,156]}],reward:{cr:900,minR:4},ilvl:11},
