@@ -10,6 +10,39 @@ const STATION_R=14;
 const STATION_Y=-13,DECK_R=13;
 function slotPos(i){const a=i/6*TAU+Math.PI/6;return new V3(Math.cos(a)*DECK_R,0,Math.sin(a)*DECK_R)}
 let _stMats=null;
+/* ==================== v0.19.5: ENERGETICKÉ JADRO STANICE ====================
+   Plazmová guľa (podľa videa): biele horúce jadro, okolo vírivé svietiace žilky (ridged šum deformovaný ďalším šumom),
+   rozstrapkaný okraj. Je to štvorec natočený vždy ku kamere s vlastným shaderom (kreslí sa aditívne, cez konštrukciu prežaruje).
+   Farba podľa stavu: modrá = pokoj, tyrkysovo-zelená = hráč je v dosahu stanice, červená = stanica je pod útokom
+   (posledný zásah pred menej ako CORE_HIT s alebo nájazd so stanicou ako cieľom). Farby sa plynulo prelínajú. */
+const CORE_COL={idle:'#2f74ff',near:'#19f0a0',hit:'#ff2a2a'},CORE_HIT=3;
+let stationHitT=0;const _coreC=new THREE.Color('#2f74ff'),_coreT=new THREE.Color();
+function makeCoreOrb(){const m=new THREE.ShaderMaterial({uniforms:{uT:{value:0},uC:{value:_coreC.clone()},uK:{value:1}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+  vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:`uniform float uT;uniform vec3 uC;uniform float uK;varying vec2 vUv;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),u.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),u.x),u.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}
+float ridge(vec2 p){float v=0.,a=.55;for(int i=0;i<5;i++){float k=1.-abs(n(p)*2.-1.);v+=a*k*k*k;p=p*2.07+vec2(3.1,1.3);a*=.5;}return v;}
+void main(){vec2 p=vUv*2.-1.;float r=length(p);if(r>1.)discard;
+  float a=uT*.35*(1.2-r);float cs=cos(a),sn=sin(a);vec2 q=mat2(cs,-sn,sn,cs)*p;              // vír: vnútro sa točí rýchlejšie
+  vec2 w=vec2(fbm(q*2.2+vec2(uT*.13,0.)),fbm(q*2.2+vec2(5.2,-uT*.11)));
+  float v1=ridge(q*3.2+w*2.4+vec2(uT*.07,-uT*.05));float v2=ridge(q*6.5-w*1.6+vec2(-uT*.12,uT*.09));
+  float veins=pow(clamp(v1*1.15,0.,1.),5.)*1.8+pow(clamp(v2,0.,1.),6.)*.9;
+  float edge=smoothstep(1.,.5,r+(fbm(q*5.+uT*.4)-.5)*.45);                                      // rozstrapkaný okraj
+  float body=edge*(.18+.35*fbm(q*3.-w+uT*.2));
+  float core=exp(-r*r*22.)*1.05+exp(-r*r*6.)*.35;
+  vec3 col=uC*body*1.4+mix(uC,vec3(1.),.38)*veins*edge*(1.25-r*.6)+mix(uC,vec3(1.),.75)*core;
+  gl_FragColor=vec4(col*uK,1.);}`});
+  const o=new THREE.Mesh(new THREE.PlaneGeometry(13,13),m);o.renderOrder=4;o.frustumCulled=false;return o}
+/* volá main.js každý snímok: stav → farba jadra, žiary a svetelných pásov stanice */
+function tickStationCore(dt,tt){if(!stationAnim||!stationAnim.orb)return;stationHitT-=dt;
+  const hit=stationHitT>0||(typeof raidActive!=='undefined'&&raidActive&&enemies.some(e=>!e.wasPassive&&!e.aggro&&!e.leaving&&Math.hypot(e.pos.x,e.pos.z)<60));
+  const near=!hit&&typeof nearStation==='function'&&nearStation();
+  _coreT.set(CORE_COL[hit?'hit':near?'near':'idle']);_coreC.lerp(_coreT,Math.min(1,dt*3));
+  // guľa je posunutá o 7 m smerom ku kamere: prežiari cez vežu nad jadrom, ale loď nad stanicou ju stále prekryje
+  const o=stationAnim.orb;o.quaternion.copy(camera.quaternion);o.position.set(camera.position.x,camera.position.y-STATION_Y,camera.position.z).normalize().multiplyScalar(7);const U=o.material.uniforms;U.uT.value=tt;U.uC.value.copy(_coreC);U.uK.value=hit?1.1+.25*Math.sin(tt*9):1;
+  stationAnim.coreGlow.material.color.copy(_coreC);const K=stationMats();K.glow.emissive.copy(_coreC);K.lattice.emissive.copy(_coreC).multiplyScalar(.6)}
 function stationMats(){return _stMats||(_stMats={
   hull:kitHullMat('stH',{base:'#5d6674',vari:.22,line:'#262b33',lit:['#ffcf7a','#7fb6ff'],litP:.12,seed:51},{metalness:.7,roughness:.4,emissiveIntensity:1.8,flatShading:true}),
   dark:kitHullMat('stD',{base:'#2a3039',vari:.3,line:'#12151a',lit:['#ffcf7a'],litP:.1,seed:52},{metalness:.75,roughness:.45,emissiveIntensity:1.8,flatShading:true}),
@@ -99,9 +132,10 @@ function rebuildStation(){
      4 = veľký naklonený gyroskopický prstenec, 5 = žiariace halo. */
   g.position.y=STATION_Y;const K=stationMats(),P=kitParts();
   // jadro: modrá žiariaca guľa + tmavá mriežka okolo
-  P.add(K.core,new THREE.SphereGeometry(3.4,24,16));
+  // v0.19.5: energetické jadro (plazmová guľa so svietiacimi žilkami) – makeCoreOrb nižšie, farba podľa stavu stanice
+  const orb=makeCoreOrb();g.add(orb);anim.orb=orb;
   const lat=new THREE.Mesh(new THREE.IcosahedronGeometry(4.1,2),K.lattice);g.add(lat);anim.rings.push({o:lat,s:.05});
-  g.add(Object.assign(glow('#4f9bff',22,.55),{}));
+  const cg=glow('#4f9bff',26,.5);g.add(cg);anim.coreGlow=cg;
   for(const y of[-1,1]){P.add(K.hull,new THREE.CylinderGeometry(2.6,3.4,1.2,12),{p:[0,3.7*y,0],r:[y<0?Math.PI:0,0,0]});P.add(K.glow,new THREE.TorusGeometry(3.1,.07,4,32),{p:[0,3.2*y,0],r:[HALF,0,0]})}
   // veže: faceted (8-hranný kosoštvorcový prierez), hore kratšia (pod rovinou letu), dole dlhá
   const spire=(h0,h1,w,y0)=>kitLoft([{z:h0,w,h:w},{z:h0+(h1-h0)*.25,w:w*1.15,h:w*1.15},{z:h0+(h1-h0)*.7,w:w*.6,h:w*.6},{z:h1,w:.05,h:.05}],{n:8,p:1.5});
@@ -199,9 +233,56 @@ function towerStats(m){const F=MOD_FX.tower,e=m.enh||0;return{dmg:F.dmg*(1+F.dmg
 const sensorIncome=m=>MOD_FX.sensor.green*(1+MOD_FX.sensor.incPer*(m.enh||0))*(1+chipStat(m,'sInc')/100);
 const droneIncome=m=>MOD_FX.drone.income*(1+MOD_FX.drone.ratePer*(m.enh||0))*(1+chipStat(m,'dMine')/100);
 const DRONE_GEO=new THREE.OctahedronGeometry(.55,0);
+/* ==================== v0.19.5: MODEL ŤAŽOBNÉHO DRONA ====================
+   Tmavý oceľový dron: zaoblený pancierový trup so šikmým nosom, vrstvené vrchné pláty s priduchmi, dva spodné „kly“ vpredu
+   s červeným senzorom, dve veľké valcové turbíny po bokoch na mechanických vzperách (pancierové pláty, prstence,
+   fialovo-modrá žiara dýz), zadné plutvy a malá veža pod trupom. Postaví sa raz (šablóna) a každý dron dostane kópiu. */
+let _droneTpl=null;
+function droneModel(){if(_droneTpl)return _droneTpl.clone();
+  const K={hull:kitHullMat('drH',{base:'#5a6572',vari:.2,line:'#1c2026',lit:['#8f8cff'],litP:.04,seed:61},{metalness:.75,roughness:.35,emissiveIntensity:1.6,flatShading:true}),
+    dark:kitHullMat('drD',{base:'#22272e',vari:.25,line:'#0c0e11',lit:['#7a6bff'],litP:.06,seed:62},{metalness:.8,roughness:.4,emissiveIntensity:1.8,flatShading:true}),
+    glow:kitGlowMat('#7d6bff',1.7),red:kitGlowMat('#ff3030',3),
+    shell:new THREE.MeshStandardMaterial({color:new THREE.Color('#15181d'),metalness:.85,roughness:.35,side:THREE.DoubleSide,flatShading:true}),
+    metal:new THREE.MeshStandardMaterial({color:new THREE.Color('#8a96a6'),metalness:.9,roughness:.3,flatShading:true})};
+  const P=kitParts(),g=new THREE.Group(),H=Math.PI/2,bx=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
+  // trup + vrchný pancier (dve vrstvy) so stredovým hrebeňom
+  P.add(K.dark,kitLoft([{z:-1.6,w:.55,h:.38,hb:.34},{z:-.6,w:.72,h:.52,hb:.4},{z:.8,w:.66,h:.48,hb:.38},{z:1.6,w:.5,h:.3,hb:.3,y:-.08},{z:2.05,w:.28,h:.12,hb:.12,y:-.2}],{n:10,p:3.2}));
+  P.add(K.hull,kitLoft([{z:-1.5,w:.5,h:.5,hb:.02},{z:-.4,w:.64,h:.66,hb:.02},{z:.9,w:.56,h:.58,hb:.02},{z:1.7,w:.36,h:.34,hb:.02,y:-.06},{z:2.05,w:.18,h:.12,y:-.16}],{n:10,p:2.6}));
+  P.add(K.hull,kitLoft([{z:-1.2,w:.2,h:.75,hb:.02},{z:.3,w:.24,h:.8,hb:.02},{z:1.4,w:.14,h:.5,hb:.02,y:-.04}],{n:8,p:2.2}));
+  for(const s of[-1,1])P.add(K.dark,kitSlab([[.22*s,1.5],[.6*s,.9],[.62*s,-.9],[.3*s,-1.3]],.05,{y:.6,bev:.02}));
+  // priduchy a poklop na chrbte
+  for(let i=0;i<3;i++){P.add(K.shell,bx(.07,.06,.55),{p:[-.12+i*.12,.86,-.15]});P.add(K.glow,bx(.03,.02,.45),{p:[-.12+i*.12,.89,-.15]})}
+  P.add(K.dark,new THREE.CylinderGeometry(.2,.24,.06,6),{p:[0,.83,-.95]});
+  for(const s of[-1,1])P.add(K.metal,bx(.09,.03,.14),{p:[.12*s,.81,.75]});
+  // nos: zvislé rebrá, červený senzor, dva spodné kly
+  for(const x of[-.16,-.05,.05,.16])P.add(K.shell,bx(.05,.32,.12),{p:[x,-.02,1.93],r:[.35,0,0]});
+  P.add(K.red,bx(.12,.08,.04),{p:[0,-.24,2.0]});
+  for(const s of[-1,1]){P.add(K.dark,kitSlab([[.32*s,.9],[.48*s,1.0],[.4*s,2.45],[.33*s,2.3]],.14,{y:-.36,bev:.03}));
+    P.add(K.metal,new THREE.CylinderGeometry(.035,.035,.05,8),{p:[.42*s,-.29,2.1]})}
+  // bočné okienka (rad malých otvorov)
+  for(let i=0;i<5;i++)P.add(K.shell,bx(.02,.06,.09),{p:[.67,.0,.2+i*.16],m:true});
+  // turbíny po bokoch: vzpery, valec s prstencami a plátmi, dýza vzadu s fialovou žiarou
+  const PX=1.55,PZ=-.25;
+  for(const s of[-1,1])for(const[y,z]of[[.18,.15],[-.12,-.55]]){P.add(K.metal,new THREE.CylinderGeometry(.06,.06,PX-.6,8),{p:[s*(PX+.6)/2,y,z],r:[0,0,H]});P.add(K.dark,bx(.22,.2,.22),{p:[s*.95,y,z]})}
+  for(const s of[-1,1])P.add(K.shell,bx(.5,.28,.5),{p:[s*.9,.02,-.2]});
+  P.add(K.dark,kitLoft([{z:PZ-1.15,w:.5,h:.5,x:PX},{z:PZ-.9,w:.6,h:.6,x:PX},{z:PZ+.5,w:.62,h:.62,x:PX},{z:PZ+.85,w:.5,h:.5,x:PX},{z:PZ+.95,w:.4,h:.4,x:PX}],{n:14,p:2.1}),{m:true});
+  for(const z of[PZ-.85,PZ+.15,PZ+.55])P.add(K.metal,new THREE.TorusGeometry(.62,.045,5,22),{p:[PX,0,z],m:true});
+  for(const a of[.6,1.6,2.6]){P.add(K.hull,bx(.32,.05,.75),{p:[PX+Math.cos(a)*.63,Math.sin(a)*.63,PZ-.2],r:[0,0,a-H],m:true})}
+  P.add(K.glow,bx(.02,.12,.4),{p:[PX+.64,.15,PZ-.2],m:true});
+  P.add(K.shell,new THREE.CylinderGeometry(.42,.5,.35,16,1,true),{p:[PX,0,PZ-1.32],r:[H,0,0],m:true});
+  P.add(K.glow,new THREE.CircleGeometry(.4,16),{p:[PX,0,PZ-1.2],r:[0,Math.PI,0],m:true});
+  P.add(K.dark,new THREE.CircleGeometry(.4,16),{p:[PX,0,PZ+.96],m:true});
+  for(let i=0;i<6;i++){const a=i/6*Math.PI*2;P.add(K.shell,bx(.04,.3,.06),{p:[PX+Math.cos(a)*.2,Math.sin(a)*.2,PZ+.97],r:[0,0,a],m:true})}   // lopatky turbíny
+  // zadné plutvy a veža pod trupom
+  for(const s of[-1,1])P.add(K.dark,kitSlab([[0,-1.0],[.08,-1.15],[.55,-2.0],[.35,-2.0],[0,-1.6]],.05,{bev:.02}),{p:[.3*s,.35,0],r:[0,0,(H-.5)*s]});
+  P.add(K.dark,bx(.3,.18,.35),{p:[0,-.5,.2]});P.add(K.metal,new THREE.CylinderGeometry(.03,.03,.6,6),{p:[0,-.52,.62],r:[H,0,0]});
+  P.add(K.metal,new THREE.CylinderGeometry(.012,.012,.5,4),{p:[-.25,.95,-1.1],r:[-.3,0,0]});
+  P.done(g);
+  for(const s of[-1,1]){const l=glow('#8a74ff',1.6,.85);l.position.set(PX*s,0,PZ-1.45);g.add(l)}
+  g.scale.setScalar(.45);_droneTpl=g;return g.clone()}
 function syncDrones(){const s=cur();const docks=[];s.slots.forEach((m,i)=>{if(slotType(m)==='drone'&&i<slotsFor(s.core))docks.push(i)});
-  while(drones.length<docks.length){const g=new THREE.Group();const b=new THREE.Mesh(DRONE_GEO,M.metal);b.scale.set(1,.6,1.7);g.add(b);
-    const e=glow('#f0a644',1.8,.9);e.position.z=-.9;g.add(e);
+  while(drones.length<docks.length){const g=new THREE.Group();g.add(droneModel());   // v0.19.5: detailný model (droneModel)
+    const e=glow('#f0a644',1.4,.9);e.position.set(0,.05,-1.05);g.add(e);
     const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new V3(),new V3()]),new THREE.LineBasicMaterial({color:new THREE.Color('#f0a644'),transparent:true,opacity:.8,blending:THREE.AdditiveBlending}));
     line.visible=false;line.frustumCulled=false;world.add(line);
     const d={g,e,line,state:'seek',t:null,load:0,ltype:'ore',home:new V3(),wait:Math.random()*1.5,cd:0,slot:-1};g.position.copy(slotPos(docks[drones.length])).multiplyScalar(.92);world.add(g);drones.push(d)}

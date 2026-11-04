@@ -64,7 +64,7 @@ function tickBolts(dt){for(const b of bolts.slice()){b.life-=dt;
     if(hit||b.life<=0){world.remove(b.s);bolts.splice(bolts.indexOf(b),1)}}}
 
 /* ---------- zásahy ---------- */
-function stationHit(d){stationHp-=d;if(stationHp<=0)stationDestroyed()}
+function stationHit(d){stationHitT=CORE_HIT;stationHp-=d;if(stationHp<=0)stationDestroyed()}
 function stationDestroyed(){const o=Math.floor(state.ore*PIRATES.steal),g=Math.floor(state.green*PIRATES.steal);state.ore-=o;state.green-=g;
   stationDown=PIRATES.offline;stationHp=stationMaxHp()*.4;raidActive=false;for(const e of enemies)if(!e.wasPassive)e.leaving=true;
   for(let i=0;i<40;i++)emit(debris,new V3(0,2,0),i%2?'#ff8a5c':'#ffe2a8',1+Math.random(),new V3((Math.random()-.5)*26,Math.random()*6,(Math.random()-.5)*26));
