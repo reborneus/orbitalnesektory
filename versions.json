@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.19.2", "date": "2026-11-04", "time": "2026-11-04T20:57:19+01:00", "sha": "cd210c1d63e1c2d6da10cb246e401da589dc7447", "title": "2-3 visual volleys per shot, thicker bolts"},
   {"version": "0.19.1", "date": "2026-11-04", "time": "2026-11-04T20:49:27+01:00", "sha": "03e28bc4bde9efbbe4b3eeaa40d226143e88e644", "title": "launcher: fresh version check via GitHub API, release time shown"},
   {"version": "0.19.0", "date": "2026-11-04", "time": "2026-11-04T20:44:59+01:00", "sha": "3b200d65f7d0e0d94e4a8ae759ef09720509b846", "title": "detailed laser bolts, new lightning for divine weapons"},
   {"version": "0.18.0", "date": "2026-11-04", "time": "2026-11-04T20:32:58+01:00", "sha": "aa5cad5e2b91cd32a0bd21c7ee0fb50c8063ec74", "title": "megastructure station sunk below flight plane, passive pirates in sector 1"},

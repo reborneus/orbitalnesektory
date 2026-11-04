@@ -4,6 +4,10 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 
 ## 0.19
 
+### v0.19.2 · 2026-11-04
+- Boj: každý výstrel lode sú 2–3 laserové salvy tesne po sebe; poškodenie sa započíta len raz, tempo a sila streľby zostávajú rovnaké
+- Hrubšie laserové strely (hráč aj piráti)
+
 ### v0.19.1 · 2026-11-04
 - Spúšťací panel (Windows aj Mac): kontrola novej verzie už nevracia staršiu verziu z vyrovnávacej pamäte GitHubu – najnovšia verzia sa zistí hneď po zverejnení, aj keď je panel otvorený
 - Panel ukazuje presný čas zverejnenia najnovšej verzie (napr. „4. 11. 2026 o 20:45 (pred 5 min)“) a v zozname verzií je pri každej dátum aj čas
