@@ -27,6 +27,9 @@ $IconFile   = Join-Path $Root 'icon.ico'
 $CfgFile    = Join-Path $Root 'nastavenia.json'
 $RawBase    = "https://raw.githubusercontent.com/$Repo/$Branch"
 $ZipUrl     = "https://github.com/$Repo/archive/refs/heads/$Branch.zip"
+$ApiBase    = "https://api.github.com/repos/$Repo"
+# Pozn.: raw.githubusercontent.com drží súbory z vetvy main v cache ~5 minút (aj s ?t=…), preto panel najprv zistí cez GitHub API
+# posledný commit a súbory číta podľa jeho SHA – taká adresa sa nikdy „nezasekne“ na starej verzii.
 New-Item -ItemType Directory -Force -Path $Root | Out-Null
 
 # --- nastavenia panela (automatická aktualizácia, celá obrazovka) ---
@@ -45,13 +48,29 @@ function Get-LocalVersion {
   if (Test-Path $f) { try { return (Get-Content $f -Raw -Encoding UTF8 | ConvertFrom-Json) } catch {} }
   return $null
 }
-function Get-RemoteVersion {
-  try {
-    $r = Invoke-WebRequest -Uri ("$RawBase/version.json?t=" + [DateTime]::UtcNow.Ticks) -UseBasicParsing -TimeoutSec 12
-    $bytes = $r.RawContentStream.ToArray()
-    return ([Text.Encoding]::UTF8.GetString($bytes) | ConvertFrom-Json)
-  } catch { return $null }
+function Get-Json($url) {
+  # (User-Agent sa vo Windows PowerShell 5.1 nesmie dať do -Headers, preto -UserAgent)
+  $h = @{ 'Cache-Control' = 'no-cache'; 'Pragma' = 'no-cache' }
+  $r = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 12 -Headers $h -UserAgent 'OrbitalneSektory-Launcher'
+  return ([Text.Encoding]::UTF8.GetString($r.RawContentStream.ToArray()) | ConvertFrom-Json)
 }
+# SHA posledného commitu vetvy (GitHub API); ak API nejde (limit 60 dopytov/h), použije sa adresa vetvy
+$script:headSha = $null
+function Raw-Now { if ($script:headSha) { return "https://raw.githubusercontent.com/$Repo/$($script:headSha)" }; return $RawBase }
+function Get-RemoteVersion {
+  $script:headSha = $null
+  try { $script:headSha = [string](Get-Json "$ApiBase/commits/$Branch").sha } catch {}
+  try { return (Get-Json ("$(Raw-Now)/version.json?t=" + [DateTime]::UtcNow.Ticks)) } catch { return $null }
+}
+# čas vydania (ISO 8601 z versions.json) → miestny čas „4. 11. 2026 o 20:41 (pred 6 min)“
+function Format-Time($iso) {
+  if (-not $iso) { return '' }
+  try { $t = $(if ($iso -is [DateTime]) { $iso.ToLocalTime() } else { [DateTimeOffset]::Parse([string]$iso, [Globalization.CultureInfo]::InvariantCulture).LocalDateTime }) } catch { return '' }
+  $m = [int]([DateTime]::Now - $t).TotalMinutes
+  $ago = $(if ($m -lt 1) { 'práve teraz' } elseif ($m -lt 60) { "pred $m min" } elseif ($m -lt 1440) { 'pred ' + [int]($m / 60) + ' h' } else { 'pred ' + [int]($m / 1440) + ' d' })
+  return $t.ToString('d. M. yyyy') + ' o ' + $t.ToString('HH:mm') + "  ($ago)"
+}
+function Short-Time($iso) { try { $t = $(if ($iso -is [DateTime]) { $iso.ToLocalTime() } else { [DateTimeOffset]::Parse([string]$iso, [Globalization.CultureInfo]::InvariantCulture).LocalDateTime }); return $t.ToString('d. M. HH:mm') } catch { return '' } }
 function To-Ver($v) { try { return [version]$v.version } catch { return [version]'0.0' } }
 
 # --- aktualizácia: stiahne zip repozitára a nahradí priečinok hra\ ---
@@ -90,8 +109,7 @@ function Find-Browser {
 }
 # --- staršie verzie na porovnanie (versions.json na GitHube) ---
 $script:versions = @()
-function Get-Versions { try { $r = Invoke-WebRequest -Uri ("$RawBase/versions.json?t=" + [DateTime]::UtcNow.Ticks) -UseBasicParsing -TimeoutSec 12
-    return @(([Text.Encoding]::UTF8.GetString($r.RawContentStream.ToArray()) | ConvertFrom-Json).versions) } catch { return @() } }
+function Get-Versions { try { return @((Get-Json ("$(Raw-Now)/versions.json?t=" + [DateTime]::UtcNow.Ticks)).versions) } catch { return @() } }
 # vybraná verzia: $null = najnovšia (hlavná inštalácia), inak objekt z versions.json
 function Selected-Version { $i = $cmbVer.SelectedIndex; if ($i -le 0 -or $i -gt $script:versions.Count) { return $null }; return $script:versions[$i - 1] }
 # priečinok a profil pre vybranú verziu; staršiu verziu stiahne, ak ešte nie je (vlastný profil = vlastné uložené hry)
@@ -152,7 +170,7 @@ function New-Button($text, $x, $y, $w, $h, $primary = $false) {
 [void](New-Label 'ORBITÁLNE SEKTORY' 24 18 500 34 18 'Bold')
 [void](New-Label 'Vesmírna 2.5D sandbox hra · testovacie verzie z GitHubu' 26 52 500 22 9.5 'Regular' $muted)
 $lblLocal  = New-Label 'Nainštalovaná verzia: –' 26 88 500 22
-$lblRemote = New-Label 'Najnovšia verzia: zisťujem…' 26 112 500 22
+$lblRemote = New-Label 'Najnovšia verzia: zisťujem…' 26 112 520 22
 [void](New-Label 'Novinky v najnovšej verzii' 26 146 500 20 9 'Bold' $muted)
 $txtNotes = New-Object Windows.Forms.TextBox
 $txtNotes.Multiline = $true; $txtNotes.ReadOnly = $true; $txtNotes.ScrollBars = 'Vertical'; $txtNotes.BorderStyle = 'FixedSingle'
@@ -183,7 +201,10 @@ function Refresh-Ui {
   $loc = Get-LocalVersion
   $lblLocal.Text = 'Nainštalovaná verzia: ' + $(if ($loc) { "$($loc.version)  ($($loc.date))" } else { 'žiadna' })
   if ($script:remote) {
-    $lblRemote.Text = "Najnovšia verzia: $($script:remote.version)  ($($script:remote.date))"
+    # čas zverejnenia: z versions.json (presný čas commitu vydania)
+    $rv = $script:versions | Where-Object { $_.version -eq $script:remote.version } | Select-Object -First 1
+    $when = $(if ($rv -and $rv.time) { Format-Time $rv.time } else { $script:remote.date })
+    $lblRemote.Text = "Najnovšia verzia: $($script:remote.version)  ·  zverejnená $when"
     $txtNotes.Text = (($script:remote.notes | ForEach-Object { '• ' + $_ }) -join "`r`n")
   }
   $newer = $script:remote -and (-not $loc -or (To-Ver $script:remote) -gt (To-Ver $loc))
@@ -201,7 +222,7 @@ function Check-Remote {
   $script:remote = Get-RemoteVersion
   $script:versions = Get-Versions; $keep = $cmbVer.SelectedIndex
   while ($cmbVer.Items.Count -gt 1) { $cmbVer.Items.RemoveAt(1) }
-  foreach ($v in $script:versions) { [void]$cmbVer.Items.Add("$($v.version)  ($($v.date))  –  $($v.title)") }
+  foreach ($v in $script:versions) { $d = $(if ($v.time) { Short-Time $v.time } else { $v.date }); [void]$cmbVer.Items.Add("$($v.version)  ($d)  –  $($v.title)") }
   $cmbVer.SelectedIndex = $(if ($keep -lt $cmbVer.Items.Count) { [Math]::Max(0, $keep) } else { 0 })
   if (-not $script:remote) { $lblRemote.Text = 'Najnovšia verzia: nedá sa zistiť (si offline alebo je repozitár súkromný)'; $lblRemote.ForeColor = $warn }
   elseif (-not (Get-LocalVersion)) { $txtNotes.Text = (($script:remote.notes | ForEach-Object { '• ' + $_ }) -join "`r`n") + "`r`n`r`nHra ešte nie je stiahnutá. Skontroluj priečinok hry (Zmeniť…) a klikni na Stiahnuť hru." }

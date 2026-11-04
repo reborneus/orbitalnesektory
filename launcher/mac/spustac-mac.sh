@@ -57,11 +57,29 @@ notify() { osa -e "display notification \"$(as_q "$1")\" with title \"Orbitálne
 # z version.json vytiahne "version", "date" a zoznam "notes" (bez pythonu, stačí sed)
 json_field() { sed -n "s/.*\"$1\"[[:space:]]*:[[:space:]]*\"\([^\"]*\)\".*/\1/p" | head -n 1; }
 json_notes() { sed -n '/"notes"/,/\]/p' | sed -n 's/^[[:space:]]*"\(.*\)",\{0,1\}[[:space:]]*$/• \1/p'; }
-LOCAL_VER=""; LOCAL_DATE=""; REMOTE_JSON=""; REMOTE_VER=""; REMOTE_DATE=""
+LOCAL_VER=""; LOCAL_DATE=""; REMOTE_JSON=""; REMOTE_VER=""; REMOTE_DATE=""; REMOTE_WHEN=""
 read_local() { LOCAL_VER=""; LOCAL_DATE=""; if [ -f "$GAME_DIR/version.json" ]; then
   LOCAL_VER=$(json_field version < "$GAME_DIR/version.json"); LOCAL_DATE=$(json_field date < "$GAME_DIR/version.json"); fi; }
-read_remote() { REMOTE_JSON=$(curl -fsSL --max-time 12 "$RAW_BASE/version.json?t=$(date +%s)" 2>/dev/null)
-  REMOTE_VER=$(printf '%s' "$REMOTE_JSON" | json_field version); REMOTE_DATE=$(printf '%s' "$REMOTE_JSON" | json_field date); }
+# raw.githubusercontent.com drží súbory z vetvy main v cache ~5 minút (aj s ?t=…). Preto sa najprv cez GitHub API zistí SHA
+# posledného commitu a súbory sa čítajú podľa neho (taká adresa sa nezasekne na starej verzii); bez API sa použije vetva.
+API_BASE="${OS_API_BASE:-https://api.github.com/repos/$REPO}"; RAW_NOW="$RAW_BASE"
+gh_get() { curl -fsSL --max-time 12 -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' "$1" 2>/dev/null; }
+read_remote() { local sha; sha=$(gh_get "$API_BASE/commits/$BRANCH" | grep -m1 '"sha"' | sed -n 's/.*"sha": *"\([0-9a-f]\{40\}\)".*/\1/p')
+  if [ -n "$sha" ] && [ -z "${OS_RAW_BASE:-}" ]; then RAW_NOW="https://raw.githubusercontent.com/$REPO/$sha"; else RAW_NOW="$RAW_BASE"; fi
+  REMOTE_JSON=$(gh_get "$RAW_NOW/version.json?t=$(date +%s)")
+  REMOTE_VER=$(printf '%s' "$REMOTE_JSON" | json_field version); REMOTE_DATE=$(printf '%s' "$REMOTE_JSON" | json_field date)
+  VERSIONS=""; read_versions
+  # čas zverejnenia najnovšej verzie (pole "time" vo versions.json)
+  REMOTE_WHEN=""; local line; line=$(printf '%s\n' "$VERSIONS" | grep "\"version\": \"$REMOTE_VER\"" | head -n 1)
+  [ -n "$line" ] && REMOTE_WHEN=$(fmt_time "$(ver_line_field "$line" time)"); }
+# ISO čas (2026-11-04T19:41:05+00:00) → miestny „4. 11. 2026 o 20:41 (pred 6 min)“; $2=short → „4. 11. 20:41“
+fmt_time() { local iso="$1" ep now m ago; [ -n "$iso" ] || return 0
+  iso=$(printf '%s' "$iso" | sed -e 's/Z$/+0000/' -e 's/\([+-][0-9][0-9]\):\([0-9][0-9]\)$/\1\2/')
+  ep=$(date -j -f "%Y-%m-%dT%H:%M:%S%z" "$iso" +%s 2>/dev/null || date -d "$1" +%s 2>/dev/null) || return 0; [ -n "$ep" ] || return 0
+  if [ "$2" = short ]; then date -r "$ep" "+%-d. %-m. %H:%M" 2>/dev/null || date -d "@$ep" "+%-d. %-m. %H:%M"; return 0; fi
+  now=$(date +%s); m=$(( (now-ep)/60 ))
+  if [ $m -lt 1 ]; then ago="práve teraz"; elif [ $m -lt 60 ]; then ago="pred $m min"; elif [ $m -lt 1440 ]; then ago="pred $((m/60)) h"; else ago="pred $((m/1440)) d"; fi
+  printf '%s (%s)' "$(date -r "$ep" "+%-d. %-m. %Y o %H:%M" 2>/dev/null || date -d "@$ep" "+%-d. %-m. %Y o %H:%M")" "$ago"; }
 # ver_gt A B → pravda, ak verzia A > B (porovnáva čísla po bodkách: 0.10.0 > 0.9.3)
 ver_gt() { awk -v a="$1" -v b="$2" 'BEGIN{n=split(a,x,".");m=split(b,y,".");k=n>m?n:m;for(i=1;i<=k;i++){if((x[i]+0)>(y[i]+0))exit 0;if((x[i]+0)<(y[i]+0))exit 1}exit 1}'; }
 has_newer() { [ -n "$REMOTE_VER" ] && { [ -z "$LOCAL_VER" ] || ver_gt "$REMOTE_VER" "$LOCAL_VER"; }; }
@@ -95,12 +113,12 @@ file_url() { printf 'file://%s' "$(printf '%s' "$1" | sed -e 's/%/%25/g' -e 's/ 
 # ---------- staršie verzie na porovnanie (versions.json: jedna verzia na riadok) ----------
 # SEL_VER prázdne = najnovšia (hlavná inštalácia); inak sa hra stiahne do verzie/<v> a má vlastný profil profil-<v>
 SEL_VER=""; SEL_SHA=""; VERSIONS=""
-read_versions() { VERSIONS=$(curl -fsSL --max-time 12 "$RAW_BASE/versions.json?t=$(date +%s)" 2>/dev/null | grep '"sha"'); }
+read_versions() { VERSIONS=$(gh_get "$RAW_NOW/versions.json?t=$(date +%s)" | grep '"sha"'); }
 ver_line_field() { printf '%s' "$1" | sed -n "s/.*\"$2\": *\"\([^\"]*\)\".*/\1/p"; }
 pick_version() { [ -n "$VERSIONS" ] || read_versions
   [ -n "$VERSIONS" ] || { msg "Zoznam verzií sa nedá stiahnuť (si offline?)." caution; return; }
   local items="\"Najnovšia (hlavná inštalácia)\"" line v d tt choice
-  while IFS= read -r line; do v=$(ver_line_field "$line" version); d=$(ver_line_field "$line" date); tt=$(ver_line_field "$line" title)
+  while IFS= read -r line; do v=$(ver_line_field "$line" version); d=$(fmt_time "$(ver_line_field "$line" time)" short); [ -n "$d" ] || d=$(ver_line_field "$line" date); tt=$(ver_line_field "$line" title)
     items="$items, \"$(as_q "$v  ($d)  –  $tt")\""; done <<< "$VERSIONS"
   choice=$(osa -e "choose from list {$items} with title \"$(as_q "$TITLE")\" with prompt \"Vyber verziu hry. Staršie verzie majú vlastné uložené hry, hlavný postup sa nezmení.\" OK button name \"Vybrať\" cancel button name \"Späť\"") || return
   case "$choice" in false|"") return;; "Najnovšia"*) SEL_VER=""; SEL_SHA=""; return;; esac
@@ -184,7 +202,7 @@ main_menu() {
     [ "$AUTO_UPDATE" = 1 ] && onoff_a="ZAP" || onoff_a="VYP"; [ "$FULLSCREEN" = 1 ] && onoff_f="ZAP" || onoff_f="VYP"
     st="Nainštalovaná verzia: ${LOCAL_VER:-žiadna}${LOCAL_DATE:+ ($LOCAL_DATE)}"
     if [ -n "$REMOTE_VER" ]; then st="$st
-Najnovšia verzia: $REMOTE_VER${REMOTE_DATE:+ ($REMOTE_DATE)}"; notes=$(printf '%s' "$REMOTE_JSON" | json_notes | head -n 6)
+Najnovšia verzia: $REMOTE_VER · zverejnená ${REMOTE_WHEN:-$REMOTE_DATE}"; notes=$(printf '%s' "$REMOTE_JSON" | json_notes | head -n 6)
       [ -n "$notes" ] && st="$st
 
 Novinky:
