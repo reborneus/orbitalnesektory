@@ -23,7 +23,7 @@ sk:{
   'map.paused':'Pasívny príjem je pozastavený: vplyv {a} / {b}. Doplň moduly, aby sektor znova zarábal.',
   'grp.weapon':'Zbrane','up.gun':'Poškodenie zbrane','up.gun.d':'Poškodenie jedného výstrelu laserového dela.','up.gunRate':'Kadencia','up.gunRate.d':'Počet výstrelov za sekundu.',
   'slot.weapon':'Zbraň','slot.chip':'Čip modulu','base.cannon':'Laserové delo','base.droneAI':'AI jadro dronu','base.towerCore':'Zameriavač veže','base.sensorCore':'Zosilňovač senzorov',
-  's.dmg':'Poškodenie zbrane','s.frate':'Kadencia zbrane','s.crit':'Kritický zásah','s.grange':'Dosah zbrane','s.dMine':'Výkon ťažby dronu','s.dCap':'Kapacita dronu',
+  's.dmg':'Poškodenie zbrane','s.frate':'Kadencia zbrane','s.crit':'Šanca na kritický zásah','s.critDmg':'Kritické poškodenie','s.grange':'Dosah zbrane','s.dMine':'Výkon ťažby dronu','s.dCap':'Kapacita dronu',
   's.dSpeed':'Rýchlosť dronu','s.dDmg':'Poškodenie dronu','s.tDmg':'Poškodenie veže','s.tRange':'Dosah veže','s.tRate':'Kadencia veže','s.sInc':'Príjem senzorov','s.inf':'Vplyv modulu',
   'cap.green':'dron ťaží viridit','cap.def':'obranný režim','cap.crystal':'dron ťaží kryštály','cap.need':'od rarity {r} (modul alebo čip)','cap.eff':'Schopnosti dronu: platí vyššia rarita z modulu a AI jadra – teraz {r}.',
   'sp.hp':'Výdrž','sp.down':'Stanica je vyradená, moduly sú offline ešte {s} s.','st.emptySlot':'Prázdny slot {n}','st.buildHere':'Rozbaľ a vyber modul','st.lockedSlot':'Slot {n} – odomkne jadro úrovne {l}',
@@ -164,7 +164,7 @@ en:{
   'map.paused':'Passive income paused: influence {a} / {b}. Add modules so the sector earns again.',
   'grp.weapon':'Weapons','up.gun':'Weapon damage','up.gun.d':'Damage of one laser cannon shot.','up.gunRate':'Fire rate','up.gunRate.d':'Shots per second.',
   'slot.weapon':'Weapon','slot.chip':'Module chip','base.cannon':'Laser cannon','base.droneAI':'Drone AI core','base.towerCore':'Tower targeting core','base.sensorCore':'Sensor amplifier',
-  's.dmg':'Weapon damage','s.frate':'Weapon fire rate','s.crit':'Critical hit','s.grange':'Weapon range','s.dMine':'Drone mining power','s.dCap':'Drone capacity',
+  's.dmg':'Weapon damage','s.frate':'Weapon fire rate','s.crit':'Critical hit chance','s.critDmg':'Critical damage','s.grange':'Weapon range','s.dMine':'Drone mining power','s.dCap':'Drone capacity',
   's.dSpeed':'Drone speed','s.dDmg':'Drone damage','s.tDmg':'Tower damage','s.tRange':'Tower range','s.tRate':'Tower fire rate','s.sInc':'Sensor income','s.inf':'Module influence',
   'cap.green':'drone mines viridite','cap.def':'defense mode','cap.crystal':'drone mines crystals','cap.need':'from {r} (module or chip)','cap.eff':'Drone abilities use the higher rarity of the module and its AI core – now {r}.',
   'sp.hp':'Integrity','sp.down':'The station is knocked out; modules are offline for {s} more s.','st.emptySlot':'Empty slot {n}','st.buildHere':'Expand and pick a module','st.lockedSlot':'Slot {n} – unlocks at core level {l}',
@@ -288,7 +288,8 @@ en:{
 }};
 /* Zvolený jazyk sa pamätá v prehliadači pod kľúčom 'os-lang'; predvolený je slovenský. */
 let lang='sk';try{const l=localStorage.getItem('os-lang');if(l==='sk'||l==='en')lang=l}catch(e){}
-function t(k,v){let s=L10N[lang][k];if(s==null)s=L10N.sk[k];if(s==null)return k;if(v)for(const n in v)s=s.split('{'+n+'}').join(v[n]);return s}
+/* t(kľúč, {premenné}) = preložený text. Celé čísla od 1 000 sa zapíšu cez fmtN (4 750, 12.5K, 1.1M). */
+function t(k,v){let s=L10N[lang][k];if(s==null)s=L10N.sk[k];if(s==null)return k;if(v)for(const n in v){let x=v[n];if(typeof x==='number'&&Math.abs(x)>=1000&&typeof fmtN==='function')x=fmtN(x);s=s.split('{'+n+'}').join(x)}return s}
 
 /* Ozdobné mená predmetov rarity Legendárne a vyššej (index sa ukladá do predmetu, preto musia mať oba jazyky rovnaký počet). */
 const TITLES={

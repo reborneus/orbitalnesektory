@@ -1,6 +1,12 @@
 'use strict';
 /* Pomocné funkcie zdieľané všetkými súbormi. (Samostatná príručka wiki.html sa načíta bez 3D knižnice, preto V3 môže byť prázdne.) */
 const $=s=>document.querySelector(s);
+/* v0.9: zápis veľkých čísel. Do 9 999 celé číslo s medzerou (4 750), potom skrátene: 12.5K, 1.25M, 1.1B, 3T.
+   Desatinné miesta sa ukážu len pri malých číslach v skratke (12.5K, ale 125K). */
+function fmtN(n){if(typeof n!=='number'||!isFinite(n))return String(n);const neg=n<0;let a=Math.abs(n);let s;
+  if(a<10000)s=Math.floor(a+1e-9).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f');
+  else{const U=[[1e12,'T'],[1e9,'B'],[1e6,'M'],[1e3,'K']];for(const[d,u]of U)if(a>=d){const v=a/d;s=(v<100?(Math.floor(v*10)/10).toString():Math.floor(v).toString())+u;break}}
+  return(neg?'-':'')+s}
 /* Rarita Prvotné: do každého prvku .r9 vložíme 2 vrstvy blikajúcich hviezd (<i class="pst">).
    MutationObserver ich doplní aj do prvkov, ktoré sa vykreslia neskôr (inventár, detail, toasty, príručka). */
 (function primalStars(){if(!document.body)return document.addEventListener('DOMContentLoaded',primalStars);

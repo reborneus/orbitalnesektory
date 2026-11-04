@@ -22,6 +22,7 @@ Webový prototyp (Three.js) – otvor `index.html` v prehliadači.
 - **v0.8.1** – spúšťač pre Mac, spúšťače rozlíšené podľa systému
 - **v0.8.2** – ikona aplikácie spúšťača na Macu
 - **v0.8.3** – farebná korisť, relikty do inventára, výber verzie v spúšťačoch
+- **v0.9.0** – veľké čísla (K/M/B), drahšia ekonomika, kritické zásahy, čísla poškodenia
 - **v0.7** – misie (5 typov, 3 stupne), radiačný štít s obmedzeným časom, sledovanie misií v HUD
 - **v0.6.1** – oprava: autopilot po zbere koristi s plným nákladom pokračuje na stanicu
 - **v0.6** – boj s pirátmi (zbraň lode, veže, obrana dronov), panel stanice s vylepšovaním modulov +1 až +10 a čipmi, slot Zbraň, samostatné Nastavenia s tlačidlom Ukončiť hru, pasívny príjem len pri dosiahnutom vplyve

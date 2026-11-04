@@ -7,8 +7,8 @@
    autoMine/autoReturn/autoPilot/autoRes = nastavenia automatizácie. */
 /* Úrovne vylepšení novej lode (každá loď v hangári má vlastné). */
 const baseLevels=()=>({speed:1,accel:1,turn:1,hull:1,cargo:1,shield:0,radShield:0,sregen:1,laser:1,range:1,gun:1,gunRate:1});
-function freshState(){return{v:3,ore:40,green:0,crystal:0,credits:0,cargo:{ore:0,green:0,crystal:0},
-  ship:baseLevels(),shipId:'klepeto',owned:['klepeto'],hangar:{},hp:100,sh:0,radCharge:0,radMode:'auto',diff:'easy',
+function freshState(){return{v:3,num:NUM,ore:40*NUM,green:0,crystal:0,credits:0,cargo:{ore:0,green:0,crystal:0},
+  ship:baseLevels(),shipId:'klepeto',owned:['klepeto'],hangar:{},hp:100*NUM,sh:0,radCharge:0,radMode:'auto',diff:'easy',
   autoMine:true,autoReturn:true,autoPilot:false,autoRes:'ore',lang,cur:0,intro:false,
   inv:[],eq:{laser:null,engine:null,hull:null,shield:null,util:null,weapon:null},nextId:1,
   sec:SECTORS.map((s,i)=>({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:i===0,rewarded:false}))}}
@@ -25,6 +25,12 @@ function migrate(s){
   // v0.8: hangár s loďami a nové sektory 4–6 (odomknutý je ten, ktorého predchodca je obsadený)
   if(!s.shipId)s.shipId='klepeto';if(!Array.isArray(s.owned))s.owned=['klepeto'];if(!s.hangar)s.hangar={};
   for(const id in s.hangar)for(const[k,v]of Object.entries(baseLevels()))if(s.hangar[id][k]==null)s.hangar[id][k]=v;
+  // v0.9: veľké čísla – staré uloženie sa prepočíta × NUM (suroviny, kredity, náklad, trup, štíty, vlastnosti predmetov v bodoch)
+  if(!s.num){const k=NUM;for(const r of['ore','green','crystal','credits'])s[r]=(s[r]||0)*k;for(const r in s.cargo)s.cargo[r]*=k;s.hp=(s.hp||0)*k;s.sh=(s.sh||0)*k;
+    const its=[...(s.inv||[]),...Object.values(s.eq||{}).filter(Boolean)];for(const x of s.sec)for(const m of x.slots)if(m&&typeof m==='object'){if(m.chip)its.push(m.chip);if(m.spent)for(const r in m.spent)m.spent[r]*=k}
+    for(const it of its)for(const st of[it.imp,...(it.aff||[])])if(st&&FLAT.includes(st.k))st.v*=k;
+    if(s.missions){s.missions.offers=[];for(const m of s.missions.active||[]){if(m.need&&m.type==='deliver'){m.need*=k;m.prog*=k}if(m.reward){m.reward.cr*=k;m.reward.ore*=k}}}
+    s.num=k}
   while(s.sec.length<SECTORS.length){const prev=s.sec[s.sec.length-1];s.sec.push({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:!!(prev&&prev.captured),rewarded:false})}
   for(const k of['weapon'])if(s.ship.gun==null){s.ship.gun=1;s.ship.gunRate=1}
   // sektory obsadené pred v0.5: vyplatí sa ich odmena v kredítoch
@@ -74,6 +80,10 @@ function shipVal(k){const v=upVal(k,state.ship[k]);const b=bonus();
     case'gun':return v*(1+b.dmg/100);
     case'gunRate':return v*(1+b.frate/100)}
   return v}
+/* Kritický zásah: šanca = CRIT_BASE % + vlastnosť crit (max. 75 %), poškodenie = 1 + (CRIT_DMG % + critDmg) / 100 (základ = dvojnásobok). */
+const CRIT_BASE=3,CRIT_DMG=100;
+const critChance=()=>Math.min(75,CRIT_BASE+bonus().crit)/100;
+const critMult=()=>1+(CRIT_DMG+bonus().critDmg)/100;
 const cargoTotal=()=>state.cargo.ore+state.cargo.green+state.cargo.crystal;
 const shieldMax=()=>shipVal('shield');
 const capOf=i=>SECTORS[i].capture;

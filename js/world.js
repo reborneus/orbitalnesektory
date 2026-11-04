@@ -57,7 +57,7 @@ function makeAst(type,f,r){const g=new THREE.Group();const S=SECTORS[state.cur];
     const sp=glow('#ffd87a',4.2,.55);g.add(sp);g.userData.spark=sp}
   else g.add(glow('#f0a644',3.6,.16));
   const proxy=new THREE.Mesh(new THREE.SphereGeometry(1.9,8,6),M.pick);g.add(proxy);
-  const mult={ore:30,green:20,crystal:12,relic:8}[type];const max=Math.round(base*mult*S.rich);
+  const mult={ore:30,green:20,crystal:12,relic:8}[type]*NUM;const max=Math.round(base*mult*S.rich);
   const a={g,type,base,amt:max,max,alive:true,respawn:0,shrink:1,claims:0,spin:new V3((r()-.5)*.5,(r()-.5)*.6,(r()-.5)*.4),pos:g.position,rmin:f.r[0],rmax:f.r[1]};
   proxy.userData.ast=a;pickables.push(proxy);world.add(g);return a}
 function placeAst(a,r){for(let tries=0;tries<14;tries++){const ang=r()*TAU;const rad=a.rmin+r()*(a.rmax-a.rmin);

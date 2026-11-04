@@ -43,7 +43,8 @@ const STATS={
   magnet: {lo:.5, hi:1.5,dec:1,u:'m'},   // dosah zberu koristi
   dmg:    {lo:4,  hi:8,  dec:1,u:'%'},   // poškodenie zbrane
   frate:  {lo:3,  hi:6,  dec:1,u:'%'},   // kadencia zbrane
-  crit:   {lo:2,  hi:4,  dec:1,u:'%',cap:50}, // šanca na kritický zásah (dvojnásobné poškodenie)
+  crit:   {lo:1,  hi:2,  dec:1,u:'%',cap:60}, // šanca na kritický zásah (základ CRIT_BASE)
+  critDmg:{lo:6,  hi:12, dec:1,u:'%'},   // kritické poškodenie navyše (základ CRIT_DMG = +100 %)
   grange: {lo:.5, hi:1.2,dec:1,u:'m'},   // dosah zbrane
   /* vlastnosti čipov modulov stanice (platia len pre modul, do ktorého je čip vložený) */
   dMine:  {lo:5,  hi:10, dec:1,u:'%'},   // výkon ťažby dronu
@@ -59,14 +60,14 @@ const STATS={
 /* Sloty lode a typy predmetov. imp = hlavná vlastnosť (má dvojnásobnú silu), pool = z čoho sa losujú náhodné vlastnosti. */
 const SLOTS=['laser','engine','hull','shield','util','weapon'];
 const BASES={
-  laser:  {slot:'laser', imp:'mine',  pool:['range','yield','mf','mine','magnet','speed']},
+  laser:  {slot:'laser', imp:'mine',  pool:['range','yield','mf','mine','magnet','speed','critDmg']},
   engine: {slot:'engine',imp:'speed', pool:['accel','turn','speed','magnet','coll','cargo','rad']},
   plating:{slot:'hull',  imp:'hull',  pool:['hullPct','coll','rad','cargo','hull','shield']},
   emitter:{slot:'shield',imp:'shield',pool:['sregen','sdelay','rad','shield','hullPct','hull']},
   cargo:  {slot:'util',  imp:'cargo', pool:['yield','mf','magnet','speed','rad','mine']},
   filter: {slot:'util',  imp:'rad',   pool:['shield','hull','coll','sregen','mf','cargo']},
-  scanner:{slot:'util',  imp:'mf',    pool:['magnet','yield','range','mine','speed','rad']},
-  cannon: {slot:'weapon',imp:'dmg',   pool:['frate','crit','grange','dmg','hull','speed']},
+  scanner:{slot:'util',  imp:'mf',    pool:['magnet','yield','range','mine','speed','rad','crit']},
+  cannon: {slot:'weapon',imp:'dmg',   pool:['frate','crit','critDmg','grange','dmg','hull','speed']},
   /* čipy modulov stanice: slot 'chip', mod = do akého modulu patria. Schopnosti dronu odomyká vyššia z rarít modul/čip (CHIP_CAP, droneCapR). */
   droneAI:   {slot:'chip',mod:'drone', imp:'dMine',pool:['dCap','dSpeed','dDmg','inf']},
   towerCore: {slot:'chip',mod:'tower', imp:'tDmg', pool:['tRange','tRate','inf']},
@@ -79,6 +80,8 @@ const CHIP_CAP={green:4,def:4,crystal:5};
 const CHIP_CHANCE={asteroid:.1,relic:.2,capture:.25,enemy:.45};
 const SHIP_BASES=Object.keys(BASES).filter(b=>BASES[b].slot!=='chip'),CHIP_BASES=Object.keys(BASES).filter(b=>BASES[b].slot==='chip');
 const INV_MAX=40;          // veľkosť inventára
+/* v0.9: vlastnosti v bodoch (trup, štíty, náklad, kapacita dronu) sú × NUM; FLAT = ich zoznam (pre prepočet starých uložení) */
+const FLAT=['hull','shield','cargo','dCap'];for(const k of FLAT){STATS[k].lo*=NUM;STATS[k].hi*=NUM}
 const ENH_STEP=.06;        // +6 % ku všetkým vlastnostiam za každé +1
 const ILVL_SCALE=.08;      // +8 % sily vlastností za každú úroveň predmetu
 const ASTEROID_DROP=.03;   // šanca, že z bežného asteroidu (vyťaženého loďou) padne predmet
@@ -120,11 +123,11 @@ function bonus(){if(_bonus)return _bonus;const b={};for(const k in STATS)b[k]=0;
   for(const k in STATS)if(STATS[k].cap)b[k]=Math.min(STATS[k].cap,b[k]);return _bonus=b}
 
 /* Vylepšenie predmetu: cena rastie s úrovňou a raritou; od +5 hrozí neúspech (stratia sa len suroviny a kredity). */
-function enhCost(it){const n=it.enh+1;return C(25*n,n>5?10*(n-5):0,n>10?4*(n-10):0,Math.round(15*Math.pow(n,1.7)*(1+it.r*.35)))}
+function enhCost(it){const n=it.enh+1;return P(C(25*n,n>5?10*(n-5):0,n>10?4*(n-10):0,Math.round(15*Math.pow(n,1.7)*(1+it.r*.35))))}
 const enhChance=it=>it.enh<5?1:Math.max(.3,1-(it.enh-4)*.05);
 const enhMax=it=>RAR[it.r].enh;
 /* Rozobratie: kredity podľa rarity, úrovne predmetu a vylepšenia. */
-const salvValue=it=>Math.round(RAR[it.r].salv*(1+it.ilvl/10)*(1+it.enh*.15));
+const salvValue=it=>Math.round(RAR[it.r].salv*(1+it.ilvl/10)*(1+it.enh*.15)*NUM);
 /* Mená predmetov. Ozdobné tituly pre Legendárne a vyššie sú v i18n.js (TITLES). */
 function itemName(it){return(it.enh?'+'+it.enh+' ':'')+t('base.'+it.b)}
 function itemTitle(it){return it.title>=0?(TITLES[lang]||TITLES.sk)[it.title]:''}

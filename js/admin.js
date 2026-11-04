@@ -9,12 +9,12 @@ function toggleAdmin(){sheetTab==='admin'?closeSheet():openSheet('admin')}
 let admTaps=[];
 $('#secName').addEventListener('pointerdown',e=>{e.stopPropagation();const n=performance.now();admTaps=admTaps.filter(x=>n-x<2500);admTaps.push(n);if(admTaps.length>=5){admTaps=[];toggleAdmin()}});
 function renderAdmin(){const a=adm();let h='';
-  const resBtn=(r,n)=>`<button class="btn" data-act="adm" data-op="res" data-r="${r}" data-n="${n}">+${n.toLocaleString()}</button>`;
+  const resBtn=(r,n)=>`<button class="btn" data-act="adm" data-op="res" data-r="${r}" data-n="${n}">+${fmtN(n)}</button>`;
   const onoff=(k,lbl)=>`<div class="mctl"><span>${lbl}</span><div class="langs"><button class="langb" data-act="adm" data-op="tog" data-k="${k}" data-v="1" aria-pressed="${!!a[k]}">${A('ZAP','ON')}</button><button class="langb" data-act="adm" data-op="tog" data-k="${k}" data-v="0" aria-pressed="${!a[k]}">${A('VYP','OFF')}</button></div></div>`;
   h+=`<p class="note">${A('Testovací panel. Zmeny sa uložia do hry.','Testing panel. Changes are saved to the game.')}</p>`;
   h+=`<div class="sec-h"><span>${A('Suroviny a kredity','Resources and credits')}</span></div><div class="card adm">`;
-  for(const r of[...RES,'cr'])h+=`<div class="mctl"><span>${r==='cr'?'<span class="coin"></span>':`<span class="gem" style="display:inline-block;width:8px;height:8px;transform:rotate(45deg);background:${RCOL[r]}"></span>`} ${t('res.'+r)}</span><div class="admrow">${resBtn(r,1000)}${resBtn(r,10000)}</div></div>`;
-  h+=`<button class="btn prim" data-act="adm" data-op="all">${A('Všetkého +10 000 (kredity +50 000)','+10,000 of everything (credits +50,000)')}</button></div>`;
+  for(const r of[...RES,'cr'])h+=`<div class="mctl"><span>${r==='cr'?'<span class="coin"></span>':`<span class="gem" style="display:inline-block;width:8px;height:8px;transform:rotate(45deg);background:${RCOL[r]}"></span>`} ${t('res.'+r)}</span><div class="admrow">${resBtn(r,1000*NUM)}${resBtn(r,10000*NUM)}</div></div>`;
+  h+=`<button class="btn prim" data-act="adm" data-op="all">${A(`Všetkého +${fmtN(10000*NUM)} (kredity +${fmtN(50000*NUM)})`,`+${fmtN(10000*NUM)} of everything (credits +${fmtN(50000*NUM)})`)}</button></div>`;
   h+=`<div class="sec-h"><span>${A('Nesmrteľnosť','God mode')}</span></div><div class="card adm">`+
     onoff('godHull',A('Neobmedzený trup','Unlimited hull'))+onoff('godShield',A('Neobmedzené štíty (zachytia všetko)','Unlimited shields (absorb everything)'))+onoff('godRad',A('Imunita voči radiácii','Radiation immunity'))+
     `<button class="btn" data-act="adm" data-op="heal">${A('Opraviť trup, štíty a radiačný štít','Restore hull, shields and radiation shield')}</button></div>`;
@@ -36,7 +36,7 @@ function renderAdmin(){const a=adm();let h='';
 function adminAct(act,b){if(act!=='adm')return false;const op=b.dataset.op;state.admin=state.admin||{};const a=state.admin;const s=cur();
   switch(op){
     case 'res':{const n=+b.dataset.n;if(b.dataset.r==='cr')state.credits+=n;else state[b.dataset.r]+=n;break}
-    case 'all':for(const r of RES)state[r]+=10000;state.credits+=50000;break;
+    case 'all':for(const r of RES)state[r]+=10000*NUM;state.credits+=50000*NUM;break;
     case 'tog':a[b.dataset.k]=b.dataset.v==='1';break;
     case 'heal':state.hp=shipVal('hull');state.sh=shieldMax();state.radCharge=shipVal('radShield');break;
     case 'ikind':a.ikind=b.dataset.v;break;

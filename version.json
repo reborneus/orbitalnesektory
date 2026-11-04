@@ -1,9 +1,11 @@
 {
-  "version": "0.8.3",
+  "version": "0.9.0",
   "date": "2026-11-04",
   "notes": [
-    "Korisť vo vesmíre svieti farbou svojej rarity (aj z pirátov)",
-    "Predmety z reliktov idú rovno do inventára, do vesmíru padnú len pri plnom inventári",
-    "Spúšťače (Windows aj Mac): výber verzie hry na porovnanie, staršie verzie majú vlastné uložené hry"
+    "Veľké čísla: suroviny, náklad, trup, štíty, poškodenie a kredity sú 10× vyššie, zápis 12.5K / 1.2M / 1.1B",
+    "Drahšia ekonomika: ceny vylepšení, modulov, jadra stanice a lodí sú o 60 % vyššie oproti príjmom",
+    "Kritický zásah: základná šanca 3 %, poškodenie +100 %; nové vlastnosti predmetov Šanca na kritický zásah a Kritické poškodenie",
+    "Čísla poškodenia nad cieľmi (kritické zásahy zlatou farbou)",
+    "Staré uloženia sa automaticky prepočítajú"
   ]
 }

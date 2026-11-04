@@ -37,7 +37,7 @@ function detailHtml(f){const it=f.it,R=RAR[it.r],title=itemTitle(it),slot=BASES[
 
 function renderGear(){let h='';
   const junk=state.inv.filter(x=>x.r<=1&&!x.lock).length;
-  h+=`<div class="gear-top"><span class="credits"><span class="coin"></span>${Math.floor(state.credits)} ¢</span>${junk?`<button class="ghost" data-act="salvJunk">${t('gear.salvJunk',{n:junk})}</button>`:''}</div>`;
+  h+=`<div class="gear-top"><span class="credits"><span class="coin"></span>${fmtN(state.credits)} ¢</span>${junk?`<button class="ghost" data-act="salvJunk">${t('gear.salvJunk',{n:junk})}</button>`:''}</div>`;
   const f=gearSel!=null?findItem(gearSel):null;if(!f)gearSel=null;else h+=detailHtml(f);
   h+=`<div class="sec-h"><span>${t('gear.eq')}</span></div><div class="eqs">`;
   for(const s of SLOTS){const it=state.eq[s];

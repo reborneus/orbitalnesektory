@@ -5,13 +5,15 @@
    Typy: deliver (dovez surovinu), scan (zostaň v okruhu bodu kým skener nedobehne), relic (vyťaž označený relikt),
    hunt (znič N pirátov), defend (odraz najbližší nájazd bez pádu stanice). Stupne: 0 ľahká, 1 stredná, 2 ťažká.
    Misia = {id, type, tier, sec, res, need, prog, pos:{x,z}, rad, reward:{cr,ore,item}}. Ukladá sa v state.missions. */
-const MISSION_OFFERS=3,MISSION_ACTIVE_MAX=3,MISSION_REFRESH=240,MISSION_REROLL=40;
+const MISSION_OFFERS=3,MISSION_ACTIVE_MAX=3,MISSION_REFRESH=240,MISSION_REROLL=40*NUM;
 /* Stupne misie: mult = násobok odmeny, minR = najnižšia rarita predmetu z odmeny, itemCh = šanca na predmet, w = váha pri losovaní. */
 const MTIER=[{k:'easy',mult:1,minR:2,itemCh:.35,w:.45},{k:'med',mult:1.7,minR:3,itemCh:.7,w:.35},{k:'hard',mult:2.8,minR:5,itemCh:1,w:.2}];
 const MSEC_MULT=[1,1.6,2.4,3.4,4.6,6];   // násobok odmien podľa sektora
 /* Základná odmena v kredítoch podľa typu (ľahká misia v 1. sektore) a ruda navyše pri prieskume/relikte/love. */
 const MREWARD={deliver:60,scan:70,relic:60,hunt:80,defend:100},MORE={scan:100,relic:80,hunt:120,defend:150};
 const MDELIVER={ore:[150,300,500],green:[40,90,160],crystal:[15,35,60]};
+// v0.9: × NUM (veľké čísla)
+for(const o of[MREWARD,MORE])for(const k in o)o[k]*=NUM;for(const r in MDELIVER)MDELIVER[r]=MDELIVER[r].map(v=>v*NUM);
 /* Kde leží cieľ prieskumu/reliktu: ľahká = pás 3, stredná = pás 4, ťažká = za horizontom (treba radiačný štít). */
 const MPOS=[[Z2+10,Z3-5],[Z3+5,HORIZON-5],[HORIZON+12,LIMIT-30]];
 const MSCAN={dur:[8,10,12],rad:9},MHUNT=[4,7,12];

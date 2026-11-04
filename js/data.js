@@ -1,5 +1,10 @@
 'use strict';
 /* ==================== == 2. HERNÉ DÁTA (balans) ==================== */
+/* v0.9 VEĽKÉ ČÍSLA: NUM = násobok všetkých množstiev (suroviny, náklad, trup, štíty, poškodenie, kredity, výdrž pirátov),
+   ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
+   Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
+const NUM=10,ECON=1.6;
+const P=c=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON);return o};
 /* Suroviny: interné názvy ore = ruda, green = viridit, crystal = kryštály. */
 const RES=['ore','green','crystal'];
 const RCOL={ore:'#f0a644',green:'#86e05a',crystal:'#a98bff',relic:'#ffd87a'};
@@ -48,17 +53,17 @@ const SHIP_IDS=Object.keys(SHIPS);
 /* C(ruda, viridit, kryštály, kredity) = pomocník na zápis ceny. Kredity (cr) sa zarábajú obsadzovaním sektorov a rozoberaním predmetov. */
 const C=(o,g,c,cr)=>({ore:o||0,green:g||0,crystal:c||0,cr:cr||0});
 /* Pasívny príjem kreditov z každého obsadeného sektora (za sekundu). */
-const SECTOR_CREDITS=.2;
+const SECTOR_CREDITS=.2*NUM;
 /* Moduly stanice: inf = koľko vplyvu dáva, cost(n) = cena, kde n = počet už postavených modulov rovnakého typu (každý ďalší je drahší). */
-const MOD={drone:{inf:15,cost:n=>C(120+70*n)},tower:{inf:25,cost:n=>C(200+80*n)},sensor:{inf:35,cost:n=>C(180+60*n,50+25*n)}};
+const MOD={drone:{inf:15,cost:n=>P(C(120+70*n))},tower:{inf:25,cost:n=>P(C(200+80*n))},sensor:{inf:35,cost:n=>P(C(180+60*n,50+25*n))}};
 /* Ceny jadra stanice: CORE_COST[0] = z úrovne 1 na 2, [1] = z 2 na 3 atď. Každá úroveň jadra dáva CORE_INF vplyvu a jeden slot navyše. */
-const CORE_COST=[C(150),C(320),C(500,80),C(750,160,60)];
+const CORE_COST=[C(150),C(320),C(500,80),C(750,160,60)].map(P);
 const CORE_MAX=5,CORE_INF=15;
 /* Vylepšenie postavených modulov stanice +0 až +10. MOD_RAR[enh] = rarita modulu (index v RAR) – vylepšovaním modul stúpa na vyššiu raritu.
    Každé +1 zvýši vplyv modulu o MOD_ENH_INF (podiel základu) a jeho účinok podľa MOD_FX. */
 const MOD_ENH_MAX=10,MOD_ENH_INF=.1;
 const MOD_RAR=[1,2,3,4,4,5,5,6,7,8,9];
-const modEnhCost=n=>C(120*(n+1),n>=2?25*(n-1):0,n>=6?12*(n-5):0,Math.round(40*Math.pow(n+1,1.5)));  // cena z +n na +(n+1)
+const modEnhCost=n=>P(C(120*(n+1),n>=2?25*(n-1):0,n>=6?12*(n-5):0,Math.round(40*Math.pow(n+1,1.5))));  // cena z +n na +(n+1)
 /* Účinky modulov. drone: rate t/s, cap t, speed m/s (+ podiel za každé +1), dmg poškodenie výstrelu v obrannom režime, range dosah obrany;
    tower: dmg poškodenie výstrelu, rate výstrelov/s, range dosah od stanice v m; sensor: green = viridit/s v obsadenom sektore. */
 const MOD_FX={
@@ -72,7 +77,7 @@ const coreCost=L=>CORE_COST[L-1];
 const slotsFor=L=>Math.min(6,L+1);
 /* costTable([ruda...],[viridit...],[kryštály...],[kredity...]) = cenník vylepšenia; i-ty stĺpec = cena prechodu z úrovne (i+1) na (i+2),
    pri štítovom generátore z úrovne i na i+1 (začína na 0 = nekúpený). Úrovne 6–10 stoja aj kredity. */
-const costTable=(o,g,c,cr)=>o.map((x,i)=>C(x,g[i],c[i],cr[i]));
+const costTable=(o,g,c,cr)=>o.map((x,i)=>P(C(x,g[i],c[i],cr[i])));
 const LATE_G=[180,240,300,380,460],LATE_C=[50,80,110,150,200],LATE_CR=[300,500,800,1200,1800];
 const early=(o4,g4,c4)=>[o4,[...g4,...LATE_G],[...c4,...LATE_C],[0,0,0,0,...LATE_CR]];
 /* Vylepšenia lode (10 úrovní). Polia: grp = skupina v menu (eng Motory, hull Trup, shield Štíty, laser Lasery),
@@ -87,17 +92,17 @@ const UP={
   /* obratnosť: ako ostro loď zatáča – bočná zmena rýchlosti = zrýchlenie × hodnota/100 (150 = 1,5× zrýchlenie).
      Zároveň určuje, ako rýchlo sa nos lode natočí za smerom letu. Zobrazuje sa v °/s pre lepšiu predstavu. */
   turn:{grp:'eng',vals:[150,180,210,240,270,290,310,330,350,375],costs:costTable(...early([70,160,300,480,760,950,1200,1450,1750],[0,25,60,110],[0,0,0,20])),fmt:v=>Math.round(v)+' °/s'},
-  hull:{grp:'hull',vals:[100,140,180,220,260,300,340,380,420,460],costs:costTable(...early([100,220,380,600,900,1100,1350,1600,1900],[0,35,80,140],[0,0,0,30])),fmt:v=>String(Math.round(v))},
-  cargo:{grp:'hull',vals:[50,75,100,125,150,175,200,225,250,280],costs:costTable(...early([90,200,340,540,820,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>Math.round(v)+' t'},
+  hull:{grp:'hull',vals:[100,140,180,220,260,300,340,380,420,460],costs:costTable(...early([100,220,380,600,900,1100,1350,1600,1900],[0,35,80,140],[0,0,0,30])),fmt:v=>fmtN(Math.round(v))},
+  cargo:{grp:'hull',vals:[50,75,100,125,150,175,200,225,250,280],costs:costTable(...early([90,200,340,540,820,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>fmtN(Math.round(v))+' t'},
   shield:{grp:'shield',min:0,vals:[0,40,65,90,120,150,170,190,210,230,250],
-    costs:costTable([300,250,380,550,750,950,1150,1400,1650,1950],[0,40,90,150,220,260,320,380,440,520],[0,0,0,30,60,80,110,150,190,240],[0,0,0,0,0,300,500,800,1200,1800]),fmt:v=>String(Math.round(v))},
+    costs:costTable([300,250,380,550,750,950,1150,1400,1650,1950],[0,40,90,150,220,260,320,380,440,520],[0,0,0,30,60,80,110,150,190,240],[0,0,0,0,0,300,500,800,1200,1800]),fmt:v=>fmtN(Math.round(v))},
   /* radiačný štít: počet sekúnd úplnej ochrany pred radiáciou (aj za horizontom); dobíja sa pri stanici rýchlosťou RADSHIELD_RECHARGE s/s */
   radShield:{grp:'shield',min:0,vals:[0,20,30,45,60,80,100,120,140,160,180],
     costs:costTable([250,300,420,600,800,1000,1250,1500,1800,2100],[20,50,90,140,200,260,320,400,480,560],[0,0,15,40,70,100,140,180,230,280],[0,0,0,0,0,300,500,800,1200,1800]),fmt:v=>v+' s'},
   sregen:{grp:'shield',needs:'shield',vals:[[15,.10],[13,.14],[11,.18],[9,.22],[7,.26],[6.5,.28],[6,.30],[5.5,.32],[5,.34],[4.5,.36]],
     costs:costTable(...early([150,280,450,650,900,1100,1350,1600,1900],[30,70,130,200],[0,0,25,50]))},
-  laser:{grp:'laser',vals:[8,10.8,13.6,16.4,19.2,21,22.8,24.6,26.4,28.2],costs:costTable(...early([90,200,360,560,850,1050,1300,1550,1850],[0,30,75,130],[0,0,0,30])),fmt:v=>v.toFixed(1)+' t/s'},
-  gun:{grp:'weapon',vals:[8,10,12,14.5,17,19.5,22,25,28,32],costs:costTable(...early([120,240,400,620,900,1100,1350,1600,1900],[0,30,70,120],[0,0,0,25])),fmt:v=>v.toFixed(1)},
+  laser:{grp:'laser',vals:[8,10.8,13.6,16.4,19.2,21,22.8,24.6,26.4,28.2],costs:costTable(...early([90,200,360,560,850,1050,1300,1550,1850],[0,30,75,130],[0,0,0,30])),fmt:v=>fmtN(Math.round(v))+' t/s'},
+  gun:{grp:'weapon',vals:[8,10,12,14.5,17,19.5,22,25,28,32],costs:costTable(...early([120,240,400,620,900,1100,1350,1600,1900],[0,30,70,120],[0,0,0,25])),fmt:v=>fmtN(Math.round(v))},
   gunRate:{grp:'weapon',vals:[1.2,1.4,1.6,1.8,2,2.15,2.3,2.45,2.6,2.8],costs:costTable(...early([100,220,380,600,880,1080,1320,1580,1880],[0,25,60,110],[0,0,0,20])),fmt:v=>v.toFixed(2)+' /s'},
   range:{grp:'laser',vals:[10,12.5,15,17.5,20,21,22,23,24,25],costs:costTable(...early([60,150,280,450,700,880,1100,1350,1600],[0,20,50,100],[0,0,0,20])),fmt:v=>v.toFixed(1)+' m'},
 };
@@ -141,3 +146,14 @@ const PIRATES={
 };
 /* Kľúč uloženej hry v prehliadači. Ak ho zmeníš, hra začne odznova (stará uložená hra sa ignoruje). */
 const SAVE_KEY='orbitalne-sektory-v3';
+
+/* v0.9: prepočet tabuliek na veľké čísla (pozri NUM a ECON na začiatku súboru) */
+(function scaleNumbers(){
+  for(const s of SECTORS)s.reward.cr*=NUM;
+  for(const id in SHIPS)if(SHIPS[id].cost)SHIPS[id].cost=P(SHIPS[id].cost);
+  for(const k of['hull','cargo','shield','laser','gun'])UP[k].vals=UP[k].vals.map(v=>v*NUM);
+  const F=MOD_FX;for(const k of['rate','cap','capPer','dmg','income'])F.drone[k]*=NUM;F.tower.dmg*=NUM;F.sensor.green*=NUM;
+  for(const k in RAD)RAD[k]*=NUM;COLL.perMs*=NUM;
+  for(const k of['fighter','corsair','frigate']){const E=PIRATES[k];E.hp=E.hp.map(v=>v*NUM);E.dmg=E.dmg.map(v=>v*NUM);E.cr=E.cr.map(v=>v*NUM)}
+  const sh=PIRATES.stationHp;PIRATES.stationHp=L=>sh(L)*NUM;PIRATES.stationRegen*=NUM;PIRATES.repelBonus*=NUM;
+})();

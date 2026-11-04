@@ -421,3 +421,10 @@ body.pad .pg{display:block}
 .wico .wshipi{width:30px;height:30px;vertical-align:-10px}
 .segs.six{grid-template-columns:repeat(6,1fr)}
 @media (max-width:480px){.segs.six{grid-template-columns:repeat(3,1fr)}}
+
+/* ===== v0.9 čísla poškodenia nad cieľmi ===== */
+#dmgLayer{position:fixed;inset:0;pointer-events:none;z-index:4;overflow:hidden}
+.dmgt{position:absolute;left:0;top:0;font-family:var(--f-data);font-weight:700;font-size:14px;color:#e6fffb;text-shadow:0 0 4px #000,0 0 8px rgba(88,208,192,.7);white-space:nowrap;will-change:transform}
+.dmgt.tower,.dmgt.drone{color:#ffe2a8;font-size:12px}
+.dmgt.crit{color:#ffd84a;font-size:20px;text-shadow:0 0 4px #000,0 0 12px rgba(255,200,60,.9)}
+.dmgt.hurt{color:#ff7b6b;font-size:13px;text-shadow:0 0 4px #000,0 0 8px rgba(255,80,60,.6)}

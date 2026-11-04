@@ -18,15 +18,15 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   const tag=$('#secTag');tag.textContent=(s.captured?t('hud.won'):t('hud.unc'))+(godActive()?' · ADMIN':'');tag.classList.toggle('won',s.captured);
   const ib=$('#infBar');ib.style.width=Math.min(100,inf/cap*100)+'%';ib.classList.toggle('won',s.captured);
   $('#infTxt').textContent=s.captured?t('hud.infwon',{a:inf}):t('hud.inf',{a:inf,b:cap});
-  $('#oreTxt').textContent=Math.floor(state.ore);$('#grnTxt').textContent=Math.floor(state.green);$('#cryTxt').textContent=Math.floor(state.crystal);$('#crTxt').textContent=Math.floor(state.credits);
+  $('#oreTxt').textContent=fmtN(state.ore);$('#grnTxt').textContent=fmtN(state.green);$('#cryTxt').textContent=fmtN(state.crystal);$('#crTxt').textContent=fmtN(state.credits);
   const capV=shipVal('cargo');$('#cOre').style.width=(state.cargo.ore/capV*100)+'%';$('#cGrn').style.width=(state.cargo.green/capV*100)+'%';$('#cCry').style.width=(state.cargo.crystal/capV*100)+'%';
   const full=cargoTotal()>=capV-.01;
-  $('#cargoTxt').textContent=`${Math.floor(cargoTotal()+.05)}/${Math.round(capV)}`;$('#cargoRow').classList.toggle('full',full);
+  $('#cargoTxt').textContent=`${fmtN(cargoTotal()+.05)}/${fmtN(capV)}`;$('#cargoRow').classList.toggle('full',full);
   {const rm=shipVal('radShield');$('#rsRow').hidden=rm<=0;if(rm>0){$('#rsBar').style.width=(state.radCharge/rm*100)+'%';$('#rsTxt').textContent=Math.ceil(state.radCharge)+' s'}}
   const smax=shieldMax();$('#shRow').hidden=smax<=0;
-  if(smax>0){$('#shBar').style.width=(state.sh/smax*100)+'%';$('#shTxt').textContent=`${Math.floor(state.sh)}/${smax}`}
+  if(smax>0){$('#shBar').style.width=(state.sh/smax*100)+'%';$('#shTxt').textContent=`${fmtN(state.sh)}/${fmtN(smax)}`}
   const hm=shipVal('hull'),hp=Math.max(0,state.hp),hr=hp/hm;const hb=$('#hpBar');hb.style.width=(hr*100)+'%';hb.className=hr<.3?'low':hr<.6?'mid':'';
-  $('#hpTxt').textContent=`${Math.ceil(hp)}/${hm}`;
+  $('#hpTxt').textContent=`${fmtN(Math.ceil(hp))}/${fmtN(hm)}`;
   // one status line: the most urgent thing about the ship
   const rr=Math.hypot(ship.position.x,ship.position.z);let st='',sc='status';
   if(!dead&&radProt){st=state.admin&&state.admin.godRad?(lang==='en'?'Radiation immunity (admin)':'Imunita voči radiácii (admin)'):t('st.radProt',{n:Math.ceil(state.radCharge)});sc+=' rad'}
@@ -66,7 +66,7 @@ function cycleTab(d){const i=TABS.indexOf(sheetTab);openSheet(TABS[(i+d+TABS.len
 const SHIP_TABS=['hangar',...GROUPS]; // záložky v paneli Loď: hangár + skupiny vylepšení
 function cycleGroup(d){shipGrp=SHIP_TABS[(SHIP_TABS.indexOf(shipGrp)+d+SHIP_TABS.length)%SHIP_TABS.length];focusIdx=SHIP_TABS.indexOf(shipGrp);renderSheet()}
 /* Cena ako farebné štítky; data-need/data-n slúžia na červené zvýraznenie chýbajúcej suroviny (refreshSheet). */
-function costHtml(c){let h='';for(const r of COST_KEYS)if(c[r])h+=`<span class="cost ${r==='cr'?'crd':RCLS[r]}" data-need="${r}" data-n="${c[r]}"><span class="${r==='cr'?'coin':'gem'}"></span>${c[r]}</span>`;return h}
+function costHtml(c){let h='';for(const r of COST_KEYS)if(c[r])h+=`<span class="cost ${r==='cr'?'crd':RCLS[r]}" data-need="${r}" data-n="${c[r]}"><span class="${r==='cr'?'coin':'gem'}"></span>${fmtN(c[r])}</span>`;return h}
 /* Predaj modulu vráti 60 % ceny posledného postaveného modulu toho typu. */
 function refundOf(s,k){const c=MOD[k].cost(countMod(s,k)-1);return C(Math.floor(c.ore*.6),Math.floor(c.green*.6),Math.floor(c.crystal*.6))}
 function refundHtml(c){let h='';for(const r of RES)if(c[r])h+=`<span class="cost ${RCLS[r]} gain"><span class="gem"></span>+${c[r]}</span>`;return h}
@@ -154,7 +154,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   else if(act==='ship'){const k=b.dataset.k;const u=UP[k];const L=state.ship[k];const c=upCost(k,L);if(L<u.max&&afford(c)){pay(c);
       if(k==='radShield'){state.ship[k]++;state.radCharge=shipVal('radShield');toast(L===0?t('tt.rsOn'):t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
       else if(k==='shield'){const before=shieldMax();state.ship[k]++;state.sh=Math.min(shieldMax(),state.sh+(shieldMax()-before));if(L===0){state.sh=shieldMax();toast(t('tt.shieldOn'))}else toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
-      else{state.ship[k]++;if(k==='hull')state.hp+=40;toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
+      else{state.ship[k]++;if(k==='hull')state.hp+=40*NUM;toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
       changed()}}
   else if(act==='jump'){if(!gate||ship.position.distanceTo(gate.position)>18){toast(t('gate.far'));return}closeSheet();jumpTo(+b.dataset.i)}});
 function changed(){checkCapture();save();renderSheet();updateHUD()}

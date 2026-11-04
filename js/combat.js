@@ -9,7 +9,7 @@ let enemies=[],bolts=[],raidT=0,raidActive=false,raidCount=0,stationHp=0,station
 const raidCfg=()=>PIRATES.raid[state.cur];
 const stationMaxHp=()=>PIRATES.stationHp(cur().core);
 /* Zavolá sa pri stavbe sektora: vymaže nepriateľov a naplánuje prvý nájazd. */
-function resetCombat(){enemies=[];bolts=[];raidActive=false;raidCount=0;stationDown=0;attackTarget=null;towerCd={};
+function resetCombat(){for(const d of dmgTexts)d.el.remove();dmgTexts.length=0;enemies=[];bolts=[];raidActive=false;raidCount=0;stationDown=0;attackTarget=null;towerCd={};
   const c=raidCfg();raidT=c?c.first:0;stationHp=stationMaxHp()}
 
 /* ---------- model piráta ---------- */
@@ -47,15 +47,28 @@ function spawnRaid(force){const c=raidCfg()||(force?PIRATES.raid[1]:null);if(!c)
     v.proxy.userData.enemy=e;pickables.push(v.proxy);enemies.push(e)});
   raidActive=true;raidCount=kinds.length;toast(t('tt.raid',{n:kinds.length}),'bad');rumble(.4,300)}
 
+/* ---------- čísla poškodenia (v0.9) ----------
+   Nad zasiahnutým cieľom vyletí číslo (fmtN: 1.2K, 3.4M…). kind: player/tower/drone = tvoje zásahy, crit = kritický zásah
+   (väčšie, zlaté), hurt = poškodenie tvojej lode. Číslo je HTML prvok v #dmgLayer, poloha sa prepočíta z 3D do obrazovky. */
+const dmgTexts=[];let dmgLayer=null;
+function dmgText(pos,n,kind){if(!(n>0)||typeof camera==='undefined'||!pos.clone)return;
+  if(!dmgLayer){dmgLayer=document.createElement('div');dmgLayer.id='dmgLayer';document.body.appendChild(dmgLayer)}
+  if(dmgTexts.length>40){const o=dmgTexts.shift();o.el.remove()}
+  const el=document.createElement('div');el.className='dmgt '+kind;el.textContent=(kind==='crit'?'✦ ':kind==='hurt'?'−':'')+fmtN(Math.round(n));dmgLayer.appendChild(el);
+  dmgTexts.push({el,p:pos.clone().add(new V3((Math.random()-.5)*2,3,(Math.random()-.5)*2)),life:kind==='crit'?1.3:1,max:kind==='crit'?1.3:1})}
+function tickDmgText(dt){if(!dmgTexts.length)return;const W=innerWidth,H=innerHeight;
+  for(const d of dmgTexts.slice()){d.life-=dt;if(d.life<=0){d.el.remove();dmgTexts.splice(dmgTexts.indexOf(d),1);continue}
+    d.p.y+=dt*4;const v=d.p.clone();if(!v.project){d.el.remove();dmgTexts.splice(dmgTexts.indexOf(d),1);continue}v.project(camera);
+    const k=d.life/d.max;d.el.style.transform=`translate(${(v.x*.5+.5)*W}px,${(-v.y*.5+.5)*H}px) translate(-50%,-50%) scale(${.8+.4*Math.min(1,(1-k)*6)})`;d.el.style.opacity=Math.min(1,k*2.2)}}
 /* ---------- strely ---------- */
-function fireBolt(from,to,color,dmg,side,speed){const s=glow(color,side==='enemy'?1.8:1.5,1);s.position.copy(from);world.add(s);
+function fireBolt(from,to,color,dmg,side,speed,crit){const s=glow(color,side==='enemy'?1.8:1.5,1);s.position.copy(from);world.add(s);
   const dir=new V3().subVectors(to,from);dir.y=0;const dist=dir.length()||1;dir.divideScalar(dist);
-  bolts.push({s,vel:dir.multiplyScalar(speed),life:dist/speed*1.4+.2,dmg,side})}
+  bolts.push({s,vel:dir.multiplyScalar(speed),life:dist/speed*1.4+.2,dmg,side,crit:!!crit})}
 function tickBolts(dt){for(const b of bolts.slice()){b.life-=dt;b.s.position.addScaledVector(b.vel,dt);let hit=false;
     if(b.side==='enemy'){
-      if(!dead&&b.s.position.distanceTo(ship.position)<2.6){hit=true;const o=damage(b.dmg,'hit');if(o.hull>0)hurtFlash(.3);if(o.shield>0)bubbleT=1;rumble(.25,90)}
+      if(!dead&&b.s.position.distanceTo(ship.position)<2.6){hit=true;const o=damage(b.dmg,'hit');if(o.hull+o.shield>0)dmgText(ship.position,o.hull+o.shield,'hurt');if(o.hull>0)hurtFlash(.3);if(o.shield>0)bubbleT=1;rumble(.25,90)}
       else if(stationDown<=0&&Math.hypot(b.s.position.x,b.s.position.z)<11){hit=true;stationHit(b.dmg)}}
-    else for(const e of enemies){if(!e.leaving&&b.s.position.distanceTo(e.pos)<e.r+.6){hit=true;hitEnemy(e,b.dmg,b.side);break}}
+    else for(const e of enemies){if(!e.leaving&&b.s.position.distanceTo(e.pos)<e.r+.6){hit=true;hitEnemy(e,b.dmg,b.side);dmgText(e.pos,b.dmg,b.crit?'crit':b.side);break}}
     if(hit){for(let i=0;i<4;i++)emit(debris,b.s.position,b.side==='enemy'?'#ff8a5c':'#c9fff6',.3,new V3((Math.random()-.5)*8,Math.random()*3,(Math.random()-.5)*8))}
     if(hit||b.life<=0){world.remove(b.s);bolts.splice(bolts.indexOf(b),1)}}}
 
@@ -79,9 +92,9 @@ function nearestEnemy(from,maxD){let best=null,bd=maxD;for(const e of enemies){i
 const gunRange=()=>GUN_RANGE+bonus().grange;
 function playerGun(dt){gunCd-=dt;if(dead||jumping)return;const R=gunRange();
   let tg=attackTarget&&enemies.includes(attackTarget)&&ship.position.distanceTo(attackTarget.pos)<=R?attackTarget:nearestEnemy(ship.position,R);
-  if(!tg||gunCd>0)return;gunCd=1/shipVal('gunRate');const crit=Math.random()<bonus().crit/100;
+  if(!tg||gunCd>0)return;gunCd=1/shipVal('gunRate');const crit=Math.random()<critChance();
   const from=ship.localToWorld(NOSE.clone());const lead=tg.pos.clone().addScaledVector(tg.vel,from.distanceTo(tg.pos)/PIRATES.playerBolt);
-  fireBolt(from,lead,crit?'#ffe9a0':'#7ef2e2',shipVal('gun')*(crit?2:1),'player',PIRATES.playerBolt)}
+  fireBolt(from,lead,crit?'#ffe9a0':'#7ef2e2',shipVal('gun')*(crit?critMult():1),'player',PIRATES.playerBolt,crit)}
 function towersFire(dt){if(stationDown>0)return;const s=cur();s.slots.forEach((m,i)=>{if(slotType(m)!=='tower'||i>=slotsFor(s.core))return;
   towerCd[i]=(towerCd[i]||0)-dt;if(towerCd[i]>0)return;const ts=towerStats(m);const tg=nearestEnemy(new V3(0,0,0),ts.range);if(!tg)return;
   towerCd[i]=1/ts.rate;const from=slotPos(i).setY(2.2);fireBolt(from,tg.pos.clone().addScaledVector(tg.vel,.4),RAR[modRar(m)].col,ts.dmg,'tower',PIRATES.playerBolt)})}
@@ -111,5 +124,5 @@ function tickCombat(dt,tt){
   // útok na vybraného piráta: loď sa drží v dosahu zbrane (ručné ovládanie má prednosť)
   if(attackTarget&&!enemies.includes(attackTarget))attackTarget=null;
   if(attackTarget&&!mineTarget&&inVec.lengthSq()<1e-4){_ev.subVectors(ship.position,attackTarget.pos).setY(0);const d=_ev.length()||1;moveTarget=attackTarget.pos.clone().setY(0).addScaledVector(_ev,gunRange()*.6/d)}
-  tickEnemies(dt,tt);playerGun(dt);towersFire(dt);tickBolts(dt)}
+  tickEnemies(dt,tt);playerGun(dt);towersFire(dt);tickBolts(dt);tickDmgText(dt)}
 function cmdAttack(e){attackTarget=e;mineTarget=null;autoPause=6;flashMarker(e.pos,'#ff5a4a')}
