@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.11.1", "date": "2026-11-04", "sha": "5538716c42996849e024228500beccf8154db257", "title": "shorter radiation shield (max 30 s), 3x pricier upgrades"},
   {"version": "0.11.0", "date": "2026-11-04", "sha": "f4fc742bf0ef8334b62132d0f61c937dba39a13e", "title": "pilot levels with XP and skills"},
   {"version": "0.10.0", "date": "2026-11-04", "sha": "ac1f9a4d6e296c8a8c75ad37c17e0560c4796804", "title": "main storage at the sector 1 station with grid, sort, search and expansion"},
   {"version": "0.9.1", "date": "2026-11-04", "sha": "8a1334cc4723a11372e7589e3ad84ba759cb37f2", "title": "Nightmare difficulty with permadeath"},
