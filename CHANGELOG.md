@@ -2,6 +2,13 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.19
+
+### v0.19.0 · 2026-11-04
+- Nový vzhľad laserových striel (farby podľa rarity zbrane ostali): mäkká farebná žiara, biele horúce jadro, energetické prstence pozdĺž strely, iskry okolo a jasná hlavica; Epické/Legendárne sú hrubšie „kopije“ so špicou, Mytické hrubé a iskriace
+- Záblesk pri hlavni aj pri zásahu a drobné iskry za letiacou strelou; pirátske strely majú rovnaký štýl v červeno-oranžovej
+- Božská zbraň: úplne nový detailný blesk – kľukatá dráha s malými slučkami, biele jadro, modrá žiara, bočné vetvy a jemné vlákna; počas výboja sa mihoce
+
 ## 0.18
 
 ### v0.18.0 · 2026-11-04
