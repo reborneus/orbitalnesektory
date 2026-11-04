@@ -124,7 +124,7 @@ function tickCombat(dt,tt){
   // útok na vybraného piráta: loď sa drží v dosahu zbrane (ručné ovládanie má prednosť)
   if(attackTarget&&!enemies.includes(attackTarget))attackTarget=null;
   if(attackTarget&&!mineTarget&&inVec.lengthSq()<1e-4){_ev.subVectors(ship.position,attackTarget.pos).setY(0);const d=_ev.length()||1;moveTarget=attackTarget.pos.clone().setY(0).addScaledVector(_ev,gunRange()*.6/d)}
-  tickEnemies(dt,tt);playerGun(dt);tickShots(dt);if(!inArena())towersFire(dt);tickBolts(dt);tickDmgText(dt)}
+  tickEnemies(dt,tt);playerGun(dt);tickEscorts(dt,tt);tickShots(dt);if(!inArena())towersFire(dt);tickBolts(dt);tickDmgText(dt)}
 function cmdAttack(e){attackTarget=e;mineTarget=null;autoPause=6;flashMarker(e.pos,'#ff5a4a')}
 
 /* ==================== v0.18: PASÍVNI PIRÁTI (nastavenie PASSIVE v data.js) ====================

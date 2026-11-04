@@ -175,7 +175,8 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(act==='repair'){if(!nearStation()){toast(t('rep.far'));return}const hm=shipVal('hull');const need=Math.ceil((hm-state.hp)/REPAIR_PER_ORE);const n=Math.min(need,Math.floor(state.ore));
     if(n<=0)return;state.ore-=n;const before=state.hp;state.hp=Math.min(hm,state.hp+n*REPAIR_PER_ORE);toast(t('tt.repaired',{n:Math.round(state.hp-before)}));changed();return}
   if(stationAct(act,b))return; // akcie panela stanice (station.js)
-  if(hangarAct(act,b))return; // hangár (hangar.js)
+  if(hangarAct(act,b))return;
+  if(escortAct(act,b))return; // pomocné drony (escort.js) // hangár (hangar.js)
   if(act==='quit'){quitGame();return}
   if(act==='radMode'){state.radMode=b.dataset.v;save();renderSheet();return}
   if(act==='core'){const c=coreCost(s.core);if(s.core<CORE_MAX&&afford(c)){pay(c);s.core++;rebuildStation();toast(t('tt.coreUp',{n:s.core}));changed()}}

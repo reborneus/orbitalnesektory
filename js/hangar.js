@@ -36,6 +36,7 @@ function renderHangar(){let h=`<p class="note">${t('hg.note')}</p>`;const near=n
     if(!own&&!shipUnlocked(id))h+=`<div class="stat" style="color:var(--warn)">${t('hg.need',{s:secName(S.need)})}</div>`;
     else if(own&&!act&&!near)h+=`<div class="stat">${t('hg.far')}</div>`;
     h+='</div>'}
+  if(escList().length)h+=`<div class="sec-h"><span>${t('esc.h')}</span><span>${escList().length}/${ESCORT.max}</span></div>`+escortModesHtml();   // v0.20
   return h}
 
 /* Prestup na inú kúpenú loď (len pri stanici). Pomer trupu sa zachová, štíty sa nabijú. */

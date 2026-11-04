@@ -525,3 +525,7 @@ body.pad .pg{display:block}
 .edgeArr i{position:absolute;left:0;top:0;width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:18px solid #ff5a4a;filter:drop-shadow(0 0 6px #ff5a4a);transform-origin:6px 9px}
 .edgeArr span{position:absolute;left:0;top:0;transform:translate(-50%,14px);font:600 11px 'JetBrains Mono',monospace;color:#ffb0a6;text-shadow:0 0 4px #000;white-space:nowrap}
 .edgeArr.pas i{border-left-color:#ffb35a;filter:drop-shadow(0 0 6px #ffb35a)}.edgeArr.pas span{color:#ffd6a0}
+
+/* v0.20: ikona pomocného drona */
+.escico{width:22px;height:22px;vertical-align:-5px;fill:none;stroke:#ff9a4a;stroke-width:1.6}
+.escard .escico{float:left;width:34px;height:34px;margin:2px 10px 0 0}

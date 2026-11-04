@@ -55,6 +55,7 @@ const sellPrice=it=>Math.round(salvValue(it)*TRADER_SELL);
 function renderTrader(){const T=tstate(),near=nearNpc('trader');const left=Math.max(0,Math.ceil((T.until-Date.now())/1000));
   let h=`<div class="gear-top"><span class="credits"><span class="coin"></span>${fmtN(state.credits)} ¢</span><span class="note" style="margin:0">${t('trd.refresh',{t:Math.floor(left/60)+':'+String(left%60).padStart(2,'0')})}</span></div>`;
   if(!near)h+=`<p class="note" style="color:var(--warn)">${t('trd.far')}</p>`;
+  h+=escortShopHtml(near);   // v0.20: pomocné drony (len sektor 5)
   h+=`<div class="sec-h"><span>${t('trd.buyH')}</span></div>`;
   h+=T.stock.length?`<div class="trgrid">${T.stock.map(it=>`<div class="trrow it r${it.r}" ${rc(it)}><button class="itm it r${it.r}" ${rc(it)} data-act="trSel" data-id="${it.id}">${icon(it.b)}<span class="il">${it.ilvl}</span></button>
     <div class="eqc-txt"><b>${itemName(it)}</b><small>${t('r.'+RAR[it.r].k)} · ${t('slot.'+BASES[it.b].slot)}</small><small>${itemStats(it).slice(0,2).map(x=>`${t('s.'+x.k)} ${fmtStat(x.k,x.v)}`).join(' · ')}</small></div>

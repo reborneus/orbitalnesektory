@@ -1,8 +1,10 @@
 {
-  "version": "0.19.5",
+  "version": "0.20.0",
   "date": "2026-11-04",
   "notes": [
-    "Nové energetické jadro základne: plazmová guľa s bielym stredom a vírivými svietiacimi žilkami; v pokoji modrá, keď si v dosahu stanice zelená, pod útokom pulzuje červeno (farby sa plynulo prelínajú, menia sa aj svetelné pásy stanice)",
-    "Ťažobné drony majú nový detailný model: pancierový trup so šikmým nosom a klami, červený senzor, dve veľké turbíny po bokoch na vzperách s fialovou žiarou dýz, zadné plutvy a malá veža"
+    "Pomocné drony pre Sokola a Bizóna: kúpiš ich len u obchodníka v sektore 5 (najviac 2, sú veľmi drahé, druhý ešte drahší)",
+    "Drony krúžia ponad a popod loď; v boji a pri ťažbe zostanú po bokoch lode",
+    "Každý dron má osadený útočný laser (strieľa na cieľ lode jednu salvu v tempe lode, 35 % poškodenia) alebo ťažobný laser (pri ťažbe lúč do asteroidu, ťažba o 25 % rýchlejšia); laser sa dá kedykoľvek prepnúť v Loď → Hangár",
+    "Detailný guľový model drona: svetlejší pás, šošovka so svietiacim prstencom a oblúkmi, bočné štíty so svietiacim lemom, priduchmi a portmi; oranžové svetlá = útočný, tyrkysové = ťažobný"
   ]
 }

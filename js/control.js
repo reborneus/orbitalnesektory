@@ -147,7 +147,7 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
     if(!a.alive){stopMining()}
     else if(d<=range+.5){const capV=shipVal('cargo');const free=capV-cargoTotal();const y=D().yield*(1+bonus().yield/100)*tierMul('gain');const isRelic=a.type==='relic';
       if(!isRelic&&free<=.01){if(!fullWarned){toast(t('tt.fullWarn'));fullWarned=true}stopMining()}
-      else{mining=true;const rate=shipVal('laser')*MINE_RATE[a.type];
+      else{mining=true;const rate=shipVal('laser')*MINE_RATE[a.type]*escortMineMul();   // v0.20: ťažobné pomocné drony
         // relikt nedáva surovinu, len sa "vyťaží" a vypadne z neho predmet
         if(isRelic){a.amt-=Math.min(rate*dt,a.amt)}else{const take=Math.min(rate*dt,a.amt,free/y);a.amt-=take;
           if(a.mixp){for(const k in a.mixp){state.cargo[k]+=take*y*a.mixp[k];xpAt(take*y*a.mixp[k]*(XP.ton[k]||1))}}else{state.cargo[a.type]+=take*y;xpAt(take*y*(XP.ton[a.type]||1))}}setAstScale(a);
