@@ -17,11 +17,12 @@ Add-Type -AssemblyName System.Windows.Forms, System.Drawing
 try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch {}
 $ProgressPreference = 'SilentlyContinue'   # rýchlejšie sťahovanie v PowerShell 5
 # v0.23: skryje prázdne okno PowerShellu (ak panel nespustil skrytý spúšťač .vbs) a umožní tmavý titulok okna (Windows 10/11)
-try { Add-Type -Name Win -Namespace OsLauncher -MemberDefinition @'
+$osSig = @'
 [DllImport("kernel32.dll")] public static extern System.IntPtr GetConsoleWindow();
 [DllImport("user32.dll")] public static extern bool ShowWindow(System.IntPtr h, int n);
 [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(System.IntPtr h, int a, ref int v, int s);
-'@ } catch {}
+'@
+try { Add-Type -Name Win -Namespace OsLauncher -MemberDefinition $osSig } catch {}
 try { $cw = [OsLauncher.Win]::GetConsoleWindow(); if ($cw -ne [IntPtr]::Zero) { [void][OsLauncher.Win]::ShowWindow($cw, 0) } } catch {}
 
 # --- nastavenie repozitára a priečinkov ---
@@ -301,8 +302,9 @@ $btnDir.Add_Click({
       $form.Cursor = 'Default' } }
   $script:GameDir = $new; $Cfg.gameDir = $new; Save-Cfg; [void](Refresh-Ui)
 })
+# v0.23: po spustení hry panel zostane otvorený, ak je zaškrtnuté „Po spustení hry nechať panel otvorený“
 $btnStart.Add_Click({ $Cfg.autoUpdate = $chkAuto.Checked; $Cfg.fullscreen = $chkFull.Checked; $Cfg.keepOpen = $chkKeep.Checked; Save-Cfg
-  try { Start-Game; if (-not $Cfg.keepOpen) { $form.Close() } else { [void](Refresh-Ui) } }   # v0.23: voliteľne nechá panel otvorený catch { [Windows.Forms.MessageBox]::Show("Verziu sa nepodarilo stiahnuť:`n$($_.Exception.Message)", 'Orbitálne Sektory', 'OK', 'Error') | Out-Null; [void](Refresh-Ui) } })
+  try { Start-Game; if (-not $Cfg.keepOpen) { $form.Close() } else { [void](Refresh-Ui) } } catch { [Windows.Forms.MessageBox]::Show("Verziu sa nepodarilo stiahnuť:`n$($_.Exception.Message)", 'Orbitálne Sektory', 'OK', 'Error') | Out-Null; [void](Refresh-Ui) } })
 $btnLink.Add_Click({ try { New-DesktopShortcut; [Windows.Forms.MessageBox]::Show('Odkaz „Orbitálne Sektory“ je na ploche.', 'Orbitálne Sektory') | Out-Null } catch { [Windows.Forms.MessageBox]::Show($_.Exception.Message, 'Orbitálne Sektory', 'OK', 'Warning') | Out-Null } })
 $chkAuto.Add_CheckedChanged({ $Cfg.autoUpdate = $chkAuto.Checked; Save-Cfg })
 $chkFull.Add_CheckedChanged({ $Cfg.fullscreen = $chkFull.Checked; Save-Cfg })
