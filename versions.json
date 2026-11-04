@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.15.2", "date": "2026-11-04", "sha": "6499ba95eee6971a6a52dcb6c05d0a1d1c221cd7", "title": "arena anomaly every 5th wave, continue or return prompt, respawn at base"},
   {"version": "0.15.1", "date": "2026-11-04", "sha": "72d73fc1a0bf3a453b7c5b1d4d1a6bb6e5c2c2b5", "title": "arena start buttons next to map name with hover info"},
   {"version": "0.15.0", "date": "2026-11-04", "sha": "bc9ec4ae76109cef7b6ca617b35a69c3458947f1", "title": "bigger maps, mission giver and trader ships, new resource layout, mixed asteroids"},
   {"version": "0.14.3", "date": "2026-11-04", "sha": "e9420a84557b02292cb1aa977b768928ecd09e33", "title": "side-by-side item comparison setting, empty slot item picker"},
