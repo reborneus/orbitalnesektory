@@ -91,10 +91,15 @@ const MF_ZONE={1:0,2:0,3:.25,4:.5,5:.6};
 const ILVL_ZONE={1:0,2:1,3:4,4:7,5:9};
 
 /* Losovanie rarity: vyššie rarity dostanú tým väčšie zvýhodnenie, čím je mf vyššie. minR = najnižšia povolená rarita. */
-function rarityWeights(mf,minR=0){return RAR.map((R,i)=>i<minR?0:R.w*Math.pow(1+mf,Math.max(0,i-3)*.35))}
+/* v0.12: strop rarity podľa sektora (SECTORS[i].rar = {max: najvyššia rarita, top: násobok šance na ňu}).
+   Mytické, Božské a Prvotné sú špeciálne odmeny (aréna); Mytické len s veľmi malou šancou v poslednom sektore.
+   cap = {max, top} alebo null (bez stropu). */
+const secRar=i=>SECTORS[i]&&SECTORS[i].rar||{max:9,top:1};
+function rarityWeights(mf,minR=0,cap=null){const mx=cap?cap.max:9;minR=Math.min(minR,mx);
+  return RAR.map((R,i)=>i<minR||i>mx?0:R.w*Math.pow(1+mf,Math.max(0,i-3)*.35)*(cap&&i===mx?cap.top:1))}
 /* Presné pravdepodobnosti rarít (súčet 1) – používa ich aj príručka. */
-function rarityProbs(mf,minR=0){const w=rarityWeights(mf,minR);const sum=w.reduce((a,b)=>a+b,0);return w.map(x=>x/sum)}
-function rollRarity(mf,minR=0){const w=rarityWeights(mf,minR);
+function rarityProbs(mf,minR=0,cap=null){const w=rarityWeights(mf,minR,cap);const sum=w.reduce((a,b)=>a+b,0);return w.map(x=>x/sum)}
+function rollRarity(mf,minR=0,cap=null){const w=rarityWeights(mf,minR,cap);
   let x=Math.random()*w.reduce((a,b)=>a+b,0);for(let i=0;i<w.length;i++){x-=w[i];if(x<=0)return i}return w.length-1}
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -106,8 +111,8 @@ function genItem(r,ilvl,bk){bk=bk||pick(SHIP_BASES);const B=BASES[bk];const R=RA
   return{id:state.nextId++,b:bk,r,ilvl,enh:0,imp:{k:B.imp,v:rollStat(B.imp,ilvl,r,2)},aff:pool.map(k=>({k,v:rollStat(k,ilvl,r)})),
     title:r>=6?Math.floor(Math.random()*TITLE_COUNT):-1,lock:false,nw:true}}
 /* Predmet, ktorý padne zo zdroja: mf zo zdroja + pásu + sektora + vlastností výbavy. */
-function dropItem(source,zone,minR=0){const mf=MF_SOURCE[source]+MF_ZONE[zone]+state.cur*.25+bonus().mf/100;
-  const r=rollRarity(mf,minR);const ilvl=SECTORS[state.cur].ilvl+ILVL_ZONE[zone]+Math.floor(Math.random()*3);
+function dropItem(source,zone,minR=0,cap){const mf=MF_SOURCE[source]+MF_ZONE[zone]+state.cur*.25+bonus().mf/100;
+  const r=rollRarity(mf,minR,cap===undefined?secRar(state.cur):cap);const ilvl=SECTORS[state.cur].ilvl+ILVL_ZONE[zone]+Math.floor(Math.random()*3);
   const chip=Math.random()<(CHIP_CHANCE[source==='corsair'||source==='frigate'?'enemy':source]||0);return genItem(r,ilvl,chip?pick(CHIP_BASES):null)}
 
 /* Skutočné hodnoty vlastností predmetu vrátane vylepšenia (+N). */

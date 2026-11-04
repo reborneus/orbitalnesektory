@@ -8,7 +8,7 @@
 const MISSION_OFFERS=3,MISSION_ACTIVE_MAX=3,MISSION_REFRESH=240,MISSION_REROLL=40*NUM;
 /* Stupne misie: mult = násobok odmeny, minR = najnižšia rarita predmetu z odmeny, itemCh = šanca na predmet, w = váha pri losovaní. */
 const MTIER=[{k:'easy',mult:1,minR:2,itemCh:.35,w:.45},{k:'med',mult:1.7,minR:3,itemCh:.7,w:.35},{k:'hard',mult:2.8,minR:5,itemCh:1,w:.2}];
-const MSEC_MULT=[1,1.6,2.4,3.4,4.6,6];   // násobok odmien podľa sektora
+const MSEC_MULT=SECTORS.map((s,i)=>secGain(i));   // násobok odmien podľa sektora (v0.12: ~ +30 % za sektor)
 /* Základná odmena v kredítoch podľa typu (ľahká misia v 1. sektore) a ruda navyše pri prieskume/relikte/love. */
 const MREWARD={deliver:60,scan:70,relic:60,hunt:80,defend:100},MORE={scan:100,relic:80,hunt:120,defend:150};
 const MDELIVER={ore:[150,300,500],green:[40,90,160],crystal:[15,35,60]};

@@ -54,7 +54,7 @@ sk:{
   'st.p':'Vplyv sektora = úroveň jadra × {ci} + vplyv modulov. Každý ďalší modul rovnakého typu je drahší. Postavený modul môžeš predať, vráti sa {sell} % jeho ceny a uvoľní sa slot.',
   'st.pd':'{o} rudy/min','st.ps':'{g} viriditu/min','st.pt':'len vplyv',
   'ship.h':'Loď a vylepšenia','hg.h':'Hangár a lode','stor.h':'Hlavný sklad','sto.k':'Rozšírenie','pil.h':'Pilot – úrovne a schopnosti',
-  'pil.p':'Pilot má {m} úrovní. Body skúsenosti (XP) získavaš za činnosti v tabuľke; vyšší sektor dáva viac (× 1 + 0,5 za každý sektor), Ťažká obtiažnosť × {h}, Nightmare × {n}. Každá úroveň dá 1 bod schopnosti. Body vkladáš v paneli Pilot (ťukni na úroveň pilota pod názvom sektora alebo stlač L); vrátiť ich môžeš za kredity.',
+  'pil.p':'Pilot má {m} úrovní. Body skúsenosti (XP) získavaš za činnosti v tabuľke; vyšší sektor dáva viac (× 1 + 0,3 za každý sektor), Ťažká obtiažnosť × {h}, Nightmare × {n}. Každá úroveň dá 1 bod schopnosti. Body vkladáš v paneli Pilot (ťukni na úroveň pilota pod názvom sektora alebo stlač L); vrátiť ich môžeš za kredity.',
   'pil.src':'Činnosť','pil.xp':'XP','pil.lv':'Úroveň','pil.need':'XP na ďalšiu úroveň','pil.sk':'Schopnosť','pil.per':'Za 1 bod','pil.max':'Najviac',
   'pil.s':['Vyťažená tona rudy / viriditu / kryštálov','Vyťažený relikt (vo vonkajších pásoch viac)','Zničená stíhačka / korzár / fregata','Splnená misia (podľa odmeny)','Obsadenie sektora','Postavený modul (× číslo sektora)','Úspešné vylepšenie predmetu (× nové +N)'],
   'stor.p':'Na stanici v sektore {s} je hlavný sklad (panel Stanica → Sklad). Ukladáš doň predmety z inventára lode a späť ich berieš iba pri tejto stanici; prezerať ho môžeš odkiaľkoľvek. Začína so {c0} miestami, každé rozšírenie pridá {st} miest (najviac {mx}). Predmety v sklade sa dajú zoradiť podľa rarity, úrovne, typu, vylepšenia alebo novosti a vyhľadať podľa názvu, typu, rarity či vlastnosti. Tlačidlo „Uložiť celý inventár“ presunie všetko okrem zamknutých predmetov.',
@@ -140,7 +140,7 @@ en:{
   'st.p':'Sector influence = core level × {ci} + module influence. Each additional module of the same type costs more. You can sell a module for {sell}% of its price, which frees the slot.',
   'st.pd':'{o} ore/min','st.ps':'{g} viridite/min','st.pt':'influence only',
   'ship.h':'Ship and upgrades','hg.h':'Hangar and ships','stor.h':'Main storage','sto.k':'Expansion','pil.h':'Pilot – levels and skills',
-  'pil.p':'The pilot has {m} levels. You earn experience (XP) for the activities in the table; higher sectors give more (× 1 + 0.5 per sector), Hard × {h}, Nightmare × {n}. Each level gives 1 skill point. Spend points in the Pilot panel (tap the pilot level under the sector name or press L); you can refund them for credits.',
+  'pil.p':'The pilot has {m} levels. You earn experience (XP) for the activities in the table; higher sectors give more (× 1 + 0.3 per sector), Hard × {h}, Nightmare × {n}. Each level gives 1 skill point. Spend points in the Pilot panel (tap the pilot level under the sector name or press L); you can refund them for credits.',
   'pil.src':'Activity','pil.xp':'XP','pil.lv':'Level','pil.need':'XP to next level','pil.sk':'Skill','pil.per':'Per point','pil.max':'Max',
   'pil.s':['Mined ton of ore / viridite / crystals','Mined relic (more in the outer belts)','Destroyed fighter / corsair / frigate','Completed mission (by reward)','Claiming a sector','Built module (× sector number)','Successful item upgrade (× new +N)'],
   'stor.p':'The station in {s} has the main storage (Station → Storage). You move items between the ship inventory and the storage only at this station; you can browse it from anywhere. It starts with {c0} slots, each expansion adds {st} (up to {mx}). Stored items can be sorted by rarity, level, type, upgrade or newest and searched by name, type, rarity or stat. “Store the whole inventory” moves everything except locked items.',
@@ -289,7 +289,7 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
     H('rarity',wt('rar.h'),`<p>${wt('rar.p')}</p>`+show+tbl([wt('rar.r'),wt('rar.w'),wt('rar.aff'),wt('rar.m'),wt('rar.e'),wt('rar.s')],rows))}
   { // pravdepodobnosti koristi pre zvolený sektor
     const s=wikiSec;const src=[[wt('drop.ast',{z:2}),MF_SOURCE.asteroid+MF_ZONE[2],0],[wt('drop.ast',{z:4}),MF_SOURCE.asteroid+MF_ZONE[4],0],[wt('drop.rel',{z:3}),MF_SOURCE.relic+MF_ZONE[3],2],[wt('drop.rel',{z:4}),MF_SOURCE.relic+MF_ZONE[4],2],[wt('drop.cap'),MF_SOURCE.capture+MF_ZONE[4],SECTORS[s].reward.minR]];
-    const rows=src.map(([n,mf,minR])=>[`<b>${n}</b>`,...rarityProbs(mf+s*.25,minR).map(pct)]);
+    const rows=src.map(([n,mf,minR])=>[`<b>${n}</b>`,...rarityProbs(mf+s*.25,minR,secRar(s)).map(pct)]);
     const pick=`<div class="wpick"><span>${wt('drop.pick')}:</span>${SECTORS.map((x,i)=>`<button class="langb" data-wsec="${i}" aria-pressed="${i===s}">${secName(i)}</button>`).join('')}</div>`;
     H('drops',wt('drop.h'),`<p>${wt('drop.p',{ad:nf(ASTEROID_DROP*100)})}</p>`+pick+tbl([wt('drop.src'),...RAR.map((R,i)=>rarName(i))],rows,'wsmall')+`<p class="wnote">${wt('drop.mf')}</p><p class="wnote">${wt('drop.ilvl',{z2:ILVL_ZONE[2],z3:ILVL_ZONE[3],z4:ILVL_ZONE[4]})}</p>`)}
   { // vylepšovanie

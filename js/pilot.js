@@ -5,12 +5,12 @@
    state.pilot = {lv, xp (XP v aktuálnej úrovni), total (XP spolu), pts (nevložené body), sk:{mining, combat, flight, trade}}.
    Bonusy schopností sa pripočítajú k bonusom výbavy v bonus() (items.js → pilotBonus). */
 const PILOT_MAX=100;                                         // najvyššia úroveň pilota
-const xpNeed=L=>Math.round(80*NUM*Math.pow(L,1.5));         // XP potrebné z úrovne L na L+1
+const xpNeed=L=>Math.round(120*NUM*Math.pow(L,1.8));   // v0.12: strmšia krivka         // XP potrebné z úrovne L na L+1
 /* XP za zdroje (pred násobkom sektora a obtiažnosti): za tonu suroviny, za relikt, za piráta, za akcie */
-const XP={ton:{ore:1,green:3,crystal:6},relic:250,kill:{fighter:120,corsair:700,frigate:3000},
+const XP={ton:{ore:1,green:2.5,crystal:4},relic:250,kill:{fighter:120,corsair:700,frigate:3000},
   missionPerCr:.5,capture:4000,build:150,enh:60};
 const XP_DIFF={easy:1,hard:1.25,nightmare:1.6};
-const xpSecMul=()=>1+state.cur*.5;                           // vyššie sektory dávajú viac XP
+const xpSecMul=()=>1+state.cur*.3;                           // vyššie sektory dávajú viac XP
 /* Schopnosti: max = najviac bodov, per = bonus za 1 bod (kľúče ako vlastnosti STATS v items.js; cr = viac kreditov) */
 const SKILLS={
   mining:{max:25,per:{mine:2,yield:1},ico:'⛏'},
