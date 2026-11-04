@@ -150,7 +150,7 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
         debrisT-=dt;if(debrisT<=0){debrisT=.06;const from=a.pos.clone().add(new V3((Math.random()-.5)*2,Math.random(),(Math.random()-.5)*2).multiplyScalar(astScale(a)*.8));
           emit(debris,from,a.type==='crystal'?'#b9a0ff':a.type==='green'?'#a8f080':'#ffb85c',.6,null,ship.position.clone())}}}
     else if(!moveTarget&&d>range*2.2){mineTarget=null}}
-  if(mining){const nose=ship.localToWorld(NOSE.clone());const to=mineTarget.pos.clone().lerp(nose,.12);
+  if(mining&&mineTarget){const nose=ship.localToWorld(NOSE.clone());const to=mineTarget.pos.clone().lerp(nose,.12);
     setBeam(beam,nose,to,.32+Math.random()*.12,{ore:'#58d0c0',green:'#86e05a',crystal:'#a98bff',relic:'#ffd87a'}[mineTarget.type])}else hideBeam(beam);
   const cg=ship.userData.core;const cs=(mining?4.6:3.2)*(1+Math.sin(tt*(mining?14:3))*.1);cg.scale.set(cs,cs,1);
   // unload at the station
