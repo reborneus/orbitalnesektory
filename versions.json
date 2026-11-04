@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.18.0", "date": "2026-11-04", "sha": "aa5cad5e2b91cd32a0bd21c7ee0fb50c8063ec74", "title": "megastructure station sunk below flight plane, passive pirates in sector 1"},
   {"version": "0.17.0", "date": "2026-11-04", "sha": "11936d476e48be99b6c06606c7f57c4813449377", "title": "detailed ship and pirate models, controller mouse cursor, 4-way menu navigation"},
   {"version": "0.16.4", "date": "2026-11-04", "sha": "7e43c52c0927250c44dd9e8298983938ed8bbdb3", "title": "fix invisible raid pirates"},
   {"version": "0.16.3", "date": "2026-11-04", "sha": "3777b6bd8ecdc047ae98596a67cea686472af227", "title": "laser salvos per mounted weapon, bulk salvage"},

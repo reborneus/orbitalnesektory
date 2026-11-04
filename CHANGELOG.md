@@ -2,6 +2,13 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.18
+
+### v0.18.0 · 2026-11-04
+- Hlavná základňa je nová detailná megaštruktúra: žiariace guľové jadro s mriežkou, veže hore aj dole, veľký palubný prstenec s oknami a modulmi; s úrovňou jadra pribúdajú otáčavé prstence, vedľajšie veže, gyroskopický prstenec a halo
+- Základňa je väčšia a zapustená hlbšie pod rovinou letu – dá sa nad ňou preletieť a už do nej nenarazíš; stále je klikateľná
+- Pasívni piráti v 1. mape (pás 2: 3, pásy 3 a 4: po 5): chvíľu ťa sledujú, ale nezaútočia, kým ich nenapadneš (ťukni na piráta); zbraň na nich sama nestrieľa, na minimape sú oranžoví, po zničení sa po čase vrátia
+
 ## 0.17
 
 ### v0.17.0 · 2026-11-04
