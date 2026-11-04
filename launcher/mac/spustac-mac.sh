@@ -30,13 +30,13 @@ TITLE="Orbitálne Sektory – spúšťač pre Mac"
 mkdir -p "$ROOT"
 
 # ---------- nastavenia (kľúč=hodnota) ----------
-AUTO_UPDATE=1; FULLSCREEN=0; GAME_DIR="$DEFAULT_DIR"
+AUTO_UPDATE=1; FULLSCREEN=0; KEEP_OPEN=0; GAME_DIR="$DEFAULT_DIR"
 if [ -f "$CFG" ]; then
   while IFS='=' read -r k v; do
-    case "$k" in autoUpdate) AUTO_UPDATE="$v";; fullscreen) FULLSCREEN="$v";; gameDir) [ -n "$v" ] && GAME_DIR="$v";; esac
+    case "$k" in autoUpdate) AUTO_UPDATE="$v";; fullscreen) FULLSCREEN="$v";; keepOpen) KEEP_OPEN="$v";; gameDir) [ -n "$v" ] && GAME_DIR="$v";; esac
   done < "$CFG"
 fi
-save_cfg() { printf 'autoUpdate=%s\nfullscreen=%s\ngameDir=%s\n' "$AUTO_UPDATE" "$FULLSCREEN" "$GAME_DIR" > "$CFG"; }
+save_cfg() { printf 'autoUpdate=%s\nfullscreen=%s\nkeepOpen=%s\ngameDir=%s\n' "$AUTO_UPDATE" "$FULLSCREEN" "$KEEP_OPEN" "$GAME_DIR" > "$CFG"; }
 
 # priečinok patrí hre, ak obsahuje index.html a version.json (inak ho panel nikdy nezmaže)
 is_game_dir() { [ -f "$1/index.html" ] && [ -f "$1/version.json" ]; }
@@ -196,10 +196,10 @@ $UPDATE_ERR" stop; return 1; }
 
 # ---------- hlavné menu ----------
 main_menu() {
-  local onoff_a onoff_f st lines notes upd items choice
+  local onoff_a onoff_f onoff_k st lines notes upd items choice
   while true; do
     read_local
-    [ "$AUTO_UPDATE" = 1 ] && onoff_a="ZAP" || onoff_a="VYP"; [ "$FULLSCREEN" = 1 ] && onoff_f="ZAP" || onoff_f="VYP"
+    [ "$AUTO_UPDATE" = 1 ] && onoff_a="ZAP" || onoff_a="VYP"; [ "$FULLSCREEN" = 1 ] && onoff_f="ZAP" || onoff_f="VYP"; [ "$KEEP_OPEN" = 1 ] && onoff_k="ZAP" || onoff_k="VYP"
     st="Nainštalovaná verzia: ${LOCAL_VER:-žiadna}${LOCAL_DATE:+ ($LOCAL_DATE)}"
     if [ -n "$REMOTE_VER" ]; then st="$st
 Najnovšia verzia: $REMOTE_VER · zverejnená ${REMOTE_WHEN:-$REMOTE_DATE}"; notes=$(printf '%s' "$REMOTE_JSON" | json_notes | head -n 6)
@@ -214,12 +214,12 @@ Najnovšia verzia: nedá sa zistiť (si offline alebo je repozitár súkromný)"
 Priečinok hry: $GAME_DIR"
     if [ -z "$LOCAL_VER" ]; then upd="Stiahnuť hru"; elif has_newer; then upd="Aktualizovať na $REMOTE_VER"; else upd="Stiahnuť znova"; fi
     local vlab="Verzia hry: ${SEL_VER:-najnovšia}" startlab="▶ ŠTART"; [ -n "$SEL_VER" ] && startlab="▶ ŠTART (stará verzia $SEL_VER)"
-    items="\"$(as_q "$startlab")\", \"$vlab\", \"$upd\", \"Príručka\", \"Skontrolovať novú verziu\", \"Zmeniť priečinok hry…\", \"Automatická aktualizácia: $onoff_a\", \"Celá obrazovka: $onoff_f\", \"Aplikácia na ploche\""
+    items="\"$(as_q "$startlab")\", \"$vlab\", \"$upd\", \"Príručka\", \"Skontrolovať novú verziu\", \"Zmeniť priečinok hry…\", \"Automatická aktualizácia: $onoff_a\", \"Celá obrazovka: $onoff_f\", \"Nechať panel otvorený: $onoff_k\", \"Aplikácia na ploche\""
     [ -z "$LOCAL_VER" ] && [ -z "$SEL_VER" ] && items="\"$upd\", \"Zmeniť priečinok hry…\", \"Skontrolovať novú verziu\", \"Automatická aktualizácia: $onoff_a\", \"$vlab\""
     choice=$(osa -e "choose from list {$items} with title \"$(as_q "$TITLE")\" with prompt \"$(as_q "$st")\" OK button name \"Vybrať\" cancel button name \"Zavrieť\" default items {item 1 of {$items}}") || return
     case "$choice" in
       false|"") return;;
-      "▶ ŠTART"*) save_cfg; start_game && return;;
+      "▶ ŠTART"*) save_cfg; start_game && [ "$KEEP_OPEN" != 1 ] && return;;   # v0.23: voliteľne nechá panel otvorený
       "Verzia hry: "*) pick_version;;
       "Príručka") start_game wiki.html;;
       "Stiahnuť hru"|"Aktualizovať na "*|"Stiahnuť znova") do_update;;
@@ -227,6 +227,7 @@ Priečinok hry: $GAME_DIR"
       "Zmeniť priečinok hry…") change_dir;;
       "Automatická aktualizácia: "*) [ "$AUTO_UPDATE" = 1 ] && AUTO_UPDATE=0 || AUTO_UPDATE=1; save_cfg;;
       "Celá obrazovka: "*) [ "$FULLSCREEN" = 1 ] && FULLSCREEN=0 || FULLSCREEN=1; save_cfg;;
+      "Nechať panel otvorený: "*) [ "$KEEP_OPEN" = 1 ] && KEEP_OPEN=0 || KEEP_OPEN=1; save_cfg;;
       "Aplikácia na ploche") local w; if w=$(install_apps); then msg "Aplikácia „Orbitálne Sektory“ je $w."; else msg "Aplikáciu sa nepodarilo vytvoriť." caution; fi;;
     esac
   done; }

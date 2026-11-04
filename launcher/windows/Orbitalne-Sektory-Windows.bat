@@ -12,4 +12,11 @@ if not exist "%OS_DIR%\spustac-windows.ps1" (
   pause
   exit /b 1
 )
-start "" powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "%OS_DIR%\spustac-windows.ps1"
+rem v0.23: panel sa spusti cez skryty spustac .vbs (bez prazdneho okna PowerShellu)
+powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command "try{[Net.ServicePointManager]::SecurityProtocol='Tls12';$ProgressPreference='SilentlyContinue';$u='https://raw.githubusercontent.com/reborneus/orbitalnesektory/main/launcher/windows/Orbitalne-Sektory-Windows.vbs?t='+[DateTime]::UtcNow.Ticks;Invoke-WebRequest $u -OutFile (Join-Path $env:LOCALAPPDATA 'OrbitalneSektory\Orbitalne-Sektory-Windows.vbs') -UseBasicParsing -TimeoutSec 15}catch{}"
+if exist "%OS_DIR%\Orbitalne-Sektory-Windows.vbs" (
+  start "" wscript.exe "%OS_DIR%\Orbitalne-Sektory-Windows.vbs" nodl
+) else (
+  start "" powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "%OS_DIR%\spustac-windows.ps1"
+)
+exit
