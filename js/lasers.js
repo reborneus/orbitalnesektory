@@ -42,13 +42,18 @@ const shotQ=[];
 /* v0.19.2: každý výstrel = 2–3 salvy tesne po sebe (VOLLEY_GAP s). Poškodenie (aj zásah/minutie a kritický zásah) nesie len
    prvá salva; ďalšie sú iba vizuálne (fx) a letia rovnakým smerom. Tempo streľby a poškodenie za sekundu sa nemení. */
 const VOLLEY_MIN=2,VOLLEY_MAX=3,VOLLEY_GAP=.09;
+/* v0.19.3: salvy letia vždy v rovnakom tempe GUN_VIS_INT (ako základná rýchlosť 1,2 /s), vzhľad sa s vylepšením nemení.
+   Rýchlosť streľby (gunRate) sa prejaví len v čísle: poškodenie salvy = poškodenie výstrelu × výstrely/s × GUN_VIS_INT,
+   takže poškodenie za sekundu je rovnaké, ako keby loď naozaj strieľala rýchlejšie. */
+const GUN_VIS_INT=1/1.2;
+const gunVolleyDmg=()=>shipVal('gun')*shipVal('gunRate')*GUN_VIS_INT;
 function playerBurst(tg){const n=weaponMounts(),v=VOLLEY_MIN+Math.floor(Math.random()*(VOLLEY_MAX-VOLLEY_MIN+1));
   for(let j=0;j<v;j++)for(let i=0;i<n;i++)shotQ.push({t:j*VOLLEY_GAP+i*SALVO_GAP,tg,i,n,fx:j>0})}
 function tickShots(dt){for(const s of shotQ.slice()){s.t-=dt;if(s.t>0)continue;shotQ.splice(shotQ.indexOf(s),1);const tg=s.tg;
     if(dead||!enemies.includes(tg))continue;const from=ship.localToWorld(NOSE.clone().add(new V3((s.i-(s.n-1)/2)*1.2,0,0)));if(from.distanceTo(tg.pos)>gunRange()+tg.r+2)continue;
     if(s.fx){laserFx(from,tg,{fx:true,miss:false,dmg:0,side:'player'});continue}   // len vizuálna salva
     const hit=Math.random()<hitChance();const crit=hit&&Math.random()<critChance();
-    laserFx(from,tg,{miss:!hit,crit,dmg:shipVal('gun')/s.n*(crit?critMult():1),side:'player'});
+    laserFx(from,tg,{miss:!hit,crit,dmg:gunVolleyDmg()/s.n*(crit?critMult():1),side:'player'});
     if(laserStyle().k==='primal'){primalTg=tg;primalT=.6}}
   // letiace strely (hráč aj piráti): krátky úsek lúča, ktorý sa posúva k cieľu
   for(const k of streaks.slice()){const dest=(k.tg&&k.tg.pos?k.tg.pos:k.to).clone().add(k.off);const d=new V3().subVectors(dest,k.p);const L=d.length();const step=STREAK_SPEED*dt;

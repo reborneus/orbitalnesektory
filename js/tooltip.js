@@ -35,5 +35,39 @@ function tipMove(x,y){if(!tipEl||tipEl.hidden)return;const w=tipEl.offsetWidth,h
   let l=x+18,tp=y+14;if(l+w>W-8)l=x-w-18;if(tp+h>H-8)tp=Math.max(8,H-h-8);tipEl.style.transform=`translate(${Math.max(8,l)}px,${tp}px)`}
 function tipHide(){if(tipEl)tipEl.hidden=true;tipId=null}
 const tipTarget=e=>{const b=e.target.closest&&e.target.closest('[data-id]');return b&&b.closest('#sheet')&&/^(sel|mark|stSel|stSelInv|chipIn|pickEq|trSel|trSell)$/.test(b.dataset.act||'')?b:null};
-document.addEventListener('pointermove',e=>{if(!hoverUI()||e.pointerType!=='mouse'){tipHide();return}const b=tipTarget(e);if(b)tipShow(+b.dataset.id,e.clientX,e.clientY);else tipHide()});
-document.addEventListener('pointerdown',()=>tipHide());
+document.addEventListener('pointermove',e=>{if(!hoverUI()||e.pointerType!=='mouse'){if(!pmHover)hoverHide();return}hoverAt(e.clientX,e.clientY,e.target)});
+document.addEventListener('pointerdown',()=>hoverHide());
+/* ==================== v0.19.3: KRÁTKE POPISY PRI MYŠI ====================
+   hoverAt(x, y, prvok) – volá ho pohyb myši aj kurzor ovládača (input.js → pmMove). Poradie:
+   1) predmet (veľký náhľad tipHtml), 2) prvok HUD/menu so známym popisom (HOVER_TIPS) alebo s atribútom data-tip/title,
+   3) nad 3D scénou: asteroid, pirát, stanica, NPC, brána (raycast, najviac raz za 80 ms). */
+const HOVER_TIPS=[['[data-tab="station"]','ht.station'],['[data-tab="ship"]','ht.ship'],['[data-tab="gear"]','ht.gear'],['[data-tab="map"]','ht.map'],
+  ['[data-tab="settings"]','ht.settings'],['#wikiBtn','ht.wiki'],['#homeBtn','ht.home'],['#pilotBtn','ht.pilot'],['.sector .inf','ht.inf'],['#stRow','ht.st'],
+  ['.res .r.ore','ht.ore'],['.res .r.grn','ht.grn'],['.res .r.cry','ht.cry'],['.res .r.crd','ht.cr'],['#cargoRow','ht.cargo'],['#rsRow','ht.rs'],['#shRow','ht.sh'],
+  ['.res .meter:not([id])','ht.hp'],['#mini','ht.mini'],['#sheetClose','ht.close']];
+let hintEl=null,hintKey=null,pmHover=false,_wtT=0,_wtLast=null;
+function hintShow(text,x,y){if(!hintEl){hintEl=document.createElement('div');hintEl.id='hintTip';document.body.appendChild(hintEl)}
+  if(hintKey!==text){hintEl.innerHTML=text;hintKey=text}hintEl.hidden=false;
+  const w=hintEl.offsetWidth,h=hintEl.offsetHeight;let l=x+16,tp=y+18;if(l+w>innerWidth-8)l=x-w-12;if(tp+h>innerHeight-8)tp=y-h-12;hintEl.style.transform=`translate(${Math.max(8,l)}px,${Math.max(8,tp)}px)`}
+function hintHide(){if(hintEl)hintEl.hidden=true;hintKey=null}
+function hoverHide(){tipHide();hintHide()}
+function hoverAt(x,y,el){if(!el){hoverHide();return}
+  const b=el.closest&&el.closest('[data-id]');
+  if(b&&b.closest('#sheet')&&/^(sel|mark|stSel|stSelInv|chipIn|pickEq|trSel|trSell)$/.test(b.dataset.act||'')){hintHide();tipShow(+b.dataset.id,x,y);return}
+  tipHide();
+  // HUD má pointer-events:none (klik prejde do hry), preto sa prvky hľadajú aj podľa polohy na obrazovke
+  for(const[sel,key]of HOVER_TIPS){let m=el.closest&&el.closest(sel);
+    if(!m)for(const c of document.querySelectorAll(sel)){if(!c.offsetParent&&c.id!=='mini')continue;const r=c.getBoundingClientRect();if(x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom&&!c.closest('[hidden]')){m=c;break}}
+    if(m&&(sel!=='.res .meter:not([id])'||m.querySelector('#hpBar'))&&!(sheetTab&&!m.closest('#sheet')&&document.querySelector('#sheet').contains(el))){hintShow(t(key),x,y);return}}
+  const tt=el.closest&&el.closest('[data-tip],[title]');
+  if(tt){if(tt.title){tt.dataset.tip=tt.title;tt.removeAttribute('title')}hintShow(tt.dataset.tip,x,y);return}   // title → vlastný popis (rovnaký vzhľad, funguje aj s ovládačom)
+  if(el===canvas&&state&&$('#intro').hidden){const now=performance.now();if(now-_wtT>80){_wtT=now;_wtLast=worldTip(x,y)}if(_wtLast){hintShow(_wtLast,x,y);return}}
+  hintHide()}
+/* popis 3D objektu pod kurzorom */
+function worldTip(x,y){toNdc(x,y);const hits=ray.intersectObjects(pickables,false);
+  for(const h of hits){const u=h.object.userData;
+    if(u.enemy&&enemies.includes(u.enemy)){const e=u.enemy;return `<b>${t('pk.'+e.kind)}</b>${e.passive?t('ht.w.pas'):''}<br>${t('ht.w.en',{n:'',h:fmtN(Math.max(0,Math.round(e.hp))),m:fmtN(Math.round(e.max))}).replace(/^ · /,'')}<br><small>${t('ht.w.clickE')}</small>`}
+    if(u.ast&&u.ast.alive){const a=u.ast;return `<b>${a.type==='mix'?t('res.mix'):cap1(t('res.'+a.type))}</b> · ${fmtN(Math.round(a.amt))} t<br><small>${t('ht.w.click')}</small>`}
+    if(u.station)return t('ht.w.station');if(u.npc)return t(u.npc==='trader'?'ht.w.trader':'ht.w.giver');if(u.gate)return t('ht.w.gate')}
+  return null}
+

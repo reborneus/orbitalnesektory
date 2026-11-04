@@ -513,3 +513,8 @@ body.pad .pg{display:block}
   filter:drop-shadow(0 0 6px rgba(88,208,192,.8))}
 #padCursor.clk{animation:pmclk .25s}
 @keyframes pmclk{50%{filter:drop-shadow(0 0 12px #58d0c0) brightness(1.6)}}
+
+/* v0.19.3: krátky popis pri myši (HUD, menu, objekty v priestore) */
+#hintTip{position:fixed;left:0;top:0;z-index:9998;pointer-events:none;max-width:300px;padding:7px 10px;border-radius:9px;
+  background:rgba(9,16,29,.94);border:1px solid rgba(88,208,192,.35);box-shadow:0 6px 22px rgba(0,0,0,.45);color:#dde7f1;font-size:12.5px;line-height:1.35}
+#hintTip b{color:#fff}#hintTip small{color:#8597ab}

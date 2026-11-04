@@ -83,7 +83,7 @@ function nearestEnemy(from,maxD){let best=null,bd=maxD;for(const e of enemies){i
 const gunRange=()=>GUN_RANGE+bonus().grange;
 function playerGun(dt){gunCd-=dt;if(dead||jumping)return;const R=gunRange();
   let tg=attackTarget&&enemies.includes(attackTarget)&&ship.position.distanceTo(attackTarget.pos)<=R?attackTarget:nearestEnemy(ship.position,R);
-  if(!tg||gunCd>0)return;gunCd=1/shipVal('gunRate');playerBurst(tg)}   // v0.16: laserová dávka (lasers.js)
+  if(!tg||gunCd>0)return;gunCd=GUN_VIS_INT;playerBurst(tg)}   /* v0.19.3: salvy v stálom tempe; rýchlosť streľby mení len poškodenie (gunVolleyDmg) */   // v0.16: laserová dávka (lasers.js)
 function towersFire(dt){if(stationDown>0)return;const s=cur();s.slots.forEach((m,i)=>{if(slotType(m)!=='tower'||i>=slotsFor(s.core))return;
   towerCd[i]=(towerCd[i]||0)-dt;if(towerCd[i]>0)return;const ts=towerStats(m);const tg=nearestEnemy(new V3(0,0,0),ts.range);if(!tg)return;
   towerCd[i]=1/ts.rate;const from=slotPos(i).setY(2.2);fireBolt(from,tg.pos.clone().addScaledVector(tg.vel,.4),RAR[modRar(m)].col,ts.dmg,'tower',PIRATES.playerBolt)})}
