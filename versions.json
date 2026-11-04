@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.19.4", "date": "2026-11-04", "time": "2026-11-04T21:21:24+01:00", "sha": "3caa0799a01c252c9dba51fdc4242d6502c8f741", "title": "ship faces combat target with lock ring, off-screen enemy edge arrows"},
   {"version": "0.19.3", "date": "2026-11-04", "time": "2026-11-04T21:16:27+01:00", "sha": "c8143955c7b63adad84eedaa4a7f797a56c43a3c", "title": "controller target marker + RT action, fixed volley cadence, hover hints"},
   {"version": "0.19.2", "date": "2026-11-04", "time": "2026-11-04T20:57:19+01:00", "sha": "cd210c1d63e1c2d6da10cb246e401da589dc7447", "title": "2-3 visual volleys per shot, thicker bolts"},
   {"version": "0.19.1", "date": "2026-11-04", "time": "2026-11-04T20:49:27+01:00", "sha": "03e28bc4bde9efbbe4b3eeaa40d226143e88e644", "title": "launcher: fresh version check via GitHub API, release time shown"},
