@@ -27,6 +27,7 @@ function detailHtml(f){const it=f.it,R=RAR[it.r],title=itemTitle(it),slot=BASES[
   h+=`<div class="itd-acts">`;
   if(slot==='chip')h+=`<p class="note" style="margin:0;flex-basis:100%">${t('gear.chipNote')}</p>`;
   else h+=f.where==='inv'?`<button class="btn prim" data-act="equip">${t('btn.equip')}</button>`:`<button class="btn" data-act="unequip">${t('btn.unequip')}</button>`;
+  if(f.where==='inv'&&atStore())h+=`<button class="btn" data-act="toStore">${t('sto.toStore')}</button>`;
   if(f.where==='inv')h+=it.lock?`<button class="btn" data-act="salv" disabled title="${t('gear.locked')}">${t('btn.salv',{n:salvValue(it)})}</button>`:`<button class="btn danger" data-act="salv">${t('btn.salv',{n:salvValue(it)})}</button>`;
   h+=`<button class="btn" data-act="lock">${it.lock?t('btn.unlock'):t('btn.lock')}</button><button class="btn" data-act="desel">${t('btn.back')}</button></div>`;
   // vylepšenie +N
@@ -69,5 +70,7 @@ function gearAct(act,b){
     case 'salvJunk':{let c=0,n=0;state.inv=state.inv.filter(x=>{if(x.r<=1&&!x.lock){c+=salvValue(x);n++;return false}return true});
       if(gearSel!=null&&!findItem(gearSel))gearSel=null;state.credits+=c;invWarned=false;if(n)toast(t('tt.salvMany',{n,c}));return done()}
     case 'lock':{if(!f)return true;f.it.lock=!f.it.lock;return done()}
+    case 'toStore':{if(!f||f.where!=='inv'||!atStore())return true;const S=sstate();if(S.items.length>=S.cap){toast(t('sto.full'),'bad');return true}
+      S.items.push(state.inv.splice(f.i,1)[0]);gearSel=null;invWarned=false;toast(t('sto.moved',{n:1}),true);return done()}
   }
   return false}

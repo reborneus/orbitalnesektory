@@ -4,7 +4,7 @@
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
 /* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
-const GAME_VERSION='0.9.1';
+const GAME_VERSION='0.10.0';
 const NUM=10,ECON=1.6;
 const P=c=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON);return o};
 /* Suroviny: interné názvy ore = ruda, green = viridit, crystal = kryštály. */

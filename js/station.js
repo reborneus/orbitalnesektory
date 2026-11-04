@@ -42,17 +42,18 @@ function slotCard(s,i){const m=s.slots[i];const open=openSlot===i?' open':'';
   h+=chipHtml(m,i);
   const rf=modRefund(s,m);h+=`<div class="itd-acts"><button class="btn danger" data-act="msell" data-i="${i}">${t('btn.msell')}</button><div class="costs">${refundHtml(rf)}${rf.cr?`<span class="cost crd gain"><span class="coin"></span>+${rf.cr}</span>`:''}</div></div>`;
   return h+'</div></details>'}
-let stTab='mods';   // záložka panela stanice: 'mods' = moduly, 'miss' = misie
+let stTab='mods';   // záložka panela stanice: 'mods' = moduly, 'miss' = misie, 'store' = hlavný sklad (storage.js)
 function renderStation(){const s=cur();const inf=influence(s),cap=capOf(state.cur);
-  let h=`<div class="segs two"><button class="seg" data-act="stTab" data-v="mods" aria-pressed="${stTab==='mods'}">${t('ms.tab.mods')}</button><button class="seg" data-act="stTab" data-v="miss" aria-pressed="${stTab==='miss'}">${t('ms.tab.miss')}${mstate().active.length?' · '+mstate().active.length:''}</button></div>`;
+  let h=`<div class="segs three"><button class="seg" data-act="stTab" data-v="mods" aria-pressed="${stTab==='mods'}">${t('ms.tab.mods')}</button><button class="seg" data-act="stTab" data-v="miss" aria-pressed="${stTab==='miss'}">${t('ms.tab.miss')}${mstate().active.length?' · '+mstate().active.length:''}</button><button class="seg" data-act="stTab" data-v="store" aria-pressed="${stTab==='store'}">${t('sto.tab')}</button></div>`;
   if(stTab==='miss')return h+renderMissions();
+  if(stTab==='store')return h+renderStorage();
   if(state.hp<shipVal('hull')-.5)h+=repairCard();
   const L=s.core,mh=stationMaxHp(),sh=Math.max(0,stationHp);
   h+=`<div class="card"><h3>${t('core.name')} <span class="lv">${t('lv',{n:L,m:CORE_MAX})}</span></h3>`;
   if(L<CORE_MAX){const cc=coreCost(L);h+=actBtn('core',t('btn.upgrade'),cc,false)+`<div class="costs">${costHtml(cc)}</div><p>${t('core.next')}</p>`}
   else h+=`<button class="act max" disabled>${t('btn.max')}</button><p>${t('core.max')}</p>`;
   h+=`<div class="stat">${t('core.stat',{s:slotsFor(L),i:L*CORE_INF})}</div>
-    <div class="meter" style="grid-column:1/-1"><span class="lbl">${t('sp.hp')}</span><div class="bar"><i style="width:${sh/mh*100}%;background:${stationDown>0?'var(--warn)':'var(--hull)'}"></i></div><span class="num">${Math.ceil(sh)}/${mh}</span></div></div>`;
+    <div class="meter" style="grid-column:1/-1"><span class="lbl">${t('sp.hp')}</span><div class="bar"><i style="width:${sh/mh*100}%;background:${stationDown>0?'var(--warn)':'var(--hull)'}"></i></div><span class="num">${fmtN(Math.ceil(sh))}/${fmtN(mh)}</span></div></div>`;
   if(stationDown>0)h+=`<p class="note" style="color:var(--warn)">${t('sp.down',{s:Math.ceil(stationDown)})}</p>`;
   const n=slotsFor(L);
   h+=`<div class="sec-h"><span>${t('mods')}</span><span>${t('slotsOf',{a:s.slots.slice(0,n).filter(Boolean).length,b:n})} · ${t('hud.inf',{a:inf,b:cap})}</span></div><div class="mslots">`;

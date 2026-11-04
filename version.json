@@ -1,9 +1,10 @@
 {
-  "version": "0.9.1",
+  "version": "0.10.0",
   "date": "2026-11-04",
   "notes": [
-    "Nová obtiažnosť Nightmare: silnejší piráti a radiácia, +40 % surovín – jedno zničenie lode vymaže celý postup",
-    "Úvodná obrazovka ukazuje výsledok poslednej Nightmare hry a aktuálnu verziu hry",
-    "Príručka: tabuľka obtiažností s Nightmare a poškodením pirátov"
+    "Hlavný sklad na stanici v 1. sektore (Stanica → Sklad): mriežka predmetov, zoraďovanie a vyhľadávanie",
+    "Sklad začína so 40 miestami a dá sa rozširovať až na 400; tlačidlo Uložiť celý inventár",
+    "Vo Výbave pri stanici v 1. sektore tlačidlo Do skladu",
+    "Príručka: nová kapitola Hlavný sklad"
   ]
 }

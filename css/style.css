@@ -433,3 +433,12 @@ body.pad .pg{display:block}
 .diff.nightmare b{color:#ff7bd0}
 .diff.nightmare[aria-pressed="true"]{border-color:#ff4fb0;background:rgba(255,79,176,.10);box-shadow:0 0 14px rgba(255,79,176,.25)}
 .nmrec{margin:0;color:#ff9ad6}
+/* ===== v0.10 hlavný sklad ===== */
+.segs.three{grid-template-columns:repeat(3,1fr)}
+.stbar{display:grid;gap:8px}
+.stbar input{width:100%;box-sizing:border-box;padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);font:inherit;font-size:14px}
+.stbar input:focus{outline:2px solid var(--hull);outline-offset:1px}
+.stbar .langs{flex-wrap:wrap}
+.itm.slot0{border:1px solid rgba(255,255,255,.05);border-radius:9px;background:rgba(255,255,255,.012);cursor:default}
+.itm .lk{position:absolute;top:2px;right:4px;font-size:9px;font-style:normal;opacity:.8}
+.stacts{margin:2px 0}

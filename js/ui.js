@@ -13,7 +13,7 @@ const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
 function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const cap=capOf(state.cur);const ptr=inputMode!=='pad'&&inputMode!=='key';
   $('#secName').textContent=secName(state.cur);
   // výdrž stanice: zobrazí sa v sektoroch s pirátmi alebo keď je stanica poškodená
-  {const mh=stationMaxHp(),show=!!raidCfg()||stationHp<mh-1;$('#stRow').hidden=!show;if(show){$('#stBar').style.width=(Math.max(0,stationHp)/mh*100)+'%';$('#stBar').className=stationDown>0||stationHp<mh*.3?'low':'';$('#stTxt').textContent=stationDown>0?t('hud.down'):`${Math.ceil(Math.max(0,stationHp))}/${mh}`}}
+  {const mh=stationMaxHp(),show=!!raidCfg()||stationHp<mh-1;$('#stRow').hidden=!show;if(show){$('#stBar').style.width=(Math.max(0,stationHp)/mh*100)+'%';$('#stBar').className=stationDown>0||stationHp<mh*.3?'low':'';$('#stTxt').textContent=stationDown>0?t('hud.down'):`${fmtN(Math.ceil(Math.max(0,stationHp)))}/${fmtN(mh)}`}}
   missionTracker();
   const tag=$('#secTag');tag.textContent=(s.captured?t('hud.won'):t('hud.unc'))+(godActive()?' · ADMIN':'');tag.classList.toggle('won',s.captured);
   const ib=$('#infBar');ib.style.width=Math.min(100,inf/cap*100)+'%';ib.classList.toggle('won',s.captured);
@@ -140,6 +140,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   const act=b.dataset.act;if(!act||b.disabled)return;const s=cur();
   if(adminAct(act,b))return; // admin panel (admin.js)
   if(gearAct(act,b))return; // akcie obrazovky Výbava (gear.js)
+  if(storageAct(act,b))return; // hlavný sklad (storage.js)
   if(act==='grp'){shipGrp=b.dataset.g;focusIdx=SHIP_TABS.indexOf(shipGrp);renderSheet();return}
   if(act==='lang'){setLang(b.dataset.l);return}
   if(act==='opt'){const k=b.dataset.k,v=b.dataset.v==='1';if(k==='autoPilot'){if(!!state.autoPilot!==v)toggleAutopilot();return}state[k]=v;save();renderSheet();return}

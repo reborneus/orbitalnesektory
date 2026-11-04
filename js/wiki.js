@@ -53,7 +53,8 @@ sk:{
   'st.mod':'Modul','st.minf':'Vplyv','st.c1':'1. kus','st.c2':'2. kus','st.c3':'3. kus','st.pas':'Príjem po obsadení',
   'st.p':'Vplyv sektora = úroveň jadra × {ci} + vplyv modulov. Každý ďalší modul rovnakého typu je drahší. Postavený modul môžeš predať, vráti sa {sell} % jeho ceny a uvoľní sa slot.',
   'st.pd':'{o} rudy/min','st.ps':'{g} viriditu/min','st.pt':'len vplyv',
-  'ship.h':'Loď a vylepšenia','hg.h':'Hangár a lode',
+  'ship.h':'Loď a vylepšenia','hg.h':'Hangár a lode','stor.h':'Hlavný sklad','sto.k':'Rozšírenie',
+  'stor.p':'Na stanici v sektore {s} je hlavný sklad (panel Stanica → Sklad). Ukladáš doň predmety z inventára lode a späť ich berieš iba pri tejto stanici; prezerať ho môžeš odkiaľkoľvek. Začína so {c0} miestami, každé rozšírenie pridá {st} miest (najviac {mx}). Predmety v sklade sa dajú zoradiť podľa rarity, úrovne, typu, vylepšenia alebo novosti a vyhľadať podľa názvu, typu, rarity či vlastnosti. Tlačidlo „Uložiť celý inventár“ presunie všetko okrem zamknutých predmetov.',
   'hg.p':'V paneli Loď → Hangár kupuješ ďalšie lode. Každá sa odomkne obsadením určitého sektora. Loď násobí hodnoty vylepšení (napr. Bizón má dvojnásobný náklad), ale jej vylepšenia môžu byť drahšie. Každá loď má vlastné úrovne vylepšení, nasadené predmety sa prenášajú. Prestúpiť sa dá iba pri stanici.',
   'hg.ship':'Loď','hg.cost':'Cena','hg.unlock':'Odomkne','hg.mul':'Násobky vylepšení','hg.upc':'Cena vylepšení','hg.start':'od začiatku','ship.lv':'Úroveň','ship.val':'Hodnota','ship.cost':'Cena ďalšej úrovne',
   'ship.p':'Každá loď má {n} vylepšení v {g} skupinách. Úrovne 1–5 stoja suroviny, úrovne 6–10 aj kredity. K hodnotám sa pripočítajú bonusy z nasadených predmetov. Na ťažkej obtiažnosti je rýchlosť o 15 % nižšia.',
@@ -135,7 +136,8 @@ en:{
   'st.mod':'Module','st.minf':'Influence','st.c1':'1st','st.c2':'2nd','st.c3':'3rd','st.pas':'Income once claimed',
   'st.p':'Sector influence = core level × {ci} + module influence. Each additional module of the same type costs more. You can sell a module for {sell}% of its price, which frees the slot.',
   'st.pd':'{o} ore/min','st.ps':'{g} viridite/min','st.pt':'influence only',
-  'ship.h':'Ship and upgrades','hg.h':'Hangar and ships',
+  'ship.h':'Ship and upgrades','hg.h':'Hangar and ships','stor.h':'Main storage','sto.k':'Expansion',
+  'stor.p':'The station in {s} has the main storage (Station → Storage). You move items between the ship inventory and the storage only at this station; you can browse it from anywhere. It starts with {c0} slots, each expansion adds {st} (up to {mx}). Stored items can be sorted by rarity, level, type, upgrade or newest and searched by name, type, rarity or stat. “Store the whole inventory” moves everything except locked items.',
   'hg.p':'In Ship → Hangar you buy more ships. Each unlocks when you claim a certain sector. A ship multiplies upgrade values (e.g. the Bison has double cargo), but its upgrades may cost more. Each ship has its own upgrade levels; equipped items carry over. You can switch only at the station.',
   'hg.ship':'Ship','hg.cost':'Price','hg.unlock':'Unlocks','hg.mul':'Upgrade multipliers','hg.upc':'Upgrade cost','hg.start':'from the start','ship.lv':'Level','ship.val':'Value','ship.cost':'Next level cost',
   'ship.p':'Each ship has {n} upgrades in {g} groups. Levels 1–5 cost resources, levels 6–10 also credits. Bonuses from equipped items are added on top. On Hard the speed is 15% lower.',
@@ -257,6 +259,8 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
         const rows=[];for(let L=u.min;L<=u.max;L++)rows.push([`<b>${L}</b>`,f(L),L<u.max?costTxt(u.cost(L)):'–']);
         h+=`<details class="wdet"><summary><b>${t('up.'+k)}</b> <span>${f(u.min)} → ${f(u.max)}</span></summary><p>${t('up.'+k+'.d')}</p>${tbl([wt('ship.lv'),wt('ship.val'),wt('ship.cost')],rows)}</details>`}}
     H('ship',wt('ship.h'),h)}
+  { const ex=[0,1,2,3,4].map(n=>[`<b>${STORE_CAP0+n*STORE_STEP} → ${STORE_CAP0+(n+1)*STORE_STEP}</b>`,costTxt(storeExpCost(n))]);
+    H('storage',wt('stor.h'),`<p>${wt('stor.p',{s:secName(STORE_SEC),c0:STORE_CAP0,st:STORE_STEP,mx:STORE_MAX})}</p>`+tbl([wt('sto.k'),wt('ship.cost')],ex))}
   { // hangár a lode (v0.8)
     const rows=SHIP_IDS.map(id=>{const S=SHIPS[id];const m=Object.entries(S.mul).map(([k,v])=>`${t('up.'+k)} ×${v}`).join(', ')||'–';
       return[`<span class="wico">${shipIcon(id,'wshipi')}</span> <b>${t('ship.'+id)}</b>`,S.cost?costTxt(S.cost):'–',S.need<0?wt('hg.start'):secName(S.need),m,'×'+S.upMul]});
