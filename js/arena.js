@@ -135,6 +135,21 @@ function renderArena(){const A=astate(),R=arenaRun;let h='';
   return h}
 function arenaAct(act,b){if(act==='arGo'){if(arenaRun)return true;arenaStart(+b.dataset.w);closeSheet();return true}
   if(act==='arQuit'){arenaEnd('ar.quitT');renderSheet();return true}return false}
-function arenaHud(){if(!inArena())return false;const A=astate(),R=arenaRun;
+/* v0.15.1: tlačidlá arény vedľa názvu mapy; nad tlačidlom (myšou) sa ukáže plávajúce okno s popisom arény */
+let arBtnKey='';
+function arenaButtons(){const el=$('#arBtns');if(!el)return;const on=inArena();el.hidden=!on;if(!on){arBtnKey='';arTipHide();return}
+  const A=astate(),R=arenaRun;const key=(R?'run':'idle')+A.ckpt+lang;if(key===arBtnKey)return;arBtnKey=key;
+  el.innerHTML=R?`<button class="arb stop" data-ar="quit">■ ${t('ar.quitS')}</button>`:`<button class="arb" data-ar="1">▶ ${t('ar.startS')}</button>`+(A.ckpt&&A.ckpt<ARENA_WAVES?`<button class="arb" data-ar="${A.ckpt+1}">▶ ${t('ar.fromS',{n:A.ckpt+1})}</button>`:'')}
+let arTip=null;
+function arTipShow(b){if(!arTip){arTip=document.createElement('div');arTip.id='arTip';arTip.className='glass';document.body.appendChild(arTip)}
+  arTip.innerHTML=arenaInfo();arTip.hidden=false;const r=b.getBoundingClientRect();arTip.style.left=Math.min(innerWidth-arTip.offsetWidth-8,r.left)+'px';arTip.style.top=(r.bottom+8)+'px'}
+function arTipHide(){if(arTip)arTip.hidden=true}
+function arenaInfo(){const A=astate();return `<h3>${t('ar.h')} <span class="lv">${t('ar.best',{n:A.best})}</span></h3><p>${t('ar.p',{w:ARENA_WAVES,b:ARENA_BOSS})}</p>
+  <ul>${[t('ar.l1'),t('ar.l2',{b:ARENA_BOSS}),t('ar.l3'),t('ar.l4')].map(x=>`<li>${x}</li>`).join('')}</ul><p class="note">${t('ar.note')}${A.ckpt?' '+t('ar.ck',{n:A.ckpt}):''}</p>`}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#arBtns .arb');if(!b)return;e.stopPropagation();arTipHide();
+  if(b.dataset.ar==='quit')arenaEnd('ar.quitT');else if(!arenaRun)arenaStart(+b.dataset.ar);arBtnKey=''});
+document.addEventListener('pointerover',e=>{const b=e.target.closest&&e.target.closest('#arBtns .arb');if(b&&e.pointerType==='mouse')arTipShow(b)});
+document.addEventListener('pointerout',e=>{const b=e.target.closest&&e.target.closest('#arBtns .arb');if(b)arTipHide()});
+function arenaHud(){arenaButtons();if(!inArena())return false;const A=astate(),R=arenaRun;
   $('#secTag').textContent=t('ar.tag')+(state.tier?' · V+'+state.tier:'');$('#infBar').style.width=((R?R.wave-1:A.best)/ARENA_WAVES*100)+'%';
   $('#infTxt').textContent=R?t('ar.hud',{n:R.wave,m:ARENA_WAVES,e:enemies.length}):t('ar.hudIdle',{n:A.best});return true}

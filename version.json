@@ -1,11 +1,8 @@
 {
-  "version": "0.15.0",
+  "version": "0.15.1",
   "date": "2026-11-04",
   "notes": [
-    "Mapy sú 2× väčšie, počet asteroidov ostal rovnaký – pôsobia menej nahustene",
-    "Zadávateľ misií: fialová loď v páse 2 každého sektora – menu misií po ťuknutí alebo pri priblížení (zo stanice misie zmizli)",
-    "Obchodník v 3. a 5. sektore (na hranici pásov 2/3): predáva predmety za kredity, ponuka sa mení každých 10 minút, v 5. sektore zriedka aj Epické; výkup predmetov 2,5× výhodnejší ako rozobratie",
-    "Nové rozloženie surovín: 1. ruda, 2. viridit, 3. ruda a viac viriditu, 4. viridit a málo kryštálov, 5. iba kryštály, 6. obrie zmiešané asteroidy so všetkými surovinami",
-    "Autopilot sa po skoku prepne na surovinu, ktorá v sektore je"
+    "Aréna: tlačidlá ▶ Štart / ▶ Vlna N (kontrolný bod) a ■ Ukončiť priamo vedľa názvu mapy",
+    "Popis arény sa na PC ukáže ako plávajúce okno po nabehnutí myšou na tlačidlo"
   ]
 }

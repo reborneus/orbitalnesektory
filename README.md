@@ -35,6 +35,7 @@ Webový prototyp (Three.js) – otvor `index.html` v prehliadači.
 - **v0.14.2** – náhľad sektora na pozadí kariet mapy
 - **v0.14.3** – porovnanie predmetov vedľa seba (nastaviteľné), výber predmetu do prázdneho slotu
 - **v0.15.0** – 2× väčšie mapy, zadávateľ misií a obchodník, nové rozloženie surovín, obrie zmiešané asteroidy
+- **v0.15.1** – spustenie arény tlačidlom pri názve mapy, popis pri myši
 - **v0.7** – misie (5 typov, 3 stupne), radiačný štít s obmedzeným časom, sledovanie misií v HUD
 - **v0.6.1** – oprava: autopilot po zbere koristi s plným nákladom pokračuje na stanicu
 - **v0.6** – boj s pirátmi (zbraň lode, veže, obrana dronov), panel stanice s vylepšovaním modulov +1 až +10 a čipmi, slot Zbraň, samostatné Nastavenia s tlačidlom Ukončiť hru, pasívny príjem len pri dosiahnutom vplyve
