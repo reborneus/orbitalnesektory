@@ -4,6 +4,11 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 
 ## 0.19
 
+### v0.19.1 · 2026-11-04
+- Spúšťací panel (Windows aj Mac): kontrola novej verzie už nevracia staršiu verziu z vyrovnávacej pamäte GitHubu – najnovšia verzia sa zistí hneď po zverejnení, aj keď je panel otvorený
+- Panel ukazuje presný čas zverejnenia najnovšej verzie (napr. „4. 11. 2026 o 20:45 (pred 5 min)“) a v zozname verzií je pri každej dátum aj čas
+- Nový panel sa použije po najbližšej aktualizácii hry a opätovnom otvorení panela
+
 ### v0.19.0 · 2026-11-04
 - Nový vzhľad laserových striel (farby podľa rarity zbrane ostali): mäkká farebná žiara, biele horúce jadro, energetické prstence pozdĺž strely, iskry okolo a jasná hlavica; Epické/Legendárne sú hrubšie „kopije“ so špicou, Mytické hrubé a iskriace
 - Záblesk pri hlavni aj pri zásahu a drobné iskry za letiacou strelou; pirátske strely majú rovnaký štýl v červeno-oranžovej
