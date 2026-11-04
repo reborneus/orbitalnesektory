@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.9.1", "date": "2026-11-04", "sha": "8a1334cc4723a11372e7589e3ad84ba759cb37f2", "title": "Nightmare difficulty with permadeath"},
   {"version": "0.9.0", "date": "2026-11-04", "sha": "7343da752225c7d30ba32b72e32472f8bee5eadf", "title": "big numbers with K/M/B format, pricier economy, critical hits, damage numbers"},
   {"version": "0.8.3", "date": "2026-11-04", "sha": "b871bff2c6b17206871ab60801257bf934b3e337", "title": "rarity-colored loot, relic items to inventory, version picker in launchers"},
   {"version": "0.8.0", "date": "2026-11-03", "sha": "483ed7b2b9cbccf932633e5153c21f6c66d1e47b", "title": "hangar with Falcon and Bison ships, sectors 4-6, pirate frigate"},
