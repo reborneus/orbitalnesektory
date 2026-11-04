@@ -17,7 +17,13 @@ const SHIP_SVG={
     <rect x="22" y="34" width="18" height="46" rx="2" fill="#1d2635"/><rect x="60" y="34" width="18" height="46" rx="2" fill="#1d2635"/>
     <rect x="22" y="44" width="18" height="2" fill="#b38bff"/><rect x="22" y="58" width="18" height="2" fill="#b38bff"/><rect x="60" y="44" width="18" height="2" fill="#b38bff"/><rect x="60" y="58" width="18" height="2" fill="#b38bff"/>
     <circle cx="31" cy="85" r="4" fill="#c3a0ff"/><circle cx="69" cy="85" r="4" fill="#c3a0ff"/><circle cx="45" cy="92" r="3.5" fill="#c3a0ff"/><circle cx="55" cy="92" r="3.5" fill="#c3a0ff"/>`};
-const shipIcon=(id,cls='hship')=>`<svg class="${cls}" viewBox="0 0 100 100" role="img" aria-label="${t('ship.'+id)}">${SHIP_SVG[id]}</svg>`;
+const shipIconSvg=(id,cls='hship')=>`<svg class="${cls}" viewBox="0 0 100 100" role="img" aria-label="${t('ship.'+id)}">${SHIP_SVG[id]}</svg>`;
+/* v0.22: náhľad lode z 3D modelu (spredu, mierne zboku a zhora, ako na výstave); bez Three.js (samostatná príručka) silueta SVG */
+function shipPreviewSrc(id){if(typeof modelPreview!=='function'||typeof THREE==='undefined')return'';
+  return modelPreview('ship_'+id,()=>{const g=new THREE.Group(),body=new THREE.Group();g.add(body);const keep=ship.userData.eng;ship.userData.eng=[];
+    const info=SHIP_MODELS[id](body);ship.userData.eng=keep;const cg=glow(info.coreCol,2.6,.8);cg.position.set(...info.core);body.add(cg);
+    if(info.coreMesh){const core=new THREE.Mesh(new THREE.IcosahedronGeometry(.3,1),M.hullGlow);core.position.set(...info.core);body.add(core)}return g},{w:520,h:280,dir:[.5,.3,1],spot:SHIPS[id].col,fit:.6})}
+const shipIcon=(id,cls='hship')=>{const src=shipPreviewSrc(id);return src?`<img class="${cls} pv" src="${src}" alt="${t('ship.'+id)}">`:shipIconSvg(id,cls)};
 /* Krátky prehľad násobkov lode, napr. „Rýchlosť ×1.2 · Náklad ×0.6“. */
 const MUL_KEYS=['speed','turn','hull','cargo','shield','laser','gun'];
 const MUL_LBL={speed:'s.speed',turn:'s.turn',hull:'s.hull',cargo:'s.cargo',shield:'s.shield',laser:'s.mine',gun:'s.dmg'}; // krátke názvy
@@ -27,7 +33,7 @@ const shipUnlocked=id=>SHIPS[id].need<0||!!(state.sec[SHIPS[id].need]&&state.sec
 
 function renderHangar(){let h=`<p class="note">${t('hg.note')}</p>`;const near=nearStation();
   for(const id of SHIP_IDS){const S=SHIPS[id];const own=state.owned.includes(id),act=state.shipId===id;
-    h+=`<div class="card hcard${act?' on':''}" style="--sc:${S.col}">${shipIcon(id)}<h3>${t('ship.'+id)} ${act?`<span class="chip here">${t('hg.active')}</span>`:own?`<span class="chip won">${t('hg.owned')}</span>`:''}</h3>`;
+    h+=`<div class="card hcard${act?' on':''}${shipPreviewSrc(id)?' big':''}" style="--sc:${S.col}">${shipIcon(id,'hship hprev')}<h3>${t('ship.'+id)} ${act?`<span class="chip here">${t('hg.active')}</span>`:own?`<span class="chip won">${t('hg.owned')}</span>`:''}</h3>`;
     if(act)h+=`<button class="act max" disabled>${t('hg.flying')}</button>`;
     else if(own)h+=`<button class="act" data-act="shipUse" data-id="${id}" data-block="${near?0:1}">${t('hg.use')}</button>`;
     else if(!shipUnlocked(id))h+=`<button class="act max" disabled>${t('btn.locked')}</button>`;

@@ -77,15 +77,18 @@ function tickEscorts(dt,tt){if(escObjs.length!==escList().length||escObjs.some((
 
 /* ---------- obchod (obchodník v sektore 5) a nastavenie lasera ---------- */
 function escortShopHtml(near){if(state.cur!==ESCORT.sec)return'';const L=escList();
-  let h=`<div class="sec-h"><span>${t('esc.h')}</span><span>${L.length}/${ESCORT.max}</span></div><div class="card escard">${escIcon()}<h3>${t('esc.name')}</h3>`;
+  let h=`<div class="sec-h"><span>${t('esc.h')}</span><span>${L.length}/${ESCORT.max}</span></div><div class="card escard">${escIcon('gun',true)}<h3>${t('esc.name')}</h3>`;
   if(L.length>=ESCORT.max)h+=`<button class="act max" disabled>${t('btn.max')}</button>`;
   else{const c=escortCost(L.length);h+=actBtn('escBuy',t('btn.buy'),c,!near)+`<div class="costs">${costHtml(c)}</div>`}
   h+=`<p>${t('esc.d',{d:Math.round(ESCORT.dmg*100),m:Math.round(ESCORT.mine*100)})}</p><div class="stat">${t('esc.ships')}</div></div>`;
   return h+escortModesHtml()}
 function escortModesHtml(){const L=escList();if(!L.length)return'';
-  return L.map((e,i)=>`<div class="card"><h3>${escIcon()} ${t('esc.n',{n:i+1})} <span class="lv">${t('esc.m.'+e.mode)}</span></h3><div class="langs">${['gun','mine'].map(m=>`<button class="langb" data-act="escMode" data-i="${i}" data-v="${m}" aria-pressed="${e.mode===m}">${t('esc.m.'+m)}</button>`).join('')}</div>
+  return L.map((e,i)=>`<div class="card"><h3>${escIcon(e.mode)} ${t('esc.n',{n:i+1})} <span class="lv">${t('esc.m.'+e.mode)}</span></h3><div class="langs">${['gun','mine'].map(m=>`<button class="langb" data-act="escMode" data-i="${i}" data-v="${m}" aria-pressed="${e.mode===m}">${t('esc.m.'+m)}</button>`).join('')}</div>
     <p>${t('esc.m.'+e.mode+'.d',{d:Math.round(ESCORT.dmg*100),m:Math.round(ESCORT.mine*100)})}</p>${ESCORT.ships.includes(state.shipId)?'':`<div class="stat" style="color:var(--warn)">${t('esc.ships')}</div>`}</div>`).join('')}
-const escIcon=()=>`<svg class="escico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.6"/><path d="M3.5 7.5l2 1v7l-2 1M20.5 7.5l-2 1v7l2 1"/></svg>`;
+const escIconSvg=()=>`<svg class="escico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.6"/><path d="M3.5 7.5l2 1v7l-2 1M20.5 7.5l-2 1v7l2 1"/></svg>`;
+/* v0.22: náhľad z 3D modelu (mode = farba svetiel), inak SVG ikona */
+const escPreview=(mode='gun')=>typeof modelPreview==='function'?modelPreview('esc_'+mode,()=>{const g=escortModel(mode);g.scale.setScalar(1);return g},{w:220,h:220,dir:[.7,.35,1],spot:mode==='mine'?'#2ee6ff':'#ff7a2a',fit:.9}):'';
+const escIcon=(mode='gun',big)=>{const s=escPreview(mode);return s?`<img class="escico${big?' big':''}" src="${s}" alt="">`:escIconSvg()};
 function escortAct(act,b){if(act!=='escBuy'&&act!=='escMode')return false;const L=escList();
   if(act==='escBuy'){if(state.cur!==ESCORT.sec||L.length>=ESCORT.max)return true;if(!nearNpc('trader')){toast(t('trd.far'));return true}
     const c=escortCost(L.length);if(!afford(c)){toast(t('tt.noRes'));return true}pay(c);L.push({mode:'gun'});toast(t('esc.bought',{n:L.length}),true)}

@@ -528,4 +528,13 @@ body.pad .pg{display:block}
 
 /* v0.20: ikona pomocného drona */
 .escico{width:22px;height:22px;vertical-align:-5px;fill:none;stroke:#ff9a4a;stroke-width:1.6}
-.escard .escico{float:left;width:34px;height:34px;margin:2px 10px 0 0}
+
+/* v0.22: náhľady z 3D modelov – loď v hangári ako na výstave, pomocné drony */
+.hcard.big{grid-template-columns:1fr auto}
+.hcard.big .hprev{grid-column:1/-1;grid-row:auto;width:100%;height:auto;aspect-ratio:520/280;object-fit:cover;border-radius:10px;margin:-2px 0 6px;filter:none;
+  background:radial-gradient(ellipse at 50% 85%,color-mix(in srgb,var(--sc) 22%,transparent),transparent 65%),linear-gradient(180deg,#0b1220,#05080f)}
+.hcard.big h3{grid-column:1}.hcard.big>.act{grid-column:2;grid-row:auto}.hcard.big>.costs,.hcard.big p,.hcard.big .stat{grid-column:1/-1}
+img.escico{width:26px;height:26px;stroke:none;object-fit:contain;vertical-align:-7px}
+.escard img.escico.big{float:none;grid-row:1/span 3;width:92px;height:92px;margin:0;border-radius:10px;background:radial-gradient(circle at 50% 70%,rgba(255,122,42,.18),transparent 70%)}
+.escard{grid-template-columns:92px 1fr auto}.escard h3{grid-column:2}.escard>.act{grid-column:3;grid-row:1}.escard>.costs{grid-column:2/-1}.escard p,.escard .stat{grid-column:2/-1}
+.wico img.wshipi{width:64px;height:auto;vertical-align:middle;border-radius:6px}

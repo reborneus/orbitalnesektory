@@ -70,8 +70,8 @@ function buildSector(){
   // autopilot: ak sa zvolená surovina v sektore nenachádza, prepne sa na prvú dostupnú
   if(!S.arena&&S.res.length&&!S.res.includes(state.autoRes))state.autoRes=S.res[0];
   world.userData.bgTick=null;
-  if(S.bg==='disk')world.userData.bgTick=buildDiskBg(world);   // v0.21: planéta s ohnivým diskom (bgdisk.js)
-  else{
+  if(S.bg)world.userData.bgTick=buildBg(state.cur,world);   // v0.22: realistické pozadie podľa typu (bgscenes.js, bgdisk.js)
+  if(!world.userData.bgTick){
   const neb=new THREE.Mesh(new THREE.PlaneGeometry(3000+LIMIT*4,3000+LIMIT*4),new THREE.MeshBasicMaterial({map:nebulaTex(S.neb[0],S.neb[1],S.seed),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.95}));
   neb.rotation.x=-Math.PI/2;neb.position.y=-500;world.add(neb);
   const planet=new THREE.Mesh(new THREE.SphereGeometry(110,48,32),new THREE.MeshStandardMaterial({map:planetTex(S.planet,S.seed),roughness:1,metalness:0}));
@@ -197,6 +197,7 @@ function rebuildStation(){
 }
 function makeModule(type,p,anim){const g=new THREE.Group();g.position.copy(p);g.lookAt(0,p.y,0);
   if(type==='drone'){const b=new THREE.Mesh(new THREE.BoxGeometry(3.2,1.7,2.6),M.plate);b.position.y=.2;g.add(b);
+    {const dm=droneModel();dm.position.set(0,1.75,.1);dm.scale.multiplyScalar(1.25);g.add(dm)}   // v0.22: zaparkovaný ťažobný dron (nový model)
     const door=new THREE.Mesh(new THREE.BoxGeometry(2.2,.9,.1),M.amber);door.position.set(0,.1,-1.32);g.add(door);
     const roof=new THREE.Mesh(new THREE.BoxGeometry(2.6,.3,2),M.dark);roof.position.y=1.2;g.add(roof);
     const l=glow('#f0a644',3,.6);l.position.set(0,.1,-1.6);g.add(l)}
@@ -323,6 +324,21 @@ function moduleThumb(type,r){const key=type+r;if(_thumbs[key]!==undefined)return
     const cam=new THREE.PerspectiveCamera(32,4/3,.1,100);cam.position.set(4.6,4.2,5.6);cam.lookAt(0,.4,0);
     _thumbR.render(sc,cam);_thumbs[key]=_thumbR.domElement.toDataURL('image/png')}catch(e){_thumbs[key]=''}
   return _thumbs[key]}
+/* v0.22: náhľad 3D modelu „ako na výstave“: tmavé pozadie, bodové svetlo zhora, odraz/spot pod modelom, mierny uhol spredu.
+   build() vráti Object3D; o = {w,h,dir:[x,y,z] smer kamery od modelu, spot:farba, fit:okraj}. Výsledok (dataURL) sa uloží. */
+let _prevR=null;const _prevs={};
+function modelPreview(key,build,o={}){if(_prevs[key]!==undefined)return _prevs[key];
+  try{const W=o.w||420,H=o.h||250;if(!_prevR){_prevR=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});_prevR.setPixelRatio(1);_prevR.outputEncoding=THREE.sRGBEncoding;_prevR.toneMapping=THREE.ACESFilmicToneMapping;_prevR.toneMappingExposure=1.2}
+    _prevR.setSize(W,H,false);const sc=new THREE.Scene();
+    sc.add(new THREE.HemisphereLight(col('#9fb6dd'),col('#120a18'),.75));const key1=new THREE.DirectionalLight(col('#fff1dc'),2.3);key1.position.set(3,9,7);sc.add(key1);
+    const rimL=new THREE.DirectionalLight(col('#5aa8ff'),1.1);rimL.position.set(-6,3,-8);sc.add(rimL);const fill=new THREE.DirectionalLight(col('#ffb070'),.35);fill.position.set(-7,-2,4);sc.add(fill);
+    const m=build();sc.add(m);m.updateMatrixWorld(true);const box=new THREE.Box3().setFromObject(m),c=box.getCenter(new V3()),sz=box.getSize(new V3());const r=Math.max(sz.x,sz.y,sz.z)*.5;
+    // spot / odraz pod modelom
+    const sp=glow(o.spot||'#58d0c0',r*3.6,.32);sp.position.set(c.x,box.min.y-r*.15,c.z);sc.add(sp);
+    const fl=new THREE.Mesh(new THREE.CircleGeometry(r*1.7,48),new THREE.MeshBasicMaterial({color:new THREE.Color(o.spot||'#58d0c0'),transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false}));fl.rotation.x=-Math.PI/2;fl.position.set(c.x,box.min.y-r*.2,c.z);sc.add(fl);
+    const cam=new THREE.PerspectiveCamera(28,W/H,.01,1000);const d=new V3(...(o.dir||[.55,.32,1])).normalize();const dist=r/Math.sin(14*Math.PI/180)*(o.fit||.82);
+    cam.position.copy(c).addScaledVector(d,dist);cam.lookAt(c.x,c.y-r*.08,c.z);_prevR.render(sc,cam);_prevs[key]=_prevR.domElement.toDataURL('image/png')}catch(e){_prevs[key]=''}
+  return _prevs[key]}
 const _v=new V3();
 function moveTo(obj,target,speed,dt,stop){_v.subVectors(target,obj.position);_v.y=0;const dist=_v.length();
   if(dist>stop){const step=Math.min(speed*dt,dist-stop);_v.normalize();obj.position.addScaledVector(_v,step);obj.rotation.y=Math.atan2(_v.x,_v.z)}

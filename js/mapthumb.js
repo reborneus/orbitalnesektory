@@ -8,7 +8,7 @@ function sectorThumb(i){if(_secThumbs[i])return _secThumbs[i];const S=SECTORS[i]
   const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');if(!g)return'';const r=rng(S.seed*13+7);
   g.fillStyle='#04070e';g.fillRect(0,0,W,H);
   // v0.21: sektor s vlastným 3D pozadím (planéta s diskom) – náhľad sa vykreslí z rovnakých shaderov
-  const bgc=S.bg==='disk'&&typeof diskBgThumb==='function'?diskBgThumb(W,H):null;
+  const bgc=S.bg&&typeof bgThumb==='function'?bgThumb(i,W,H):null;
   if(bgc)g.drawImage(bgc,0,0);
   // hmlovina
   if(!bgc){g.globalCompositeOperation='lighter';

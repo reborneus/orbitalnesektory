@@ -1,9 +1,10 @@
 {
-  "version": "0.21.0",
+  "version": "0.22.0",
   "date": "2026-11-04",
   "notes": [
-    "Nové pozadie 1. mapy (Kepler-12): tmavá planéta so žeravým akrečným diskom (biely až oranžovo-červený, prašný okraj), jasnou žiarou na okraji, prachovým výtryskom a hlbokým pozadím s dymom, ohnivými oblakmi, iskrami a hviezdami; disk sa pomaly otáča a vďaka hĺbke sa pri lete posúva pomalšie (paralaxa)",
-    "Náhľad 1. mapy na karte sektora sa vykresľuje z rovnakého pozadia",
-    "Oprava: energetické jadro základne sa po pár minútach postupne skrútilo do víru – teraz zostáva stále rovnako pekné"
+    "Realistické pozadia aj pre ostatné mapy (počítané shadermi, s hĺbkou a pomalým pohybom): Vega Drift – tyrkysovo-fialová emisná hmlovina s prachovými piliermi a hviezdokopami; Orion Hlbina – čierna diera s horúcim diskom, ohnutým obrazom disku a fotónovým prstencom; Cygnus Prah – hviezda s vrúcou granuláciou, škvrnami, korónou a protuberanciami; Andromeda Brána – špirálová galaxia zošikma; Erebus Prázdnota – pozostatok supernovy s pulzarom; Pirátska aréna – pruhovaný plynný obor s prstencami",
+    "Náhľady všetkých máp na kartách sektorov sa kreslia z týchto pozadí",
+    "Hangár: veľké náhľady lodí z nových 3D modelov – spredu, z jemného uhla, so spotom pod loďou ako na výstave",
+    "Pomocné drony majú u obchodníka aj v hangári náhľad z 3D modelu (farba podľa lasera); na hangári dronov na stanici parkuje nový ťažobný dron (aj v náhľade modulu)"
   ]
 }
