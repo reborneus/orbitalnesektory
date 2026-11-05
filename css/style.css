@@ -164,7 +164,21 @@ body.pad .pg{display:block}
 .go{border:0;border-radius:9px;padding:13px;background:var(--hull);color:#04221e;font-weight:700;font-size:16px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
 .warp{position:fixed;inset:0;z-index:9;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 50%,#e9fffb 0,#58d0c0 18%,rgba(4,7,13,.95) 60%);transition:opacity .45s ease}
 .warp.on{opacity:1}
-@media (prefers-reduced-motion:reduce){.toast,.sheet,.pulse{animation:none}.warp,#radv{transition:none}}
+/* v0.28: obrazovka smrti */
+.death{position:fixed;inset:0;z-index:8;display:grid;place-items:center;pointer-events:none;opacity:0;transition:opacity .6s ease;
+  background:radial-gradient(ellipse at 50% 50%,rgba(60,4,10,.55) 0,rgba(20,2,6,.88) 55%,rgba(6,1,3,.97) 100%)}
+.death.on{opacity:1;pointer-events:auto}
+.deathBox{text-align:center;color:#ffd9d9;padding:0 16px;transform:scale(.94);transition:transform .8s ease}
+.death.on .deathBox{transform:scale(1)}
+.deathSkull{width:84px;height:84px;color:#ff3b3b;filter:drop-shadow(0 0 14px rgba(255,40,40,.7));animation:deathPulse 1s ease-in-out infinite}
+.deathBox h2{margin:10px 0 4px;font-size:28px;letter-spacing:.18em;text-transform:uppercase;color:#ff5a5a}
+.deathBox p{margin:4px 0;opacity:.85}
+.deathN{font-size:88px;font-weight:700;line-height:1.05;margin-top:14px;color:#fff;text-shadow:0 0 22px rgba(255,60,60,.8);font-variant-numeric:tabular-nums}
+.deathBarW{width:min(320px,70vw);height:4px;margin:10px auto;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden}
+.deathBarW i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff3b3b,#ffb0a0)}
+.deathSub{font-size:13px;opacity:.65!important}
+@keyframes deathPulse{50%{transform:scale(1.06)}}
+@media (prefers-reduced-motion:reduce){.toast,.sheet,.pulse{animation:none}.warp,#radv,.death{transition:none}.deathSkull{animation:none}}
 /* --- Úpravy pre mobil (úzka obrazovka) --- */
 @media (max-width:600px){
   .sector{flex-basis:100%;max-width:none}

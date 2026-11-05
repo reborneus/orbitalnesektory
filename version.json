@@ -1,11 +1,10 @@
 {
-  "version": "0.27.0",
-  "date": "2026-11-04",
+  "version": "0.28.0",
+  "date": "2026-11-05",
   "notes": [
-    "Nová obrazovka výbavy: loď v strede, okolo nej 6 štvorcov slotov (laser, motor, trup, štít, doplnok, zbraň) a šípky od lode k nim vo farbe rarity; prázdny slot ukazuje počet vhodných predmetov",
-    "Klik na predmet v inventári ho rovno nasadí / vymení s predmetom v lodi",
-    "Karta predmetu s možnosťami (vylepšiť, rozobrať, zamknúť, do skladu, zložiť) sa ukáže pri predmete pod myšou aj pod výberom ovládača; na širokej obrazovke vpravo vedľa okna",
-    "Skoková brána je 2,6× väčšia a naklonená, aby ňou vizuálne prešli aj veľké lode",
-    "Pri vkladaní predmetov sa dá zvoliť aj konkrétny typ predmetu"
+    "Oprava: po zničení a znovuzrodení loď už automaticky neletí späť na miesto smrti (zrušia sa útok, autopilotný cieľ aj čakajúce príkazy)",
+    "Nová obrazovka smrti s červenou lebkou, strateným nákladom a 5-sekundovým odpočtom; nová loď sa zrodí pri stanici až po odpočte",
+    "Po znovuzrodení má loď iba 20 % trupu a prázdny štít",
+    "Miesto poslednej smrti je na minimape označené červenou smrtkou (mimo dosahu sa drží pri okraji); keď k nemu priletíš, značka zmizne"
   ]
 }

@@ -61,16 +61,34 @@ function impactHit(impact,x,z,a){const k=clamp(impact/22,.15,1);shake=Math.max(s
   if(hitCD>0)return;hitCD=COLL.cooldown;const dmg=(impact-COLL.minSpeed)*COLL.perMs*(1-bonus().coll/100);if(dmg<=0)return;
   const o=damage(dmg,'hit');if(o.hull>0)hurtFlash(k);if(o.shield>0)bubbleT=1}
 function hurtFlash(k){const h=$('#hurt');h.style.setProperty('--k',(.35+k*.6).toFixed(2));h.classList.remove('on');void h.offsetWidth;h.classList.add('on')}
-function destroyShip(){dead=true;mineTarget=null;moveTarget=null;hideBeam(beam);shake=1;rumble(1,600);
+/* v0.28: smrť lode. Zapamätá miesto smrti (červená smrtka na minimape), zruší všetky ciele,
+   ktoré by loď po znovuzrodení ťahali späť (útok, autopilot, NPC), a spustí obrazovku smrti s odpočtom. */
+const RESPAWN_S=5,RESPAWN_HP=.2;   // čakanie na novú loď v sekundách a podiel trupu po znovuzrodení
+let respawnT=0,respawnTimer=null;
+function clearShipOrders(){mineTarget=null;moveTarget=null;attackTarget=null;openOnArrive=false;returnSent=false;apHurtSent=false;
+  if(typeof gunTgt!=='undefined'){gunTgt=null;gunTgtT=0}if(typeof npcOpenOnArrive!=='undefined')npcOpenOnArrive=null;if(typeof padTgt!=='undefined')padTgt=null}
+function destroyShip(){dead=true;clearShipOrders();hideBeam(beam);shake=1;rumble(1,600);
   for(let i=0;i<60;i++)emit(debris,ship.position,['#ffe2a8','#ff9a4d','#58d0c0'][i%3],.8+Math.random()*.9,new V3((Math.random()-.5)*30,Math.random()*8,(Math.random()-.5)*30));
   ship.visible=false;const lost=Math.floor(cargoTotal()+.05);for(const r of RES)state.cargo[r]=0;
   toast(lost>0?t('tt.destroyed',{n:lost}):t('tt.destroyed0'),'bad');
   // Nightmare: uložená hra sa zmaže hneď (nedá sa obísť obnovením stránky) a po výbuchu začne nová hra
   if(D().permadeath){nmDead=true;try{localStorage.removeItem(SAVE_KEY);localStorage.setItem(SAVE_KEY+'-nm',JSON.stringify({sec:state.cur,cap:state.sec.filter(x=>x.captured).length,cr:Math.floor(state.credits)}))}catch(e){}
     toast(t('tt.nmOver'),'bad');setTimeout(()=>$('#warp').classList.add('on'),900);setTimeout(()=>{$('#warp').classList.remove('on');newGame();pendingDiff='nightmare';renderIntro()},2600);return}
-  setTimeout(()=>$('#warp').classList.add('on'),900);
-  setTimeout(()=>{ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;state.hp=shipVal('hull');state.sh=shieldMax();hullSince=99;shSince=99;lastZone=1;
-    ship.visible=true;dead=false;$('#warp').classList.remove('on');toast(t('tt.respawn'));save()},1500)}
+  if(!inArena())state.deathPos={s:state.cur,x:+ship.position.x.toFixed(1),z:+ship.position.z.toFixed(1)};
+  deathScreen(lost);save()}
+/* Obrazovka smrti: po krátkom výbuchu sa ukáže prekrytie s odpočtom; po RESPAWN_S sekundách sa loď zrodí pri stanici. */
+function deathScreen(lost){const el=$('#death');respawnT=RESPAWN_S;
+  $('#deathT').textContent=t('death.title');$('#deathSub').textContent=t('death.sub');$('#deathLost').textContent=lost>0?t('death.lost',{n:lost}):t('death.lost0');$('#deathN').textContent=RESPAWN_S;
+  setTimeout(()=>{if(dead)el.classList.add('on')},600);
+  const end=performance.now()+RESPAWN_S*1000;   // odpočet podľa skutočného času (nezávisí od plynulosti snímok)
+  clearInterval(respawnTimer);respawnTimer=setInterval(()=>{respawnT=(end-performance.now())/1000;$('#deathN').textContent=Math.max(1,Math.ceil(respawnT-.001));
+    $('#deathBar').style.width=(Math.max(0,1-respawnT/RESPAWN_S)*100).toFixed(1)+'%';
+    if(respawnT<=.45)$('#warp').classList.add('on');
+    if(respawnT<=0){clearInterval(respawnTimer);respawnShip()}},100)}
+function respawnShip(){clearShipOrders();autoPause=2;
+  ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;ship.rotation.y=0;
+  state.hp=Math.max(1,shipVal('hull')*RESPAWN_HP);state.sh=0;hullSince=0;shSince=0;lastZone=1;   // nová loď má len 20 % trupu a prázdny štít
+  ship.visible=true;dead=false;$('#death').classList.remove('on');$('#warp').classList.remove('on');toast(t('tt.respawn'));save()}
 /* Automatizácia: autoPause = sekundy, počas ktorých je autopilot pozastavený po ručnom zásahu. */
 /* automation: auto-return when full, and the autopilot loop (mine chosen resource -> haul home -> repeat) */
 let autoPause=0,returnSent=false,apNoneT=0,apHurtSent=false;

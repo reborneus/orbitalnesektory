@@ -36,6 +36,12 @@ mini.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();s
   const r=mini.getBoundingClientRect();const x=((e.clientX-r.left)/r.width*2-1)*MINI_R,z=((e.clientY-r.top)/r.height*2-1)*MINI_R;
   const p=clampLimit(new V3(x,0,z));cmdMove(p);flashMarker(p,'#58d0c0')});
 function sizeMini(){const css=mini.clientWidth||150;const dpr=Math.min(devicePixelRatio||1,2);const px=Math.round(css*dpr);if(mini.width!==px){mini.width=px;mini.height=px}}
+/* Malá červená smrtka na minimape (lebka + čeľusť + očnice), kreslená cestami, nie písmom. */
+function miniSkull(g,x,y,u){const s=3.6*u;g.save();g.shadowColor='#ff2a2a';g.shadowBlur=5*u;g.fillStyle='#ff4040';
+  g.beginPath();g.arc(x,y-s*.15,s,Math.PI*.85,Math.PI*2.15);g.lineTo(x+s*.55,y+s*.95);g.lineTo(x-s*.55,y+s*.95);g.closePath();g.fill();
+  g.shadowBlur=0;g.fillStyle='#1a0306';g.beginPath();g.arc(x-s*.42,y-s*.12,s*.3,0,TAU);g.arc(x+s*.42,y-s*.12,s*.3,0,TAU);g.fill();
+  g.beginPath();g.moveTo(x,y+s*.22);g.lineTo(x-s*.14,y+s*.48);g.lineTo(x+s*.14,y+s*.48);g.closePath();g.fill();
+  g.fillRect(x-s*.2,y+s*.68,s*.08,s*.27);g.fillRect(x+s*.12,y+s*.68,s*.08,s*.27);g.restore()}
 function drawMini(){const W=mini.width,c=W/2,R=c-1,k=R/MINI_R,u=W/150;const g=mctx;
   g.clearRect(0,0,W,W);g.save();g.beginPath();g.arc(c,c,R,0,TAU);g.clip();
   g.fillStyle='rgba(6,11,20,.85)';g.fillRect(0,0,W,W);
@@ -59,6 +65,9 @@ function drawMini(){const W=mini.width,c=W/2,R=c-1,k=R/MINI_R,u=W/150;const g=mc
     g.beginPath();g.moveTo(x+fx*s,y+fz*s);g.lineTo(x-fx*s*.7+fz*s*.7,y-fz*s*.7-fx*s*.7);g.lineTo(x-fx*s*.7-fz*s*.7,y-fz*s*.7+fx*s*.7);g.closePath();g.fill()}
   // lode NPC: fialový štvorec = zadávateľ misií, zlatý = obchodník
   for(const n of npcs){const x=c+n.pos.x*k,y=c+n.pos.z*k,s=3.4*u;g.fillStyle=n.kind==='trader'?'#ffd27a':MCOL;g.strokeStyle='#fff';g.lineWidth=.8*u;g.fillRect(x-s,y-s,s*2,s*2);g.strokeRect(x-s,y-s,s*2,s*2)}
+  // miesto poslednej smrti: červená smrtka (mimo dosahu minimapy sa prilepí k okraju); keď k nemu loď priletí, značka zmizne
+  const dp=state.deathPos;if(dp&&dp.s===state.cur&&!dead){if(Math.hypot(ship.position.x-dp.x,ship.position.z-dp.z)<10)state.deathPos=null;
+    else{let x=dp.x*k,y=dp.z*k;const L=Math.hypot(x,y),mx=R-6*u;if(L>mx){x*=mx/L;y*=mx/L}miniSkull(g,c+x,c+y,u)}}
   if(gate){g.strokeStyle='#7ef2e2';g.lineWidth=1.4*u;g.beginPath();g.arc(c+gate.position.x*k,c+gate.position.z*k,3.2*u,0,TAU);g.stroke()}
   const won=cur().captured;g.fillStyle=won?'#ffd27a':'#58d0c0';g.beginPath();for(let i=0;i<6;i++){const an=i/6*TAU;g.lineTo(c+Math.cos(an)*4*u,c+Math.sin(an)*4*u)}g.closePath();g.fill();
   g.fillStyle='#ffe2a8';for(const d of drones){g.beginPath();g.arc(c+d.g.position.x*k,c+d.g.position.z*k,1.2*u,0,TAU);g.fill()}

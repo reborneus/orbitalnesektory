@@ -81,6 +81,12 @@
 </div>
 <!-- Príručka (wiki): obsah vykresľuje renderWiki() v js/wiki.js -->
 <div class="wiki" id="wiki" hidden></div>
+<!-- Obrazovka smrti: odpočet do znovuzrodenia (deathScreen v js/control.js) -->
+<div class="death" id="death" aria-live="assertive"><div class="deathBox">
+  <svg class="deathSkull" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4C17 4 7 14 7 28c0 8 4 14 9 17v8c0 3 2 5 5 5h22c3 0 5-2 5-5v-8c5-3 9-9 9-17C57 14 47 4 32 4z" fill="currentColor"/><circle cx="21.5" cy="29" r="7" fill="#12030a"/><circle cx="42.5" cy="29" r="7" fill="#12030a"/><path d="M32 37l-4.5 7h9z" fill="#12030a"/><rect x="24" y="50" width="3" height="8" fill="#12030a"/><rect x="30.5" y="50" width="3" height="8" fill="#12030a"/><rect x="37" y="50" width="3" height="8" fill="#12030a"/></svg>
+  <h2 id="deathT"></h2><p id="deathLost"></p>
+  <div class="deathN" id="deathN">5</div><div class="deathBarW"><i id="deathBar"></i></div><p class="deathSub" id="deathSub"></p>
+</div></div>
 <div class="warp" id="warp"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
