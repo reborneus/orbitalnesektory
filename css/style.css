@@ -816,3 +816,6 @@ body.pad .wbtn.ready .wbpad{display:block}
 /* v0.38: zamknuté úrovne výzvy */
 .trsq.lock{display:grid;place-items:center;background:rgba(255,255,255,.02);border-color:rgba(130,175,215,.18);opacity:.75}
 .trsq.lock svg{width:46%;height:46%;stroke:var(--muted);fill:none;stroke-width:1.8}
+
+/* v0.39: pri ovládaní ovládačom sa systémový kurzor myši skryje (vráti sa pri pohybe myšou) */
+body.pad,body.pad *{cursor:none!important}

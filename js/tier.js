@@ -4,7 +4,9 @@
    radiácia je silnejšia – ale rastú aj odmeny: suroviny, kredity, XP a šanca na vzácnejšiu korisť.
    state.tier = 0 (bez výzvy) až TIER_MAX. tierMul(druh) vráti násobok; v paneli sa ukazuje v percentách. */
 const TIER_MAX=16;
-const TIER={hp:1.35,dmg:1.2,rad:1.08,gain:1.17,mf:.12,top:.15};   // za každú úroveň výzvy
+/* v0.39: výdrž pirátov rastie s výzvou strmo (×2,5 za úroveň, +16 ≈ ×2,3 milióna), aby na vrchole – s najlepšou výbavou
+   (stovky miliónov až miliardy na výstrel) – padali stredne silní piráti na +16 na 1–2 rany a nižšie výzvy pôsobili postupne ľahšie. */
+const TIER={hp:2.5,dmg:1.25,rad:1.08,gain:1.17,mf:.12,top:.15};   // za každú úroveň výzvy
 function tierMul(k){const n=(state&&state.tier)||0;if(!n)return 1;
   if(k==='mf')return TIER.mf*n;                 // pripočíta sa k mf (0.12 = +12 % za úroveň)
   if(k==='top')return 1+TIER.top*n;             // násobok šance na najvyššiu povolenú raritu
