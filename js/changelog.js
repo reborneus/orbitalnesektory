@@ -2,6 +2,15 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.46.0",
+"d": "2026-11-05",
+"n": [
+"Loot filter (Nastavenia → Hra): označ rarity, ktoré nechceš zbierať – takéto predmety sa neobjavia ako korisť ani v inventári, ale hneď sa na pozadí rozoberú na kredity.",
+"Predané predmety sa zhrnú do jednej správy (počet a získané kredity). Nastavenie je spoločné pre všetky sloty uložených hier.",
+"Príručka: loot filter v kapitole Automatizácia."
+]
+},
+{
 "v": "0.45.0",
 "d": "2026-11-05",
 "n": [
@@ -235,15 +244,6 @@ const CHANGELOG=[
 "n": [
 "Úroveň výzvy sa presunula z Nastavení do stanice – nová záložka Výzva vedľa Skladu",
 "Výzva ako 16 štvorčekov, ktoré sa plnia červenou – čím vyššia úroveň, tým sýtejšia; klik na štvorček nastaví úroveň priamo (klik na aktuálny ju zníži), ✕ / − / + zostali aj pre ovládač"
-]
-},
-{
-"v": "0.33.0",
-"d": "2026-11-05",
-"n": [
-"Nad stanicou, zadávateľom misií, obchodníkom a skokovou bránou je polopriehľadné okrúhle tlačidlo s ikonou a názvom (mimo dosahu aj so vzdialenosťou); myš nad ním ho zvýrazní",
-"Menu sa otvára len cez tieto tlačidlá: v dosahu tlačidlo svieti a otvorí menu hneď, inak loď k objektu doletí a menu otvorí po prílete; klik inde na stanicu či NPC je obyčajný presun lode",
-"Pri prelete okolo stanice, NPC alebo brány sa okno už samo neotvára"
 ]
 }
 ];
