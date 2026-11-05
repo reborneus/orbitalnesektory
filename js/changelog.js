@@ -2,6 +2,14 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.39.0",
+"d": "2026-11-05",
+"n": [
+"Balans pirátov: výdrž rastie s úrovňou výzvy oveľa strmšie (×2,5 za úroveň), poškodenie mierne (×1,25); s rastúcou výbavou hra pôsobí postupne ľahšie a na úplnom vrchole (najlepšia výbava, výzva +16) padnú stredne silní piráti (korzári) na 1–2 rany, stíhačky na jednu, fregaty na 4–5",
+"Ovládač: pri ovládaní ovládačom sa kurzor myši automaticky skryje (vráti sa, keď pohneš myšou)"
+]
+},
+{
 "v": "0.38.0",
 "d": "2026-11-05",
 "n": [
@@ -238,14 +246,6 @@ const CHANGELOG=[
 "d": "2026-11-04",
 "n": [
 "Oprava spúšťacieho panela pre Windows: v0.23.1 sa panel vôbec neotvoril (chyba v skripte panela); teraz sa opäť otvorí"
-]
-},
-{
-"v": "0.24.0",
-"d": "2026-11-04",
-"n": [
-"Korisť vo vesmíre (z asteroidov, pirátov) je teraz otáčajúca sa kozmická kocka: na stenách vesmír (špirálová galaxia, hmlovina vo farbe rarity, blikajúce hviezdy), svietiace biele hrany; každý predmet má iný vzor a jednu z variant (samotná kocka / vnútorná drôtená kocka točiaca sa opačne / väčší drôtený rám), od Mytickej vždy s rámom; farby rarity, svetelný stĺp aj krúžok ostali",
-"Anomália v aréne je veľká fialová kozmická kocka s rámom"
 ]
 }
 ];
