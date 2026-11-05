@@ -2,6 +2,16 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.49.0",
+"d": "2026-11-05",
+"n": [
+"Štítová bublina je väčšia a obopína celú loď (podľa rozmerov modelu), takže už nepreráža trup – aj pri veľkých lodiach.",
+"Bublina je viditeľná len pri úbytku štítu (zásah, radiácia) a pri jeho dobíjaní; inak je neviditeľná.",
+"Zásah strely piráta alebo náraz asteroidu do štítu vytvorí na mieste dopadu záblesk s rozbiehajúcou sa vlnou.",
+"Oprava: radiácia teraz ubíja štíty v pomere, v akom sa štíty v0.47 zväčšili (napr. 7× pri plne vylepšených štítoch), takže v radiácii vydržia rovnako dlho ako predtým. Do trupu ostáva radiácia rovnaká."
+]
+},
+{
 "v": "0.48.0",
 "d": "2026-11-05",
 "n": [
@@ -238,15 +248,6 @@ const CHANGELOG=[
 "Grafika → Limit snímok: 30 / 60 / 120 / 144 / 240 / Podľa monitora; presnejšie dodržiavanie limitu",
 "Grafika → Ukazovať FPS: malé počítadlo snímok hore v strede obrazovky",
 "Spúšťače (Windows, Mac) spúšťajú prehliadač s plným využitím grafickej karty"
-]
-},
-{
-"v": "0.36.0",
-"d": "2026-11-05",
-"n": [
-"Zničenie tvojej lode počas nájazdu na stanicu = prehraný súboj: stanica sa hneď vyradí ako pri jej zničení (piráti ukradnú časť surovín, stanica je na chvíľu mimo prevádzky)",
-"Odpočet po smrti trvá 10 s a obnovenie treba potvrdiť: Obnoviť na základni (zadarmo, 20 % trupu) alebo Plné obnovenie za kredity (trup aj štíty na maximum, cena podľa veľkosti trupu a štítov)",
-"Na obrazovke smrti funguje aj Enter (obnovenie na základni) a ovládač: A = na základni, X = plné obnovenie"
 ]
 }
 ];

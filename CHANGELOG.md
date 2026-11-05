@@ -2,6 +2,14 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.49
+
+### v0.49.0 · 2026-11-05
+- Štítová bublina je väčšia a obopína celú loď (podľa rozmerov modelu), takže už nepreráža trup – aj pri veľkých lodiach.
+- Bublina je viditeľná len pri úbytku štítu (zásah, radiácia) a pri jeho dobíjaní; inak je neviditeľná.
+- Zásah strely piráta alebo náraz asteroidu do štítu vytvorí na mieste dopadu záblesk s rozbiehajúcou sa vlnou.
+- Oprava: radiácia teraz ubíja štíty v pomere, v akom sa štíty v0.47 zväčšili (napr. 7× pri plne vylepšených štítoch), takže v radiácii vydržia rovnako dlho ako predtým. Do trupu ostáva radiácia rovnaká.
+
 ## 0.48
 
 ### v0.48.0 · 2026-11-05
