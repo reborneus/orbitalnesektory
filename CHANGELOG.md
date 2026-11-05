@@ -2,6 +2,14 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.48
+
+### v0.48.0 · 2026-11-05
+- Epické a Legendárne predmety padajú o 25 % menej často.
+- Šanca na lepšiu korisť z výbavy, pilota, výskumu a úrovne výzvy sa už nepripočítava, ale násobí: +66 % = šanca na Vzácne a lepšie × 1,66 (napr. 10 % → 16,6 %). Základná šanca sa nemení.
+- Loot filter: pre každú raritu Nechať, Predať alebo Podmienka – nechá si len predmety s aspoň zadaným počtom zlatých (vzácnych) vlastností, červených (mýtických) vlastností alebo so všetkými vlastnosťami červenými. Staršie nastavenie filtra sa prevedie automaticky.
+- Príručka: loot filter s podmienkami a násobenie šance na korisť.
+
 ## 0.47
 
 ### v0.47.0 · 2026-11-05

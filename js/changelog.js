@@ -2,6 +2,16 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.48.0",
+"d": "2026-11-05",
+"n": [
+"Epické a Legendárne predmety padajú o 25 % menej často.",
+"Šanca na lepšiu korisť z výbavy, pilota, výskumu a úrovne výzvy sa už nepripočítava, ale násobí: +66 % = šanca na Vzácne a lepšie × 1,66 (napr. 10 % → 16,6 %). Základná šanca sa nemení.",
+"Loot filter: pre každú raritu Nechať, Predať alebo Podmienka – nechá si len predmety s aspoň zadaným počtom zlatých (vzácnych) vlastností, červených (mýtických) vlastností alebo so všetkými vlastnosťami červenými. Staršie nastavenie filtra sa prevedie automaticky.",
+"Príručka: loot filter s podmienkami a násobenie šance na korisť."
+]
+},
+{
 "v": "0.47.0",
 "d": "2026-11-05",
 "n": [
@@ -237,20 +247,6 @@ const CHANGELOG=[
 "Zničenie tvojej lode počas nájazdu na stanicu = prehraný súboj: stanica sa hneď vyradí ako pri jej zničení (piráti ukradnú časť surovín, stanica je na chvíľu mimo prevádzky)",
 "Odpočet po smrti trvá 10 s a obnovenie treba potvrdiť: Obnoviť na základni (zadarmo, 20 % trupu) alebo Plné obnovenie za kredity (trup aj štíty na maximum, cena podľa veľkosti trupu a štítov)",
 "Na obrazovke smrti funguje aj Enter (obnovenie na základni) a ovládač: A = na základni, X = plné obnovenie"
-]
-},
-{
-"v": "0.35.0",
-"d": "2026-11-05",
-"n": [
-"Zvuk: všetky zvuky a hudba sa tvoria priamo v hre (bez súborov) – kliknutia a prechody po tlačidlách, otváranie okien, upozornenia, výstrely podľa rarity zbrane (aj veže a sprievodné drony), blesk, výstrely pirátov, zásahy, výbuchy, zbieranie koristi, vykladanie, skok bránou, poplach a odpočet pri smrti",
-"Nepretržité zvuky: hukot motorov podľa rýchlosti lode a bzučanie ťažobného lasera",
-"Generovaná ambientná vesmírna hudba (pomalé akordy, basový tón, hviezdne zvončeky s ozvenou); v boji sa pridá tepajúca vrstva, v hlavnom menu je jasnejšia",
-"Priestorový zvuk (HRTF): výstrely a výbuchy počuť zo strany, kde sa dejú, vzdialené tichšie – najlepšie v slúchadlách; dá sa vypnúť",
-"Nastavenia → Zvuk: celková hlasitosť, hudba, efekty, rozhranie a priestorový zvuk",
-"Nastavenia sú rozdelené do sekcií: Uloženie, Hra, Ovládanie, Rozhranie, Grafika, Zvuk (z hlavného menu len spoločné sekcie)",
-"Grafika: predvoľby Nízka / Stredná / Vysoká / Ultra a jednotlivo rozlíšenie vykresľovania, množstvo častíc, animované pozadie a limit snímok (30 / 60 / bez limitu)",
-"Ovládanie: dá sa vypnúť sledovanie kurzora pri držaní tlačidla"
 ]
 }
 ];
