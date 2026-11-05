@@ -2,6 +2,15 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.31.0",
+"d": "2026-11-05",
+"n": [
+"Nové minerály vo vysokom rozlíšení: tmavý kameň s veľkými štiepnymi plochami, drsným povrchom a bronzovým nádychom na hranách",
+"Cez kameň vedú svietiace pukliny ako blesky, okolo nich vnútorný svit a trblietky – ruda oranžovo, viridit zeleno, kryštály fialovo, zmiešané asteroidy všetkými tromi farbami a relikty zlato",
+"Žily jemne pulzujú; tvar aj vzor povrchu sa počítajú v hre (bez obrázkov), takže je každý asteroid iný"
+]
+},
+{
 "v": "0.30.0",
 "d": "2026-11-05",
 "n": [
@@ -220,14 +229,6 @@ const CHANGELOG=[
 "Dostrel: bežní piráti strieľajú kratšie ako tvoja zbraň (stíhačky 82 %, korzári 88 %, fregaty 95 %), bossovia ďalej (Dreadnought 120 %, krížnik 135 %); posúva sa s vylepšením dosahu",
 "Mapy ešte 2× väčšie (spolu 8× oproti v0.14), väčšie pozadie hmloviny",
 "Nájazdy pirátov prilietajú z pásu 4, aby na veľkých mapách neleteli príliš dlho"
-]
-},
-{
-"v": "0.16.1",
-"d": "2026-11-04",
-"n": [
-"Mapy ešte 2× väčšie (spolu 4× oproti v0.14), počet asteroidov ostal rovnaký",
-"Pásy, horizont, brána, obchodník, zadávateľ misií aj aréna sa zväčšili s mapou; autopilot hľadá ciele do väčšej vzdialenosti"
 ]
 }
 ];
