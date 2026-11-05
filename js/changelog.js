@@ -2,6 +2,18 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.42.0",
+"d": "2026-11-05",
+"n": [
+"Aréna: pred štartom (aj hneď po príchode do arény) si vyberieš, odkiaľ začať – od 1. vlny alebo hneď za ktorýmkoľvek porazeným bossom (napr. od vlny 21, 41…). Výber funguje aj na ovládači.",
+"Nový strom výskumu (Pilot → Výskum): od 70. úrovne pilota idú všetky XP aj do výskumu – 250 úrovní, každá dá 1 bod výskumu.",
+"Strom má 6 vetiev (zbrane, obrana, ťažba, let, obchod, stanica) a 265 uzlov: základné vylepšenia (napr. +1 % poškodenia, štítov, ťažby), význačné uzly so silnejšími bonusmi a 18 kľúčových uzlov so špeciálnymi schopnosťami.",
+"Špeciálne schopnosti napr.: Odrazený lúč a Reťazový výboj (laser preskočí na ďalších nepriateľov), Supernova, Zrkadlový štít (odrazí pirátsku strelu na iného piráta), Nanoopravy, Posledná šanca, Rezonančný lúč (ťaží viac asteroidov naraz), Úskok, Zlatý dotyk, Prepojené veže a ďalšie.",
+"Strom sa ovláda ťahaním (posun), kolieskom alebo dvoma prstami (priblíženie), tlačidlami +/− aj ovládačom; výskum sa dá za kredity vynulovať.",
+"Štatistiky pilota v stĺpci Celkom zarátavajú aj výskum."
+]
+},
+{
 "v": "0.41.0",
 "d": "2026-11-05",
 "n": [
@@ -231,13 +243,6 @@ const CHANGELOG=[
 "Bez systémových posuvníkov: menu sa už nikdy neposúvajú do strany a zvislé posuvníky sú tenké vo farbe hry",
 "Náhľad mýtických a prvotných predmetov pulzuje len jasom (zväčšovanie vytváralo blikajúce posuvníky)",
 "Panel stanice: opravené rozloženie rozbaleného slotu (zoznam modulov je pod slotom cez celú šírku), panel je širší a tlačidlo Postaviť sa zalomí, keď sa nezmestí"
-]
-},
-{
-"v": "0.31.3",
-"d": "2026-11-05",
-"n": [
-"Uložiť a ukončiť: na webe, v aplikácii z plochy aj na telefóne hra po uložení vždy prejde do hlavného menu (prehliadač už nezatvorí kartu a neprejde na predchádzajúcu stránku); okno sa zatvára len v hre spustenej zo spúšťača na PC"
 ]
 }
 ];
