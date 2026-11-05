@@ -9,10 +9,10 @@ const SHIP_R=2.3,inVec=new V3(),padVec=new V3(),_dv=new V3(),_des=new V3(),_a=ne
 const mineRange=a=>astScale(a)*1.1+shipVal('range');
 const mineStop=a=>mineRange(a)-2.5;
 const nearStation=()=>Math.hypot(ship.position.x,ship.position.z)<STATION_R+14;
-function cmdMove(p){autoPause=6;attackTarget=null;moveTarget=p.clone().setY(0);mineTarget=null;openOnArrive=false;if(typeof gateOpenOnArrive!=='undefined')gateOpenOnArrive=false}
-function cmdMine(a){attackTarget=null;if(a.type!=='relic'&&cargoTotal()>=shipVal('cargo')-.01){toast(t('tt.cargoFull'));return}
+function cmdMove(p){autoPause=6;attackTarget=null;huntAuto=false;huntRes=null;moveTarget=p.clone().setY(0);mineTarget=null;openOnArrive=false;if(typeof gateOpenOnArrive!=='undefined')gateOpenOnArrive=false}
+function cmdMine(a){attackTarget=null;huntAuto=false;huntRes=null;if(a.type!=='relic'&&cargoTotal()>=shipVal('cargo')-.01){toast(t('tt.cargoFull'));return}
   mineTarget=a;moveTarget=a.pos.clone().setY(0);openOnArrive=false;fullWarned=false}
-function cmdHome(){attackTarget=null;const dir=ship.position.clone().setY(0);if(dir.lengthSq()<1)dir.set(0,0,1);dir.normalize().multiplyScalar(STATION_R+2);moveTarget=dir;mineTarget=null}
+function cmdHome(){attackTarget=null;huntAuto=false;huntRes=null;const dir=ship.position.clone().setY(0);if(dir.lengthSq()<1)dir.set(0,0,1);dir.normalize().multiplyScalar(STATION_R+2);moveTarget=dir;mineTarget=null}
 function goHome(){autoPause=6;closeSheet();cmdHome();toast(t('tt.home'))}
 function mineNearest(){autoPause=6;
   // pirát v dosahu zbrane má prednosť: tlačidlo ťažby ho zameria
@@ -65,7 +65,7 @@ function hurtFlash(k){sfx('hurt');const h=$('#hurt');h.style.setProperty('--k',(
    ktoré by loď po znovuzrodení ťahali späť (útok, autopilot, NPC), a spustí obrazovku smrti s odpočtom. */
 const RESPAWN_S=10,RESPAWN_HP=.2,RESPAWN_FULL_K=.3;   // v0.36: odpočet 10 s, potom treba obnovenie potvrdiť; plné obnovenie stojí kredity = (trup + štíty) × RESPAWN_FULL_K   // čakanie na novú loď v sekundách a podiel trupu po znovuzrodení
 let respawnT=0,respawnTimer=null;
-function clearShipOrders(){mineTarget=null;moveTarget=null;attackTarget=null;openOnArrive=false;returnSent=false;apHurtSent=false;
+function clearShipOrders(){mineTarget=null;moveTarget=null;attackTarget=null;huntAuto=false;huntRes=null;openOnArrive=false;returnSent=false;apHurtSent=false;
   if(typeof gunTgt!=='undefined'){gunTgt=null;gunTgtT=0}if(typeof npcOpenOnArrive!=='undefined')npcOpenOnArrive=null;if(typeof padTgt!=='undefined')padTgt=null}
 function destroyShip(){dead=true;clearShipOrders();
   // v0.36: zničenie lode počas nájazdu = prehraný súboj → stanica je vyradená (ako keď ju piráti zničia)
@@ -106,11 +106,42 @@ function respawnShip(full){clearShipOrders();autoPause=2;
 /* automation: auto-return when full, and the autopilot loop (mine chosen resource -> haul home -> repeat) */
 let autoPause=0,returnSent=false,apNoneT=0,apHurtSent=false;
 const homeBound=()=>!mineTarget&&moveTarget&&Math.hypot(moveTarget.x,moveTarget.z)<=STATION_R+3;
+/* ==================== v0.40.1: AUTOMATICKÝ LOV PIRÁTOV (Nastavenia → Hra) ====================
+   Samostatne: loď ide po najbližšom nepriateľskom pirátovi v sektore, zostrelí ho, pozbiera korisť nablízku a pokračuje ďalším.
+   Spolu s ťažbou (autopilot alebo práve ťaží): ťažbu neprerušuje; keď sa asteroid vyčerpá a pirát je v dosahu ukazovateľa
+   na okraji obrazovky (EDGE_R), loď letí za ním. Po boji sa vráti k ťažbe tej istej suroviny (autopilot ťaží podľa seba).
+   Pri trupe pod 35 % lov končí. Ručné ovládanie ho na 6 s preruší (ako autopilot). */
+let huntRes=null,huntAuto=false;
+const HUNT_HP=.35;
+function huntFind(maxD){let best=null,bd=maxD;for(const e of enemies){if(e.leaving||e.manual||e.invuln||(e.passive&&!e.hostile)||Math.hypot(e.pos.x,e.pos.z)>=HORIZON-2)continue;
+  const d=ship.position.distanceTo(e.pos);if(d<bd){bd=d;best=e}}return best}
+function huntGo(e){attackTarget=e;huntAuto=true;mineTarget=null;moveTarget=null;flashMarker(e.pos,'#ff5a4a')}
+/* volá sa z autoNext po vyčerpaní asteroidu: true = loď letí za pirátom namiesto ďalšieho asteroidu */
+function huntAfterMine(a){if(!state.autoHunt||dead||state.hp/shipVal('hull')<HUNT_HP)return false;const e=huntFind(EDGE_R);if(!e)return false;
+  huntRes=a.type==='relic'?(huntRes||null):a.type;huntGo(e);return true}
+/* vráti true, kým lov prebieha (ostatná automatizácia čaká) */
+function tickHunt(){if(!state.autoHunt){huntAuto=false;huntRes=null;return false}
+  const hr=state.hp/shipVal('hull');
+  if(attackTarget&&enemies.includes(attackTarget)){if(huntAuto&&hr<HUNT_HP){attackTarget=null;huntAuto=false;moveTarget=null;return false}return true}
+  if(hr<HUNT_HP||mineTarget)return false;
+  const withMine=state.autoPilot||!!huntRes;   // spolu s ťažbou: len piráti v dosahu ukazovateľa
+  let e=huntFind(EDGE_R);if(e){huntGo(e);return true}
+  // po boji: korisť nablízku
+  if(huntAuto&&state.inv.length<INV_MAX){const L=nearestLoot(40*MAP_SCALE);if(L){if(!moveTarget||moveTarget.distanceTo(L.g.position)>1.5)moveTarget=L.g.position.clone().setY(0);return true}}
+  if(!withMine){e=huntFind(1e9);if(e){huntGo(e);return true}}
+  huntAuto=false;
+  // návrat k ťažbe (bez autopilota): najbližší asteroid tej istej suroviny
+  if(huntRes&&!state.autoPilot){const r=huntRes;huntRes=null;if(cargoTotal()<shipVal('cargo')-.01){let best=null,bd=1e9;
+    for(const o of asts){if(!o.alive||o.type!==r||Math.hypot(o.pos.x,o.pos.z)>=HORIZON-2)continue;const d=ship.position.distanceTo(o.pos);if(d<bd){bd=d;best=o}}
+    if(best){mineTarget=best;moveTarget=best.pos.clone().setY(0);flashMarker(best.pos,'#58d0c0')}}}
+  else if(state.autoPilot)huntRes=null;
+  return false}
 function toggleAutopilot(){state.autoPilot=!state.autoPilot;autoPause=0;toast(state.autoPilot?t('tt.apOn',{r:t('res.'+state.autoRes)}):t('tt.apOff'));save();renderSheet()}
 function tickAuto(dt){autoPause-=dt;apNoneT-=dt;
   const full=cargoTotal()>=shipVal('cargo')-.01;const ap=state.autoPilot;
   if(!full)returnSent=false;
   if(autoPause>0)return;
+  if(tickHunt())return;   // v0.40.1: automatický lov pirátov má prednosť (loď práve útočí alebo zbiera korisť)
   // autopilot: korisť v okolí pozbiera ako prvú (aj s plným nákladom – predmety náklad nezaberajú)
   if(ap&&!mineTarget&&state.inv.length<INV_MAX){const L=nearestLoot(70*MAP_SCALE);if(L){if(!moveTarget||moveTarget.distanceTo(L.g.position)>1.5)moveTarget=L.g.position.clone().setY(0);return}}
   // plný náklad: kým loď nesmeruje domov, znova nastaví kurz na stanicu (napr. po zbere koristi alebo ručnom zásahu)
@@ -173,7 +204,7 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   const thr=clamp(sp/maxSp,0,1);for(const e of ship.userData.eng){const s=1.4+thr*2.2+Math.random()*.3;e.scale.set(s,s,1)}
   if(sp>3&&Math.random()<dt*30*thr){for(const e of ship.userData.eng){const w=e.getWorldPosition(new V3());emit(trail,w,'#6fe3ff',.55+Math.random()*.3,new V3((Math.random()-.5)*1.5,0,(Math.random()-.5)*1.5))}}
   // mining
-  mining=false;
+  mining=false;let beamA=null;   // v0.40.1: lúč patrí len k asteroidu ťaženému v tomto snímku (po vyčerpaní nesmie bliknúť k ďalšiemu cieľu)
   if(mineTarget){const a=mineTarget;const range=mineRange(a);const d=ship.position.distanceTo(a.pos);
     if(!a.alive){stopMining()}
     else if(d<=range+.5){const capV=shipVal('cargo');const free=capV-cargoTotal();const y=D().yield*(1+bonus().yield/100)*tierMul('gain');const isRelic=a.type==='relic';
@@ -182,12 +213,12 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
         // relikt nedáva surovinu, len sa "vyťaží" a vypadne z neho predmet
         if(isRelic){a.amt-=Math.min(rate*dt,a.amt)}else{const take=Math.min(rate*dt,a.amt,free/y);a.amt-=take;
           if(a.mixp){for(const k in a.mixp){state.cargo[k]+=take*y*a.mixp[k];xpAt(take*y*a.mixp[k]*(XP.ton[k]||1))}}else{state.cargo[a.type]+=take*y;xpAt(take*y*(XP.ton[a.type]||1))}}setAstScale(a);
-        if(a.amt<=0){const rel=isRelic;depleteAst(a,true);if(!rel)toast(t('tt.depleted'))}
+        if(a.amt<=0){const rel=isRelic;depleteAst(a,true);if(!rel)toast(t('tt.depleted'))}else beamA=a;
         debrisT-=dt;if(debrisT<=0){debrisT=.06;const from=a.pos.clone().add(new V3((Math.random()-.5)*2,Math.random(),(Math.random()-.5)*2).multiplyScalar(astScale(a)*.8));
           emit(debris,from,a.type==='crystal'?'#b9a0ff':a.type==='green'?'#a8f080':'#ffb85c',.6,null,ship.position.clone())}}}
     else if(!moveTarget&&d>range*2.2){mineTarget=null}}
-  if(mining&&mineTarget){const nose=ship.localToWorld(NOSE.clone());const to=mineTarget.pos.clone().lerp(nose,.12);
-    setBeam(beam,nose,to,.32+Math.random()*.12,{ore:'#58d0c0',green:'#86e05a',crystal:'#a98bff',relic:'#ffd87a',mix:'#e8d8ff'}[mineTarget.type])}else hideBeam(beam);
+  if(beamA){const nose=ship.localToWorld(NOSE.clone());const to=beamA.pos.clone().lerp(nose,.12);
+    setBeam(beam,nose,to,.32+Math.random()*.12,{ore:'#58d0c0',green:'#86e05a',crystal:'#a98bff',relic:'#ffd87a',mix:'#e8d8ff'}[beamA.type])}else hideBeam(beam);
   const cg=ship.userData.core;const cs=(mining?4.6:3.2)*(1+Math.sin(tt*(mining?14:3))*.1);cg.scale.set(cs,cs,1);
   // unload at the station
   const dStation=Math.hypot(ship.position.x,ship.position.z);

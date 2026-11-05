@@ -495,7 +495,8 @@ function depleteAst(a,byPlayer){a.alive=false;a.respawn=a.type==='relic'?rnd(REL
     else if(a.type==='relic')giveItem(dropItem('relic',z,2),a.pos);else if(Math.random()<ASTEROID_DROP)spawnLoot(dropItem('asteroid',z),a.pos)}
   if(mineTarget===a){if(!autoNext(a))stopMining()}}
 /* optional auto-mining: move on to the nearest asteroid of the same resource while cargo has room */
-function autoNext(a){if(a.type==='relic'||state.autoMine===false||cargoTotal()>=shipVal('cargo')-.01)return false;let best=null,bd=40*MAP_SCALE;
+function autoNext(a){if(typeof huntAfterMine==='function'&&huntAfterMine(a))return true;   // v0.40.1: pirát v dosahu → najprv lov
+  if(a.type==='relic'||state.autoMine===false||cargoTotal()>=shipVal('cargo')-.01)return false;let best=null,bd=40*MAP_SCALE;
   for(const o of asts){if(o===a||!o.alive||o.type!==a.type||Math.hypot(o.pos.x,o.pos.z)>=HORIZON)continue;const d=ship.position.distanceTo(o.pos);if(d<bd){bd=d;best=o}}
   if(!best)return false;mineTarget=best;moveTarget=best.pos.clone().setY(0);flashMarker(best.pos,'#58d0c0');return true}
 function stopMining(){mineTarget=null;moveTarget=null}

@@ -48,6 +48,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   else if(full)h=t('h.full',{home:cap1(say('home'))});
   else if(state.autoPilot&&autoPause>0&&!mining)h=t('h.apPause');
   else if(state.autoPilot&&!dead&&nearStation()&&state.hp<hm*.7&&!mineTarget)h=t('h.apWait');
+  else if(huntAuto&&attackTarget&&enemies.includes(attackTarget))h=t('h.hunt',{d:Math.round(ship.position.distanceTo(attackTarget.pos))});
   else if(mining&&mineTarget&&mineTarget.type==='relic')h=t('h.relic');
   else if(mining&&mineTarget)h=(state.autoPilot?'Autopilot · ':'')+t('h.mining',{r:t('res.'+mineTarget.type+'.acc'),a:Math.floor(cargoTotal()+.05),b:Math.round(capV)});
   else if(mineTarget)h=t('h.flying');
@@ -133,6 +134,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
       ${SECTORS[state.cur].res.includes(state.autoRes)?'':`<div class="stat" style="color:var(--warn)">${t('set.ap.miss',{r:t('res.'+state.autoRes)})}</div>`}</div>`;
       h+=`<div class="card"><h3>${t('set.ret')}</h3>${onoff('autoReturn',state.autoReturn!==false)}<p>${t('set.ret.d')}</p></div>`;
       h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
+      h+=`<div class="card"><h3>${t('set.hunt')}</h3>${onoff('autoHunt',!!state.autoHunt)}<p>${t('set.hunt.d')}</p></div>`;
       h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`}
     else if(setTab==='ctrl'){
       h+=`<div class="card"><h3>${t('set.hold')}</h3>${onoff('holdFollow',state.holdFollow!==false)}<p>${t('set.hold.d')}</p></div>`;
