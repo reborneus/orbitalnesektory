@@ -87,8 +87,23 @@ function spawnAnomaly(){const g=new THREE.Group();const core=glow('#c38bff',9,.4
   const ring=new THREE.Mesh(new THREE.RingGeometry(4,4.4,64),new THREE.MeshBasicMaterial({color:new THREE.Color('#c38bff'),transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,toneMapped:false}));ring.rotation.x=-Math.PI/2;g.add(ring);
   const pil=new THREE.Mesh(CYL,new THREE.MeshBasicMaterial({color:new THREE.Color('#c38bff'),transparent:true,opacity:.25,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false}));pil.scale.set(1.2,30,1.2);pil.position.y=15;g.add(pil);
   const cube=cosmicCube('#b06bff',Math.random()*1000,2,3.2);cube.position.y=2.2;g.add(cube);   // v0.24: veľká kozmická kocka
-  g.position.set(0,1.5,0);world.add(g);anomaly={g,core,c2,ring,cube};toast(t('ar.anom'),true)}
-function removeAnomaly(){if(anomaly){world.remove(anomaly.g);anomaly=null}}
+  g.position.set(0,1.5,0);world.add(g);anomaly={g,core,c2,ring,cube};toast(t('ar.anom'),true);anomAlert(true)}
+function removeAnomaly(){if(anomaly){world.remove(anomaly.g);anomaly=null}anomAlert(false)}
+/* v0.51.1: pri objavení anomálie pulzuje v strede obrazovky oznámenie a veľká šípka na kruhu okolo stredu ukazuje k anomálii.
+   Text po ANOM_TXT s zmizne, šípka ostáva, kým loď nie je pri anomálii (bližšie ako ANOM_NEAR m). */
+const ANOM_TXT=6,ANOM_NEAR=30;let anomT=0,_anA=null,_anS=null;   // vektory sa vytvoria až pri použití (príručka sa načíta bez three.js)
+function anomAlert(on){let el=$('#anomAl');if(!el){if(!on)return;el=document.createElement('div');el.id='anomAl';
+    el.innerHTML=`<div class="an-txt"><b></b><span></span></div><div class="an-arr"><svg viewBox="0 0 64 64"><path d="M32 4L58 40H42V60H22V40H6Z"/></svg><span class="an-d"></span></div>`;document.body.appendChild(el)}
+  el.hidden=!on;anomT=on?ANOM_TXT:0;if(on){el.querySelector('b').textContent=t('an.t');el.querySelector('.an-txt span').textContent=t('an.d');el.classList.remove('txtoff')}}
+function tickAnomAlert(dt){const el=$('#anomAl');if(!el||el.hidden)return;if(!anomaly||!inArena()){el.hidden=true;return}
+  anomT-=dt;el.classList.toggle('txtoff',anomT<=0);
+  const ap=anomaly.g.position,d=Math.hypot(ap.x-ship.position.x,ap.z-ship.position.z);const arr=el.querySelector('.an-arr');
+  arr.hidden=d<ANOM_NEAR||dead;if(arr.hidden)return;
+  if(!_anA){_anA=new V3();_anS=new V3()}_anA.copy(ap).project(camera);_anS.copy(ship.position).project(camera);   // smer na obrazovke od lode k anomálii
+  const ax=(_anA.x-_anS.x)*innerWidth,ay=-(_anA.y-_anS.y)*innerHeight;
+  const ang=Math.atan2(ay,ax),R=Math.min(innerWidth,innerHeight)*.26;
+  arr.style.transform=`translate(${Math.cos(ang)*R}px,${Math.sin(ang)*R}px) rotate(${ang+Math.PI/2}rad)`;
+  const dl=arr.querySelector('.an-d');dl.textContent=Math.round(d)+' m';dl.style.transform=`rotate(${-(ang+Math.PI/2)}rad)`}
 /* odmena za vlnu w: kredity a suroviny rastú s vlnou, počet a kvalita predmetov tiež; občas „jackpot“ ×3 */
 function anomalyReward(w){const tm=typeof tierMul==='function'?tierMul('gain'):1;const jack=Math.random()<.05+w*.002;const m=(jack?3:1)*tm;
   // suroviny a kredity za všetkých ARENA_ANOM vĺn od poslednej anomálie
@@ -121,7 +136,7 @@ function arenaPick(){if(arenaRun)return;const o=arenaStarts();if(o.length<2){are
   el.innerHTML=`<div class="glass arask"><h3>${t('ar.pickH')}</h3><p>${t('ar.pickP',{n:astate().ckpt})}</p>
     <div class="arpick">${o.slice().reverse().map((w,i)=>`<button class="btn${i===0?' prim':''}" data-w="${w}">▶ ${t('ar.go',{n:w})}</button>`).join('')}<button class="btn" data-w="0">${t('ar.pickNo')}</button></div></div>`;
   el.hidden=false;dlgIdx=0}
-function tickArena(dt,tt){if(!inArena())return;const R=arenaRun;
+function tickArena(dt,tt){tickAnomAlert(dt);if(!inArena())return;const R=arenaRun;
   if(anomaly){anomaly.ring.rotation.z+=dt;anomaly.cube.userData.tick(dt,tt);anomaly.cube.position.y=2.2+Math.sin(tt*1.5)*.4;const k=1+.2*Math.sin(tt*3);anomaly.core.scale.set(9*k,9*k,1);anomaly.c2.material.color.setHSL((tt*.2)%1,.8,.7)}
   if(!R)return;
   // smrť: beh skončí a loď sa objaví na základni v 1. sektore

@@ -65,6 +65,7 @@ function bigInfo(I){let h='';const row=(a,b)=>`<div class="bm-r"><span>${a}</spa
   else if(I.t==='st'){const s=cur(),brk=typeof stationBroken==='function'&&stationBroken();
     h=`<h4 style="color:${brk?'#ff5a4a':s.captured?'#ffd27a':'#58d0c0'}">${t('bm.station')} · ${secName(state.cur)}</h4>`+row(t('bm.state'),brk?t('bm.broken'):s.captured?t('bm.captured'):t('bm.free'))
       +row(t('bm.core'),s.core)+row(t('bm.mods'),s.slots.filter(Boolean).length+' / '+slotsFor(s.core))+row(t('bm.dist'),_bd(new V3()))}
+  else if(I.t==='anom')h=`<h4 style="color:#c38bff">${t('an.t')}</h4><p>${t('an.d')}</p>`+row(t('bm.dist'),_bd(anomaly?anomaly.g.position:new V3()));
   else if(I.t==='death')h=`<h4 style="color:#ff5a4a">${t('bm.death')}</h4><p>${t('bm.deathD')}</p>`;
   else if(I.t==='ship')h=`<h4>${t('ship.'+state.shipId)}</h4>`+row(t('bm.hull'),`${fmtN(Math.ceil(state.hp))} / ${fmtN(shipVal('hull'))}`)+row(t('bm.cargo'),`${fmtN(Math.floor(cargoTotal()))} / ${fmtN(shipVal('cargo'))}`);
   return h}

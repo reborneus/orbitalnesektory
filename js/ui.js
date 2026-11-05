@@ -256,7 +256,7 @@ function jumpTo(i,instant,stay){if(jumping)return;   /* stay = znovunačítanie 
     // v0.26: po skoku sa loď objaví pri bráne (nos smerom k stanici), nie v strede pri stanici
     if(gate&&!SECTORS[i].arena&&!stay){const d=gate.position.clone().setY(0);const L=d.length()||1;ship.position.copy(d).addScaledVector(d,-15*GATE_K/L);shipYaw=Math.atan2(-d.x,-d.z);ship.rotation.y=shipYaw;lastZone=zoneOf(ship.position.length())}
     camTarget.copy(ship.position);save();updateHUD();
-    if(!instant&&!stay)toast(t('tt.jumped',{s:secName(i)}))}catch(e){console.error(e)}finally{w.classList.remove('on');jumping=false}},instant?50:480)}
+    if(!instant&&!stay)toast(t('tt.jumped',{s:secName(i)}));if(!stay&&typeof sectorBanner==='function')sectorBanner(i)}catch(e){console.error(e)}finally{w.classList.remove('on');jumping=false}},instant?50:480)}
 
 /* language */
 /* posledná prehratá Nightmare hra (uložená pri zničení lode) */

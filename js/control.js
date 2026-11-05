@@ -8,7 +8,7 @@ const SHIP_R=2.3,inVec=new V3(),padVec=new V3(),_dv=new V3(),_des=new V3(),_a=ne
 /* Dosah ťažby = polomer asteroidu + dosah lasera; loď zastaví 2,5 m pred hranicou dosahu. */
 const mineRange=a=>astScale(a)*1.1+shipVal('range');
 const mineStop=a=>mineRange(a)-2.5;
-const nearStation=()=>Math.hypot(ship.position.x,ship.position.z)<STATION_R+14;
+const nearStation=()=>!(typeof inArena==='function'&&inArena())&&Math.hypot(ship.position.x,ship.position.z)<STATION_R+14;   // v0.51.1: v aréne stanica nie je
 function cmdMove(p){autoPause=6;attackTarget=null;huntAuto=false;huntRes=null;moveTarget=p.clone().setY(0);mineTarget=null;openOnArrive=false;if(typeof gateOpenOnArrive!=='undefined')gateOpenOnArrive=false}
 function cmdMine(a){attackTarget=null;huntAuto=false;huntRes=null;if(a.type!=='relic'&&cargoTotal()>=shipVal('cargo')-.01){toast(t('tt.cargoFull'));return}
   mineTarget=a;moveTarget=a.pos.clone().setY(0);openOnArrive=false;fullWarned=false}
@@ -165,10 +165,10 @@ function tickAuto(dt){autoPause-=dt;apNoneT-=dt;
   // autopilot: korisť v okolí pozbiera ako prvú (aj s plným nákladom – predmety náklad nezaberajú)
   if(ap&&!mineTarget&&state.inv.length<INV_MAX){const L=nearestLoot(70*MAP_SCALE);if(L){if(!moveTarget||moveTarget.distanceTo(L.g.position)>1.5)moveTarget=L.g.position.clone().setY(0);return}}
   // plný náklad: kým loď nesmeruje domov, znova nastaví kurz na stanicu (napr. po zbere koristi alebo ručnom zásahu)
-  if(full&&!stationBroken()&&(ap||state.autoReturn!==false)&&!homeBound()&&Math.hypot(ship.position.x,ship.position.z)>STATION_R+5){cmdHome();if(!returnSent)toast(t('tt.autoHome'));returnSent=true}
+  if(full&&!stationBroken()&&!inArena()&&(ap||state.autoReturn!==false)&&!homeBound()&&Math.hypot(ship.position.x,ship.position.z)>STATION_R+5){cmdHome();if(!returnSent)toast(t('tt.autoHome'));returnSent=true}
   if(!ap)return;
   const hm=shipVal('hull'),hr=state.hp/hm;
-  if(hr<.35&&!nearStation()&&!stationBroken()){if(!apHurtSent&&!homeBound()){cmdHome();apHurtSent=true;toast(t('tt.apHurt'))}return}
+  if(hr<.35&&!nearStation()&&!stationBroken()&&!inArena()){if(!apHurtSent&&!homeBound()){cmdHome();apHurtSent=true;toast(t('tt.apHurt'))}return}
   apHurtSent=false;
   if(stationOk()&&hr<.7){
     if(!D().regen){const n=Math.min(Math.ceil((hm-state.hp)/REPAIR_PER_ORE),Math.floor(state.ore));if(n>0){state.ore-=n;state.hp=Math.min(hm,state.hp+n*REPAIR_PER_ORE);toast(t('tt.repaired',{n:n*REPAIR_PER_ORE}))}}
@@ -186,13 +186,14 @@ function radAt(r){const b=radBase(r)*tierMul('rad')*(r>=HORIZON&&typeof rsK==='f
 const zoneOf=r=>r<Z1?1:r<Z2?2:r<Z3?3:r<HORIZON?4:5;
 
 /* Pohyb lode každý snímok: loď mení rýchlosť smerom k želanej rýchlosti najviac o hodnotu zrýchlenia (preto má zotrvačnosť). */
+let moveSpdK=1;   // v0.51.1: násobok rýchlosti pri lete na bod (krúženie okolo statického piráta = 0,5)
 function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   const desired=_des.set(0,0,0);
   if(inVec.lengthSq()>.0001){autoPause=6;moveTarget=null;openOnArrive=false;desired.copy(inVec).multiplyScalar(maxSp)}
   else if(moveTarget){_v.subVectors(moveTarget,ship.position);_v.y=0;const dist=_v.length();
     const stop=mineTarget?mineStop(mineTarget):.6;
     if(!mineTarget&&blockedAt(moveTarget)){moveTarget=null}
-    else if(dist>stop){const sp=Math.min(maxSp,Math.sqrt(2*acc*.8*(dist-stop))+.4);desired.copy(_v).normalize().multiplyScalar(sp);avoid(desired)}
+    else if(dist>stop){const sp=Math.min(maxSp*(attackTarget?moveSpdK:1),Math.sqrt(2*acc*.8*(dist-stop))+.4);desired.copy(_v).normalize().multiplyScalar(sp);avoid(desired)}
     else if(!mineTarget)moveTarget=null}
   const dsp=desired.length();
   // velocity moves toward the wanted velocity no faster than the ship's acceleration allows
@@ -247,7 +248,7 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   const cg=ship.userData.core;const cs=(mining?4.6:3.2)*(1+Math.sin(tt*(mining?14:3))*.1);cg.scale.set(cs,cs,1);
   // unload at the station
   const dStation=Math.hypot(ship.position.x,ship.position.z);
-  if(dStation<STATION_R+5&&cargoTotal()>0&&!stationBroken()){const parts=[];   // v0.41: vyradená stanica náklad neprijme
+  if(dStation<STATION_R+5&&cargoTotal()>0&&!stationBroken()&&!inArena()){   // v aréne sa v strede nevykladáconst parts=[];   // v0.41: vyradená stanica náklad neprijme
     for(const r of RES){const n=Math.floor(state.cargo[r]);if(state.cargo[r]>0)missionDeliver(r,state.cargo[r]);state[r]+=state.cargo[r];state.cargo[r]=0;if(n>0){parts.push(t('res.'+r+'.gain',{n}));bump('#'+RCLS[r]+'Txt')}}
     fullWarned=false;if(parts.length){toast(t('tt.unloaded',{list:parts.join(', ')}));sfx('coin')}save();refreshSheet()}
   if(openOnArrive&&dStation<STATION_R+8){openOnArrive=false;openSheet('station')}

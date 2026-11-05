@@ -18,7 +18,7 @@ const pctUp=m=>'+'+fmtN(Math.round((m-1)*100))+' %';
    Všetkých 16 je pri 25. vlne a obsadení mapách; strop sa dá zvýšiť pridaním ďalších úrovní (TIER_MAX). */
 function tierUnlocked(){const cap=(state.sec||[]).filter(x=>x.captured).length;const best=(state.arena&&state.arena.best)||0;return Math.min(TIER_MAX,cap+2*Math.floor(best/5))}
 const tierCol=k=>`hsl(${(4-k*.25).toFixed(1)},${(38+k*3.7).toFixed(0)}%,${(30+k*1.5).toFixed(0)}%)`;
-function tierCard(){const n=state.tier||0,can=nearStation()&&!(typeof arenaRun!=='undefined'&&arenaRun);
+function tierCard(){const n=state.tier||0,can=(nearStation()||inArena())&&!(typeof arenaRun!=='undefined'&&arenaRun);
   const nx=Math.min(TIER_MAX,n+1),f=k=>Math.pow(TIER[k],n),dis=can?'':'disabled';
   const un=tierUnlocked();let sq='';for(let k=1;k<=TIER_MAX;k++)sq+=k>un?`<button class="trsq lock" disabled title="${t('tr.lock')}" aria-label="${t('tr.lock')}"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></button>`:`<button class="trsq${k<=n?' on':''}" style="--c:${tierCol(k)};--d:${((k<=n?k:TIER_MAX-k)*.03).toFixed(2)}s" data-act="tierSet" data-n="${k}" ${dis} aria-label="+${k}" title="+${k}"></button>`;
   return `<div class="card tiercard"><div class="trhead"><h3>${t('tr.h')}</h3><b class="trlv" style="color:${n?tierCol(n):'var(--muted)'}">${n?'+'+n:t('tr.none')}</b><div class="langs trbtns"><button class="langb" data-act="tierSet" data-n="0" ${n>0&&can?'':'disabled'} aria-label="${t('tr.none')}">✕</button><button class="langb" data-act="tier" data-d="-1" ${n>0&&can?'':'disabled'}>−</button><button class="langb" data-act="tier" data-d="1" ${n<un&&can?'':'disabled'}>+</button></div></div>
@@ -31,7 +31,7 @@ function tierCard(){const n=state.tier||0,can=nearStation()&&!(typeof arenaRun!=
       <li class="up"><span>${t('tr.mf')}</span><b>${n?'+'+Math.round(TIER.mf*n*100)+' %':'–'}</b></li></ul>
     ${n<TIER_MAX?`<div class="stat">${t('tr.next',{n:nx,h:pctUp(Math.pow(TIER.hp,nx)),g:pctUp(Math.pow(TIER.gain,nx))})}</div>`:''}
     ${can?'':`<div class="stat" style="color:var(--warn)">${t('tr.far')}</div>`}</div>`}
-function tierAct(act,b){if(act!=='tier'&&act!=='tierSet')return false;if(!nearStation()||(typeof arenaRun!=='undefined'&&arenaRun)){toast(t('tr.far'));return true}
+function tierAct(act,b){if(act!=='tier'&&act!=='tierSet')return false;if(!(nearStation()||inArena())||(typeof arenaRun!=='undefined'&&arenaRun)){toast(t('tr.far'));return true}
   const prev=state.tier||0;if(act==='tierSet'){const k=+b.dataset.n;state.tier=k&&k===prev?k-1:k}else state.tier=clamp(prev+(+b.dataset.d),0,TIER_MAX);
   state.tier=Math.min(state.tier,tierUnlocked());if(state.tier===prev)return true;bonusDirty();toast(t('tr.set',{n:state.tier}),state.tier?'bad':true);save();renderSheet();updateHUD();
   if(!inArena())jumpTo(state.cur,false,true);   // v0.38: sektor sa znova načíta (ako po skoku) – piráti a odmeny hneď podľa novej výzvy

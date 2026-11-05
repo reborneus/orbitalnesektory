@@ -44,3 +44,10 @@ addEventListener('keydown',e=>{if(e.key.toLowerCase()!=='q'||e.repeat||!radOn()|
 addEventListener('keydown',e=>{if(e.key==='Escape'&&radOpen)radToggle(false)},true);
 /* PC (myš a klávesnica): na tlačidlách menu sa ukážu klávesové skratky */
 if(typeof isTouch!=='undefined'&&!isTouch)document.body.classList.add('pc');
+
+/* v0.51.1: po skoku na mapu jej názov krátko zasvieti cez stred obrazovky – každá mapa má vlastnú farbu */
+const SEC_BANNER_COL=['#58d0c0','#86e05a','#5aa9ff','#ffb35a','#c38bff','#ff7ad9','#ff4a3a'];
+function sectorBanner(i){let el=$('#secBan');if(!el){el=document.createElement('div');el.id='secBan';document.body.appendChild(el)}
+  const c=SECTORS[i]&&SECTORS[i].arena?'#ff4a3a':SEC_BANNER_COL[i%SEC_BANNER_COL.length];
+  el.style.setProperty('--sc',c);el.innerHTML=`<small>${t('sb.sec',{n:i+1})}</small><b>${secName(i)}</b>`;
+  el.classList.remove('on');void el.offsetWidth;el.classList.add('on')}

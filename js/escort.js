@@ -69,7 +69,7 @@ function tickEscorts(dt,tt){if(escObjs.length!==escList().length||escObjs.some((
     const look=ct?ct.pos:mineOn&&o.mode==='mine'?mineTarget.pos:_ep.copy(o.g.position).add(new V3(fx,0,fz));o.g.lookAt(look.x,o.g.position.y,look.z);
     // útočný laser: jedna salva na cieľ lode v tempe lode
     o.cd-=dt;
-    if(o.mode==='gun'&&ct&&o.cd<=0&&o.g.position.distanceTo(ct.pos)<=gunRange()+ct.r+2){o.cd=GUN_VIS_INT;
+    if(o.mode==='gun'&&ct&&o.cd<=0&&!safeZone()&&o.g.position.distanceTo(ct.pos)<=gunRange()+ct.r+2){o.cd=GUN_VIS_INT;
       const hit=Math.random()<hitChance(),crit=hit&&Math.random()<critChance();const st=laserStyle();
       fireStreak(o.g.position.clone(),ct,{miss:!hit,crit,dmg:gunVolleyDmg()*ESCORT.dmg*(crit?critMult():1)*(1+(((bonus().rs||{}).escPct||0)+(rsK('s2')?RSK.s2.k:0))/100),side:'player',col:st.col,w:st.w,st:st.k==='bolt'||st.k==='primal'?'blue':st.k})}
     // ťažobný lúč

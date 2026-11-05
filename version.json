@@ -1,8 +1,7 @@
-{"version":"0.51.0","date":"2026-11-05","notes":[
-"Drony s odomknutou obranou pri nájazde samy bránia stanicu a pri tvojom útoku na piráta slabo pomôžu (5–10 % tvojho DPS podľa vylepšenia); potom sa vrátia k ťažbe. Prepínač ťažba/obrana je preč.",
-"Minimapa a veľká mapa ukazujú asteroidy a pirátov len okolo lode (250 m) a v dosahu senzorov stanice – ostatok je zatemnený. Senzory rozširujú dosah (2 senzory +5 s čipom ≈ 80 % minimapy). Stanica, brána, obchodník, zadávateľ misií a korisť sú vidieť stále.",
-"Hodnosti pilota s odznakmi (Kadet … Vesmírny major … Veliteľ sektora … Vládca vesmíru) vedľa stavu sektora; pri povýšení príde oznámenie.",
-"Nerozdelené body pilota a výskumu pulzujú pod úrovňou pilota – ťuknutím otvoríš správnu záložku.",
-"Nové skratky: ovládač – podržanie Menu = Nastavenia, podržanie View = Pilot; na PC sa na tlačidlách menu ukazujú klávesy (L Pilot, O Nastavenia…).",
-"Nastavenia → Rozhranie → Radiálne menu: spodný panel nahradí okrúhle tlačidlo s rozbaľovacím menu (na PC aj kláves Q).",
-"Príručka: nové kapitoly Hodnosti, Dosah mapy a senzory, Drony v boji, Skratky a radiálne menu."]}
+{"version":"0.51.1","date":"2026-11-05","notes":[
+"Rakety statických pirátov sú omnoho rýchlejšie a letia cez celú mapu – raketové veže sa oplatí zničiť ako prvé.",
+"Autopilot krúži okolo statických pirátov v dosahu svojich zbraní a polovičnou rýchlosťou, takže lepšie trafí.",
+"Pirátska aréna sa volá Pirátska Hmlovina. Jej stred už nefunguje ako stanica (nevykladá sa tam a na minimape nie je značka stanice); anomália má na minimape aj veľkej mape pulzujúcu značku.",
+"Keď sa objaví anomália, cez stred obrazovky pulzuje oznámenie a veľká šípka ukazuje smer a vzdialenosť k nej.",
+"Bezpečné zóny: pri stanici (keď nie je nájazd) a pri bráne sa nebojuje – nad stredom obrazovky svieti nápis Bezpečná zóna.",
+"Po skoku na mapu jej názov krátko zasvieti cez stred obrazovky, každá mapa vlastnou farbou."]}

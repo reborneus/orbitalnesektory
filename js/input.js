@@ -91,8 +91,11 @@ function paintMap(g,W,Hh,ox,oy,k,u,R,hits){const hit=(x,y,r,info)=>{if(hits)hits
   const dp=state.deathPos;if(dp&&dp.s===state.cur&&!dead){if(Math.hypot(ship.position.x-dp.x,ship.position.z-dp.z)<10)state.deathPos=null;
     else{let x=dp.x*k,y=dp.z*k;if(R){const L=Math.hypot(x,y),mx=R-6*u;if(L>mx){x*=mx/L;y*=mx/L}}miniSkull(g,ox+x,oy+y,u);hit(ox+x,oy+y,4*u,{t:'death'})}}
   if(gate){const x=ox+gate.position.x*k,y=oy+gate.position.z*k;g.strokeStyle='#7ef2e2';g.lineWidth=1.4*u;g.beginPath();g.arc(x,y,3.2*u,0,TAU);g.stroke();hit(x,y,3.2*u,{t:'gate'})}
-  const won=cur().captured;g.fillStyle=typeof stationBroken==='function'&&stationBroken()?'#ff5a4a':won?'#ffd27a':'#58d0c0';g.beginPath();for(let i=0;i<6;i++){const an=i/6*TAU;g.lineTo(ox+Math.cos(an)*4*u,oy+Math.sin(an)*4*u)}g.closePath();g.fill();
-  if(!inArena())hit(ox,oy,4*u,{t:'st'});
+  if(typeof anomaly!=='undefined'&&anomaly){const p=anomaly.g.position,x=ox+p.x*k,y=oy+p.z*k,ph=(performance.now()/600)%1;   // v0.51.1: anomália – fialový pulzujúci kruh
+    g.strokeStyle=`rgba(195,139,255,${1-ph})`;g.lineWidth=1.6*u;g.beginPath();g.arc(x,y,(4+ph*9)*u,0,TAU);g.stroke();
+    g.fillStyle='#c38bff';g.strokeStyle='#fff';g.lineWidth=.9*u;g.beginPath();for(let i=0;i<8;i++){const an=i/8*TAU,rr=(i%2?2:4.6)*u;g.lineTo(x+Math.cos(an)*rr,y+Math.sin(an)*rr)}g.closePath();g.fill();g.stroke();hit(x,y,5*u,{t:'anom'})}
+  if(!inArena()){const won=cur().captured;g.fillStyle=typeof stationBroken==='function'&&stationBroken()?'#ff5a4a':won?'#ffd27a':'#58d0c0';g.beginPath();for(let i=0;i<6;i++){const an=i/6*TAU;g.lineTo(ox+Math.cos(an)*4*u,oy+Math.sin(an)*4*u)}g.closePath();g.fill();
+  hit(ox,oy,4*u,{t:'st'})}
   g.fillStyle='#ffe2a8';for(const d of drones){g.beginPath();g.arc(ox+d.g.position.x*k,oy+d.g.position.z*k,1.2*u,0,TAU);g.fill()}
   if(!dead){const sx=ox+ship.position.x*k,sz=oy+ship.position.z*k,fx=Math.sin(shipYaw),fz=Math.cos(shipYaw);
     g.fillStyle='#ffffff';g.strokeStyle='#04070d';g.lineWidth=1*u;g.beginPath();
