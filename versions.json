@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.29.0", "date": "2026-11-05", "time": "2026-11-05T09:59:13+01:00", "sha": "5fb88e85623a7f883bbb9f30d97d9284f8295989", "title": "Kompaktný a schovávaný HUD pre telefóny, inštalácia na plochu"},
   {"version": "0.28.0", "date": "2026-11-05", "time": "2026-11-05T08:26:09+01:00", "sha": "88eabf8eb89225c82c44e7aab8f94243741fccb2", "title": "Smrť: obrazovka s odpočtom, respawn s 20 % trupu, smrtka na minimape"},
   {"version": "0.27.0", "date": "2026-11-04", "time": "2026-11-04T23:36:13+01:00", "sha": "dc198a2428f11e8b247cfd46485c12c82c6e094d", "title": "new loadout screen with ship and slot arrows, click to equip, item card for controller, bi"},
   {"version": "0.26.0", "date": "2026-11-04", "time": "2026-11-04T23:22:28+01:00", "sha": "1db382c348235023b12e99b1647b79507ee44a5f", "title": "3x larger station, spawn at gate after jump, passive and aggressive pirates on all maps"},
