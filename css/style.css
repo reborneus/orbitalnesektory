@@ -604,3 +604,55 @@ body.hudedit .hud-top .sector *,body.hudedit .hud-top .res *,body.hudedit #miniW
 
 /* v0.27: admin – výber typu predmetu */
 .admbase{flex-wrap:wrap}.admbase .langb{display:inline-flex;align-items:center;gap:5px}.admbase .ico{width:16px;height:16px}
+
+/* ===================== v0.29: KOMPAKTNÝ A SCHOVÁVANÝ HUD ===================== */
+/* --- kompaktný režim (body.hudc): menšie písmo a okraje, menu len s ikonami --- */
+body.hudc .hud-top{padding-top:calc(env(safe-area-inset-top,0px) + 6px);gap:6px;padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px))}
+body.hudc .sector{padding:5px 8px;gap:3px;flex:0 1 230px;max-width:230px}
+body.hudc .sec-name{font-size:14px}
+body.hudc .tag{font-size:9px;padding:0 4px}
+body.hudc .pilotb{margin:2px 0 0;padding:2px 6px;gap:6px;font-size:11px}
+body.hudc .num{font-size:10.5px;min-width:4.5ch}
+body.hudc .bar{height:4px;min-width:40px}
+body.hudc .meter{gap:6px}
+body.hudc .meter .lbl{font-size:9px;width:4.6em}
+body.hudc .rcol{flex:0 1 auto;gap:5px}
+body.hudc .res{padding:5px 8px;gap:3px;width:200px}
+body.hudc .res-row{gap:8px}
+body.hudc .r b{font-size:12.5px}
+body.hudc .r small{display:none}
+body.hudc .status{font-size:10.5px;min-height:0}
+body.hudc .status:empty{display:none}
+body.hudc #mini{align-self:auto}
+body.hudc .minictl button{width:20px;height:20px;font-size:13px}
+body.hudc .mtrack{padding-top:3px;gap:2px;pointer-events:auto;cursor:pointer}
+body.hudc .mtr{font-size:11px;gap:5px}
+body.hudc .mtr b{font-size:10.5px}
+.mtrack.cmp{display:flex;align-items:center;gap:6px}
+.mtrack.cmp .mtr{flex:1}
+.mmore{flex:none;font:700 10.5px/1 var(--f-data);color:var(--rad);border:1px solid rgba(195,139,255,.45);border-radius:9px;padding:3px 6px}
+body.hudc .hud-bottom{gap:4px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 6px)}
+body.hudc .hint{font-size:12px;max-width:40ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+body.hudc .dock{width:min(100%,400px);gap:2px;padding:3px}
+body.hudc .dock button{font-size:0;letter-spacing:0;padding:6px 2px;gap:0}
+body.hudc .dock button svg{width:21px;height:21px}
+body.hudc #toasts{bottom:calc(env(safe-area-inset-bottom,0px) + 84px)}
+/* nízky displej (telefón na šírku): panely vedľa seba, hore čo najnižšie */
+@media (max-height:500px){body.hudc .hint{-webkit-line-clamp:1}body.hudc #toasts{bottom:calc(env(safe-area-inset-bottom,0px) + 64px)}}
+@media (max-width:600px){body.hudc .sector{flex:1 1 0;max-width:none}body.hudc .res{width:auto;max-width:52vw}body.hudc .res-row{flex-wrap:wrap;gap:3px 8px}}
+
+/* --- automatické schovávanie (body.hudah, zbalený stav body.hudhid) --- */
+body.hudah .hud-top .sector,body.hudah .hud-top .res{pointer-events:auto}   /* ťuknutie na panel HUD rozbalí */
+.dock,.hint,.pilotb,.inf,.mtrack,.res-row,#miniWrap{transition:opacity .35s ease,transform .35s ease}
+body.hudhid .dock{transform:translateY(calc(100% + 24px));opacity:0;pointer-events:none}
+body.hudhid .hint{opacity:0}
+body.hudhid .pilotb,body.hudhid .inf,body.hudhid .mtrack,body.hudhid .res-row,body.hudhid .status{display:none}
+body.hudhid #miniWrap{opacity:.6}
+#dockTab{display:none;position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 6px);transform:translateX(-50%);pointer-events:auto;
+  width:64px;height:28px;border-radius:14px;border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:var(--hull);cursor:pointer;padding:0}
+#dockTab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;vertical-align:middle}
+body.hudhid #dockTab{display:block;animation:dockTabIn .35s ease}
+@keyframes dockTabIn{from{opacity:0;transform:translate(-50%,10px)}}
+body.pad #dockTab{display:none}
+body.hudhid .sector{flex:0 0 auto}
+@media (max-width:600px){body.hudc #xpTxt{display:none}}

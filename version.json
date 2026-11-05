@@ -1,10 +1,10 @@
 {
-  "version": "0.28.0",
+  "version": "0.29.0",
   "date": "2026-11-05",
   "notes": [
-    "Oprava: po zničení a znovuzrodení loď už automaticky neletí späť na miesto smrti (zrušia sa útok, autopilotný cieľ aj čakajúce príkazy)",
-    "Nová obrazovka smrti s červenou lebkou, strateným nákladom a 5-sekundovým odpočtom; nová loď sa zrodí pri stanici až po odpočte",
-    "Po znovuzrodení má loď iba 20 % trupu a prázdny štít",
-    "Miesto poslednej smrti je na minimape označené červenou smrtkou (mimo dosahu sa drží pri okraji); keď k nemu priletíš, značka zmizne"
+    "Kompaktný HUD: na telefónoch sa zapne automaticky – menšie panely a minimapa, spodné menu len s ikonami, zo sledovaných misií sa ukáže len jedna s čipom „+N“ (ťuknutím sa rozbalia všetky). V Nastaveniach sa dá prepnúť Auto / Zap / Vyp",
+    "Automatické schovávanie HUD (Nastavenia): po 4 s bez dotyku HUD sa spodné menu schová za malú šípku dole a panely ukážu len sektor, náklad, trup a minimapu; ťuknutím na panel alebo šípku (na PC priblížením myši k spodnému okraju) sa HUD rozbalí",
+    "Hra sa dá pridať na plochu telefónu ako aplikácia na celú obrazovku (iOS: Safari → Zdieľať → Pridať na plochu, Android: Chrome → ⋮ → Inštalovať aplikáciu); návod je v README",
+    "Hrateľná online verzia: https://reborneus.github.io/orbitalnesektory/"
   ]
 }

@@ -90,4 +90,6 @@ function missionAct(act,b){switch(act){
   case 'mReroll':rerollOffers();renderSheet();return true}return false}
 /* Sledovanie aktívnych misií v paneli sektora (vľavo hore). */
 function missionTracker(){const el=$('#mTrack');if(!el)return;const S=state.missions;if(!S||!S.active.length){el.hidden=true;return}el.hidden=false;
-  el.innerHTML=S.active.map(m=>`<div class="mtr${m.sec===state.cur?'':' dim'}"><i style="background:${MCOL}"></i><span>${missionTitle(m)}</span><b>${m.sec===state.cur?progTxt(m):secName(m.sec)}</b></div>`).join('')}
+  const cmp=document.body.classList.contains('hudc')&&S.active.length>1&&!(typeof hudMtOpen!=='undefined'&&hudMtOpen);   // v0.29: v kompaktnom HUD len prvá misia + čip „+N“
+  const L=cmp?[S.active.find(m=>m.sec===state.cur)||S.active[0]]:S.active;el.classList.toggle('cmp',cmp);
+  el.innerHTML=L.map(m=>`<div class="mtr${m.sec===state.cur?'':' dim'}"><i style="background:${MCOL}"></i><span>${missionTitle(m)}</span><b>${m.sec===state.cur?progTxt(m):secName(m.sec)}</b></div>`).join('')+(cmp?`<span class="mmore">+${S.active.length-1}</span>`:'')}

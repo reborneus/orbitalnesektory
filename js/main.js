@@ -8,7 +8,7 @@ const clock=new THREE.Clock();let saveT=0,incomeT=0,miniT=0,tt=0;
 function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.05);tt+=dt;
   pollPad(dt);readInput();
   const playing=$('#intro').hidden;
-  if(!jumping&&!dead&&playing){tickAuto(dt);tickShip(dt,tt)}if(!jumping)tickDrones(dt,tt);
+  if(!jumping&&!dead&&playing){tickAuto(dt);tickShip(dt,tt)}tickHudMode(dt);if(!jumping)tickDrones(dt,tt);
   // radiation by belt; beyond the horizon it eats the hull directly
   const rr=Math.hypot(ship.position.x,ship.position.z);radRate=0;radHull=false;radProt=false;
   // radiačný štít: pri stanici sa dobíja; v radiácii (alebo len za horizontom podľa nastavenia) ju úplne zachytí, kým má nabité sekundy
@@ -55,7 +55,7 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
 addEventListener('visibilitychange',()=>{if(document.hidden&&state)save()});
 window.claude?.hot?.snapshot?.(()=>({state}));
 /* start(): načíta uloženú hru (alebo vytvorí novú), postaví sektor a spustí slučku. */
-function start(data){const hs=data&&data.state;state=(hs&&hs.v===3)?migrate(hs):(loadState()||freshState());bonusDirty();buildShip(state.shipId);applyMini();applyHud();   /* v0.25: veľkosť minimapy, rozloženie HUD */if(state.pilotRetro){const x=state.pilotRetro;delete state.pilotRetro;setTimeout(()=>addXP(x),1500)}
+function start(data){const hs=data&&data.state;state=(hs&&hs.v===3)?migrate(hs):(loadState()||freshState());bonusDirty();buildShip(state.shipId);applyMini();applyHud();applyHudMode();   /* v0.25: veľkosť minimapy, rozloženie HUD */if(state.pilotRetro){const x=state.pilotRetro;delete state.pilotRetro;setTimeout(()=>addXP(x),1500)}
   let stored=null;try{stored=localStorage.getItem('os-lang')}catch(e){}
   if(!stored&&(state.lang==='sk'||state.lang==='en'))lang=state.lang;state.lang=lang;
   pendingDiff=state.diff||'easy';

@@ -1,10 +1,29 @@
 # Orbitálne Sektory
 
 Vesmírna 2.5D sandbox hra: ťažba asteroidov, stavba a vylepšovanie staníc, obsadzovanie sektorov.
-Webový prototyp (Three.js) – otvor `index.html` v prehliadači.
+Webový prototyp (Three.js) – otvor `index.html` v prehliadači alebo hraj online na **https://reborneus.github.io/orbitalnesektory/** (aj na telefóne, pozri nižšie).
 
 ## Verzie
 Aktuálna verzia je v [`version.json`](version.json). Všetky zmeny po verziách nájdeš v **[CHANGELOG.md](CHANGELOG.md)**.
+
+## Hranie na telefóne (iOS a Android)
+Hra beží priamo z GitHub Pages: **https://reborneus.github.io/orbitalnesektory/** – nič sa neinštaluje a každá nová verzia sa tam objaví sama pár minút po vydaní.
+
+**iPhone / iPad (Safari)**
+1. Otvor adresu hry v **Safari** (iné prehliadače na iOS ikonu na plochu nevedia pridať tak dobre).
+2. Ťukni na **Zdieľať** (štvorec so šípkou) → **Pridať na plochu** → **Pridať**.
+3. Hru spúšťaj ikonou **Sektory** na ploche – otvorí sa na celú obrazovku bez lišty prehliadača.
+
+**Android (Chrome)**
+1. Otvor adresu hry v **Chrome**.
+2. Ťukni na **⋮** (vpravo hore) → **Inštalovať aplikáciu** alebo **Pridať na plochu** (názov závisí od verzie Chrome).
+3. Hru spúšťaj ikonou **Sektory** na ploche alebo v zozname aplikácií – beží na celú obrazovku.
+
+Na čo myslieť:
+- Uložená hra je v zariadení a je viazaná na spôsob spustenia: postup z PC, zo spúšťača, z karty prehliadača a z ikony na ploche sa navzájom neprenáša.
+- Hra potrebuje internet (3D knižnica a písma sa načítavajú z internetu).
+- Na telefóne sa automaticky zapne **kompaktný HUD** (menšie panely a minimapa, spodné menu len s ikonami). V *Nastaveniach* sa dá zapnúť aj **automatické schovávanie HUD** – spodné menu sa po chvíli schová a vysunieš ho šípkou dole.
+- Telefón môžeš držať na výšku aj na šírku; na šírku je viac miesta na hraciu plochu.
 
 ## Úpravy kódu
 Hra je rozdelená na súbory: `index.html` (kostra stránky), `css/style.css` (vzhľad) a `js/*.js` (logika). Prehľad súborov je v `js/README.txt`.

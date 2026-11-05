@@ -127,6 +127,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`;
     h+=tierCard();
     if(canHover)h+=`<div class="card"><h3>${t('set.hud')}</h3><button class="act" data-act="hudEdit">${t('set.hud.b')}</button><p>${t('set.hud.d')}</p></div>`;   // len PC
+    h+=hudModeCard();   // v0.29: kompaktný / schovávaný HUD
     h+=`<div class="card"><h3>${t('set.ma')}</h3><div class="rangerow"><input type="range" id="menuAlpha" min="35" max="100" step="5" value="${state.menuAlpha||100}"><b id="menuAlphaV">${state.menuAlpha||100} %</b></div><p>${t('set.ma.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.pm')}</h3><div class="langs">${['on','off'].map(v=>`<button class="langb" data-act="padMouse" data-v="${v}" aria-pressed="${padMouseOn()===(v==='on')}">${t(v)}</button>`).join('')}</div><p>${t('set.pm.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.cmp')}</h3><div class="langs">${CMP_MODES.map(m=>`<button class="langb" data-act="cmpMode" data-v="${m}" aria-pressed="${cmpMode()===m}">${t('cmp.'+m)}</button>`).join('')}</div><p>${t('set.cmp.d')}</p></div>`;
@@ -182,6 +183,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(hangarAct(act,b))return;
   if(escortAct(act,b))return; // pomocné drony (escort.js) // hangár (hangar.js)
   if(act==='quit'){quitGame();return}
+  if(act==='hudc'||act==='huda'){hudModeAct(act,b);return}
   if(act==='radMode'){state.radMode=b.dataset.v;save();renderSheet();return}
   if(act==='core'){const c=coreCost(s.core);if(s.core<CORE_MAX&&afford(c)){pay(c);s.core++;rebuildStation();toast(t('tt.coreUp',{n:s.core}));changed()}}
   else if(act==='ship'){const k=b.dataset.k;const u=UP[k];const L=state.ship[k];const c=upCost(k,L);if(L<u.max&&afford(c)){pay(c);
@@ -254,7 +256,9 @@ document.addEventListener('input',e=>{if(e.target&&e.target.id==='menuAlpha'){st
 /* ==================== v0.25: VEĽKOSŤ MINIMAPY ====================
    Tlačidlá − / + pri minimape, koliesko myši nad minimapou, R3 na ovládači (dookola). state.miniSize = index v MINI_SIZES. */
 const MINI_SIZES=[110,150,200,260,330];
-function applyMini(){const i=state&&state.miniSize;const m=$('#mini');if(!m)return;if(i==null){m.style.width=m.style.height=''}else{const s=MINI_SIZES[i]+'px';m.style.width=m.style.height=s}
+function applyMini(){const i=state&&state.miniSize;const m=$('#mini');if(!m)return;
+  const k=typeof hudCompactOn==='function'&&hudCompactOn()?.62:1;   // v0.29: kompaktný HUD zmenší minimapu na ~60 %
+  if(i==null&&k===1){m.style.width=m.style.height=''}else{const s=Math.round(MINI_SIZES[i==null?1:i]*k)+'px';m.style.width=m.style.height=s}
   if(typeof sizeMini==='function')sizeMini();clampHud()}
 function miniZoom(d,wrap){if(!state)return;let i=state.miniSize==null?1:state.miniSize;i+=d;if(wrap)i=(i+MINI_SIZES.length)%MINI_SIZES.length;else i=clamp(i,0,MINI_SIZES.length-1);state.miniSize=i;applyMini();save()}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.minictl button');if(!b)return;e.stopPropagation();miniZoom(+b.dataset.mz)},true);

@@ -16,6 +16,7 @@ SÚBORY HRY (načítavajú sa v tomto poradí, pozri index.html)
   ui.js       == 9. ROZHRANIE – HUD, nápovedy, menu Stanica/Loď/Mapa/Brána, úvod
   gear.js     == 12. VÝBAVA – obrazovka inventára a predmetov
   tooltip.js  == 12b. NÁHĽAD PREDMETU – plávajúce vlastnosti pri ukazovateli myši (PC)
+  hudmode.js  kompaktný HUD (automaticky na telefónoch) a automatické schovávanie HUD (Nastavenia)
   mapthumb.js == 13b. NÁHĽAD MAPY – obrázok sektora na pozadí karty v mape
   station.js  == 15. PANEL STANICE – moduly, vylepšenie +10, čipy, predaj
   hangar.js   == 16b. HANGÁR – nákup lodí (Sokol, Bizón), prestup medzi loďami, siluety lodí
