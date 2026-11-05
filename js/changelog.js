@@ -2,6 +2,13 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.50.1",
+"d": "2026-11-05",
+"n": [
+"Hlavné menu má nové tlačidlo Ukončiť hru – v spúšťači zavrie okno hry, v prehliadači ukáže, že hra je uložená a kartu môžeš zavrieť."
+]
+},
+{
 "v": "0.50.0",
 "d": "2026-11-05",
 "n": [
@@ -238,17 +245,6 @@ const CHANGELOG=[
 "n": [
 "Oprava: stály šum v pozadí – zvuk ťažobného lúča bol počuť aj vtedy, keď loď neťažila (pulzovanie lúča obchádzalo jeho stlmenie); teraz je pri vypnutej ťažbe úplné ticho",
 "Motory v pokoji takmer nepočuť, pri lete hlbší a menej šumivý hukot"
-]
-},
-{
-"v": "0.36.2",
-"d": "2026-11-05",
-"n": [
-"Filmové zvuky namiesto „pixelových“: výstrely sú vrstvené (ostrý úder, energetické jadro s FM moduláciou, sub-basový náraz, jemná saturácia a dozvuk), každá rarita zbrane znie inak",
-"Výbuchy s prasknutím, hutným telom, sub-basom a praskaním úlomkov; zničenie tvojej lode aj s dlhým dunením",
-"Zásahy s kovovým zvonením trupu, blesk ako séria elektrických výbojov, skok bránou ako nábeh s výbuchom",
-"Rozhranie: krátke sklenené tóny a vzdušné šuchoty, sonarový odpočet pri smrti, tlmená siréna",
-"Hlbší hukot motorov a plynulý ťažobný lúč; dlhší a tmavší dozvuk; vyvážené hlasitosti a ochrana proti skresleniu"
 ]
 }
 ];

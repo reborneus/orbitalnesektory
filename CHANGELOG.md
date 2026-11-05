@@ -4,6 +4,9 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 
 ## 0.50
 
+### v0.50.1 · 2026-11-05
+- Hlavné menu má nové tlačidlo Ukončiť hru – v spúšťači zavrie okno hry, v prehliadači ukáže, že hra je uložená a kartu môžeš zavrieť.
+
 ### v0.50.0 · 2026-11-05
 - Stanica: každý obsadený sektor pridá jadru +2 úrovne. Nad úrovňou 5 výdrž stanice rastie prudko a od úrovne 8 má stanica veľký štít, ktorý zachytí útoky a sám sa dobíja (bublina so zábleskom pri zásahu).
 - Obranné veže: sila rastie so silou pirátov v sektore aj s úrovňou výzvy a krivka vylepšenia je od +4 oveľa strmšia (+5 ≈ 4×, +10 ≈ 30× základu). Dve veže +5 tesne ubránia nájazd na 3. mape pri výzve +5.
