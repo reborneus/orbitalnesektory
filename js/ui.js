@@ -176,6 +176,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   const act=b.dataset.act;if(!act||b.disabled)return;const s=cur();
   if(act==='setTab'){setTab=b.dataset.v;focusIdx=0;renderSheet();return}
   if(gfxAct(act,b))return;
+  if(act==='sndTest'){sndTest();return}
   if(act==='sndSp'){state.snd=Object.assign(sndCfg(),{sp:b.dataset.v==='1'?1:0});save();renderSheet();return}
   if(act==='svSave'){manualSave();renderSheet();return}
   if(act==='svMenu'){toMenu();return}

@@ -129,7 +129,7 @@ const SFX={
 
 /* sfx(meno, poloha, voľby): obmedzenie počtu hlasov a rovnakých zvukov v krátkom čase (aby salvy nezahlušili mix) */
 function sfx(name,pos,o){if(!AC||AC.state!=='running'||!SFX[name])return;const tt=performance.now(),gap={hover:60,hit:35,laser:28,pirate:40,loot:80}[name]||20;
-  if(tt-(_sndLast[name]||0)<gap)return;_sndLast[name]=tt;if(_sndVoices>40&&name!=='boom')return;
+  if(tt-(_sndLast[name]||0)<gap)return;_sndLast[name]=tt;if(_sndVoices>90&&name!=='boom'&&name!=='click')return;_sndVoices=Math.max(0,_sndVoices);
   try{SFX[name](pos||null,o||{})}catch(e){}}
 
 /* ---- slučky: motory a ťažobný laser (bez polohy – je to tvoja loď), poslucháč ---- */
@@ -194,7 +194,13 @@ function musicTick(){if(!MU||!AC)return;const t=AC.currentTime,menu=!$('#intro')
 function soundCard(){const c=sndCfg();const row=(k,l)=>`<div class="sndrow"><span>${t(l)}</span><input type="range" min="0" max="100" step="5" data-snd="${k}" value="${c[k]}"><b>${c[k]} %</b></div>`;
   return `<div class="card sndcard"><h3>${t('snd.h')}</h3>${row('m','snd.m')}${row('mu','snd.mu')}${row('s','snd.s')}${row('u','snd.u')}
     <div class="sndrow"><span>${t('snd.sp')}</span><div class="langs"><button class="langb" data-act="sndSp" data-v="1" aria-pressed="${!!c.sp}">${t('on')}</button><button class="langb" data-act="sndSp" data-v="0" aria-pressed="${!c.sp}">${t('off')}</button></div></div>
+    <div class="sndrow"><span>${t('snd.test')}</span><button class="langb" data-act="sndTest">▶ ${t('snd.testB')}</button><small class="note" id="sndState" style="margin:0">${sndState()}</small></div>
     <p>${t('snd.d')}</p></div>`}
+/* stav zvuku pre Nastavenia (pomáha nájsť, prečo nič nehrá) */
+function sndState(){if(!(window.AudioContext||window.webkitAudioContext))return t('snd.st.none');if(!AC)return t('snd.st.wait');return AC.state==='running'?t('snd.st.ok'):t('snd.st.susp')+' ('+AC.state+')'}
+/* tlačidlo „Test zvuku“: prebudí zvuk (ak ho prehliadač uspal) a zahrá výstrel + tón */
+function sndTest(){sndWake();const go=()=>{sfx('laser',null,{st:'blue'});setTimeout(()=>sfx('toast'),350);const el=document.getElementById('sndState');if(el)el.textContent=sndState()};
+  if(AC&&AC.state!=='running')AC.resume().then(go,go);else go()}
 document.addEventListener('input',e=>{const k=e.target&&e.target.dataset&&e.target.dataset.snd;if(!k||!state)return;state.snd=Object.assign(sndCfg(),{[k]:+e.target.value});
   const b=e.target.nextElementSibling;if(b)b.textContent=e.target.value+' %';sndWake();sndApply();save()});
 document.addEventListener('change',e=>{if(e.target&&e.target.dataset&&e.target.dataset.snd==='u')sfx('click')});
