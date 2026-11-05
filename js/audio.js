@@ -70,21 +70,36 @@ const SFX={
   coin(){const t=now();[1318.5,1975.5,2637].forEach((f,i)=>{const o=outNode(SB.ui,null,.55,1.3);env(o,t+i*.05,.003,.1,1.1);osc('sine',f,t+i*.05,1.15,o);const g=AC.createGain();g.gain.value=.3;g.connect(o);osc('sine',f*2.01,t+i*.05,.4,g)})},
   beep(){const t=now(),o=outNode(SB.ui,null,.6,1.2);env(o,t,.004,.16,1);osc('sine',880,t,1.05,o);const g=AC.createGain();g.gain.value=.2;g.connect(o);osc('sine',1760,t,.3,g)},   // sonarový ping
   // ---- zbrane ----
-  laser(pos,o={}){const st=o.st||'blue',k=(o.fx?.5:1)*(o.tower?.85:1),t=now(),out=outNode(SB.sfx,pos,.32,.9),pt=o.tower?.7:1,j=.96+Math.random()*.08;
-    const P={grey:{f:[1300,240],r:1.5,i:1.2,d:.16,sub:.25,ds:1.5},blue:{f:[1700,260],r:2.01,i:2.2,d:.2,sub:.35,ds:2},gold:{f:[1100,140],r:1.41,i:3,d:.28,sub:.6,ds:3},
-      red:{f:[1500,120],r:3.5,i:4,d:.24,sub:.5,ds:6},primal:{f:[2200,520],r:1.5,i:1.4,d:.35,sub:.3,ds:1.5}}[st]||{f:[1700,260],r:2.01,i:2.2,d:.2,sub:.35,ds:2};
-    const m=AC.createGain();m.gain.value=k*({red:.38,gold:.45}[st]||.5);m.connect(out);const sat=dist(P.ds);   // výstrely sú časté – tichšie ako výbuchy
-    const lp=filt('lowpass',7000,.7);sat.connect(lp);lp.connect(m);
-    const tg=AC.createGain();env(tg,t,.003,.4,P.d);tg.connect(sat);fmTone(t,P.f[0]*pt*j,P.f[1]*pt*j,P.d,P.r,P.i,tg);
-    if(st==='primal'){const g2=AC.createGain();env(g2,t,.003,.18,P.d*1.4);g2.connect(sat);fmTone(t,P.f[0]*1.5*j,P.f[1]*1.5*j,P.d*1.3,1.01,.6,g2)}
-    burst(t,.05,'bandpass',4500,.9,.35,m);burst(t,.12,'highpass',2500,.7,.12,m,1.4);sub(t,110*pt,45,.18,P.sub,m)},
-  zap(pos){const t=now(),out=outNode(SB.sfx,pos,.45,1);const sat=dist(5);sat.connect(out);
-    for(let i=0;i<5;i++){const tt=t+i*.035+Math.random()*.02;const g=AC.createGain();env(g,tt,.001,.3*(1-i*.12),.07);g.connect(sat);const b=filt('bandpass',1800+Math.random()*3000,2);b.connect(g);noise(tt,.09,b,1.5)}
-    sub(t,90,30,.4,.5,out);const g=AC.createGain();env(g,t,.002,.12,.35);g.connect(out);fmTone(t,240,60,.35,7.1,6,g,'sawtooth')},
-  pirate(pos){const t=now(),out=outNode(SB.sfx,pos,.3,.8),j=.95+Math.random()*.1;const sat=dist(3);const lp=filt('lowpass',3200,1);sat.connect(lp);lp.connect(out);
-    const g=AC.createGain();env(g,t,.004,.17,.26);g.connect(sat);fmTone(t,520*j,85*j,.26,.5,3.2,g,'triangle');burst(t,.06,'bandpass',1800,1,.15,out);sub(t,95,40,.22,.22,out)},
-  hit(pos){const t=now(),out=outNode(SB.sfx,pos,.25,.6);burst(t,.09,'lowpass',2600,.7,.35,out,.9);
-    const g=AC.createGain();env(g,t,.002,.07,.35);g.connect(out);const b=filt('bandpass',900+Math.random()*1400,18);b.connect(g);noise(t,.4,b);sub(t,140,60,.12,.25,out)},   // náraz + kovové zvonenie trupu
+  /* v0.37: výstrely podľa hráčových ukážok (Dark / Deep / Universe / Bass): bleskový pokles výšky na začiatku („piu“),
+     potom hutné basové telo – pílovitý tón 60–110 Hz cez zatvárajúci sa filter, sub-bas a tmavé doznievanie šumu. */
+  laser(pos,o={}){const st=o.st||'blue',k=(o.fx?.45:1)*(o.tower?1.1:1),t=now(),j=.97+Math.random()*.06;
+    const P={grey:{f0:2400,b:105,d:.28,cut:1800,ds:2,sub:.35,tail:.45},blue:{f0:3200,b:82,d:.38,cut:2400,ds:2.5,sub:.5,tail:.6},gold:{f0:2600,b:62,d:.5,cut:2000,ds:3,sub:.7,tail:.8},
+      red:{f0:3600,b:74,d:.45,cut:2800,ds:6,sub:.6,tail:.7,trem:34},primal:{f0:4200,b:55,d:.6,cut:3200,ds:2,sub:.65,tail:1,chord:1}}[st]||{f0:3200,b:82,d:.38,cut:2400,ds:2.5,sub:.5,tail:.6};
+    const tw=o.tower?.78:1,d=P.d*(o.tower?1.25:1),out=outNode(SB.sfx,pos,.2,d+P.tail+.4);const m=AC.createGain();m.gain.value=.55*k;m.connect(out);
+    // 1) „piu“: rýchly pokles zhora do basu
+    {const g=AC.createGain();env(g,t,.002,.22,.11);g.connect(m);const lp=filt('lowpass',5000,.8);lp.connect(g);const x=osc('sawtooth',P.f0*j*tw,t,.13,lp);x.frequency.exponentialRampToValueAtTime(P.b*1.5*tw,t+.09)}
+    // 2) basové telo: 2 rozladené píly + skreslenie + filter, ktorý sa zatvára (tmavne)
+    {const sat=dist(P.ds),lp=filt('lowpass',P.cut,1.6),g=AC.createGain();env(g,t+.01,.006,.5,d);sat.connect(lp);lp.connect(g);g.connect(m);
+      lp.frequency.setValueAtTime(P.cut,t);lp.frequency.exponentialRampToValueAtTime(160,t+d);
+      let tg=sat;if(P.trem){const tr=AC.createGain();tr.gain.value=.6;const lf=AC.createOscillator();lf.frequency.value=P.trem;const lg=AC.createGain();lg.gain.value=.4;lf.connect(lg);lg.connect(tr.gain);lf.start(t);lf.stop(t+d+.1);tr.connect(sat);tg=tr}
+      for(const dt of[-9,9]){const x=osc('sawtooth',P.b*1.9*j*tw,t,d+.05,tg);x.detune.value=dt;x.frequency.exponentialRampToValueAtTime(P.b*j*tw,t+d*.6)}
+      if(P.chord)for(const r of[1.5,2.01]){const x=osc('sawtooth',P.b*r*1.9*j,t,d,tg);x.frequency.exponentialRampToValueAtTime(P.b*r*j,t+d*.6)}}
+    // 3) sub-bas a 4) tmavé doznievanie (šum cez nízky filter)
+    sub(t,P.b*1.2*tw,34,d+.15,P.sub,m);
+    {const g=AC.createGain();env(g,t+.03,.03,.12,P.tail);g.connect(m);const lp=filt('lowpass',700,.7);lp.connect(g);lp.frequency.exponentialRampToValueAtTime(120,t+P.tail);noise(t,P.tail+.1,lp,.5)}},
+  /* blesk (Božská zbraň): krátke „nabitie“ s vlniacim sa filtrom a hlboký výboj s padajúcimi harmonickými (ako charge-zap) */
+  zap(pos){const t=now(),out=outNode(SB.sfx,pos,.5,1.6),m=AC.createGain();m.gain.value=.55;m.connect(out);
+    {const lp=filt('lowpass',300,4),g=AC.createGain();env(g,t,.06,.18,.22);lp.connect(g);g.connect(m);lp.frequency.setValueAtTime(250,t);lp.frequency.linearRampToValueAtTime(2200,t+.18);osc('sawtooth',78,t,.26,lp)}
+    {const tt=t+.2,sat=dist(5),lp=filt('lowpass',4000,1),g=AC.createGain();env(g,tt,.002,.55,.9);sat.connect(lp);lp.connect(g);g.connect(m);lp.frequency.exponentialRampToValueAtTime(150,tt+.9);
+      for(const r of[1,2,3,4.02]){const x=osc('sawtooth',300*r,tt,.95,sat);x.frequency.exponentialRampToValueAtTime(70*r,tt+.35)}
+      const ng=AC.createGain();env(ng,tt,.002,.3,1);ng.connect(m);const nl=filt('lowpass',3000,.7);nl.connect(ng);nl.frequency.exponentialRampToValueAtTime(200,tt+1);noise(tt,1.05,nl,.8);sub(tt,90,30,.8,.7,m)}},
+  /* piráti: bzučivé „stredné“ výstrely s rýchlym chvením (ako laser-1) – odlíšené od hráča, ale tiež tmavé */
+  pirate(pos){const t=now(),j=.94+Math.random()*.12,out=outNode(SB.sfx,pos,.32,.9),m=AC.createGain();m.gain.value=.4;m.connect(out);
+    const sat=dist(4),bp=filt('bandpass',900,1.1),g=AC.createGain();env(g,t,.003,.4,.32);sat.connect(bp);bp.connect(g);g.connect(m);bp.frequency.exponentialRampToValueAtTime(300,t+.3);
+    const tr=AC.createGain();tr.gain.value=.55;tr.connect(sat);const lf=AC.createOscillator();lf.frequency.value=38;const lg=AC.createGain();lg.gain.value=.45;lf.connect(lg);lg.connect(tr.gain);lf.start(t);lf.stop(t+.4);
+    for(const d of[-12,12]){const x=osc('sawtooth',220*j,t,.36,tr);x.detune.value=d;x.frequency.exponentialRampToValueAtTime(110*j,t+.3)}sub(t,90,40,.25,.3,m)},
+  hit(pos){const t=now(),out=outNode(SB.sfx,pos,.3,.7);burst(t,.09,'lowpass',1400,.7,.35,out,.7);
+    const g=AC.createGain();env(g,t,.002,.07,.35);g.connect(out);const b=filt('bandpass',900+Math.random()*1400,18);b.connect(g);noise(t,.4,b);sub(t,110,40,.18,.35,out)},   // náraz + kovové zvonenie trupu
   hurt(){const t=now(),out=outNode(SB.sfx,null,.3,.9);const sat=dist(4);sat.connect(out);burst(t,.35,'lowpass',900,.8,.6,sat,.7);sub(t,70,30,.45,.6,out);
     const g=AC.createGain();env(g,t,.003,.08,.6);g.connect(out);const b=filt('bandpass',620,25);b.connect(g);noise(t,.65,b)},
   boom(pos,o={}){const big=o.big?1:0,t=now(),d=1.6+big*2.2,out=outNode(SB.sfx,pos,.55,d+.5);const sat=dist(2.5+big*2);sat.connect(out);
