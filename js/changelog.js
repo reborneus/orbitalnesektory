@@ -2,6 +2,14 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.39.4",
+"d": "2026-11-05",
+"n": [
+"Zvuk: pri hustej streľbe (salvy, veže, sprievodné drony, piráti) sa mohol vyčerpať limit naraz hrajúcich zvukov a ďalšie zvuky sa potom nehrali – limit je vyšší a počítadlo sa nemôže zaseknúť",
+"Nastavenia → Zvuk: tlačidlo Test zvuku (prebudí zvuk, ak ho prehliadač uspal, a zahrá ukážku) a stav zvuku (beží / uspaný / zapne sa po kliknutí)"
+]
+},
+{
 "v": "0.39.3",
 "d": "2026-11-05",
 "n": [
@@ -233,17 +241,6 @@ const CHANGELOG=[
 "Nová obrazovka smrti s červenou lebkou, strateným nákladom a 5-sekundovým odpočtom; nová loď sa zrodí pri stanici až po odpočte",
 "Po znovuzrodení má loď iba 20 % trupu a prázdny štít",
 "Miesto poslednej smrti je na minimape označené červenou smrtkou (mimo dosahu sa drží pri okraji); keď k nemu priletíš, značka zmizne"
-]
-},
-{
-"v": "0.27.0",
-"d": "2026-11-04",
-"n": [
-"Nová obrazovka výbavy: loď v strede, okolo nej 6 štvorcov slotov (laser, motor, trup, štít, doplnok, zbraň) a šípky od lode k nim vo farbe rarity; prázdny slot ukazuje počet vhodných predmetov",
-"Klik na predmet v inventári ho rovno nasadí / vymení s predmetom v lodi",
-"Karta predmetu s možnosťami (vylepšiť, rozobrať, zamknúť, do skladu, zložiť) sa ukáže pri predmete pod myšou aj pod výberom ovládača; na širokej obrazovke vpravo vedľa okna",
-"Skoková brána je 2,6× väčšia a naklonená, aby ňou vizuálne prešli aj veľké lode",
-"Pri vkladaní predmetov sa dá zvoliť aj konkrétny typ predmetu"
 ]
 }
 ];

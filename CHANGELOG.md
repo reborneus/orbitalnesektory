@@ -4,6 +4,10 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 
 ## 0.39
 
+### v0.39.4 · 2026-11-05
+- Zvuk: pri hustej streľbe (salvy, veže, sprievodné drony, piráti) sa mohol vyčerpať limit naraz hrajúcich zvukov a ďalšie zvuky sa potom nehrali – limit je vyšší a počítadlo sa nemôže zaseknúť
+- Nastavenia → Zvuk: tlačidlo Test zvuku (prebudí zvuk, ak ho prehliadač uspal, a zahrá ukážku) a stav zvuku (beží / uspaný / zapne sa po kliknutí)
+
 ### v0.39.3 · 2026-11-05
 - Oprava označovania na rozobratie: krížik na označenom predmete sa už neprekrýva s číslom vylepšenia (štýl zo zoznamu uložených hier sa omylom miešal s predmetmi)
 - Okno Výbavy má pevnú výšku – pri prechode medzi predmetmi sa už nemení jeho veľkosť
