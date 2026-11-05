@@ -2,6 +2,19 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.30.0",
+"d": "2026-11-05",
+"n": [
+"Nové hlavné menu ako v bežnej hre: Pokračovať, Nová hra, Načítať hru, Nastavenia, Príručka; vpravo dole malý zoznam zmien (Všetky zmeny ho rozbalí). Ovláda sa myšou, dotykom, šípkami + Enter/Esc aj ovládačom",
+"Fanart v hlavnom menu: živá 3D scéna – Bizón, Sokol a Pincer letia v zostave okolo planéty s diskom; na telefóne na výšku sú lode nad menu",
+"Uložené hry: 3 sloty, každý s vlastnými automatickými uloženiami (3 s odstupom 5 min) a až 6 ručnými (v hre Nastavenia → Uložiť); pri slote vidno sektor, obtiažnosť, úroveň pilota, loď a odohraný čas",
+"V hre v Nastaveniach: Uložiť a Hlavné menu; nastavenia HUD, ovládania a jazyk sú spoločné pre všetky sloty a dajú sa meniť aj z hlavného menu",
+"Uloženia majú číslo schémy a postupné migrácie, takže hry uložené v starších verziách sa dajú načítať aj v nových; hra z verzie 0.29 a starších sa automaticky prenesie do slotu 1",
+"Nightmare: zničenie lode zmaže celý slot a vráti hru do hlavného menu",
+"Štartovacia loď Pincer má tmavý grafitový pancier namiesto bieleho (v hre aj v náhľadoch)"
+]
+},
+{
 "v": "0.29.0",
 "d": "2026-11-05",
 "n": [
@@ -215,15 +228,6 @@ const CHANGELOG=[
 "n": [
 "Mapy ešte 2× väčšie (spolu 4× oproti v0.14), počet asteroidov ostal rovnaký",
 "Pásy, horizont, brána, obchodník, zadávateľ misií aj aréna sa zväčšili s mapou; autopilot hľadá ciele do väčšej vzdialenosti"
-]
-},
-{
-"v": "0.16.0",
-"d": "2026-11-04",
-"n": [
-"Streľba lodí: okamžité laserové dávky (3 výstrely) do zameraného alebo najbližšieho piráta – piráti strieľajú rovnako",
-"Šanca na zásah 70 %, schopnosť pilota Strelec ju zvýši až na 90 % (nová vlastnosť Presnosť); netrafené výstrely ukážu „vedľa“",
-"Farba laserov podľa rarity zbrane: bez zbrane sivá, do Vzácnej modrá, Epická a Legendárna zlatá, Mytická červená, Božská blesky, Prvotná stály dúhový lúč s pulzmi po každej salve"
 ]
 }
 ];
