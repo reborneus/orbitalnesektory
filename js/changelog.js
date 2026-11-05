@@ -2,6 +2,15 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.31.2",
+"d": "2026-11-05",
+"n": [
+"Oprava ukladania v aplikácii z plochy na iPhone: hra sa teraz ukladá naraz do localStorage aj do IndexedDB a načíta sa z oboch – keď systém zápis do localStorage odmietne, uloženie aj tak prebehne",
+"Pri štarte hra požiada systém, aby uložené dáta nemazal",
+"V Nastaveniach pri uloženej hre je malý riadok so stavom úložiska (localStorage / IndexedDB) a chybová hláška ukazuje aj názov chyby"
+]
+},
+{
 "v": "0.31.1",
 "d": "2026-11-05",
 "n": [
@@ -221,15 +230,6 @@ const CHANGELOG=[
 "d": "2026-11-04",
 "n": [
 "Oprava: lode pirátov z nájazdov neboli vidieť (chyba z v0.16.2) – teraz sa opäť zobrazujú"
-]
-},
-{
-"v": "0.16.3",
-"d": "2026-11-04",
-"n": [
-"Lasery: krátke salvy – jedna letiaca laserová strela za každú osadenú zbraň (lode s viac slotmi pre zbrane vystrelia viac naraz); poškodenie sa započíta pri dopade",
-"Piráti strieľajú rovnakými krátkymi strelami",
-"Výbava: hromadné rozoberanie – Označiť na rozobratie, výber ťuknutím alebo podľa rarity, zamknuté predmety sa preskočia"
 ]
 }
 ];
