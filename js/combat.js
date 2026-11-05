@@ -6,7 +6,7 @@
    drony v obrannom režime (AI jadro rarity Vzácne a vyššej) počas nájazdu útočia namiesto ťažby.
    Keď výdrž stanice klesne na 0, piráti ukradnú časť rudy a viriditu, odletia a moduly sú chvíľu offline (stationDown). */
 let enemies=[],bolts=[],raidT=0,raidActive=false,raidCount=0,stationHp=0,stationDown=0,gunCd=0,attackTarget=null,towerCd={};
-const raidCfg=()=>PIRATES.raid[state.cur];
+const raidCfg=()=>stationBroken()?null:PIRATES.raid[state.cur];   // v0.41: na vyradenú stanicu piráti nenalietavajú
 const stationMaxHp=()=>PIRATES.stationHp(cur().core);
 /* Zavolá sa pri stavbe sektora: vymaže nepriateľov a naplánuje prvý nájazd. */
 function resetCombat(){if(typeof clearLasers==='function')clearLasers();for(const d of dmgTexts)d.el.remove();dmgTexts.length=0;enemies=[];bolts=[];raidActive=false;raidCount=0;stationDown=0;attackTarget=null;towerCd={};passiveQ.length=0;

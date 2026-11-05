@@ -15,7 +15,7 @@ function frame(){requestAnimationFrame(frame);if(gfxSkip())return;const dt=Math.
   // radiation by belt; beyond the horizon it eats the hull directly
   const rr=Math.hypot(ship.position.x,ship.position.z);radRate=0;radHull=false;radProt=false;
   // radiačný štít: pri stanici sa dobíja; v radiácii (alebo len za horizontom podľa nastavenia) ju úplne zachytí, kým má nabité sekundy
-  const rsMax=shipVal('radShield');if(state.radCharge>rsMax)state.radCharge=rsMax;if(nearStation()&&state.radCharge<rsMax)state.radCharge=Math.min(rsMax,state.radCharge+RADSHIELD_RECHARGE*dt);
+  const rsMax=shipVal('radShield');if(state.radCharge>rsMax)state.radCharge=rsMax;if(stationOk()&&state.radCharge<rsMax)state.radCharge=Math.min(rsMax,state.radCharge+RADSHIELD_RECHARGE*dt);
   if(!dead&&!jumping&&playing){radRate=radAt(rr);
     if(radRate>0&&state.admin&&state.admin.godRad){radProt=true}
     else if(radRate>0&&state.radCharge>0&&(state.radMode!=='void'||rr>=HORIZON)){radProt=true;state.radCharge=Math.max(0,state.radCharge-dt);if(state.radCharge<=0)toast(t('tt.radOut'),'bad')}

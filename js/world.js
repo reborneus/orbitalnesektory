@@ -41,11 +41,11 @@ void main(){vec2 p=vUv*2.-1.;float r=length(p);if(r>1.)discard;
 /* volá main.js každý snímok: stav → farba jadra, žiary a svetelných pásov stanice */
 function tickStationCore(dt,tt){if(!stationAnim||!stationAnim.orb)return;stationHitT-=dt;
   const hit=stationHitT>0||(typeof raidActive!=='undefined'&&raidActive&&enemies.some(e=>!e.wasPassive&&!e.aggro&&!e.leaving&&Math.hypot(e.pos.x,e.pos.z)<60));
-  const near=!hit&&typeof nearStation==='function'&&nearStation();
-  _coreT.set(CORE_COL[hit?'hit':near?'near':'idle']);_coreC.lerp(_coreT,Math.min(1,dt*3));
+  const near=!hit&&typeof nearStation==='function'&&nearStation();const brk=stationBroken();
+  if(brk){_coreT.set('#ff4a22');_coreC.copy(_coreT);tickBroken(dt,tt)}else _coreT.set(CORE_COL[hit?'hit':near?'near':'idle']);_coreC.lerp(_coreT,Math.min(1,dt*3));
   // guľa je posunutá o 7 m smerom ku kamere: prežiari cez vežu nad jadrom, ale loď nad stanicou ju stále prekryje
-  const o=stationAnim.orb;o.quaternion.copy(camera.quaternion);o.position.set(camera.position.x,camera.position.y-STATION_Y,camera.position.z).normalize().multiplyScalar(7);const U=o.material.uniforms;U.uT.value=tt;U.uC.value.copy(_coreC);U.uK.value=hit?1.1+.25*Math.sin(tt*9):1;
-  stationAnim.coreGlow.material.color.copy(_coreC);const K=stationMats();K.glow.emissive.copy(_coreC);K.lattice.emissive.copy(_coreC).multiplyScalar(.6)}
+  const o=stationAnim.orb;o.quaternion.copy(camera.quaternion);o.position.set(camera.position.x,camera.position.y-STATION_Y,camera.position.z).normalize().multiplyScalar(7);const U=o.material.uniforms;U.uT.value=tt;U.uC.value.copy(_coreC);U.uK.value=brk?(Math.random()<.08?.03:.13+.06*Math.sin(tt*23)):hit?1.1+.25*Math.sin(tt*9):1;   // vyradené jadro slabo a nepravidelne bliká
+  stationAnim.coreGlow.material.color.copy(_coreC);if(brk){stationAnim.coreGlow.material.opacity=U.uK.value*.6;return}stationAnim.coreGlow.material.opacity=.5;const K=stationMats();K.glow.emissive.copy(_coreC);K.lattice.emissive.copy(_coreC).multiplyScalar(.6)}
 function stationMats(){return _stMats||(_stMats={
   hull:kitHullMat('stH',{base:'#5d6674',vari:.22,line:'#262b33',lit:['#ffcf7a','#7fb6ff'],litP:.12,seed:51},{metalness:.7,roughness:.4,emissiveIntensity:1.8,flatShading:true}),
   dark:kitHullMat('stD',{base:'#2a3039',vari:.3,line:'#12151a',lit:['#ffcf7a'],litP:.1,seed:52},{metalness:.75,roughness:.45,emissiveIntensity:1.8,flatShading:true}),
@@ -93,6 +93,7 @@ function buildSector(){
   const r=rng(S.seed*97);
   for(const f of S.fields)for(let i=0;i<f.n;i++){const a=makeAst(f.type,f,r);placeAst(a,r);asts.push(a)}
   rebuildStation();
+  if(!S.arena&&cur().repaired)state.lastBase=state.cur;   // v0.41: posledná navštívená funkčná základňa (tu sa loď zrodí po zničení pri vyradenej stanici)
   updateGate();
   resetCombat();
   missionsRebuild();
@@ -125,6 +126,33 @@ function astScale(a){return a.base*(.5+.5*a.amt/a.max)*a.shrink}
 function setAstScale(a){a.g.scale.setScalar(Math.max(.001,astScale(a)))}
 
 /* Stanica sa prestavia pri každej zmene (vylepšenie jadra, stavba/predaj modulu). Vzhľad závisí od úrovne jadra. */
+/* ==================== v0.41: VYRADENÁ STANICA V NOVOM SEKTORE ====================
+   Pri prvej návšteve sektora je hlavná stanica vyradená (state.sec[i].repaired = false): nedá sa vyložiť náklad, stavať,
+   prestupovať na lode ani dobíjať radiačný štít; autopilot čaká. Opraví sa v paneli Stanica za suroviny z predošlého sektora
+   (stationFixCost). Vzhľad: tmavé ohorené plechy, zastavené prstence, blikajúce jadro, ohne s iskrami a plávajúce trosky. */
+const stationBroken=()=>!!(state&&state.sec[state.cur]&&state.sec[state.cur].repaired===false&&!SECTORS[state.cur].arena);
+const stationOk=()=>nearStation()&&!stationBroken();
+const _burnt=new Map();
+function burntMat(m){if(_burnt.has(m))return _burnt.get(m);const c=m.clone();
+  if(m.onBeforeCompile)c.onBeforeCompile=m.onBeforeCompile;if(m.customProgramCacheKey)c.customProgramCacheKey=m.customProgramCacheKey;
+  if(c.color)c.color.multiplyScalar(.11).lerp(new THREE.Color('#1a0f08'),.25);c.emissiveIntensity=(m.emissiveIntensity||0)*.03;c.roughness=.95;c.metalness=(m.metalness||0)*.4;c.envMapIntensity=.25;   // ohorený, matný plech
+  _burnt.set(m,c);return c}
+function breakStation(S3,anim){
+  S3.traverse(o=>{if(!o.isMesh||!o.material||o.material===M.pick)return;const m=o.material;
+    if(m.isMeshStandardMaterial)o.material=burntMat(m);
+    else if(m.isMeshBasicMaterial&&m.visible!==false){if(!_burnt.has(m)){const c=m.clone();c.color.multiplyScalar(.12);_burnt.set(m,c)}o.material=_burnt.get(m)}});   // zhasnuté svetelné pásy
+  for(const r of anim.rings)r.s=0;   // prstence stoja
+  const rr=rng(state.cur*77+5);anim.fires=[];anim.junk=[];
+  for(let i=0;i<12;i++){const a=rr()*TAU,d=4+rr()*(DECK_R+6),y=.6+rr()*1.4;
+    const f=glow(rr()<.5?'#ff5a12':'#ff8a2a',4+rr()*4,.75);f.position.set(Math.cos(a)*d,y,Math.sin(a)*d);S3.add(f);anim.fires.push({o:f,b:f.scale.x,ph:rr()*9})}
+  const JM=burntMat(stationMats().dark);
+  for(let i=0;i<14;i++){const a=rr()*TAU,d=DECK_R+4+rr()*16;const m=new THREE.Mesh(new THREE.BoxGeometry(.6+rr()*2.2,.3+rr()*.8,.5+rr()*1.8),JM);
+    m.position.set(Math.cos(a)*d,-1+rr()*4,Math.sin(a)*d);m.rotation.set(rr()*3,rr()*3,rr()*3);S3.add(m);anim.junk.push({o:m,s:new V3(rr()-.5,rr()-.5,rr()-.5).multiplyScalar(.6)})}}
+/* každý snímok (z tickStationCore): ohne blikajú, z nich lietajú iskry, trosky sa pomaly otáčajú */
+function tickBroken(dt,tt){const A=stationAnim;if(!A||!A.fires)return;
+  for(const f of A.fires){const k=.7+.3*Math.sin(tt*11+f.ph)*Math.sin(tt*7.3+f.ph*2);f.o.scale.setScalar(f.b*k);
+    if(Math.random()<dt*1.2*gfxFx()){const w=f.o.getWorldPosition(new V3());emit(trail,w,Math.random()<.5?'#ff8a3a':'#ffd27a',.5+Math.random()*.4,new V3((Math.random()-.5)*3,2+Math.random()*3,(Math.random()-.5)*3))}}
+  for(const j of A.junk){j.o.rotation.x+=j.s.x*dt;j.o.rotation.y+=j.s.y*dt;j.o.rotation.z+=j.s.z*dt}}
 function rebuildStation(){
   clearTurretBeams();if(stationG)world.remove(stationG);
   if(inArena()){stationG=null;stationAnim=null;return} // v aréne nie je stanica (v strede sa objavuje anomália)
@@ -216,8 +244,9 @@ function rebuildStation(){
     for(let i=0;i<16;i++){const a=i/16*TAU;Q.add(K.hull,box(1.8,.9,1.1),{p:[Math.cos(a)*(DECK_R+7),0,Math.sin(a)*(DECK_R+7)],r:[0,-a,0]})}
     Q.done(sp)}
   if(s.core>=5){const halo=new THREE.Mesh(new THREE.TorusGeometry(DECK_R+14.5,.12,6,160),M.hullGlow);halo.rotation.x=HALF;halo.position.y=-1;S3.add(halo)}
-  const beacon=glow(s.captured?'#ffd27a':'#58d0c0',s.captured?11:8,.85);beacon.position.y=5;S3.add(beacon);anim.blink.push({o:beacon,f:.6,base:s.captured?11:8});
-  const aura=glow(s.captured?'#ffd27a':'#58d0c0',40,.1);aura.position.y=-1;S3.add(aura);
+  const bc=stationBroken()?'#ff3a2a':s.captured?'#ffd27a':'#58d0c0';
+  const beacon=glow(bc,s.captured?11:8,.85);beacon.position.y=5;S3.add(beacon);anim.blink.push({o:beacon,f:stationBroken()?1.8:.6,base:s.captured?11:8});
+  const aura=glow(bc,40,.1);aura.position.y=-1;S3.add(aura);
   const n=slotsFor(s.core);
   for(let i=0;i<n;i++){const p=slotPos(i);const pad=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.4,.35,6),M.pad);pad.position.copy(p).setY(DECK_TOP);g.add(pad);
     const m=s.slots[i];const mp=p.clone().setY(DECK_TOP+.85);
@@ -228,6 +257,7 @@ function rebuildStation(){
       if(R>=6){const ring=new THREE.Mesh(new THREE.RingGeometry(2.4,2.65,36),new THREE.MeshBasicMaterial({color:new THREE.Color(c),transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
         ring.rotation.x=-HALF;ring.position.copy(p).setY(DECK_TOP+.25);g.add(ring)}}}
   glbApply('station',S3);   // v0.40: vlastný model stanice (jadro, svetlá a moduly ostávajú)
+  if(stationBroken())breakStation(S3,anim);   // v0.41: vyradená stanica
   const proxy=new THREE.Mesh(new THREE.SphereGeometry((DECK_R+4)*ST_SCALE,10,8),M.pick);proxy.userData.station=true;g.add(proxy);
   pickables=pickables.filter(p=>!p.userData.station);pickables.push(proxy);
   world.add(g);

@@ -4,7 +4,7 @@
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
 /* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
-const GAME_VERSION='0.40.4';
+const GAME_VERSION='0.41.0';
 const NUM=10,ECON=1.6;
 const P=(c,m=1)=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON*m);return o};
 /* v0.12: stavba a vylepšovanie stanice je v každom ďalšom sektore SEC_COST× drahšie (príjmy rastú len ~1,3×) */
@@ -71,6 +71,11 @@ const SECTOR_CREDITS=.1*NUM;   // v0.12: polovičný pasívny príjem
 /* Moduly stanice: inf = koľko vplyvu dáva, cost(n) = cena, kde n = počet už postavených modulov rovnakého typu (každý ďalší je drahší). */
 const MOD={drone:{inf:15,cost:n=>P(C(120+70*n),secMul())},tower:{inf:25,cost:n=>P(C(200+80*n),secMul())},sensor:{inf:35,cost:n=>P(C(180+60*n,50+25*n),secMul())}};
 /* Ceny jadra stanice: CORE_COST[0] = z úrovne 1 na 2, [1] = z 2 na 3 atď. Každá úroveň jadra dáva CORE_INF vplyvu a jeden slot navyše. */
+/* v0.41: OPRAVA VYRADENEJ STANICE pri prvej návšteve sektora i. Platí sa surovinami, ktoré sa ťažia v predošlom sektore
+   (SECTORS[i-1].res); množstvo rastie so sektorom a vzácnejšie suroviny (nižšia rýchlosť ťažby MINE_RATE) stoja menej kusov. */
+const FIX_BASE=420,FIX_GROW=1.35;
+function stationFixCost(i){const prev=(SECTORS[i-1]&&SECTORS[i-1].res.length?SECTORS[i-1].res:['ore']),o={ore:0,green:0,crystal:0,cr:0};
+  const amt=FIX_BASE*Math.pow(FIX_GROW,i-1)/Math.sqrt(prev.length);for(const r of prev)o[r]=amt*MINE_RATE[r];return P(o)}
 const CORE_COST=[C(150),C(320),C(500,80),C(750,160,60)].map(P);
 const CORE_MAX=5,CORE_INF=15;
 /* Vylepšenie postavených modulov stanice +0 až +10. MOD_RAR[enh] = rarita modulu (index v RAR) – vylepšovaním modul stúpa na vyššiu raritu.

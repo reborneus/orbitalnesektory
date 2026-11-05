@@ -44,6 +44,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   else if(inArena())h=!arenaRun?t('ar.h.idle',{station:cap1(say('station'))}):arenaRun.phase==='ask'?t('ar.h.ask'):arenaRun.phase==='reward'?t('ar.h.anom'):arenaRun.phase==='count'?t('ar.h.count',{n:arenaRun.wave,s:Math.ceil(arenaRun.t)}):enemies.some(e=>e.invuln)?t('ar.h.mods'):t('ar.h.fight',{n:enemies.length});
   else if(stationDown>0)h=t('h.stDown',{s:Math.ceil(stationDown)});
   else if(raidActive)h=ptr?t('h.raidPtr',{n:enemies.filter(e=>!e.leaving&&!e.wasPassive).length}):t('h.raid',{n:enemies.filter(e=>!e.leaving&&!e.wasPassive).length,mine:say('mine')});
+  else if(stationBroken())h=t(full?'h.brokenFull':'h.broken',{home:cap1(say('home'))});
   else if((state.autoPilot||returnSent)&&homeBound()&&cargoTotal()>0)h=t('h.apHome');
   else if(full)h=t('h.full',{home:cap1(say('home'))});
   else if(state.autoPilot&&autoPause>0&&!mining)h=t('h.apPause');
@@ -82,7 +83,7 @@ function upCard(k){const u=UP[k];const L=state.ship[k];
   if(L<u.max){const c=upCost(k,L);h+=actBtn('ship',(k==='shield'||k==='radShield')&&L===0?t('btn.buy'):t('btn.upgrade'),c,false,`data-k="${k}"`)+`<div class="costs">${costHtml(c)}</div><p>${t('up.'+k+'.d')}</p><div class="stat">${fmtUp(k,L)} → <em>${fmtUp(k,L+1)}</em></div>`}
   else h+=`<button class="act max" disabled>${t('btn.max')}</button><p>${t('up.'+k+'.d')}</p><div class="stat"><em>${fmtUp(k,L)}</em></div>`;
   return h+'</div>'}
-function repairCard(){const hm=shipVal('hull');const cost=Math.ceil((hm-state.hp)/REPAIR_PER_ORE);const near=nearStation();
+function repairCard(){const hm=shipVal('hull');const cost=Math.ceil((hm-state.hp)/REPAIR_PER_ORE);const near=stationOk();
   return `<div class="card"><h3>${t('rep.name')}</h3><button class="act" data-act="repair" data-ore="1" data-green="0" data-cry="0" data-block="${near?0:1}">${t('btn.repair')}</button><div class="costs">${costHtml(C(cost))}</div><p>${near?t('rep.desc'):t('rep.far')}</p><div class="stat">${t('rep.stat',{a:Math.ceil(state.hp),b:hm})}</div></div>`}
 /* sheetTab: 'station' | 'ship' | 'map' | 'gate'. Tlačidlá majú data-act (čo urobiť) a ceny v data-ore/data-green/data-cry;
    kliknutia spracúva jeden spoločný poslucháč nižšie (body.addEventListener('click', ...)). */
@@ -197,7 +198,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(act==='lang'){setLang(b.dataset.l);return}
   if(act==='opt'){const k=b.dataset.k,v=b.dataset.v==='1';if(k==='autoPilot'){if(!!state.autoPilot!==v)toggleAutopilot();return}state[k]=v;save();renderSheet();return}
   if(act==='ares'){state.autoRes=b.dataset.r;save();renderSheet();if(state.autoPilot)toast(t('tt.apOn',{r:t('res.'+state.autoRes)}));return}
-  if(act==='repair'){if(!nearStation()){toast(t('rep.far'));return}const hm=shipVal('hull');const need=Math.ceil((hm-state.hp)/REPAIR_PER_ORE);const n=Math.min(need,Math.floor(state.ore));
+  if(act==='repair'){if(!stationOk()){toast(t('rep.far'));return}const hm=shipVal('hull');const need=Math.ceil((hm-state.hp)/REPAIR_PER_ORE);const n=Math.min(need,Math.floor(state.ore));
     if(n<=0)return;state.ore-=n;const before=state.hp;state.hp=Math.min(hm,state.hp+n*REPAIR_PER_ORE);toast(t('tt.repaired',{n:Math.round(state.hp-before)}));changed();return}
   if(stationAct(act,b))return; // akcie panela stanice (station.js)
   if(hangarAct(act,b))return;

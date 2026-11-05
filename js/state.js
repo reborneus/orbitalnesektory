@@ -11,7 +11,7 @@ function freshState(){return{v:3,num:NUM,ore:40*NUM,green:0,crystal:0,credits:0,
   ship:baseLevels(),shipId:'klepeto',owned:['klepeto'],hangar:{},hp:100*NUM,sh:0,radCharge:0,radMode:'auto',diff:'easy',
   autoMine:true,autoReturn:true,autoPilot:false,autoHunt:false,huntPassive:false,huntVoid:false,autoRes:'ore',lang,cur:0,intro:false,
   inv:[],eq:{laser:null,engine:null,hull:null,shield:null,util:null,weapon:null},nextId:1,
-  sec:SECTORS.map((s,i)=>({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:i===0,rewarded:false}))}}
+  sec:SECTORS.map((s,i)=>({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:i===0,rewarded:false,repaired:i===0}))   /* v0.41: repaired = hlavná stanica opravená */,lastBase:0}}
 /* Doplní polia, ktoré staršie uložené hry nemali (aby postup zostal zachovaný). */
 function migrate(s){
   if(typeof s.credits!=='number')s.credits=0;
@@ -33,7 +33,10 @@ function migrate(s){
     s.num=k}
   // v0.11: pilot – staré uloženie dostane XP za už obsadené sektory (pripíše sa po načítaní, pozri main.js)
   if(!s.pilot){s.pilot={lv:1,xp:0,total:0,pts:0,sk:{mining:0,combat:0,flight:0,trade:0}};let x=0;s.sec.forEach((c,i)=>{if(c.captured)x+=4000*(1+i*.5)});if(x)s.pilotRetro=x}
-  while(s.sec.length<SECTORS.length){const prev=s.sec[s.sec.length-1];s.sec.push({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:!!(prev&&prev.captured),rewarded:false})}
+  while(s.sec.length<SECTORS.length){const prev=s.sec[s.sec.length-1];s.sec.push({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:!!(prev&&prev.captured),rewarded:false,repaired:false})}
+  // v0.41: staršie uloženie – opravené sú stanice v obsadených sektoroch, v sektoroch s modulmi a v aktuálnom sektore; ostatné čakajú na opravu
+  s.sec.forEach((x,i)=>{if(x.repaired===undefined)x.repaired=i===0||!!x.captured||i===s.cur||x.slots.some(Boolean)});
+  if(s.lastBase==null||!s.sec[s.lastBase]||!s.sec[s.lastBase].repaired)s.lastBase=s.sec[s.cur]&&s.sec[s.cur].repaired?s.cur:0;
   for(const k of['weapon'])if(s.ship.gun==null){s.ship.gun=1;s.ship.gunRate=1}
   // sektory obsadené pred v0.5: vyplatí sa ich odmena v kredítoch
   s.sec.forEach((x,i)=>{if(x.captured&&!x.rewarded){s.credits+=SECTORS[i].reward.cr;x.rewarded=true}});

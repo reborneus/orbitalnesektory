@@ -43,7 +43,12 @@ function slotCard(s,i){const m=s.slots[i];const open=openSlot===i?' open':'';
   const rf=modRefund(s,m);h+=`<div class="itd-acts"><button class="btn danger" data-act="msell" data-i="${i}">${t('btn.msell')}</button><div class="costs">${refundHtml(rf)}${rf.cr?`<span class="cost crd gain"><span class="coin"></span>+${rf.cr}</span>`:''}</div></div>`;
   return h+'</div></details>'}
 let stTab='mods';   // záložka panela stanice: 'mods' = moduly, 'store' = hlavný sklad (storage.js); misie má zadávateľ misií (npc.js)
-function renderStation(){const s=cur();const inf=influence(s),cap=capOf(state.cur);
+/* v0.41: vyradená stanica – panel ukáže len opravu */
+function fixCard(){const c=stationFixCost(state.cur),near=nearStation();
+  return `<div class="card fixcard"><h3>${t('fx.h')}</h3>${actBtn('stFix',t('fx.btn'),c,!near)}<div class="costs">${costHtml(c)}</div>
+    <p>${t('fx.d',{p:secName(state.cur-1)})}</p>${near?'':`<div class="stat" style="color:var(--warn)">${t('fx.far')}</div>`}</div>
+    <p class="note">${t('fx.note',{b:secName(state.lastBase||0)})}</p>`}
+function renderStation(){const s=cur();if(stationBroken())return fixCard();const inf=influence(s),cap=capOf(state.cur);
   if(stTab==='miss')stTab='mods'; // v0.15: misie sú u zadávateľa misií (npc.js)
   let h=`<div class="segs two"><button class="seg" data-act="stTab" data-v="mods" aria-pressed="${stTab==='mods'}">${t('ms.tab.mods')}</button><button class="seg" data-act="stTab" data-v="store" aria-pressed="${stTab==='store'}">${t('sto.tab')}</button><button class="seg" data-act="stTab" data-v="tier" aria-pressed="${stTab==='tier'}">${t('tr.tab')}</button></div>`;
   if(stTab==='store')return h+renderStorage();
@@ -65,7 +70,9 @@ function renderStation(){const s=cur();const inf=influence(s),cap=capOf(state.cu
 /* rozbalenie jedného slotu zbalí ostatné (správanie ako akordeón) */
 body.addEventListener('toggle',e=>{const d=e.target;if(!d.matches||!d.matches('details.mslot'))return;
   if(d.open){openSlot=+d.dataset.slot;body.querySelectorAll('details.mslot[open]').forEach(x=>{if(x!==d)x.open=false})}else if(openSlot===+d.dataset.slot)openSlot=null},true);
-function stationAct(act,b){if(act==='stTab'){stTab=b.dataset.v;renderSheet();return true}if(missionAct(act,b))return true;const s=cur();const i=+b.dataset.i;const m=s.slots[i];
+function stationAct(act,b){if(act==='stTab'){stTab=b.dataset.v;renderSheet();return true}
+  if(act==='stFix'){if(!stationBroken())return true;if(!nearStation()){toast(t('fx.far'));return true}const c=stationFixCost(state.cur);if(!afford(c)){toast(t('tt.noRes'));return true}
+    pay(c);cur().repaired=true;state.lastBase=state.cur;raidT=Math.max(raidT,60);rebuildStation();toast(t('fx.ok',{s:secName(state.cur)}),true);save();renderSheet();updateHUD();return true}if(missionAct(act,b))return true;const s=cur();const i=+b.dataset.i;const m=s.slots[i];
   const done=(msg,kind)=>{rebuildStation();if(msg)toast(msg,kind);changed();return true};
   switch(act){
     case 'mbuild':{const k=b.dataset.mod;if(m||i>=slotsFor(s.core))return true;const c=MOD[k].cost(countMod(s,k));if(!afford(c))return true;

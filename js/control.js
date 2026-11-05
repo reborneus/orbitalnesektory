@@ -80,7 +80,7 @@ function destroyShip(){dead=true;clearShipOrders();
   deathScreen(lost);save()}
 /* Obrazovka smrti: po krátkom výbuchu sa ukáže prekrytie s odpočtom; po RESPAWN_S sekundách sa loď zrodí pri stanici. */
 function deathScreen(lost){const el=$('#death');respawnT=RESPAWN_S;
-  $('#deathT').textContent=t('death.title');$('#deathSub').textContent=t('death.sub');respawnBtns(false);$('#deathLost').textContent=lost>0?t('death.lost',{n:lost}):t('death.lost0');$('#deathN').textContent=RESPAWN_S;
+  $('#deathT').textContent=t('death.title');$('#deathSub').textContent=stationBroken()&&!inArena()?t('death.subBase',{s:secName(state.lastBase||0)}):t('death.sub');respawnBtns(false);$('#deathLost').textContent=lost>0?t('death.lost',{n:lost}):t('death.lost0');$('#deathN').textContent=RESPAWN_S;
   setTimeout(()=>{if(dead)el.classList.add('on')},600);
   const end=performance.now()+RESPAWN_S*1000;   // odpočet podľa skutočného času (nezávisí od plynulosti snímok)
   clearInterval(respawnTimer);respawnTimer=setInterval(()=>{respawnT=(end-performance.now())/1000;{const nn=Math.max(1,Math.ceil(respawnT-.001));if($('#deathN').textContent!==String(nn))sfx('beep');$('#deathN').textContent=nn}
@@ -97,6 +97,8 @@ function respawnConfirm(full){if(!dead||!$('#deathBtns').classList.contains('on'
 $('#respBase').addEventListener('click',()=>respawnConfirm(false));$('#respFull').addEventListener('click',()=>respawnConfirm(true));
 addEventListener('keydown',e=>{if(dead&&$('#deathBtns').classList.contains('on')&&e.key==='Enter'){respawnConfirm(false);e.preventDefault()}});
 function respawnShip(full){clearShipOrders();autoPause=2;
+  // v0.41: pri vyradenej stanici sa loď zrodí na poslednej funkčnej základni (iný sektor)
+  if(stationBroken()&&!inArena()){const b=state.lastBase||0;if(b!==state.cur){jumpTo(b,true,true);toast(t('tt.respBase',{s:secName(b)}))}}
   ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;ship.rotation.y=0;
   if(full){state.hp=shipVal('hull');state.sh=shieldMax();hullSince=99;shSince=99}                 // plné obnovenie za kredity
   else{state.hp=Math.max(1,shipVal('hull')*RESPAWN_HP);state.sh=0;hullSince=0;shSince=0}           // nová loď má len 20 % trupu a prázdny štít
@@ -146,12 +148,12 @@ function tickAuto(dt){autoPause-=dt;apNoneT-=dt;
   // autopilot: korisť v okolí pozbiera ako prvú (aj s plným nákladom – predmety náklad nezaberajú)
   if(ap&&!mineTarget&&state.inv.length<INV_MAX){const L=nearestLoot(70*MAP_SCALE);if(L){if(!moveTarget||moveTarget.distanceTo(L.g.position)>1.5)moveTarget=L.g.position.clone().setY(0);return}}
   // plný náklad: kým loď nesmeruje domov, znova nastaví kurz na stanicu (napr. po zbere koristi alebo ručnom zásahu)
-  if(full&&(ap||state.autoReturn!==false)&&!homeBound()&&Math.hypot(ship.position.x,ship.position.z)>STATION_R+5){cmdHome();if(!returnSent)toast(t('tt.autoHome'));returnSent=true}
+  if(full&&!stationBroken()&&(ap||state.autoReturn!==false)&&!homeBound()&&Math.hypot(ship.position.x,ship.position.z)>STATION_R+5){cmdHome();if(!returnSent)toast(t('tt.autoHome'));returnSent=true}
   if(!ap)return;
   const hm=shipVal('hull'),hr=state.hp/hm;
-  if(hr<.35&&!nearStation()){if(!apHurtSent&&!homeBound()){cmdHome();apHurtSent=true;toast(t('tt.apHurt'))}return}
+  if(hr<.35&&!nearStation()&&!stationBroken()){if(!apHurtSent&&!homeBound()){cmdHome();apHurtSent=true;toast(t('tt.apHurt'))}return}
   apHurtSent=false;
-  if(nearStation()&&hr<.7){
+  if(stationOk()&&hr<.7){
     if(!D().regen){const n=Math.min(Math.ceil((hm-state.hp)/REPAIR_PER_ORE),Math.floor(state.ore));if(n>0){state.ore-=n;state.hp=Math.min(hm,state.hp+n*REPAIR_PER_ORE);toast(t('tt.repaired',{n:n*REPAIR_PER_ORE}))}}
     if(state.hp/hm<.7)return}
   if(full||mineTarget||moveTarget)return;
@@ -223,7 +225,7 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   const cg=ship.userData.core;const cs=(mining?4.6:3.2)*(1+Math.sin(tt*(mining?14:3))*.1);cg.scale.set(cs,cs,1);
   // unload at the station
   const dStation=Math.hypot(ship.position.x,ship.position.z);
-  if(dStation<STATION_R+5&&cargoTotal()>0){const parts=[];
+  if(dStation<STATION_R+5&&cargoTotal()>0&&!stationBroken()){const parts=[];   // v0.41: vyradená stanica náklad neprijme
     for(const r of RES){const n=Math.floor(state.cargo[r]);if(state.cargo[r]>0)missionDeliver(r,state.cargo[r]);state[r]+=state.cargo[r];state.cargo[r]=0;if(n>0){parts.push(t('res.'+r+'.gain',{n}));bump('#'+RCLS[r]+'Txt')}}
     fullWarned=false;if(parts.length){toast(t('tt.unloaded',{list:parts.join(', ')}));sfx('coin')}save();refreshSheet()}
   if(openOnArrive&&dStation<STATION_R+8){openOnArrive=false;openSheet('station')}

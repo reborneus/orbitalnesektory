@@ -31,7 +31,7 @@ function mulLine(id){const m=SHIPS[id].mul;const parts=MUL_KEYS.filter(k=>m[k]&&
   return parts.length?parts.join(' · '):t('hg.base')}
 const shipUnlocked=id=>SHIPS[id].need<0||!!(state.sec[SHIPS[id].need]&&state.sec[SHIPS[id].need].captured);
 
-function renderHangar(){let h=`<p class="note">${t('hg.note')}</p>`;const near=nearStation();
+function renderHangar(){let h=`<p class="note">${t('hg.note')}</p>`;const near=stationOk();
   for(const id of SHIP_IDS){const S=SHIPS[id];const own=state.owned.includes(id),act=state.shipId===id;
     h+=`<div class="card hcard${act?' on':''}${shipPreviewSrc(id)?' big':''}" style="--sc:${S.col}">${shipIcon(id,'hship hprev')}<h3>${t('ship.'+id)} ${act?`<span class="chip here">${t('hg.active')}</span>`:own?`<span class="chip won">${t('hg.owned')}</span>`:''}</h3>`;
     if(act)h+=`<button class="act max" disabled>${t('hg.flying')}</button>`;
@@ -56,8 +56,8 @@ function switchShip(id){if(!state.owned.includes(id)||state.shipId===id)return;
   state.hp=Math.max(1,Math.round(hr*shipVal('hull')));state.sh=shieldMax();state.radCharge=Math.min(state.radCharge,shipVal('radShield'));
   buildShip(id);toast(t('tt.shipUse',{n:t('ship.'+id)}),true)}
 function hangarAct(act,b){
-  if(act==='shipUse'){if(!nearStation()){toast(t('hg.far'));return true}switchShip(b.dataset.id);changed();return true}
+  if(act==='shipUse'){if(!stationOk()){toast(t('hg.far'));return true}switchShip(b.dataset.id);changed();return true}
   if(act==='shipBuy'){const id=b.dataset.id;const S=SHIPS[id];if(!S||state.owned.includes(id)||!shipUnlocked(id)||!afford(S.cost))return true;
     pay(S.cost);state.owned.push(id);state.hangar[id]=baseLevels();toast(t('tt.shipBuy',{n:t('ship.'+id)}),true);
-    if(nearStation())switchShip(id);changed();return true}
+    if(stationOk())switchShip(id);changed();return true}
   return false}
