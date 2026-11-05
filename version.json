@@ -1,1 +1,1 @@
-{"version":"0.50.1","date":"2026-11-05","notes":["Hlavné menu má nové tlačidlo Ukončiť hru – v spúšťači zavrie okno hry, v prehliadači ukáže, že hra je uložená a kartu môžeš zavrieť."]}
+{"version":"0.50.2","date":"2026-11-05","notes":["Minimapa je ostrá hneď po načítaní hry – už ju netreba zväčšiť ani zmenšiť, aby sa obnovila kvalita.","Veľké čísla na kartách (veže, drony, stanica) a vo vlastnostiach predmetov majú oddelené tisíce bodkami (627.340), od milióna sa skracujú (1,62 M)."]}

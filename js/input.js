@@ -36,7 +36,10 @@ const mini=$('#mini'),mctx=mini.getContext('2d');const MINI_R=200*MAP_SCALE;
 mini.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();setMode(e.pointerType==='touch'?'touch':'mouse');
   const r=mini.getBoundingClientRect();const x=((e.clientX-r.left)/r.width*2-1)*MINI_R,z=((e.clientY-r.top)/r.height*2-1)*MINI_R;
   const p=clampLimit(new V3(x,0,z));cmdMove(p);flashMarker(p,'#58d0c0')});
-function sizeMini(){const css=mini.clientWidth||150;const dpr=Math.min(devicePixelRatio||1,2);const px=Math.round(css*dpr);if(mini.width!==px){mini.width=px;mini.height=px}}
+/* v0.50.2: rozlíšenie minimapy sa nastaví aj keď sa jej veľkosť zmení sama (koniec načítania, zobrazenie HUD),
+   inak ostala rozmazaná, kým hráč nezmenil jej veľkosť. Skrytá mapa (šírka 0) rozlíšenie nemení. */
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>sizeMini()).observe(mini);
+function sizeMini(){if(!mini.clientWidth)return;const css=mini.clientWidth;const dpr=Math.min(devicePixelRatio||1,2);const px=Math.round(css*dpr);if(mini.width!==px){mini.width=px;mini.height=px}}
 /* Malá červená smrtka na minimape (lebka + čeľusť + očnice), kreslená cestami, nie písmom. */
 function miniSkull(g,x,y,u){const s=3.6*u;g.save();g.shadowColor='#ff2a2a';g.shadowBlur=5*u;g.fillStyle='#ff4040';
   g.beginPath();g.arc(x,y-s*.15,s,Math.PI*.85,Math.PI*2.15);g.lineTo(x+s*.55,y+s*.95);g.lineTo(x-s*.55,y+s*.95);g.closePath();g.fill();

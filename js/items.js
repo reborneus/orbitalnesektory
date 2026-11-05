@@ -165,7 +165,7 @@ function statQ(it,st,imp){if(st.q!=null)return st.q;const S=STATS[st.k];if(!S||S
 const qCls=q=>q>=.995?' q100':q>=.9?' q90':'';
 function itemStats(it){const m=enhMul(it),w=weaponBase(it);
   return[...(w?[{k:'wb',v:w.v*m,q:w.q,base:true}]:[]),{k:it.imp.k,v:it.imp.v*m,imp:true,q:statQ(it,it.imp,true)},...it.aff.map(a=>({k:a.k,v:a.v*m,q:statQ(it,a,false)}))]}
-function fmtStat(k,v){if(k==='dmgX')return '×'+(1+v/100).toFixed(2);const S=STATS[k];const f=Math.pow(10,S.dec);const n=Math.round(v*f)/f;return '+'+n.toFixed(S.dec)+(S.u?(S.u==='%'?' %':' '+S.u):'')}
+function fmtStat(k,v){if(k==='dmgX')return '×'+(1+v/100).toFixed(2);const S=STATS[k];const f=Math.pow(10,S.dec);const n=Math.round(v*f)/f;return '+'+(Math.abs(n)>=1000?fmtG(n):n.toFixed(S.dec))+(S.u?(S.u==='%'?' %':' '+S.u):'')}
 /* Súčet vlastností nasadených predmetov (uložené v medzipamäti, prepočíta sa po zmene výbavy cez bonusDirty()). */
 let _bonus=null;
 function bonusDirty(){_bonus=null}

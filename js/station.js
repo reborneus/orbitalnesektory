@@ -7,12 +7,12 @@
 let openSlot=null;   // index rozbaleného slotu (zostane rozbalený aj po prekreslení)
 const thumbImg=(typ,r,cls='mthumb')=>{const src=moduleThumb(typ,r);return src?`<img class="${cls}" src="${src}" alt="">`:`<span class="${cls} noimg">${t('mod.'+typ+'.s')}</span>`};
 function fxLines(m){const L=[];const row=(k,v)=>L.push(`<li><span>${t(k)}</span><b>${v}</b></li>`);
-  if(m.t==='drone'){const d=droneStats(m);row('fx.rate',nf2(d.rate)+' t/s');row('fx.cap',Math.round(d.cap)+' t');row('fx.speed',nf2(d.speed)+' m/s');
+  if(m.t==='drone'){const d=droneStats(m);row('fx.rate',nf2(d.rate)+' t/s');row('fx.cap',fmtG(Math.round(d.cap))+' t');row('fx.speed',nf2(d.speed)+' m/s');
     row('fx.res',RES.filter(r=>d.can[r]).map(r=>t('res.'+r)).join(', '));if(chipCan(m,'def'))row('fx.dmg',nf2(d.dmg));row('fx.inc',`+${nf2(droneIncome(m)*60)} ${t('res.ore')}/min`)}
   if(m.t==='tower'){const w=towerStats(m);row('fx.dmg',nf2(w.dmg));row('fx.frate',nf2(w.rate)+' /s');row('fx.range',nf2(w.range)+' m')}
   if(m.t==='sensor')row('fx.inc',`+${nf2(sensorIncome(m)*60)} ${t('res.green')}/min`);
   row('fx.inf','+'+modInf(m));return `<ul class="stats">${L.join('')}</ul>`}
-const nf2=x=>(Math.round(x*10)/10).toString();
+const nf2=x=>fmtG(x);   // oddeľovač tisícov / skrátený tvar s M (util.js)
 /* Vrátené suroviny pri predaji: SELL_BUILD z ceny stavby (posledného kusa daného typu) + SELL_ENH z vylepšení. */
 function modRefund(s,m){const c=MOD[m.t].cost(countMod(s,m.t)-1),sp=m.spent||C();
   return C(Math.floor(c.ore*SELL_BUILD+sp.ore*SELL_ENH),Math.floor(c.green*SELL_BUILD+sp.green*SELL_ENH),Math.floor(c.crystal*SELL_BUILD+sp.crystal*SELL_ENH),Math.floor((sp.cr||0)*SELL_ENH))}
