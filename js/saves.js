@@ -56,12 +56,14 @@ function writeSave(n,k,kind,label){const I=loadIdx(),S=I.slots[n-1];const env=en
    každých AUTO_ROT sekúnd sa posunie na ďalšie, takže v slote ostanú AUTO_N automatické uloženia s odstupom. */
 function autoSave(){if(!curSlot||!state)return;const I=loadIdx(),S=I.slots[curSlot-1];
   if(!S.at||Date.now()-S.at>AUTO_ROT*1000){if(S.at)S.ai=(S.ai+1)%AUTO_N;S.at=Date.now();saveIdx(I)}
-  writeSave(curSlot,'a'+S.ai,'auto')}
+  return writeSave(curSlot,'a'+S.ai,'auto')}
+/* Slot pre hru, ktorá beží bez zvoleného slotu: naposledy použitý, inak prvý prázdny, inak 1. */
+function pickSlot(){const I=loadIdx();if(I.last)return I.last;for(const S of I.slots)if(!Object.keys(S.e).length)return S.n;return 1}
 /* Ručné uloženie: prvé voľné miesto, inak prepíše najstaršie (alebo zadané k). */
-function manualSave(k){if(!curSlot||!state||nmDead)return false;const S=loadIdx().slots[curSlot-1];
+function manualSave(k){if(!state||nmDead)return false;if(!curSlot)curSlot=pickSlot();const S=loadIdx().slots[curSlot-1];
   if(!k){for(let i=0;i<MAN_N;i++)if(!S.e['m'+i]){k='m'+i;break}
     if(!k)k=Object.values(S.e).filter(m=>m.kind==='man').sort((a,b)=>a.ts-b.ts)[0].k}
-  const ok=writeSave(curSlot,k,'man');if(ok&&typeof toast==='function')toast(t('sv.saved',{n:curSlot}));return ok}
+  const ok=writeSave(curSlot,k,'man');if(typeof toast==='function')toast(ok?t('sv.saved',{n:curSlot}):t('sv.err'),ok?'':'bad');return ok}
 /* Zoznam uložení slotu, najnovšie prvé. */
 function slotEntries(n){const S=loadIdx().slots[n-1];return Object.values(S.e).sort((a,b)=>b.ts-a.ts)}
 const slotUsed=n=>slotEntries(n).length>0;

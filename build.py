@@ -9,8 +9,8 @@ def css(m):
     return '<style>\n' + open(os.path.join(root, m.group(1)), encoding='utf-8').read() + '</style>'
 def js(m):
     return '<script>\n' + open(os.path.join(root, m.group(1)), encoding='utf-8').read() + '</script>'
-out = re.sub(r'<link rel="stylesheet" href="(css/[^"]+)">', css, src)
-out = re.sub(r'<script src="(js/[^"]+)"></script>', js, out)
+out = re.sub(r'<link rel="stylesheet" href="(css/[^"?]+)(?:\?[^"]*)?">', css, src)   # ?v=… = značka verzie proti starej cache
+out = re.sub(r'<script src="(js/[^"?]+)(?:\?[^"]*)?"></script>', js, out)
 import base64
 for name in ('icon-64.png', 'icon-256.png'):
     data = base64.b64encode(open(os.path.join(root, 'assets', name), 'rb').read()).decode()

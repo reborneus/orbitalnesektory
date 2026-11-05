@@ -42,7 +42,9 @@ function loadState(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return
 let state=null;
 let nmDead=false; // Nightmare: loď zničená, nič sa už neukladá
 /* v0.30: ukladanie cez sloty (saves.js) – spoločné nastavenia vždy, stav hry len ak je zvolený slot (nie v hlavnom menu). */
-function save(){if(!state||typeof savePrefs!=='function')return;savePrefs();if(nmDead||!curSlot)return;autoSave()}
+function save(){if(!state||typeof savePrefs!=='function')return false;savePrefs();if(nmDead)return false;
+  if(!curSlot&&!(typeof menuOpen==='function'&&menuOpen()))curSlot=pickSlot();   // v0.31.1: hrá sa bez zvoleného slotu (napr. po aktualizácii) → slot sa priradí sám
+  if(!curSlot)return false;return autoSave()}
 const cur=()=>state.sec[state.cur];
 const countMod=(s,k)=>s.slots.filter(x=>slotType(x)===k).length;
 /* Modul v slote stanice: t = typ (drone/tower/sensor), enh = vylepšenie +0..+10, chip = vložený čip (predmet) alebo null,

@@ -212,9 +212,9 @@ function passiveOf(sc){const paused=influence(sc)<SECTORS[state.sec.indexOf(sc)]
   if(!paused)for(const m of sc.slots){if(!m)continue;if(m.t==='drone')ore+=droneIncome(m);if(m.t==='sensor')green+=sensorIncome(m)}
   return{ore,green,paused}}
 /* Ukončenie hry: uloží a skúsi zavrieť okno (funguje v okne spusteného spúšťačom); inak ukáže, že je možné okno zavrieť. */
-function quitGame(){save();toast(t('tt.saved'));try{window.close()}catch(e){}
-  setTimeout(()=>{if(window.closed)return;closeSheet();const d=document.createElement('div');d.className='intro';d.innerHTML=`<div class="box glass" style="text-align:center"><h1 style="font-size:28px">${t('bye')}</h1><button class="go" id="byeBack">${t('btn.back')}</button></div>`;
-    document.body.appendChild(d);d.querySelector('#byeBack').onclick=()=>d.remove()},400)}
+/* v0.31.1: ručné uloženie + zavretie okna; kde sa okno zavrieť nedá (telefón, aplikácia na ploche, bežná karta), hra prejde do hlavného menu. */
+function quitGame(){const ok=manualSave();if(!ok)return;try{window.close()}catch(e){}
+  setTimeout(()=>{if(!window.closed)toMenu()},350)}
 
 let jumping=false;
 /* Skok do sektora i: krátky záblesk, potom sa sektor postaví nanovo a loď sa objaví pri stanici. */

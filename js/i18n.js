@@ -18,7 +18,7 @@ sk:{
   'hud.rad':'Rad. štít','st.radProt':'Radiačný štít chráni loď: {n} s','tt.radOut':'Radiačný štít je vyčerpaný! Dobiješ ho pri stanici.','tt.rsOn':'Radiačný štít nainštalovaný',
   'rs.auto':'Vždy v radiácii','rs.void':'Len za horizontom','rs.d':'Kedy sa radiačný štít zapne. „Len za horizontom“ šetrí jeho čas na cesty za horizont, v pásoch 3–4 vtedy chránia bežné štíty.',
   /* --- v0.6: nastavenia, panel stanice, čipy, boj --- */
-  'dock.settings':'Nastavenia','sh.settings':'Nastavenia','set.quit':'Ukončiť hru','set.quit.d':'Hra sa uloží a okno hry sa zavrie.','btn.quit':'Uložiť a ukončiť',
+  'dock.settings':'Nastavenia','sh.settings':'Nastavenia','set.quit':'Ukončiť hru','set.quit.d':'Hra sa uloží a okno hry sa zavrie; kde sa okno zavrieť nedá (telefón, aplikácia na ploche), hra prejde do hlavného menu.','btn.quit':'Uložiť a ukončiť',
   'tt.saved':'Hra uložená','bye':'Hra je uložená. Teraz môžeš zavrieť toto okno.',
   'map.paused':'Pasívny príjem je pozastavený: vplyv {a} / {b}. Doplň moduly, aby sektor znova zarábal.',
   'grp.weapon':'Zbrane','up.gun':'Poškodenie zbrane','up.gun.d':'Poškodenie jedného výstrelu laserového dela.','up.gunRate':'Kadencia','up.gunRate.d':'Počet výstrelov za sekundu.',
@@ -218,7 +218,7 @@ en:{
   'hud.rad':'Rad. shield','st.radProt':'Radiation shield protecting the ship: {n} s','tt.radOut':'Radiation shield depleted! Recharge it at the station.','tt.rsOn':'Radiation shield installed',
   'rs.auto':'Always in radiation','rs.void':'Only beyond the horizon','rs.d':'When the radiation shield turns on. “Only beyond the horizon” saves its time for trips past the horizon; in belts 3–4 your regular shields protect you.',
   /* --- v0.6: settings, station panel, chips, combat --- */
-  'dock.settings':'Settings','sh.settings':'Settings','set.quit':'Quit game','set.quit.d':'The game is saved and the game window closes.','btn.quit':'Save and quit',
+  'dock.settings':'Settings','sh.settings':'Settings','set.quit':'Quit game','set.quit.d':'The game is saved and the game window closes; where the window cannot be closed (phone, home-screen app), the game returns to the main menu.','btn.quit':'Save and quit',
   'tt.saved':'Game saved','bye':'Your game is saved. You can close this window now.',
   'map.paused':'Passive income paused: influence {a} / {b}. Add modules so the sector earns again.',
   'grp.weapon':'Weapons','up.gun':'Weapon damage','up.gun.d':'Damage of one laser cannon shot.','up.gunRate':'Fire rate','up.gunRate.d':'Shots per second.',
