@@ -2,6 +2,17 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.41.0",
+"d": "2026-11-05",
+"n": [
+"Nový sektor: pri prvej návšteve je hlavná stanica vyradená a viditeľne poškodená (ohorené plechy, zastavené prstence, blikajúce červené jadro, ohne s iskrami, plávajúce trosky).",
+"Vyradená stanica neprijme náklad, nedá sa na nej stavať, prestupovať na lode ani dobíjať radiačný štít a piráti na ňu nenalietavajú. Autopilot sa k nej nevracia.",
+"Opravíš ju v paneli Stanica za suroviny, ktoré sa ťažia v predošlom sektore (cena rastie so sektorom).",
+"Ak ťa zničia pri ešte neopravenej stanici, po odpočte a potvrdení sa nová loď zrodí na poslednej funkčnej základni, ktorú si navštívil.",
+"Staršie uložené hry: stanice v obsadených sektoroch, v sektoroch s modulmi a v sektore, kde práve si, sú už opravené."
+]
+},
+{
 "v": "0.40.4",
 "d": "2026-11-05",
 "n": [
@@ -227,15 +238,6 @@ const CHANGELOG=[
 "d": "2026-11-05",
 "n": [
 "Uložiť a ukončiť: na webe, v aplikácii z plochy aj na telefóne hra po uložení vždy prejde do hlavného menu (prehliadač už nezatvorí kartu a neprejde na predchádzajúcu stránku); okno sa zatvára len v hre spustenej zo spúšťača na PC"
-]
-},
-{
-"v": "0.31.2",
-"d": "2026-11-05",
-"n": [
-"Oprava ukladania v aplikácii z plochy na iPhone: hra sa teraz ukladá naraz do localStorage aj do IndexedDB a načíta sa z oboch – keď systém zápis do localStorage odmietne, uloženie aj tak prebehne",
-"Pri štarte hra požiada systém, aby uložené dáta nemazal",
-"V Nastaveniach pri uloženej hre je malý riadok so stavom úložiska (localStorage / IndexedDB) a chybová hláška ukazuje aj názov chyby"
 ]
 }
 ];

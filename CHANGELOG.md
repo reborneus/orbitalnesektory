@@ -2,6 +2,15 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.41
+
+### v0.41.0 · 2026-11-05
+- Nový sektor: pri prvej návšteve je hlavná stanica vyradená a viditeľne poškodená (ohorené plechy, zastavené prstence, blikajúce červené jadro, ohne s iskrami, plávajúce trosky).
+- Vyradená stanica neprijme náklad, nedá sa na nej stavať, prestupovať na lode ani dobíjať radiačný štít a piráti na ňu nenalietavajú. Autopilot sa k nej nevracia.
+- Opravíš ju v paneli Stanica za suroviny, ktoré sa ťažia v predošlom sektore (cena rastie so sektorom).
+- Ak ťa zničia pri ešte neopravenej stanici, po odpočte a potvrdení sa nová loď zrodí na poslednej funkčnej základni, ktorú si navštívil.
+- Staršie uložené hry: stanice v obsadených sektoroch, v sektoroch s modulmi a v sektore, kde práve si, sú už opravené.
+
 ## 0.40
 
 ### v0.40.4 · 2026-11-05

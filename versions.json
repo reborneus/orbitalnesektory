@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.41.0", "date": "2026-11-05", "time": "2026-11-05T16:12:39+01:00", "sha": "bfba7404e6cfb868f60c13bc89700c1691703efa", "title": "Vyradená stanica v novom sektore, oprava, zrodenie na poslednej základni"},
   {"version": "0.40.4", "date": "2026-11-05", "time": "2026-11-05T16:01:06+01:00", "sha": "f4eb8ff506455b1fb3c53806d92b9225511ca3f5", "title": "Pilot: štatistiky, krúženie okolo piráta, kratší dostrel pirátov"},
   {"version": "0.40.3", "date": "2026-11-05", "time": "2026-11-05T15:48:14+01:00", "sha": "e5a88856b4f924deb9217eee9507501db37e4295", "title": "Sloty navyše: Sokol laser, Bizón laser + štít"},
   {"version": "0.40.2", "date": "2026-11-05", "time": "2026-11-05T15:38:12+01:00", "sha": "eef57696aa7f211c16317d5132c01229eca4dd13", "title": "Lov pasívnych pirátov a za horizontom, 2x viac pirátov"},
