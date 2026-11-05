@@ -681,6 +681,9 @@ body.inmenu .sheet{z-index:12}
 .mi:hover:not(:disabled)::before,.mi.mfoc::before{height:70%}
 .mi.big b{font-size:25px;color:#fff}
 .mi:disabled{opacity:.35;cursor:default}
+.mi.mquit b{color:var(--muted)}
+.mi.mquit:hover b,.mi.mquit.mfoc b{color:#ff9a8a}
+.mbye{max-width:420px;font-size:15px;line-height:1.5;margin:6px 0 14px}
 .mfoot{display:flex;align-items:center;gap:14px;margin-top:14px}
 .mlogb{background:none;border:0;color:var(--muted);font:600 12px/1 var(--f-data);letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:6px 0;border-bottom:1px dashed rgba(133,151,171,.5)}
 .mlogb:hover{color:var(--text)}

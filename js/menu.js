@@ -37,8 +37,11 @@ function renderMenu(){const box=$('#introBox');let h='';const back=(v,title)=>`<
     h+=`<button class="mi${L?'':' big'}" data-m="new"><b>${t('mn.new')}</b></button>
       <button class="mi" data-m="load"${[1,2,3].some(slotUsed)?'':' disabled'}><b>${t('mn.load')}</b></button>
       <button class="mi" data-m="set"><b>${t('dock.settings')}</b></button>
-      <button class="mi" data-m="wiki"><b>${t('mn.wiki')}</b></button></nav>
+      <button class="mi" data-m="wiki"><b>${t('mn.wiki')}</b></button>
+      <button class="mi mquit" data-m="quit"><b>${t('mn.quit')}</b></button></nav>
       <div class="mfoot">${langBtns()}<button class="mlogb" data-m="log">${t('mn.log')}</button></div>`}
+  /* obrazovka po Ukončiť hru, keď prehliadač okno zavrieť nedovolí (bežná karta, PWA, mobil) */
+  else if(menuView==='bye'){h+=`<div class="mlogo"><h1><span>Orbitálne</span><span>Sektory</span></h1></div><p class="note mbye">${t('mn.bye')}</p><nav class="mnav"><button class="mi" data-back="main"><b>${t('mn.byeBack')}</b></button></nav>`}
   else if(menuView==='new'){h+=back('main',t('mn.newH'))+`<div class="msaves">${[1,2,3].map(n=>saveSlotCard(n,'new')).join('')}</div>`}
   else if(menuView==='diff'){const used=slotUsed(menuSlot);
     h+=back('new',t('mn.newSlot',{n:menuSlot}))+`<div class="sec-h"><span>${t('in.diff')}</span></div>
@@ -73,6 +76,10 @@ function loadGame(n,k){const s=readSave(n,k);if(!s){toast(t('sv.bad'),'bad');ret
   if(SECTORS[state.cur]&&SECTORS[state.cur].arena)state.cur=0;
   enterWorld();const I=loadIdx();I.last=n;saveIdx(I);toast(t('sv.loaded',{n}))}
 /* Návrat do hlavného menu z hry (uloží automaticky). */
+/* Ukončiť hru z hlavného menu: hra je uložená už pri návrate do menu. Spúšťač (okno aplikácie) sa zavrie;
+   bežný prehliadač skriptu zavrieť kartu nedovolí – vtedy ukážeme obrazovku, že hru už možno zavrieť. */
+function menuQuit(){try{window.close()}catch(e){}
+  setTimeout(()=>{if(!window.closed){menuView='bye';menuFoc=0;renderMenu()}},350)}
 function toMenu(){if(state&&curSlot&&!nmDead)save();showMenu('main')}
 function newGame(){showMenu('new')}   // kompatibilita so staršími volaniami
 
@@ -84,6 +91,7 @@ $('#introBox').addEventListener('click',e=>{const b=e.target.closest('button');i
   if(m==='new'||m==='load'){menuView=m;menuFoc=0;renderMenu();return}
   if(m==='set'){openSheet('settings');return}
   if(m==='wiki'){openWiki();return}
+  if(m==='quit'){menuQuit();return}
   if(m==='log'){logOpen=!logOpen;renderLog();return}
   if(b.dataset.slot){menuSlot=+b.dataset.slot;menuArm=null;menuFoc=0;menuView=menuView==='new'?'diff':'slot';if(menuView==='diff')pendingDiff='easy';renderMenu();return}
   if(b.dataset.d){pendingDiff=b.dataset.d;renderMenu();return}
@@ -100,7 +108,7 @@ function menuFocusApply(){const L=menuItems();$('#introBox').querySelectorAll('.
   if(inputMode!=='pad'&&inputMode!=='key')return;if(!L.length)return;menuFoc=clamp(menuFoc,0,L.length-1);L[menuFoc].classList.add('mfoc');L[menuFoc].scrollIntoView({block:'nearest'})}
 function menuMove(d){const L=menuItems();if(!L.length)return;menuFoc=(menuFoc+d+L.length)%L.length;menuFocusApply()}
 function menuOk(){const L=menuItems();const b=L[clamp(menuFoc,0,L.length-1)];if(b)b.click()}
-function menuBack(){const b=$('#introBox .mback');if(b)b.click()}
+function menuBack(){if(menuView==='bye'){menuView='main';menuFoc=0;renderMenu();return}const b=$('#introBox .mback');if(b)b.click()}
 addEventListener('keydown',e=>{if(!menuOpen()||sheetTab||(typeof wikiOpen==='function'&&wikiOpen()))return;
   const k=e.key;if(k==='ArrowDown'||k==='ArrowRight'){inputMode='key';menuMove(1);e.preventDefault()}else if(k==='ArrowUp'||k==='ArrowLeft'){inputMode='key';menuMove(-1);e.preventDefault()}
   else if(k==='Enter'&&inputMode==='key'){menuOk();e.preventDefault()}else if(k==='Escape'||k==='Backspace'){menuBack();e.preventDefault()}});
