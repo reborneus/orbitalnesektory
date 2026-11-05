@@ -31,7 +31,10 @@ function frame(){requestAnimationFrame(frame);if(gfxSkip())return;const dt=Math.
   bubbleT=Math.max(0,bubbleT-dt*2.2);
   const bu=ship.userData.bubble.material.uniforms.o;const shUp=smax>0&&state.sh>0;
   ship.userData.bubble.material.uniforms.c.value.set(radProt?'#c38bff':'#5aa9ff');
-  bu.value=radProt?.45+.15*Math.sin(tt*7):Math.max(shUp?(radRate>0&&!radHull?.35+.12*Math.sin(tt*9):.08):0,bubbleT*.9);
+  // v0.49: bublina len pri úbytku štítu (zásah, radiácia) alebo pri dobíjaní; inak neviditeľná
+  const rech=smax>0&&state.sh<smax-1e-6&&shSince>=shipVal('sregen').delay;
+  bu.value=radProt?.45+.15*Math.sin(tt*7):Math.max(shUp&&radRate>0&&!radHull?.3+.1*Math.sin(tt*9):0,rech?.13+.05*Math.sin(tt*5):0,bubbleT*.9);
+  ship.userData.bubble.material.uniforms.uT.value=tt;
   for(const a of asts){
     if(a.g.userData.spark)a.g.userData.spark.scale.setScalar(4.2*(1+.35*Math.sin(tt*4+a.base*7)));
     if(a.alive){a.g.rotation.x+=a.spin.x*dt;a.g.rotation.y+=a.spin.y*dt;a.g.rotation.z+=a.spin.z*dt;if(a.shrink<1){a.shrink=Math.min(1,a.shrink+dt*.8);setAstScale(a)}}

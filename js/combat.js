@@ -98,7 +98,7 @@ function tickBolts(dt){for(const b of bolts.slice()){b.life-=dt;
     if(b.homing&&!dead){const want=new V3().subVectors(ship.position,b.s.position).setY(0).normalize().multiplyScalar(b.vel.length());b.vel.lerp(want,Math.min(1,b.homing*dt));if(Math.random()<dt*20)emit(trail,b.s.position,'#ff9a3a',.4)}
     b.s.position.addScaledVector(b.vel,dt);let hit=false;
     if(b.side==='enemy'){
-      if(!dead&&b.s.position.distanceTo(ship.position)<2.6){hit=true;const o=damage(b.dmg,'hit');if(o.hull+o.shield>0)dmgText(ship.position,o.hull+o.shield,'hurt');if(o.hull>0)hurtFlash(.3);if(o.shield>0)bubbleT=1;rumble(.25,90)}
+      if(!dead&&b.s.position.distanceTo(ship.position)<2.6){hit=true;const o=damage(b.dmg,'hit');if(o.shield>0)shieldImpact(b.s.position);if(o.hull+o.shield>0)dmgText(ship.position,o.hull+o.shield,'hurt');if(o.hull>0)hurtFlash(.3);if(o.shield>0)bubbleT=1;rumble(.25,90)}
       else if(!inArena()&&stationDown<=0&&Math.hypot(b.s.position.x,b.s.position.z)<STATION_R-2){hit=true;stationHit(b.dmg)}}
     else for(const e of enemies){if(!e.leaving&&b.s.position.distanceTo(e.pos)<e.r+.6){hit=true;hitEnemy(e,b.dmg,b.side);dmgText(e.pos,b.dmg,b.crit?'crit':b.side);break}}
     if(hit){for(let i=0;i<4;i++)emit(debris,b.s.position,b.side==='enemy'?'#ff8a5c':'#c9fff6',.3,new V3((Math.random()-.5)*8,Math.random()*3,(Math.random()-.5)*8))}

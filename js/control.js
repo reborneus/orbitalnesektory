@@ -35,12 +35,17 @@ function avoid(desired){const sp=desired.length();if(sp<.1)return;const dir=_a.c
 
 /* damage: shields absorb collisions and belt radiation first; past the horizon it hits the hull directly */
 /* kind: 'hit' = náraz, 'rad' = radiácia v pásoch (oboje najprv berie štíty), 'void' = za horizontom (priamo trup). */
+/* v0.49: pomer zväčšenia štítov v0.47 = nový max. štít / starý max. štít (staré hodnoty vylepšení, predmety ×1, bez % trupu a % štítu z výbavy).
+   Radiácia ubíja štíty týmto násobkom, takže štíty vydržia v radiácii rovnako dlho ako pred zväčšením; trup dostáva rovnako. */
+const SHIELD_OLD=[0,40,60,85,115,155,205,270,350,460,600],SHIELD_NEW=[0,120,200,310,460,680,1000,1450,2100,3000,4200];   // pomer starých a nových hodnôt vylepšenia
+function shieldGrowK(){const L=state.ship.shield|0;if(!L)return 1;const b=bonus();
+  const i=Math.min(L,SHIELD_OLD.length-1),nv=SHIELD_NEW[i];const old=(upVal('shield',L)*SHIELD_OLD[i]/nv+b.shield)*(1+((b.rs&&b.rs.shieldPct)||0)/100);return old>0?Math.max(1,shieldMax()/old):1}
 function damage(n,kind){const out={shield:0,hull:0};if(dead||n<=0)return out;
   // admin panel: neobmedzené štíty zachytia všetko, neobmedzený trup neubúda
   const ad=state.admin||{};if(ad.godShield){out.shield=n;return out}
   hullSince=0;shSince=0;
   if(kind==='rad'||kind==='void'){   // v0.47: radiácia ubíja aj štíty, pomerne k ich veľkosti (štít/trup); trup dostáva rovnako ako predtým
-    const k=Math.max(1,shieldMax()/Math.max(1,shipVal('hull')));
+    const k=shieldGrowK();   // v0.49: o koľko sú štíty väčšie oproti starému výpočtu (pred v0.47)
     if(kind==='rad'&&state.sh>0){const need=n*k,a=Math.min(state.sh,need);state.sh-=a;out.shield=a;n-=a/k}
     else if(kind==='void'&&state.sh>0){const a=Math.min(state.sh,n*k);state.sh-=a;out.shield=a}}
   else if(state.sh>0){const a=Math.min(state.sh,n);state.sh-=a;n-=a;out.shield=a}
@@ -64,7 +69,7 @@ function impactHit(impact,x,z,a){const k=clamp(impact/22,.15,1);shake=Math.max(s
   for(let i=0;i<n;i++)emit(debris,_c.set(x,.4,z),Math.random()<.5?'#ffe2a8':RCOL[a.type],.35+Math.random()*.35,
     new V3((Math.random()-.5)*(6+impact),Math.random()*4,(Math.random()-.5)*(6+impact)));
   if(hitCD>0)return;hitCD=COLL.cooldown;const dmg=(impact-COLL.minSpeed)*COLL.perMs*(1-bonus().coll/100);if(dmg<=0)return;
-  const o=damage(dmg,'hit');if(o.hull>0)hurtFlash(k);if(o.shield>0)bubbleT=1}
+  const o=damage(dmg,'hit');if(o.hull>0)hurtFlash(k);if(o.shield>0){bubbleT=1;shieldImpact(a.pos)}}
 function hurtFlash(k){sfx('hurt');const h=$('#hurt');h.style.setProperty('--k',(.35+k*.6).toFixed(2));h.classList.remove('on');void h.offsetWidth;h.classList.add('on')}
 /* v0.28: smrť lode. Zapamätá miesto smrti (červená smrtka na minimape), zruší všetky ciele,
    ktoré by loď po znovuzrodení ťahali späť (útok, autopilot, NPC), a spustí obrazovku smrti s odpočtom. */

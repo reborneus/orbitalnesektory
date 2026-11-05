@@ -196,13 +196,26 @@ function buildShip(id){
   const cg=glow(info.coreCol,3.2,.85);cg.position.set(...info.core);body.add(cg);ship.userData.core=cg;
   if(info.coreMesh){const core=new THREE.Mesh(new THREE.IcosahedronGeometry(.3,1),M.hullGlow);core.position.set(...info.core);body.add(core)}
   const halo=glow(SHIPS[id].col,10,.16);halo.position.y=-.5;ship.add(halo);
-  // shield bubble: fresnel rim, invisible until shields exist
-  const bm=new THREE.ShaderMaterial({uniforms:{c:{value:new THREE.Color('#5aa9ff')},o:{value:0}},
-    vertexShader:'varying vec3 vN;varying vec3 vV;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
-    fragmentShader:'uniform vec3 c;uniform float o;varying vec3 vN;varying vec3 vV;void main(){float f=pow(1.-abs(dot(vN,vV)),2.2);gl_FragColor=vec4(c*(f*1.7+.06)*o,1.);}',
+  /* v0.49: ŠTÍTOVÁ BUBLINA – elipsoid okolo celého modelu (rozmer z obalu lode + rezerva), takže nepresekáva loď.
+     Viditeľná len pri úbytku alebo dobíjaní štítu (main.js); zásah do štítu (strela, asteroid) vytvorí na mieste dopadu
+     záblesk s rozbiehajúcou sa vlnou (shieldImpact – až 4 naraz, uniform uImp = smer v súradniciach bubliny + čas). */
+  const bm=new THREE.ShaderMaterial({uniforms:{c:{value:new THREE.Color('#5aa9ff')},o:{value:0},uT:{value:0},uImp:{value:[0,1,2,3].map(()=>new THREE.Vector4(0,1,0,-99))}},
+    vertexShader:'varying vec3 vN;varying vec3 vV;varying vec3 vP;void main(){vP=position;vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
+    fragmentShader:`uniform vec3 c;uniform float o,uT;uniform vec4 uImp[4];varying vec3 vN;varying vec3 vV;varying vec3 vP;
+void main(){float f=pow(1.-abs(dot(vN,vV)),2.2);vec3 d=normalize(vP);float im=0.;
+  for(int i=0;i<4;i++){float age=uT-uImp[i].w;if(age<0.||age>.75)continue;float a=acos(clamp(dot(d,normalize(uImp[i].xyz)),-1.,1.));float fade=1.-age/.75;
+    im+=exp(-a*a/.07)*fade*1.4+exp(-pow(a-age*1.7,2.)/.01)*fade*1.1;}
+  gl_FragColor=vec4(c*(f*1.7+.06)*o+mix(c,vec3(1.),.45)*im*(.6+f),1.);}`,
     transparent:true,blending:THREE.AdditiveBlending,depthWrite:false});
-  const bubble=new THREE.Mesh(new THREE.SphereGeometry(3.4,28,16),bm);bubble.scale.set(1,.55,1.25);ship.add(bubble);ship.userData.bubble=bubble;
+  const bubble=new THREE.Mesh(new THREE.SphereGeometry(1,40,24),bm);
+  {const ms=[];body.traverse(o=>{if(o.isMesh&&o.visible)ms.push(o)});const B=_glbBox(ship,ms),sz=B.getSize(new V3()),c=B.getCenter(new V3());
+    const rx=sz.x/2*1.22+.5,rz=sz.z/2*1.18+.5,ry=Math.max(sz.y/2*1.5+.4,Math.max(rx,rz)*.5);bubble.scale.set(rx,ry,rz);bubble.position.copy(c)}
+  ship.add(bubble);ship.userData.bubble=bubble;
   ship.scale.setScalar(SHIPS[id].scale||1.1)}
+/* zásah do štítu v bode p (svet): záblesk na bubline v smere dopadu */
+let _impI=0;
+function shieldImpact(p){const B=ship.userData.bubble;if(!B||!p)return;const L=ship.worldToLocal(p.clone()).sub(B.position).divide(B.scale);if(L.lengthSq()<1e-6)L.set(0,0,1);L.normalize();L.y=Math.max(L.y,.5);L.normalize();   // zdvihnúť na hornú (viditeľnú) stranu bubliny
+  const U=B.material.uniforms;U.uImp.value[_impI].set(L.x,L.y,L.z,U.uT.value);_impI=(_impI+1)%4}
 buildShip('klepeto');
 scene.add(ship);
 const shipVel=new V3();let shipYaw=0;
