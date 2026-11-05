@@ -16,7 +16,7 @@ function freshState(){return{v:3,num:NUM,ore:40*NUM,green:0,crystal:0,credits:0,
 function migrate(s){
   if(typeof s.credits!=='number')s.credits=0;
   if(!Array.isArray(s.inv))s.inv=[];
-  if(!s.eq)s.eq={};for(const k of SLOTS)if(s.eq[k]===undefined)s.eq[k]=null;
+  if(!s.eq)s.eq={};for(const k of ALL_SLOTS)if(s.eq[k]===undefined)s.eq[k]=null;
   if(!s.nextId)s.nextId=1;
   if(s.ship.radShield==null)s.ship.radShield=0;if(typeof s.radCharge!=='number')s.radCharge=0;if(!s.radMode)s.radMode='auto';
   // moduly stanice: staršie uloženia mali v slote len typ ('drone'), teraz je to objekt s vylepšením a čipom

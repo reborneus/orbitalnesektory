@@ -61,6 +61,18 @@ const STATS={
 };
 /* Sloty lode a typy predmetov. imp = hlavná vlastnosť (má dvojnásobnú silu), pool = z čoho sa losujú náhodné vlastnosti. */
 const SLOTS=['laser','engine','hull','shield','util','weapon'];
+/* v0.40.3: ďalšie sloty niektorých lodí (SHIPS[id].extra): laser2 = druhý laser, shield2 = druhý štít.
+   Do slotu laser2 ide každý predmet typu laser (slotBase), vlastnosti oboch predmetov sa sčítajú. */
+const SLOT_EXTRA={laser2:'laser',shield2:'shield'};
+const slotBase=s=>SLOT_EXTRA[s]||s;
+const ALL_SLOTS=SLOTS.concat(Object.keys(SLOT_EXTRA));
+function shipSlots(){const x=(typeof state!=='undefined'&&state&&SHIPS[state.shipId]&&SHIPS[state.shipId].extra)||[];return SLOTS.concat(x)}
+const itemPow=it=>it?it.r*1e6+it.ilvl*100+(it.enh||0):-1;
+/* slot, do ktorého sa predmet nasadí: prvý voľný slot jeho typu, inak ten so slabším predmetom */
+function slotFor(it){const b=BASES[it.b].slot,ss=shipSlots().filter(s=>slotBase(s)===b);if(!ss.length)return b;
+  return ss.find(s=>!state.eq[s])||ss.reduce((a,s)=>itemPow(state.eq[s])<itemPow(state.eq[a])?s:a)}
+/* predmet, s ktorým sa porovnáva (ten, ktorý by sa vymenil) */
+const eqCmpFor=it=>{const s=slotFor(it);return state.eq[s]||null};
 const BASES={
   laser:  {slot:'laser', imp:'mine',  pool:['range','yield','mf','mine','magnet','speed','critDmg']},
   engine: {slot:'engine',imp:'speed', pool:['accel','turn','speed','magnet','coll','cargo','rad']},
@@ -143,7 +155,7 @@ let _bonus=null;
 function bonusDirty(){_bonus=null}
 function bonus(){if(_bonus)return _bonus;const b={};for(const k in STATS)b[k]=0;
   b.dmgXm=1;   // násobič poškodenia = súčin (1 + x %) zo všetkých nasadených predmetov
-  if(state&&state.eq)for(const s of SLOTS){const it=state.eq[s];if(it)for(const x of itemStats(it)){b[x.k]+=x.v;if(x.k==='dmgX')b.dmgXm*=1+x.v/100}}
+  if(state&&state.eq)for(const s of shipSlots()){const it=state.eq[s];if(it)for(const x of itemStats(it)){b[x.k]+=x.v;if(x.k==='dmgX')b.dmgXm*=1+x.v/100}}
   b.mf=b.mf||0;
   if(typeof pilotBonus==='function')pilotBonus(b); // schopnosti pilota (pilot.js)
   for(const k in STATS)if(STATS[k].cap)b[k]=Math.min(STATS[k].cap,b[k]);return _bonus=b}

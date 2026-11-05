@@ -7,7 +7,7 @@ const canHover=typeof matchMedia==='function'&&matchMedia('(hover:hover) and (po
 const hoverUI=()=>canHover&&(inputMode==='mouse'||inputMode==='key');
 /* nájde predmet podľa id v inventári, výbave, sklade alebo v čipoch modulov */
 function findAnyItem(id){let it=state.inv.find(x=>x.id===id);if(it)return{it,where:'inv'};
-  for(const s of SLOTS)if(state.eq[s]&&state.eq[s].id===id)return{it:state.eq[s],where:'eq'};
+  for(const s of ALL_SLOTS)if(state.eq[s]&&state.eq[s].id===id)return{it:state.eq[s],where:'eq'};
   if(state.storage){it=state.storage.items.find(x=>x.id===id);if(it)return{it,where:'st'}}
   for(const sc of state.sec)for(const m of sc.slots)if(m&&m.chip&&m.chip.id===id)return{it:m.chip,where:'chip'};
   if(state.trader)for(const k in state.trader){it=(state.trader[k].stock||[]).find(x=>x.id===id);if(it)return{it,where:'shop'}}return null}
@@ -21,7 +21,7 @@ function tipCard(it,where,label){const R=RAR[it.r],title=itemTitle(it),slot=BASE
     <ul class="stats">${itemStats(it).map(x=>`<li class="${x.imp?'imp':''}${x.base?' wbase':''}${qCls(x.q)}"><span>${t('s.'+x.k)}</span><b>${fmtStat(x.k,x.v)}</b></li>`).join('')}</ul>`;
   return h}
 function tipHtml(f){const it=f.it,slot=BASES[it.b].slot,m=cmpMode();
-  const eq=f.where!=='eq'&&slot!=='chip'&&state.eq[slot]&&state.eq[slot].id!==it.id?state.eq[slot]:null;
+  const ce=slot!=='chip'?eqCmpFor(it):null;const eq=f.where!=='eq'&&ce&&ce.id!==it.id?ce:null;
   let a=tipCard(it,f.where,eq&&(m==='both'||m==='side')?t('tip.this'):'');
   if(eq&&(m==='both'||m==='diff'))a+=cmpHtml(it,eq);
   a+=`<div class="tiphint">${t(f.where==='eq'?'tip.eq':'tip.click')} · ${t('btn.salv',{n:salvValue(it)}).replace(/^[^(]*\(|\)$/g,'')}</div></div>`;

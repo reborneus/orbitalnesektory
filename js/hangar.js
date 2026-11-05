@@ -38,7 +38,7 @@ function renderHangar(){let h=`<p class="note">${t('hg.note')}</p>`;const near=n
     else if(own)h+=`<button class="act" data-act="shipUse" data-id="${id}" data-block="${near?0:1}">${t('hg.use')}</button>`;
     else if(!shipUnlocked(id))h+=`<button class="act max" disabled>${t('btn.locked')}</button>`;
     else h+=actBtn('shipBuy',t('btn.buy'),S.cost,false,`data-id="${id}"`)+`<div class="costs">${costHtml(S.cost)}</div>`;
-    h+=`<p>${t('ship.'+id+'.d')}</p><div class="stat hmul">${mulLine(id)}${S.upMul!==1?` · <span class="dn">${t('hg.upCost',{n:S.upMul})}</span>`:''}</div>`;
+    h+=`<p>${t('ship.'+id+'.d')}</p><div class="stat hmul">${S.extra?`<span class="up">${t('hg.extra',{s:S.extra.map(x=>t('slot.'+x)).join(', ')})}</span> · `:''}${mulLine(id)}${S.upMul!==1?` · <span class="dn">${t('hg.upCost',{n:S.upMul})}</span>`:''}</div>`;
     if(!own&&!shipUnlocked(id))h+=`<div class="stat" style="color:var(--warn)">${t('hg.need',{s:secName(S.need)})}</div>`;
     else if(own&&!act&&!near)h+=`<div class="stat">${t('hg.far')}</div>`;
     h+='</div>'}
@@ -49,7 +49,10 @@ function renderHangar(){let h=`<p class="note">${t('hg.note')}</p>`;const near=n
 function switchShip(id){if(!state.owned.includes(id)||state.shipId===id)return;
   const hr=state.hp/Math.max(1,shipVal('hull'));
   for(const r of RES){state[r]+=state.cargo[r];state.cargo[r]=0}
-  state.hangar[state.shipId]=state.ship;state.ship=state.hangar[id]||baseLevels();delete state.hangar[id];state.shipId=id;bonusDirty();
+  state.hangar[state.shipId]=state.ship;state.ship=state.hangar[id]||baseLevels();delete state.hangar[id];state.shipId=id;
+  // v0.40.3: predmety zo slotov, ktoré nová loď nemá (druhý laser/štít), sa vrátia do inventára
+  {const ok=shipSlots();for(const s of ALL_SLOTS)if(!ok.includes(s)&&state.eq[s]){state.inv.push(state.eq[s]);state.eq[s]=null;toast(t('tt.slotBack',{s:t('slot.'+s)}))}}
+  bonusDirty();
   state.hp=Math.max(1,Math.round(hr*shipVal('hull')));state.sh=shieldMax();state.radCharge=Math.min(state.radCharge,shipVal('radShield'));
   buildShip(id);toast(t('tt.shipUse',{n:t('ship.'+id)}),true)}
 function hangarAct(act,b){
