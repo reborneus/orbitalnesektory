@@ -131,7 +131,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     h+=`<div class="card"><h3>${t('set.ret')}</h3>${onoff('autoReturn',state.autoReturn!==false)}<p>${t('set.ret.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`;
-    h+=tierCard()}
+    }
     if(canHover&&!inMenu)h+=`<div class="card"><h3>${t('set.hud')}</h3><button class="act" data-act="hudEdit">${t('set.hud.b')}</button><p>${t('set.hud.d')}</p></div>`;   // len PC
     h+=hudModeCard();   // v0.29: kompaktný / schovávaný HUD
     h+=`<div class="card"><h3>${t('set.ma')}</h3><div class="rangerow"><input type="range" id="menuAlpha" min="35" max="100" step="5" value="${menuA()}"><b id="menuAlphaV">${menuA()} %</b></div><p>${t('set.ma.d')}</p></div>`;
@@ -145,7 +145,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
 function refreshSheet(){if(!sheetTab)return;
   body.querySelectorAll('[data-need]').forEach(el=>el.classList.toggle('lack',amt(el.dataset.need)<+el.dataset.n));
   body.querySelectorAll('.act[data-ore]').forEach(b=>{b.disabled=b.dataset.block==='1'||state.ore<+b.dataset.ore||state.green<+b.dataset.green||state.crystal<+b.dataset.cry||state.credits<+(b.dataset.crd||0)})}
-function focusables(){return[...body.querySelectorAll('.seg,.act,.langb:not(:disabled),.ghost,.btn,.itm,.eqc,summary')]}
+function focusables(){return[...body.querySelectorAll('.seg,.act,.langb:not(:disabled),.ghost,.btn,.itm,.eqc,summary,.trsq:not(:disabled)')]}
 function applyFocus(){body.querySelectorAll('.pad-focus').forEach(el=>el.classList.remove('pad-focus'));if(inputMode!=='pad'||!sheetTab)return;
   const f=focusables();if(!f.length)return;focusIdx=clamp(focusIdx,0,f.length-1);const el=f[focusIdx];const box=el.classList.contains('act')?(el.closest('.card')||el):el;
   box.classList.add('pad-focus');box.scrollIntoView({block:'nearest',behavior:'smooth'});

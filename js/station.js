@@ -45,8 +45,9 @@ function slotCard(s,i){const m=s.slots[i];const open=openSlot===i?' open':'';
 let stTab='mods';   // záložka panela stanice: 'mods' = moduly, 'store' = hlavný sklad (storage.js); misie má zadávateľ misií (npc.js)
 function renderStation(){const s=cur();const inf=influence(s),cap=capOf(state.cur);
   if(stTab==='miss')stTab='mods'; // v0.15: misie sú u zadávateľa misií (npc.js)
-  let h=`<div class="segs two"><button class="seg" data-act="stTab" data-v="mods" aria-pressed="${stTab==='mods'}">${t('ms.tab.mods')}</button><button class="seg" data-act="stTab" data-v="store" aria-pressed="${stTab==='store'}">${t('sto.tab')}</button></div>`;
+  let h=`<div class="segs two"><button class="seg" data-act="stTab" data-v="mods" aria-pressed="${stTab==='mods'}">${t('ms.tab.mods')}</button><button class="seg" data-act="stTab" data-v="store" aria-pressed="${stTab==='store'}">${t('sto.tab')}</button><button class="seg" data-act="stTab" data-v="tier" aria-pressed="${stTab==='tier'}">${t('tr.tab')}</button></div>`;
   if(stTab==='store')return h+renderStorage();
+  if(stTab==='tier')return h+tierCard();   // v0.33: úroveň výzvy je v stanici (predtým v Nastaveniach)
   if(state.hp<shipVal('hull')-.5)h+=repairCard();
   const L=s.core,mh=stationMaxHp(),sh=Math.max(0,stationHp);
   h+=`<div class="card"><h3>${t('core.name')} <span class="lv">${t('lv',{n:L,m:CORE_MAX})}</span></h3>`;

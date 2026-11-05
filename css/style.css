@@ -408,6 +408,7 @@ body.pad .pg{display:block}
 
 /* misie (v0.7) */
 .segs.two{grid-template-columns:1fr 1fr;margin-bottom:4px}
+.segs.two:has(> :nth-child(3)){grid-template-columns:1fr 1fr 1fr}
 .mcard{border-left:3px solid var(--rad)}
 .mcard.t1{border-left-color:var(--ore)} .mcard.t2{border-left-color:var(--warn)}
 .mcard .meter{margin-top:2px}
@@ -767,3 +768,15 @@ body.inmenu .sheet{z-index:12}
 .wbtn:hover .wbi,.wbtn:focus-visible .wbi,.wbtn.pmhov .wbi{transform:scale(1.14);border-color:currentColor;background:rgba(9,15,27,.85);box-shadow:0 0 22px color-mix(in srgb,currentColor 60%,transparent);animation:none}
 @keyframes wbPulse{50%{box-shadow:0 0 24px color-mix(in srgb,currentColor 70%,transparent)}}
 body.hudc .wbtn .wbi{width:40px;height:40px}body.hudc .wbtn .wbl{font-size:10px}
+
+/* ===================== v0.33: VÝZVA – štvorčeky (záložka stanice) ===================== */
+.tiercard{grid-template-columns:1fr}
+.trhead{display:flex;align-items:center;gap:12px}.trhead h3{margin-right:auto}
+.trlv{font:700 22px/1 var(--f-data);text-shadow:0 0 14px currentColor}
+.trq{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin:4px 0 2px}
+.trsq{aspect-ratio:1;border-radius:6px;border:1px solid color-mix(in srgb,var(--c) 55%,transparent);background:rgba(255,255,255,.03);cursor:pointer;padding:0;
+  transition:background .3s ease var(--d),box-shadow .3s ease var(--d),transform .15s ease}
+.trsq.on{background:var(--c);box-shadow:0 0 10px color-mix(in srgb,var(--c) 70%,transparent),inset 0 0 0 1px rgba(255,255,255,.18)}
+.trsq:hover:not(:disabled){transform:scale(1.12);border-color:var(--c)}
+.trsq:disabled{cursor:default;opacity:.7}
+.trbtns{justify-self:start}

@@ -4,6 +4,8 @@
   "notes": [
     "Nad stanicou, zadávateľom misií, obchodníkom a skokovou bránou je polopriehľadné okrúhle tlačidlo s ikonou a názvom (mimo dosahu aj so vzdialenosťou); myš nad ním ho zvýrazní",
     "Menu sa otvára len cez tieto tlačidlá: v dosahu tlačidlo svieti a otvorí menu hneď, inak loď k objektu doletí a menu otvorí po prílete; klik inde na stanicu či NPC je obyčajný presun lode",
-    "Pri prelete okolo stanice, NPC alebo brány sa okno už samo neotvára"
+    "Pri prelete okolo stanice, NPC alebo brány sa okno už samo neotvára",
+    "Úroveň výzvy sa presunula z Nastavení do stanice – nová záložka Výzva vedľa Skladu",
+    "Výzva ako 16 štvorčekov, ktoré sa plnia červenou – čím vyššia úroveň, tým sýtejšia; klik na štvorček nastaví úroveň priamo (klik na aktuálny ju zníži), ✕ / − / + zostali aj pre ovládač"
   ]
 }
