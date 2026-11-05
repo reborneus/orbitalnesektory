@@ -13,7 +13,7 @@ const cap1=s=>s.charAt(0).toUpperCase()+s.slice(1);
 function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const cap=capOf(state.cur);const ptr=inputMode!=='pad'&&inputMode!=='key';
   $('#secName').textContent=secName(state.cur);
   // výdrž stanice: zobrazí sa v sektoroch s pirátmi alebo keď je stanica poškodená
-  {const mh=stationMaxHp(),show=!!raidCfg()||stationHp<mh-1;$('#stRow').hidden=!show;if(show){$('#stBar').style.width=(Math.max(0,stationHp)/mh*100)+'%';$('#stBar').className=stationDown>0||stationHp<mh*.3?'low':'';$('#stTxt').textContent=stationDown>0?t('hud.down'):`${fmtN(Math.ceil(Math.max(0,stationHp)))}/${fmtN(mh)}`}}
+  {const mh=stationMaxHp(),show=!!raidCfg()||stationHp<mh-1;$('#stRow').hidden=!show;if(show){$('#stBar').style.width=(Math.max(0,stationHp)/mh*100)+'%';$('#stBar').className=stationDown>0||stationHp<mh*.3?'low':'';$('#stTxt').textContent=stationDown>0?t('hud.down'):`${stShMax()>0?'🛡 '+fmtN(Math.ceil(stSh))+' · ':''}${fmtN(Math.ceil(Math.max(0,stationHp)))}/${fmtN(mh)}`}}   // v0.50: + štít stanice
   missionTracker();
   if(arenaHud()){}else{
   const tag=$('#secTag');tag.textContent=(s.captured?t('hud.won'):t('hud.unc'))+(state.tier?' · V+'+state.tier:'')+(godActive()?' · ADMIN':'');tag.classList.toggle('won',s.captured);
@@ -166,7 +166,9 @@ function applyFocus(){body.querySelectorAll('.pad-focus,.pad-focus-in').forEach(
   // v0.39.2: zvýrazní sa vždy samotný prvok (tlačidlo); jeho karta / slot dostane len jemný rámik, aby bolo vidieť, v ktorej časti si
   el.classList.add('pad-focus');const box=el.closest('.card,.mslot,.mbuild');if(box&&box!==el)box.classList.add('pad-focus-in');
   (box&&box!==el&&box.offsetHeight<body.clientHeight*.8?box:el).scrollIntoView({block:'nearest',behavior:'smooth'});
-  if(sheetTab==='gear'&&el.dataset.id&&!el.closest('#gearInsp')&&typeof gearInspect==='function')gearInspect(+el.dataset.id)}   // v0.27
+  if(sheetTab==='gear'&&el.dataset.id&&!el.closest('#gearInsp')&&typeof gearInspect==='function')gearInspect(+el.dataset.id);   // v0.27
+  // v0.50: na ovládači plávajúci náhľad so skratkami pri vybranom predmete
+  if(sheetTab==='gear'&&el.dataset.id&&/^(sel|eqItem|pickEq)$/.test(el.dataset.act||'')){const r=el.getBoundingClientRect();tipId=null;tipShow(+el.dataset.id,r.right-6,r.top)}else tipHide()}
 function moveFocus(v){focusIdx+=v;applyFocus()}
 /* v0.17: priestorový pohyb výberu (krížový ovládač) – vyberie najbližší prvok v danom smere podľa polohy na obrazovke,
    takže sa dá ísť napr. priamo doprava/doľava medzi kartami lodí bez prechádzania celého zoznamu. */
@@ -215,7 +217,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(act==='quit'){quitGame();return}
   if(act==='hudc'||act==='huda'){hudModeAct(act,b);return}
   if(act==='radMode'){state.radMode=b.dataset.v;save();renderSheet();return}
-  if(act==='core'){const c=coreCost(s.core);if(s.core<CORE_MAX&&afford(c)){pay(c);s.core++;rebuildStation();toast(t('tt.coreUp',{n:s.core}));changed()}}
+  if(act==='core'){const c=coreCost(s.core);if(s.core<coreMax()&&afford(c)){pay(c);s.core++;rebuildStation();toast(t('tt.coreUp',{n:s.core}));changed()}}
   else if(act==='ship'){const k=b.dataset.k;const u=UP[k];const L=state.ship[k];const c=upCost(k,L);if(L<u.max&&afford(c)){pay(c);
       if(k==='radShield'){state.ship[k]++;state.radCharge=shipVal('radShield');toast(L===0?t('tt.rsOn'):t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}
       else if(k==='shield'){const before=shieldMax();state.ship[k]++;state.sh=Math.min(shieldMax(),state.sh+(shieldMax()-before));if(L===0){state.sh=shieldMax();toast(t('tt.shieldOn'))}else toast(t('tt.upg',{m:t('up.'+k),n:state.ship[k]}))}

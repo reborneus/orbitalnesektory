@@ -146,6 +146,10 @@ function pollPad(dt){let pads=[];try{pads=navigator.getGamepads?navigator.getGam
     let vx=dx,vy=dy;if(!vx&&!vy&&!pm){if(Math.abs(lx)>.55&&Math.abs(lx)>=Math.abs(ly))vx=Math.sign(lx);else if(Math.abs(ly)>.55)vy=Math.sign(ly)}
     const key=vx*3+vy;navT-=dt;
     if(key&&(key!==navLast||navT<=0)){moveFocusDir(vx,vy);navT=key===navLast?.14:.38}navLast=key;
+    // v0.50: na predmete vo Výbave fungujú tlačidlá ako skratky predmetu (A nasadiť, X vylepšiť, Y rozobrať, LB vyhodiť, RB porovnanie, B späť)
+    if(sheetTab==='gear'&&!pm&&typeof gearHot!=='undefined'&&gearHot!=null){if(press(0))gearKey('eq');if(press(2))gearKey('enh');if(press(3))gearKey('salv');if(press(4))gearKey('drop');if(press(5))gearKey('cmpNext');
+      if(press(1)){const f=focusables(),i=f.findIndex(e=>!e.dataset.id);if(i>=0){focusIdx=i;applyFocus()}}
+      padPrev=p.buttons.map((b,i)=>btn(i));return}
     if(press(0)&&!pm)activateFocus();if(press(1))closeSheet();if(press(4))cycleTab(-1);if(press(5))cycleTab(1);
     if(press(3))toggleTab('station');if(press(2))toggleTab('ship');if(press(9))toggleTab('map');if(press(6))toggleTab('gear')}
   else{if(!pm){padVec.set(lx+dx,0,ly+dy);if(padVec.lengthSq()>1)padVec.normalize()}   // s kurzorom myši je ovládanie lode páčkou vypnuté

@@ -81,7 +81,7 @@ function pirateShot(e,onShip){if(onShip&&dead)return;const hit=Math.random()<PIR
   fireStreak(e.pos,onShip?{pos:ship.position}:new V3(0,2,0),{miss:!hit,dmg:e.dmg,side:'enemy',onShip,col:'#ff4b3a',w:.22,st:'pir'})}
 function landPirate(o){if(o.miss)return;
   if(o.onShip){if(dead)return;if(typeof rsShipHit==='function'&&rsShipHit(o))return;const r=damage(o.dmg,'hit');if(r.shield>0)shieldImpact(o.p||tg.pos||ship.position);if(r.hull+r.shield>0)dmgText(ship.position,r.hull+r.shield,'hurt');if(r.hull>0)hurtFlash(.3);if(r.shield>0)bubbleT=1;rumble(.25,90)}
-  else if(stationDown<=0)stationHit(o.dmg)}
+  else if(stationDown<=0)stationHit(o.dmg,o.p)}
 function clearLasers(){shotQ.length=0;streaks.length=0;for(const b of boltPool)b.visible=false;for(const f of flashes)f.s.visible=false;flashes.length=0;for(const z of zaps)z.m.visible=false;zaps.length=0;for(const B of laserPool){B.life=0;hideBeam(B.b)}for(const p of pulses)world.remove(p.p);pulses.length=0;if(primalBeam)hideBeam(primalBeam);primalT=0}
 
 /* ==================== v0.19: VZHĽAD LASEROVÝCH STRIEL ====================

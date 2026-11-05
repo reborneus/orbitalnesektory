@@ -17,8 +17,11 @@ const nf2=x=>(Math.round(x*10)/10).toString();
 function modRefund(s,m){const c=MOD[m.t].cost(countMod(s,m.t)-1),sp=m.spent||C();
   return C(Math.floor(c.ore*SELL_BUILD+sp.ore*SELL_ENH),Math.floor(c.green*SELL_BUILD+sp.green*SELL_ENH),Math.floor(c.crystal*SELL_BUILD+sp.crystal*SELL_ENH),Math.floor((sp.cr||0)*SELL_ENH))}
 function chipHtml(m,i){let h=`<div class="sec-h"><span>${t('chip.h')}</span></div>`;
-  if(m.chip){const it=m.chip;h+=`<div class="mchip it r${it.r}" style="--rc:${RAR[it.r].col}">${icon(it.b)}<div class="eqc-txt"><b>${itemName(it)}</b><small>${t('r.'+RAR[it.r].k)} · ${t('gear.ilvl',{n:it.ilvl})}</small>
+  if(m.chip){const it=m.chip;h+=`<div class="mchip it r${it.r}" style="--rc:${RAR[it.r].col}">${icon(it.b)}<div class="eqc-txt"><b>${it.enh?'+'+it.enh+' ':''}${itemName(it)}</b><small>${t('r.'+RAR[it.r].k)} · ${t('gear.ilvl',{n:it.ilvl})}</small>
       <small>${itemStats(it).map(x=>`<span class="qs${qCls(x.q)}">${t('s.'+x.k)} ${fmtStat(x.k,x.v)}</span>`).join(' · ')}</small></div></div>`;
+    // v0.50: čip sa dá vylepšiť priamo v module (bez vyberania do inventára)
+    if(it.enh<enhMax(it)){const c=enhCost(it);h+=`<div class="enhrow">${actBtn('chipEnh',t('btn.enh',{n:it.enh+1}),c,false,`data-i="${i}"`)}<div class="costs">${costHtml(c)}</div><span class="note" style="margin:0">${t('gear.chance',{n:Math.round(enhChance(it)*100)})}</span></div>`}
+    else h+=`<p class="note" style="margin:0">${t('gear.maxEnh',{n:enhMax(it)})}</p>`;
     h+=`<button class="btn" data-act="chipOut" data-i="${i}">${t('btn.chipOut')}</button>`}
   else{const fit=state.inv.filter(it=>BASES[it.b].mod===m.t).sort(byRarity);
     h+=fit.length?`<p class="note" style="margin:0">${t('chip.pick')}</p><div class="mchips">${fit.map(it=>`<button class="itm it r${it.r}" style="--rc:${RAR[it.r].col}" data-act="chipIn" data-i="${i}" data-id="${it.id}" title="${t('r.'+RAR[it.r].k)} ${t('base.'+it.b)}">${icon(it.b)}${it.enh?`<span class="enh">+${it.enh}</span>`:''}<span class="il">${it.ilvl}</span></button>`).join('')}</div>`:`<p class="note" style="margin:0">${t('chip.none')}</p>`}
@@ -55,11 +58,11 @@ function renderStation(){const s=cur();if(stationBroken())return fixCard();const
   if(stTab==='tier')return h+tierCard();   // v0.33: úroveň výzvy je v stanici (predtým v Nastaveniach)
   if(state.hp<shipVal('hull')-.5)h+=repairCard();
   const L=s.core,mh=stationMaxHp(),sh=Math.max(0,stationHp);
-  h+=`<div class="card"><h3>${t('core.name')} <span class="lv">${t('lv',{n:L,m:CORE_MAX})}</span></h3>`;
-  if(L<CORE_MAX){const cc=coreCost(L);h+=actBtn('core',t('btn.upgrade'),cc,false)+`<div class="costs">${costHtml(cc)}</div><p>${t('core.next')}</p>`}
+  h+=`<div class="card"><h3>${t('core.name')} <span class="lv">${t('lv',{n:L,m:coreMax()})}</span></h3>`;
+  if(L<coreMax()){const cc=coreCost(L);h+=actBtn('core',t('btn.upgrade'),cc,false)+`<div class="costs">${costHtml(cc)}</div><p>${t(L>=5?(L+1>=CORE_SHIELD?'core.nextSh':'core.nextHp'):'core.next')}</p>`}
   else h+=`<button class="act max" disabled>${t('btn.max')}</button><p>${t('core.max')}</p>`;
   h+=`<div class="stat">${t('core.stat',{s:slotsFor(L),i:L*CORE_INF})}</div>
-    <div class="meter" style="grid-column:1/-1"><span class="lbl">${t('sp.hp')}</span><div class="bar"><i style="width:${sh/mh*100}%;background:${stationDown>0?'var(--warn)':'var(--hull)'}"></i></div><span class="num">${fmtN(Math.ceil(sh))}/${fmtN(mh)}</span></div></div>`;
+    <div class="meter" style="grid-column:1/-1"><span class="lbl">${t('sp.hp')}</span><div class="bar"><i style="width:${sh/mh*100}%;background:${stationDown>0?'var(--warn)':'var(--hull)'}"></i></div><span class="num">${fmtN(Math.ceil(sh))}/${fmtN(mh)}</span></div>${stShMax()>0?`<div class="meter" style="grid-column:1/-1"><span class="lbl">${t('sp.sh')}</span><div class="bar"><i style="width:${stSh/stShMax()*100}%;background:var(--shield)"></i></div><span class="num">${fmtN(Math.ceil(stSh))}/${fmtN(Math.round(stShMax()))}</span></div>`:L<CORE_SHIELD?`<p class="note" style="grid-column:1/-1;margin:2px 0 0">${t('core.shNote',{n:CORE_SHIELD})}</p>`:''}</div>`;
   if(stationDown>0)h+=`<p class="note" style="color:var(--warn)">${t('sp.down',{s:Math.ceil(stationDown)})}</p>`;
   const n=slotsFor(L);
   h+=`<div class="sec-h"><span>${t('mods')}</span><span>${t('slotsOf',{a:s.slots.slice(0,n).filter(Boolean).length,b:n})} · ${t('hud.inf',{a:inf,b:cap})}</span></div><div class="mslots">`;
@@ -82,6 +85,8 @@ function stationAct(act,b){if(act==='stTab'){stTab=b.dataset.v;renderSheet();ret
       return done(t('tt.menh',{m:t('mod.'+m.t),n:m.enh,r:t('r.'+RAR[R].k)}),{rar:R})}
     case 'chipIn':{if(!m)return true;const k=state.inv.findIndex(x=>x.id===+b.dataset.id);if(k<0)return true;const it=state.inv[k];if(BASES[it.b].mod!==m.t)return true;
       state.inv.splice(k,1);if(m.chip)state.inv.push(m.chip);m.chip=it;it.nw=false;return done(t('tt.chipIn',{n:t('base.'+it.b)}),{rar:it.r})}
+    case 'chipEnh':{const it=m&&m.chip;if(!it||it.enh>=enhMax(it))return true;const c=enhCost(it);if(!afford(c)){toast(t('tt.noRes'));return true}
+      pay(c);if(Math.random()<enhChance(it)){it.enh++;addXP(XP.enh*it.enh);toast(t('tt.enhOk',{n:itemName(it)}),{rar:it.r})}else toast(t('tt.enhFail',{n:it.enh}),'bad');return done()}
     case 'chipOut':{if(!m||!m.chip)return true;if(state.inv.length>=INV_MAX){toast(t('tt.invFull'),'bad');return true}
       state.inv.push(m.chip);m.chip=null;if(m.t==='drone'){const d=droneStats(m);if(!d.can[m.res])m.res='ore';if(!chipCan(m,'def'))m.mode='mine'}return done(t('tt.chipOut'))}
     case 'mres':{if(!m)return true;const d=droneStats(m);if(d.can[b.dataset.r])m.res=b.dataset.r;return done()}

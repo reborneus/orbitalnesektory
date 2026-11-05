@@ -54,9 +54,9 @@ const STATS={
   dCap:   {lo:2,  hi:4,  dec:0,u:'t'},   // kapacita dronu
   dSpeed: {lo:4,  hi:8,  dec:1,u:'%'},   // rýchlosť dronu
   dDmg:   {lo:6,  hi:12, dec:1,u:'%'},   // poškodenie dronu v obrannom režime
-  tDmg:   {lo:6,  hi:12, dec:1,u:'%'},   // poškodenie veže
-  tRange: {lo:1,  hi:2.5,dec:1,u:'m'},   // dosah veže
-  tRate:  {lo:4,  hi:8,  dec:1,u:'%'},   // kadencia veže
+  tDmg:   {lo:18, hi:36, dec:1,u:'%'},   // poškodenie veže (v0.50: 3×)
+  tRange: {lo:2,  hi:5,  dec:1,u:'m'},   // dosah veže (v0.50: 2×)
+  tRate:  {lo:8,  hi:16, dec:1,u:'%'},   // kadencia veže (v0.50: 2×)
   sInc:   {lo:6,  hi:12, dec:1,u:'%'},   // príjem senzorového poľa
   inf:    {lo:1,  hi:2.5,dec:0,u:''},    // vplyv modulu
 };
@@ -70,10 +70,17 @@ const ALL_SLOTS=SLOTS.concat(Object.keys(SLOT_EXTRA));
 function shipSlots(){const x=(typeof state!=='undefined'&&state&&SHIPS[state.shipId]&&SHIPS[state.shipId].extra)||[];return SLOTS.concat(x)}
 const itemPow=it=>it?it.r*1e6+it.ilvl*100+(it.enh||0):-1;
 /* slot, do ktorého sa predmet nasadí: prvý voľný slot jeho typu, inak ten so slabším predmetom */
+/* v0.50: cmpOv[typ] = slot, s ktorým sa porovnáva a ktorý sa vymení (prepína sa skratkou C / RB v náhľade predmetu) */
+const cmpOv={};
 function slotFor(it){const b=BASES[it.b].slot,ss=shipSlots().filter(s=>slotBase(s)===b);if(!ss.length)return b;
-  return ss.find(s=>!state.eq[s])||ss.reduce((a,s)=>itemPow(state.eq[s])<itemPow(state.eq[a])?s:a)}
+  const free=ss.find(s=>!state.eq[s]);if(free)return free;if(cmpOv[b]&&ss.includes(cmpOv[b])&&state.eq[cmpOv[b]])return cmpOv[b];
+  return ss.reduce((a,s)=>itemPow(state.eq[s])<itemPow(state.eq[a])?s:a)}
 /* predmet, s ktorým sa porovnáva (ten, ktorý by sa vymenil) */
 const eqCmpFor=it=>{const s=slotFor(it);return state.eq[s]||null};
+/* ďalší nasadený predmet rovnakého typu na porovnanie; vráti false, ak je len jeden */
+function cmpNext(it){const b=BASES[it.b].slot,ss=shipSlots().filter(s=>slotBase(s)===b&&state.eq[s]);if(ss.length<2)return false;
+  const curS=slotFor(it),i=ss.indexOf(curS);cmpOv[b]=ss[(i+1)%ss.length];return true}
+const cmpCount=it=>shipSlots().filter(s=>slotBase(s)===BASES[it.b].slot&&state.eq[s]).length;
 const BASES={
   laser:  {slot:'laser', imp:'mine',  pool:['range','yield','mf','mine','magnet','speed','critDmg']},
   engine: {slot:'engine',imp:'speed', pool:['accel','turn','speed','magnet','coll','cargo','rad']},

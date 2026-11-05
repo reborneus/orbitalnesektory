@@ -927,3 +927,8 @@ body.pad,body.pad *{cursor:none!important}
 .lfc{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:12.5px;color:var(--muted)}
 .lfn{display:inline-flex;align-items:center;gap:4px}.lfn b{min-width:16px;text-align:center;color:var(--text)}.lfn.g{color:#ffd84a}.lfn.r{color:#ff5a6a}
 .lfn .langb{padding:1px 7px}
+/* v0.50: skratky v náhľade predmetu */
+.tipkeys{display:grid;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:12px}
+.tipkeys>div{display:flex;align-items:center;gap:8px}.tipkeys span{color:var(--muted)}
+.tipkeys kbd{min-width:24px;padding:1px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);font:600 11px var(--f-data);text-align:center;color:var(--text)}
+.tipkeys .tipcost .cost{font-size:11px}

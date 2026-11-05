@@ -49,7 +49,7 @@ function adminAct(act,b){if(act!=='adm')return false;const op=b.dataset.op;state
     case 'maxShip':for(const k in UP)state.ship[k]=UP[k].max;state.hp=shipVal('hull');state.sh=shieldMax();state.radCharge=shipVal('radShield');break;
     case 'lvl':case 'lvl10':{const P=pstate();for(let i=0;i<(op==='lvl'?1:10);i++)addXP(xpNeed(P.lv)-P.xp+1);break}
     case 'ships':for(const id of SHIP_IDS)if(!state.owned.includes(id)){state.owned.push(id);state.hangar[id]=baseLevels()}break;
-    case 'maxCore':s.core=CORE_MAX;rebuildStation();stationHp=stationMaxHp();break;
+    case 'maxCore':s.core=coreMax();rebuildStation();stationHp=stationMaxHp();break;
     case 'capture':if(!s.captured){s.captured=true;s.rewarded=true;const nx=state.sec[state.cur+1];if(nx)nx.unlocked=true;rebuildStation();updateGate();toast(t('tt.capturedOne',{s:secName(state.cur)}),true)}break;
     case 'unlock':for(const x of state.sec)x.unlocked=true;updateGate();break;
     case 'raid':spawnRaid(true);break;

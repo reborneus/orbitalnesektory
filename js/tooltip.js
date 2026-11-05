@@ -24,16 +24,30 @@ function tipHtml(f){const it=f.it,slot=BASES[it.b].slot,m=cmpMode();
   const ce=slot!=='chip'?eqCmpFor(it):null;const eq=f.where!=='eq'&&ce&&ce.id!==it.id?ce:null;
   let a=tipCard(it,f.where,eq&&(m==='both'||m==='side')?t('tip.this'):'');
   if(eq&&(m==='both'||m==='diff'))a+=cmpHtml(it,eq);
-  a+=`<div class="tiphint">${t(f.where==='eq'?'tip.eq':'tip.click')} · ${t('btn.salv',{n:salvValue(it)}).replace(/^[^(]*\(|\)$/g,'')}</div></div>`;
+  a+=sheetTab==='gear'&&(f.where==='inv'||f.where==='eq')&&typeof gearKeysUI==='function'&&gearKeysUI()?gearKeysHtml(f):`<div class="tiphint">${t(f.where==='eq'?'tip.eq':'tip.click')} · ${t('btn.salv',{n:salvValue(it)}).replace(/^[^(]*\(|\)$/g,'')}</div></div>`;
   if(eq&&(m==='both'||m==='side'))return `<div class="tipwrap side">${a}${tipCard(eq,'eq',t('tip.equipped'))}</div></div>`;
   return a}
+/* v0.50: zoznam skratiek v náhľade predmetu (Výbava) – PC klávesy alebo tlačidlá ovládača */
+function gearKeysHtml(f){const it=f.it,pad=inputMode==='pad',K=k=>`<kbd>${pad?padGlyph(k[1]):k[0]}</kbd>`,chip=BASES[it.b].slot==='chip';
+  const rows=[];
+  if(!chip)rows.push([K(['F','A']),t(f.where==='inv'?'btn.equip':'btn.unequip')]);
+  if(it.enh<enhMax(it)){const c=enhCost(it);rows.push([K(['E','X']),`${t('btn.enh',{n:it.enh+1})} <span class="tipcost">${costHtml(c)}</span> · ${Math.round(enhChance(it)*100)} %`])}
+  if(f.where==='inv'&&!chip&&cmpCount(it)>1)rows.push([K(['C','RB']),t('gk.cmp',{n:cmpCount(it)})]);
+  if(!it.lock)rows.push([K(['X','LB']),t('gk.drop')]);
+  if(f.where==='inv')rows.push([K(['R','Y']),it.lock?t('gear.locked'):t('btn.salv',{n:fmtN(salvValue(it))})]);
+  if(!pad)rows.push([K(['L','']),it.lock?t('btn.unlock'):t('btn.lock')]);
+  else rows.push([`<kbd>${padGlyph('B')}</kbd>`,t('gk.back')]);
+  return `<div class="tipkeys">${rows.map(([k,l])=>`<div>${k}<span>${l}</span></div>`).join('')}</div></div>`}
 let tipEl=null,tipId=null;
-function tipShow(id,x,y){const f=findAnyItem(id);if(!f){tipHide();return}
+let _tipXY=null;
+function tipShow(id,x,y){const f=findAnyItem(id);if(!f){tipHide();return}_tipXY={x,y};if(sheetTab==='gear'&&(f.where==='inv'||f.where==='eq'))gearHot=id;else gearHot=null;
   if(!tipEl){tipEl=document.createElement('div');tipEl.id='itemTip';document.body.appendChild(tipEl)}
   if(tipId!==id){tipEl.innerHTML=tipHtml(f);tipId=id}tipEl.hidden=false;tipMove(x,y)}
 function tipMove(x,y){if(!tipEl||tipEl.hidden)return;const w=tipEl.offsetWidth,h=tipEl.offsetHeight,W=innerWidth,H=innerHeight;
   let l=x+18,tp=y+14;if(l+w>W-8)l=x-w-18;if(tp+h>H-8)tp=Math.max(8,H-h-8);tipEl.style.transform=`translate(${Math.max(8,l)}px,${tp}px)`}
-function tipHide(){if(tipEl)tipEl.hidden=true;tipId=null}
+function tipHide(){if(tipEl)tipEl.hidden=true;tipId=null;if(typeof gearHot!=='undefined')gearHot=null}
+/* po akcii skratkou: obnoví náhľad toho istého predmetu (alebo ho skryje, ak predmet zmizol) */
+function gearTipRefresh(){const id=gearHot;if(id==null||!_tipXY){tipHide();return}if(typeof findItem==='function'&&!findItem(id)){tipHide();return}tipId=null;tipShow(id,_tipXY.x,_tipXY.y)}
 const tipTarget=e=>{const b=e.target.closest&&e.target.closest('[data-id]');return b&&b.closest('#sheet')&&/^(sel|eqItem|mark|stSel|stSelInv|chipIn|pickEq|trSel|trSell)$/.test(b.dataset.act||'')?b:null};
 document.addEventListener('pointermove',e=>{if(!hoverUI()||e.pointerType!=='mouse'){if(!pmHover)hoverHide();return}hoverAt(e.clientX,e.clientY,e.target)});
 document.addEventListener('pointerdown',()=>hoverHide());

@@ -4,7 +4,7 @@
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
 /* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
-const GAME_VERSION='0.49.0';
+const GAME_VERSION='0.50.0';
 const NUM=10,ECON=1.6;
 const P=(c,m=1)=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON*m);return o};
 /* v0.12: stavba a vylepšovanie stanice je v každom ďalšom sektore SEC_COST× drahšie (príjmy rastú len ~1,3×) */
@@ -79,6 +79,9 @@ function stationFixCost(i){const prev=(SECTORS[i-1]&&SECTORS[i-1].res.length?SEC
   const amt=FIX_BASE*Math.pow(FIX_GROW,i-1)/Math.sqrt(prev.length);for(const r of prev)o[r]=amt*MINE_RATE[r];return P(o)}
 const CORE_COST=[C(150),C(320),C(500,80),C(750,160,60)].map(P);
 const CORE_MAX=5,CORE_INF=15;
+/* v0.50: ďalšie úrovne jadra – každý obsadený sektor pridá +2 (najviac CORE_MAX + 2 × obsadené); od CORE_SHIELD má stanica štít */
+const CORE_SHIELD=8;
+const coreMax=()=>CORE_MAX+2*((typeof state!=='undefined'&&state&&state.sec)?state.sec.filter(x=>x.captured).length:0);
 /* Vylepšenie postavených modulov stanice +0 až +10. MOD_RAR[enh] = rarita modulu (index v RAR) – vylepšovaním modul stúpa na vyššiu raritu.
    Každé +1 zvýši vplyv modulu o MOD_ENH_INF (podiel základu) a jeho účinok podľa MOD_FX. */
 const MOD_ENH_MAX=10,MOD_ENH_INF=.1;
@@ -88,13 +91,15 @@ const modEnhCost=n=>P(C(Math.round(110*Math.pow(n+1,1.35)),n>=2?Math.round(25*Ma
    tower: dmg poškodenie výstrelu, rate výstrelov/s, range dosah od stanice v m; sensor: green = viridit/s v obsadenom sektore. */
 const MOD_FX={
   drone:{rate:4,ratePer:.15,cap:15,capPer:3,speed:16,speedPer:.06,dmg:3,dmgPer:.15,range:28,income:.35},
-  tower:{dmg:8,dmgPer:.2,rate:1.2,range:40,rangePer:2},
+  tower:{dmg:1.25,dmgPer:.25,rate:1.2,range:40,rangePer:2},   // v0.50: dmg = základ pri sile pirátov sektora 1 bez výzvy (towerStats ho násobí silou pirátov)
   sensor:{green:.03,incPer:.15},
 };
 /* Predaj modulu: vráti SELL_BUILD z ceny stavby a SELL_ENH z toho, čo stáli jeho vylepšenia. */
 const SELL_BUILD=.6,SELL_ENH=.4;
-const coreCost=L=>{const c=CORE_COST[L-1],m=secMul(),o={};for(const k in c)o[k]=Math.round(c[k]*m);return o};
-const slotsFor=L=>Math.min(6,L+1);
+const coreCost=L=>{let c=CORE_COST[L-1];
+  if(!c){const k=Math.pow(1.55,L-4);c=P(C(Math.round(750*k),Math.round(160*k),Math.round(60*k)))}   // v0.50: úrovne nad 5 – cena rastie 1,55× za úroveň
+  const m=secMul(),o={};for(const kk in c)o[kk]=Math.round(c[kk]*m);return o};
+const slotsFor=L=>Math.min(6,L+1);   // nad úrovňou 5 už sloty nepribúdajú (rastie výdrž, od 8 štít)
 /* costTable([ruda...],[viridit...],[kryštály...],[kredity...]) = cenník vylepšenia; i-ty stĺpec = cena prechodu z úrovne (i+1) na (i+2),
    pri štítovom generátore z úrovne i na i+1 (začína na 0 = nekúpený). Úrovne 6–10 stoja aj kredity. */
 const costTable=(o,g,c,cr)=>o.map((x,i)=>P(C(x,g[i],c[i],cr[i])));
@@ -187,7 +192,8 @@ const PIRATES={
   corsair:{hp:[0,220,330,550,850,1300],dmg:[0,12,15,22,32,45],speed:12,range:32,fire:2,drop:.7,cr:[25,50],mf:1,r:3.2},
   /* fregata (od 4. sektora): ťažká loď s veľkou výdržou, vždy zhodí predmet aspoň Vzácnej rarity */
   frigate:{hp:[0,0,0,1400,2200,3400],dmg:[0,0,0,30,45,65],speed:8,range:38,fire:2.6,drop:1,cr:[90,160],mf:2,r:4.6},
-  stationHp:L=>400+150*L,stationRegen:3,steal:.15,offline:30,aggro:30,repelBonus:15,hardDmg:1.3,boltSpeed:45,playerBolt:70,
+  stationHp:L=>L<=5?400+150*L:(400+150*5)*Math.pow(1.7,L-5),   // v0.50: od úrovne 6 výdrž rastie prudko (×1,7 za úroveň)
+ stationRegen:3,steal:.15,offline:30,aggro:30,repelBonus:15,hardDmg:1.3,boltSpeed:45,playerBolt:70,
 };
 /* v0.16.2: dostrel pirátov ako podiel dostrelu zbrane hráča (combat.js → enemyRange) */
 const RANGE_F={swarm:.7,fighter:.82,corsair:.88,frigate:.95,cmod:1.1,dread:1.2,carrier:1.35,turret:2.6};

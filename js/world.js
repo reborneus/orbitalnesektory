@@ -41,6 +41,8 @@ void main(){vec2 p=vUv*2.-1.;float r=length(p);if(r>1.)discard;
 /* volá main.js každý snímok: stav → farba jadra, žiary a svetelných pásov stanice */
 function tickStationCore(dt,tt){if(!stationAnim||!stationAnim.orb)return;stationHitT-=dt;
   const hit=stationHitT>0||(typeof raidActive!=='undefined'&&raidActive&&enemies.some(e=>!e.wasPassive&&!e.aggro&&!e.leaving&&Math.hypot(e.pos.x,e.pos.z)<60));
+  if(stationAnim.shBub){const A=stationAnim,U=A.shBub.material.uniforms,m=stShMax();A.shHit=Math.max(0,A.shHit-dt*1.5);U.uT.value=tt;
+    U.o.value=m>0?Math.max(A.shHit*.55,stSh<m-1e-6&&stShT>=STSH_DELAY?.12+.05*Math.sin(tt*4):0):0}   // v0.50: bublina štítu stanice
   const near=!hit&&typeof nearStation==='function'&&nearStation();const brk=stationBroken();
   if(brk){_coreT.set('#ff4a22');_coreC.copy(_coreT);tickBroken(dt,tt)}else _coreT.set(CORE_COL[hit?'hit':near?'near':'idle']);_coreC.lerp(_coreT,Math.min(1,dt*3));
   // guľa je posunutá o 7 m smerom ku kamere: prežiari cez vežu nad jadrom, ale loď nad stanicou ju stále prekryje
@@ -153,6 +155,9 @@ function tickBroken(dt,tt){const A=stationAnim;if(!A||!A.fires)return;
   for(const f of A.fires){const k=.7+.3*Math.sin(tt*11+f.ph)*Math.sin(tt*7.3+f.ph*2);f.o.scale.setScalar(f.b*k);
     if(Math.random()<dt*1.2*gfxFx()){const w=f.o.getWorldPosition(new V3());emit(trail,w,Math.random()<.5?'#ff8a3a':'#ffd27a',.5+Math.random()*.4,new V3((Math.random()-.5)*3,2+Math.random()*3,(Math.random()-.5)*3))}}
   for(const j of A.junk){j.o.rotation.x+=j.s.x*dt;j.o.rotation.y+=j.s.y*dt;j.o.rotation.z+=j.s.z*dt}}
+function stShieldImpact(pos){const A=stationAnim,b=A&&A.shBub;if(!b)return;A.shHit=1;if(!pos)return;
+  const L=b.worldToLocal(pos.clone());if(L.lengthSq()<1e-6)L.set(0,1,0);L.normalize();L.y=Math.max(L.y,.35);L.normalize();
+  const U=b.material.uniforms;U.uImp.value[A.shI=((A.shI||0)+1)%4].set(L.x,L.y,L.z,U.uT.value)}
 function rebuildStation(){
   clearTurretBeams();if(stationG)world.remove(stationG);
   if(inArena()){stationG=null;stationAnim=null;return} // v aréne nie je stanica (v strede sa objavuje anomália)
@@ -258,6 +263,9 @@ function rebuildStation(){
         ring.rotation.x=-HALF;ring.position.copy(p).setY(DECK_TOP+.25);g.add(ring)}}}
   glbApply('station',S3);   // v0.40: vlastný model stanice (jadro, svetlá a moduly ostávajú)
   if(stationBroken())breakStation(S3,anim);   // v0.41: vyradená stanica
+  // v0.50: štítová bublina stanice (od úrovne jadra CORE_SHIELD) – viditeľná pri zásahu a dobíjaní
+  if(s.core>=CORE_SHIELD&&!stationBroken()){const R=(DECK_R+8)*ST_SCALE;const b=new THREE.Mesh(new THREE.SphereGeometry(1,48,24),shieldBubbleMat('#6fd8ff'));
+    b.scale.set(R,R*.42,R);b.position.y=-STATION_Y-6;g.add(b);   /* stred bubliny pri palube (stanica je zapustená o STATION_Y) */anim.shBub=b;anim.shHit=0}
   const proxy=new THREE.Mesh(new THREE.SphereGeometry((DECK_R+4)*ST_SCALE,10,8),M.pick);proxy.userData.station=true;g.add(proxy);
   pickables=pickables.filter(p=>!p.userData.station);pickables.push(proxy);
   world.add(g);
@@ -407,7 +415,12 @@ function droneStats(m){const F=MOD_FX.drone,e=m.enh||0;
   const R=bonus().rs||{},rk=1+((R.dRatePct||0)+(rsK('s2')?RSK.s2.k:0))/100;   // v0.42: výskum + Rojová inteligencia
   return{rate:F.rate*enhK(F.ratePer,e)*(1+chipStat(m,'dMine')/100)*rk,cap:F.cap+F.capPer*e*(1+.08*e)+chipStat(m,'dCap'),speed:F.speed*(1+F.speedPer*e)*(1+chipStat(m,'dSpeed')/100),
     dmg:F.dmg*enhK(F.dmgPer,e)*(1+chipStat(m,'dDmg')/100),range:F.range,res:can[m.res]?m.res:'ore',can,def:m.mode==='def'&&chipCan(m,'def')}}
-function towerStats(m){const F=MOD_FX.tower,e=m.enh||0;const R=bonus().rs||{};return{dmg:F.dmg*enhK(F.dmgPer,e)*(1+chipStat(m,'tDmg')/100)*(1+(R.tDmgPct||0)/100),rate:F.rate*(1+chipStat(m,'tRate')/100),range:(F.range+F.rangePer*e+chipStat(m,'tRange'))*(1+(R.tRangePct||0)/100)}}   // v0.42: + výskum
+/* v0.50: SILA VEŽÍ – rastie so silou pirátov (výdrž stíhačky v aktuálnom sektore a úrovni výzvy oproti sektoru 1 bez výzvy),
+   takže veže stačia aj na vysokých výzvach. Krivka vylepšenia: do +3 mierne (+25 % za úroveň), od +4 prudko (×1,5 za úroveň):
+   +5 ≈ 3,9×, +10 ≈ 30× základu. Cieľ: 2 veže +5 tesne ubránia nájazd na 3. mape pri výzve +5 (stanica s jadrom 5). */
+const towerCurve=e=>e<=3?1+.25*e:1.75*Math.pow(1.5,e-3);
+function towerPirScale(){const F=PIRATES.fighter,si=Math.max(1,inArena()?5:state.cur);return pirStat(F.hp,si)*tierMul('hp')/pirStat(F.hp,1)}
+function towerStats(m){const F=MOD_FX.tower,e=m.enh||0;const R=bonus().rs||{};return{dmg:F.dmg*towerCurve(e)*towerPirScale()*(1+chipStat(m,'tDmg')/100)*(1+(R.tDmgPct||0)/100),rate:F.rate*(1+chipStat(m,'tRate')/100),range:(F.range+F.rangePer*e+chipStat(m,'tRange'))*(1+(R.tRangePct||0)/100)}}   // v0.42: + výskum
 const sensorIncome=m=>MOD_FX.sensor.green*enhK(MOD_FX.sensor.incPer,m.enh||0)*(1+chipStat(m,'sInc')/100);
 const droneIncome=m=>MOD_FX.drone.income*enhK(MOD_FX.drone.ratePer,m.enh||0)*(1+chipStat(m,'dMine')/100);
 const DRONE_GEO=new THREE.OctahedronGeometry(.55,0);
@@ -588,7 +601,7 @@ function lootFiltered(it){if(!it||!state)return false;const R=lfRules()[it.r];if
   const Q=lfQual(it);return!((R.g>0&&Q.gold>=R.g)||(R.r>0&&Q.red>=R.r)||(R.a&&Q.all))}
 function lootAutoSell(it){if(!lootFiltered(it))return false;const c=salvValue(it);state.credits+=c;_lfN++;_lfC+=c;
   if(!_lfT)_lfT=setTimeout(()=>{toast(t('lf.sold',{n:_lfN,c:fmtN(_lfC)}));_lfN=0;_lfC=0;_lfT=null;if(typeof bump==='function')bump('#crTxt')},3000);return true}
-function spawnLoot(it,pos){if(lootAutoSell(it))return;const g=new THREE.Group();const c=new THREE.Color(RAR[it.r].col);const tm={toneMapped:false};
+function spawnLoot(it,pos,o){if(!(o&&o.drop)&&lootAutoSell(it))return;const g=new THREE.Group();const c=new THREE.Color(RAR[it.r].col);const tm={toneMapped:false};
   // v0.24: kozmická kocka (variant podľa náhodného seedu; od Mytickej vždy s rámom)
   const seed=Math.random()*1000,variant=it.r>=7?2:Math.floor(seed)%3;const core=cosmicCube(RAR[it.r].col,seed,variant,1.05);g.add(core);
   const gl=glow(RAR[it.r].col,3.2+it.r*.5,.5+it.r*.03);gl.material.toneMapped=false;g.add(gl);
@@ -598,7 +611,7 @@ function spawnLoot(it,pos){if(lootAutoSell(it))return;const g=new THREE.Group();
   // farebný krúžok pod predmetom: od Nezvyčajnej rarity, od Mytickej väčší a pulzujúci
   let ring=null;if(it.r>=2){const big=it.r>=6;ring=new THREE.Mesh(new THREE.RingGeometry(big?1.5:1.1,big?1.75:1.25,48),new THREE.MeshBasicMaterial({color:c.clone(),transparent:true,opacity:big?.75:.5,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,...tm}));ring.rotation.x=-Math.PI/2;ring.position.y=-.4;g.add(ring)}
   g.position.set(pos.x,.6,pos.z);world.add(g);
-  loot.push({g,it,core,gl,pil,ring,ph:Math.random()*TAU,h});
+  loot.push({g,it,core,gl,pil,ring,ph:Math.random()*TAU,h,hold:!!(o&&o.drop),dropped:!!(o&&o.drop)});   // v0.50: vyhodený predmet sa nezdvihne, kým neodletíš ďalej
   if(it.r>=6)toast(t('tt.loot',{r:t('r.'+RAR[it.r].k),n:t('base.'+it.b)}),{rar:it.r})}
 /* Predmet rovno do inventára (relikty); ak je inventár plný, objaví sa vo vesmíre ako korisť na pozícii pos. */
 function giveItem(it,pos){if(lootAutoSell(it))return true;if(state.inv.length<INV_MAX){state.inv.push(it);
@@ -613,8 +626,8 @@ function tickLoot(dt,tt){const mag=LOOT_RANGE+bonus().magnet;
     l.pil.material.opacity=(.18+k*.03)*(1+.35*Math.sin(tt*3+l.ph));
     if(l.ring&&k>=6){l.ring.scale.setScalar(1+.15*Math.sin(tt*2.5+l.ph));l.ring.rotation.z+=dt}
     if(k===9){const c=new THREE.Color().setHSL((tt*.15+l.ph)%1,.85,.65);l.core.userData.setColor(c);l.pil.material.color.copy(c);l.gl.material.color.copy(c);if(l.ring)l.ring.material.color.copy(c)}
-    if(dead)continue;const d=ship.position.distanceTo(l.g.position);
+    if(dead)continue;const d=ship.position.distanceTo(l.g.position);if(l.hold){if(d>mag+8)l.hold=false;continue}
     if(d<mag){if(state.inv.length>=INV_MAX){if(!invWarned){toast(t('tt.invFull'),'bad');invWarned=true}continue}
       l.g.position.lerp(ship.position,Math.min(1,dt*5));if(d<2.6)pickLoot(l)}}}
 /* Pred skokom brána pozbiera korisť, ktorá zostala ležať v sektore (ak je v inventári miesto). */
-function collectAllLoot(){let n=0;for(const l of loot.slice()){if(state.inv.length>=INV_MAX)break;state.inv.push(l.it);n++}loot=[];if(n)toast(t('tt.gateLoot'))}
+function collectAllLoot(){let n=0;for(const l of loot.slice()){if(l.dropped)continue;if(state.inv.length>=INV_MAX)break;state.inv.push(l.it);n++}loot=[];if(n)toast(t('tt.gateLoot'))}

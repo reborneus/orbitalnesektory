@@ -10,7 +10,7 @@ const raidCfg=()=>stationBroken()?null:PIRATES.raid[state.cur];   // v0.41: na v
 const stationMaxHp=()=>PIRATES.stationHp(cur().core)*(1+((bonus().rs||{}).stHpPct||0)/100);   // v0.42: + výskum
 /* Zavolá sa pri stavbe sektora: vymaže nepriateľov a naplánuje prvý nájazd. */
 function resetCombat(){if(typeof clearLasers==='function')clearLasers();for(const d of dmgTexts)d.el.remove();dmgTexts.length=0;enemies=[];bolts=[];raidActive=false;raidCount=0;stationDown=0;attackTarget=null;towerCd={};passiveQ.length=0;
-  const c=raidCfg();raidT=c?c.first:0;stationHp=stationMaxHp();spawnPassives()}
+  const c=raidCfg();raidT=c?c.first:0;stationHp=stationMaxHp();stSh=stShMax();stShT=99;spawnPassives()}
 
 /* ---------- model piráta ---------- */
 const PIR_MAT=new THREE.MeshStandardMaterial({color:col('#3a1218'),metalness:.6,roughness:.4,flatShading:true});
@@ -99,13 +99,19 @@ function tickBolts(dt){for(const b of bolts.slice()){b.life-=dt;
     b.s.position.addScaledVector(b.vel,dt);let hit=false;
     if(b.side==='enemy'){
       if(!dead&&b.s.position.distanceTo(ship.position)<2.6){hit=true;const o=damage(b.dmg,'hit');if(o.shield>0)shieldImpact(b.s.position);if(o.hull+o.shield>0)dmgText(ship.position,o.hull+o.shield,'hurt');if(o.hull>0)hurtFlash(.3);if(o.shield>0)bubbleT=1;rumble(.25,90)}
-      else if(!inArena()&&stationDown<=0&&Math.hypot(b.s.position.x,b.s.position.z)<STATION_R-2){hit=true;stationHit(b.dmg)}}
+      else if(!inArena()&&stationDown<=0&&Math.hypot(b.s.position.x,b.s.position.z)<STATION_R-2){hit=true;stationHit(b.dmg,b.s.position)}}
     else for(const e of enemies){if(!e.leaving&&b.s.position.distanceTo(e.pos)<e.r+.6){hit=true;hitEnemy(e,b.dmg,b.side);dmgText(e.pos,b.dmg,b.crit?'crit':b.side);break}}
     if(hit){for(let i=0;i<4;i++)emit(debris,b.s.position,b.side==='enemy'?'#ff8a5c':'#c9fff6',.3,new V3((Math.random()-.5)*8,Math.random()*3,(Math.random()-.5)*8))}
     if(hit||b.life<=0){world.remove(b.s);bolts.splice(bolts.indexOf(b),1)}}}
 
 /* ---------- zásahy ---------- */
-function stationHit(d){stationHitT=CORE_HIT;stationHp-=d;if(stationHp<=0)stationDestroyed()}
+/* v0.50: ŠTÍT STANICE od úrovne jadra CORE_SHIELD: zachytí poškodenie ako prvý, dobíja sa STSH_RATE podielu za sekundu
+   po STSH_DELAY s bez zásahu; veľkosť = výdrž stanice × (0,6 + 0,2 za každú úroveň nad 8). Zásah ukáže bublinu s bleskom. */
+let stSh=0,stShT=99;const STSH_DELAY=8,STSH_RATE=.06;
+const stShMax=()=>{const L=cur().core;return L>=CORE_SHIELD?stationMaxHp()*(.6+.2*(L-CORE_SHIELD)):0};
+function stationHit(d,pos){stationHitT=CORE_HIT;stShT=0;
+  if(stSh>0){const a=Math.min(stSh,d);stSh-=a;d-=a;if(typeof stShieldImpact==='function')stShieldImpact(pos)}
+  if(d>0){stationHp-=d;if(stationHp<=0)stationDestroyed()}}
 function stationDestroyed(){const o=Math.floor(state.ore*PIRATES.steal),g=Math.floor(state.green*PIRATES.steal);state.ore-=o;state.green-=g;
   stationDown=PIRATES.offline;stationHp=stationMaxHp()*.4;raidActive=false;for(const e of enemies)if(!e.wasPassive)e.leaving=true;
   for(let i=0;i<40;i++)emit(debris,new V3(0,2,0),i%2?'#ff8a5c':'#ffe2a8',1+Math.random(),new V3((Math.random()-.5)*26,Math.random()*6,(Math.random()-.5)*26));
@@ -169,6 +175,7 @@ function fireMissile(e){const s=glow('#ff9a3a',2.6,1);s.position.copy(e.pos);wor
 function tickCombat(dt,tt){
   gunTgtT-=dt;tickLock(dt);tickEdgeArrows();
   if(stationDown>0)stationDown-=dt;
+  stShT+=dt;{const m=stShMax();if(stSh>m)stSh=m;if(m>0&&stShT>=STSH_DELAY&&stSh<m&&stationDown<=0)stSh=Math.min(m,stSh+m*STSH_RATE*dt)}   // v0.50: štít stanice
   if(!raidActive&&stationHp<stationMaxHp())stationHp=Math.min(stationMaxHp(),stationHp+PIRATES.stationRegen*(rsK('s3')?RSK.s3.g:1)*dt);
   tickPassiveQ(dt);const c=raidCfg();if(c&&!raidActive&&!enemies.some(e=>!e.wasPassive)&&$('#intro').hidden){raidT-=dt;if(raidT<=0){spawnRaid();raidT=rnd(c.every[0],c.every[1])}}
   // útok na vybraného piráta: loď sa drží v dosahu zbrane (ručné ovládanie má prednosť)

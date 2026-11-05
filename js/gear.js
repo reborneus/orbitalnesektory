@@ -72,11 +72,11 @@ function renderGear(){let h='';
     return `<button class="itm it r${it.r}${gearSel===it.id&&!gearMark?' sel':''}${gearMark&&gearMark.has(it.id)?' marked':''}" ${rc(it)} data-act="${gearMark?'mark':chip?'sel':'eqItem'}" data-id="${it.id}">${icon(it.b)}${it.enh?`<span class="enh">+${it.enh}</span>`:''}<span class="il">${it.ilvl}</span>${it.nw&&!gearMark?'<i class="nw"></i>':''}${gearMark&&gearMark.has(it.id)?'<i class="mk">✕</i>':''}${it.lock&&gearMark?'<i class="lk">🔒</i>':''}</button>`}).join('')}</div>`;
   if(!gearMark)h+=`<p class="note">${t('gear.loHint')}</p>`;
   // inšpektor: karta predmetu s akciami (prilepená dole v okne)
-  const f=gearSel!=null?findItem(gearSel):null;h+=`<div class="gear-insp" id="gearInsp"${f?'':' hidden'}>${f?detailHtml(f):''}</div>`;
+  const f=gearSel!=null?findItem(gearSel):null,show=f&&!gearKeysUI();h+=`<div class="gear-insp" id="gearInsp"${show?'':' hidden'}>${show?detailHtml(f):''}</div>`;   // v0.50: na PC a ovládači len plávajúci náhľad so skratkami
   return h}
 /* zobrazí v inšpektore predmet id (pri prejdení myšou alebo výbere ovládačom) bez prekreslenia celého okna */
 function gearInspect(id){if(sheetTab!=='gear'||gearMark||id===gearSel)return;const f=findItem(id);if(!f)return;gearSel=id;f.it.nw=false;
-  const el=$('#gearInsp');if(!el)return;el.innerHTML=detailHtml(f);el.hidden=false;
+  const el=$('#gearInsp');if(!el)return;if(gearKeysUI()){el.hidden=true}else{el.innerHTML=detailHtml(f);el.hidden=false}
   body.querySelectorAll('.inv .itm.sel,.lo-slot.sel').forEach(b=>b.classList.remove('sel'));const b=body.querySelector(`[data-id="${id}"]:not(#gearInsp *)`);if(b)b.classList.add('sel')}
 document.addEventListener('pointerover',e=>{if(sheetTab!=='gear')return;const b=e.target.closest&&e.target.closest('#sheet [data-id]');if(b&&!b.closest('#gearInsp')&&/^(sel|eqItem|pickEq)$/.test(b.dataset.act||''))gearInspect(+b.dataset.id)});
 function gearAct(act,b){
@@ -113,7 +113,32 @@ function gearAct(act,b){
     case 'salvJunk':{let c=0,n=0;state.inv=state.inv.filter(x=>{if(x.r<=1&&!x.lock){c+=salvValue(x);n++;return false}return true});
       if(gearSel!=null&&!findItem(gearSel))gearSel=null;state.credits+=c;invWarned=false;if(n)toast(t('tt.salvMany',{n,c}));return done()}
     case 'lock':{if(!f)return true;f.it.lock=!f.it.lock;return done()}
+    // v0.50: vyhodiť predmet do vesmíru (dá sa znova zdvihnúť, keď odletíš a vrátiš sa)
+    case 'drop':{if(!f||f.it.lock){if(f)toast(t('gear.locked'));return true}
+      if(f.where==='inv')state.inv.splice(f.i,1);else{state.eq[f.slot]=null;bonusDirty()}
+      const back=new V3(-Math.sin(shipYaw),0,-Math.cos(shipYaw)).multiplyScalar(6);spawnLoot(f.it,ship.position.clone().add(back),{drop:true});
+      gearSel=null;invWarned=false;toast(t('tt.drop',{n:itemName(f.it)}));return done()}
+    case 'cmpNext':{if(!f)return true;if(!cmpNext(f.it))toast(t('gear.cmpOne'));tipId=null;return true}
     case 'toStore':{if(!f||f.where!=='inv'||!atStore())return true;const S=sstate();if(S.items.length>=S.cap){toast(t('sto.full'),'bad');return true}
       S.items.push(state.inv.splice(f.i,1)[0]);gearSel=null;invWarned=false;toast(t('sto.moved',{n:1}),true);return done()}
   }
   return false}
+
+/* ==================== v0.50: SKRATKY PRE PREDMET POD UKAZOVATEĽOM ====================
+   Na PC (myš) a ovládači sa detail predmetu ukazuje len v plávajúcom náhľade (tooltip.js) a akcie sa robia skratkami,
+   kým je ukazovateľ / výber na predmete (inventár alebo nasadené sloty):
+     PC:       E vylepšiť · F nasadiť / zložiť · C porovnať s ďalším nasadeným · X vyhodiť · R rozobrať · L zamknúť
+     ovládač:  A nasadiť / zložiť · X vylepšiť · Y rozobrať · LB vyhodiť · RB porovnanie · B späť z predmetov (potom RB/LB prepína menu)
+   Rozobratie Vzácneho a lepšieho predmetu treba potvrdiť druhým stlačením do 3 s. Na dotyku ostáva inšpektor s tlačidlami. */
+const gearKeysUI=()=>hoverUI()||inputMode==='pad';
+let gearHot=null;const _gArm={};
+function gearKey(act){if(sheetTab!=='gear'||gearMark||gearHot==null)return false;const f=findItem(gearHot);if(!f)return false;gearSel=gearHot;
+  if(act==='eq')act=f.where==='inv'?(BASES[f.it.b].slot==='chip'?null:'equip'):'unequip';if(!act)return true;
+  const b={dataset:_gArm[gearHot+act]||(_gArm[gearHot+act]={}),textContent:''};
+  if(act==='salv'&&f.where!=='inv'){toast(t('gear.salvEq'));return true}
+  const armed=act==='salv'&&f.it.r>=4&&(!b.dataset.arm||performance.now()-(+b.dataset.arm)>3000);
+  gearAct(act,b);if(armed)toast(t('gear.salvSure',{k:inputMode==='pad'?padGlyph('Y'):'R'}),'bad');
+  if(!findItem(gearHot))gearHot=null;tipId=null;if(typeof gearTipRefresh==='function')gearTipRefresh();return true}
+const GEAR_KEYS={e:'enh',f:'eq',c:'cmpNext',x:'drop',r:'salv',l:'lock'};
+addEventListener('keydown',e=>{if(!hoverUI()||sheetTab!=='gear'||gearHot==null||e.ctrlKey||e.metaKey||e.altKey)return;const a=GEAR_KEYS[e.key.toLowerCase()];if(!a)return;
+  e.preventDefault();e.stopImmediatePropagation();if(!e.repeat)gearKey(a)},true);

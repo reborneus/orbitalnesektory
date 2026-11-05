@@ -17,6 +17,9 @@ function migrate(s){
   if(typeof s.credits!=='number')s.credits=0;
   if(!Array.isArray(s.inv))s.inv=[];
   if(!s.eq)s.eq={};for(const k of ALL_SLOTS)if(s.eq[k]===undefined)s.eq[k]=null;
+  // v0.50: staré čipy veží zosilnieť (rovnako ako nové rozsahy vlastností): poškodenie ×3, kadencia a dosah ×2 (raz)
+  if(!s.mig50){s.mig50=true;const K={tDmg:3,tRate:2,tRange:2};const fix=it=>{if(!it)return;for(const a of[it.imp,...(it.aff||[])])if(a&&K[a.k])a.v=Math.round(a.v*K[a.k]*10)/10};
+    (s.inv||[]).forEach(fix);Object.values(s.eq||{}).forEach(fix);if(s.storage)(s.storage.items||[]).forEach(fix);for(const x of s.sec||[])for(const m of x.slots||[])if(m&&m.chip)fix(m.chip)}
   // v0.46.1: predmety v slotoch, ktoré aktuálna loď nemá (napr. po zmene slotov lodí), sa vrátia do inventára
   {const ok=SLOTS.concat((SHIPS[s.shipId]&&SHIPS[s.shipId].extra)||[]);if(!s.inv)s.inv=[];for(const k of ALL_SLOTS)if(!ok.includes(k)&&s.eq[k]){s.inv.push(s.eq[k]);s.eq[k]=null}}
   if(!s.nextId)s.nextId=1;

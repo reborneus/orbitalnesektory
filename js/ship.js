@@ -188,6 +188,15 @@ const SHIP_MODELS={
       const n=glow(s<0?'#ff6a4d':'#7ef2e2',1.3,1);n.position.set(3.0*s,.45,-3.6);body.add(n)}
     return {core:[0,0,3.6],nose:[0,0,3.65],coreCol:'#a9c0ff'}},
 };
+/* v0.50: materiál štítovej bubliny (loď aj stanica) */
+function shieldBubbleMat(col){return new THREE.ShaderMaterial({uniforms:{c:{value:new THREE.Color(col)},o:{value:0},uT:{value:0},uImp:{value:[0,1,2,3].map(()=>new THREE.Vector4(0,1,0,-99))}},
+    vertexShader:'varying vec3 vN;varying vec3 vV;varying vec3 vP;void main(){vP=position;vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
+    fragmentShader:`uniform vec3 c;uniform float o,uT;uniform vec4 uImp[4];varying vec3 vN;varying vec3 vV;varying vec3 vP;
+void main(){float f=pow(1.-abs(dot(vN,vV)),2.2);vec3 d=normalize(vP);float im=0.;
+  for(int i=0;i<4;i++){float age=uT-uImp[i].w;if(age<0.||age>.75)continue;float a=acos(clamp(dot(d,normalize(uImp[i].xyz)),-1.,1.));float fade=1.-age/.75;
+    im+=exp(-a*a/.07)*fade*1.4+exp(-pow(a-age*1.7,2.)/.01)*fade*1.1;}
+  gl_FragColor=vec4(c*(f*1.7+.06)*o+mix(c,vec3(1.),.45)*im*(.6+f),1.);}`,
+    transparent:true,blending:THREE.AdditiveBlending,depthWrite:false})}
 function buildShip(id){
   if(!SHIP_MODELS[id])id='klepeto';
   while(ship.children.length)ship.remove(ship.children[0]);
@@ -199,14 +208,7 @@ function buildShip(id){
   /* v0.49: ŠTÍTOVÁ BUBLINA – elipsoid okolo celého modelu (rozmer z obalu lode + rezerva), takže nepresekáva loď.
      Viditeľná len pri úbytku alebo dobíjaní štítu (main.js); zásah do štítu (strela, asteroid) vytvorí na mieste dopadu
      záblesk s rozbiehajúcou sa vlnou (shieldImpact – až 4 naraz, uniform uImp = smer v súradniciach bubliny + čas). */
-  const bm=new THREE.ShaderMaterial({uniforms:{c:{value:new THREE.Color('#5aa9ff')},o:{value:0},uT:{value:0},uImp:{value:[0,1,2,3].map(()=>new THREE.Vector4(0,1,0,-99))}},
-    vertexShader:'varying vec3 vN;varying vec3 vV;varying vec3 vP;void main(){vP=position;vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}',
-    fragmentShader:`uniform vec3 c;uniform float o,uT;uniform vec4 uImp[4];varying vec3 vN;varying vec3 vV;varying vec3 vP;
-void main(){float f=pow(1.-abs(dot(vN,vV)),2.2);vec3 d=normalize(vP);float im=0.;
-  for(int i=0;i<4;i++){float age=uT-uImp[i].w;if(age<0.||age>.75)continue;float a=acos(clamp(dot(d,normalize(uImp[i].xyz)),-1.,1.));float fade=1.-age/.75;
-    im+=exp(-a*a/.07)*fade*1.4+exp(-pow(a-age*1.7,2.)/.01)*fade*1.1;}
-  gl_FragColor=vec4(c*(f*1.7+.06)*o+mix(c,vec3(1.),.45)*im*(.6+f),1.);}`,
-    transparent:true,blending:THREE.AdditiveBlending,depthWrite:false});
+  const bm=shieldBubbleMat('#5aa9ff');
   const bubble=new THREE.Mesh(new THREE.SphereGeometry(1,40,24),bm);
   {const ms=[];body.traverse(o=>{if(o.isMesh&&o.visible)ms.push(o)});const B=_glbBox(ship,ms),sz=B.getSize(new V3()),c=B.getCenter(new V3());
     const rx=sz.x/2*1.22+.5,rz=sz.z/2*1.18+.5,ry=Math.max(sz.y/2*1.5+.4,Math.max(rx,rz)*.5);bubble.scale.set(rx,ry,rz);bubble.position.copy(c)}
