@@ -5,7 +5,8 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 ## 0.33
 
 ### v0.33.1 · 2026-11-05
-- Výzva v stanici (štvorčeky)
+- Úroveň výzvy sa presunula z Nastavení do stanice – nová záložka Výzva vedľa Skladu
+- Výzva ako 16 štvorčekov, ktoré sa plnia červenou – čím vyššia úroveň, tým sýtejšia; klik na štvorček nastaví úroveň priamo (klik na aktuálny ju zníži), ✕ / − / + zostali aj pre ovládač
 
 ### v0.33.0 · 2026-11-05
 - Nad stanicou, zadávateľom misií, obchodníkom a skokovou bránou je polopriehľadné okrúhle tlačidlo s ikonou a názvom (mimo dosahu aj so vzdialenosťou); myš nad ním ho zvýrazní

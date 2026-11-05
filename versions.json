@@ -1,5 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
-  {"version": "0.33.1", "date": "2026-11-05", "time": "2026-11-05T12:02:10+01:00", "sha": "d654243f4b471bbdccda8aa2ff09ed921dcd6e8e", "title": "Výzva v stanici (štvorčeky)"},
+  {"version": "0.33.1", "date": "2026-11-05", "time": "2026-11-05T12:02:21+01:00", "sha": "4644b806cb93db8fa113b37aa32685bd6c77a247", "title": "Výzva v stanici (štvorčeky)"},
   {"version": "0.33.0", "date": "2026-11-05", "time": "2026-11-05T11:59:29+01:00", "sha": "6b43864671eca690e82459e9899e0cfa9aa24269", "title": "Tlačidlá na stanici, NPC a bráne"},
   {"version": "0.32.0", "date": "2026-11-05", "time": "2026-11-05T11:52:45+01:00", "sha": "9a1ec565fd65f56b04b1b0f8d71ea8552cd9f718", "title": "Nová stanica, veža, dok dronov a senzorové pole"},
   {"version": "0.31.5", "date": "2026-11-05", "time": "2026-11-05T11:41:01+01:00", "sha": "da8724c34b0f3a45f2779d3369d307aac335bbd0", "title": "Držanie kliku sleduje cieľ, živé popisy pri myši"},

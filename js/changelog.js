@@ -5,7 +5,8 @@ const CHANGELOG=[
 "v": "0.33.1",
 "d": "2026-11-05",
 "n": [
-"Výzva v stanici (štvorčeky)"
+"Úroveň výzvy sa presunula z Nastavení do stanice – nová záložka Výzva vedľa Skladu",
+"Výzva ako 16 štvorčekov, ktoré sa plnia červenou – čím vyššia úroveň, tým sýtejšia; klik na štvorček nastaví úroveň priamo (klik na aktuálny ju zníži), ✕ / − / + zostali aj pre ovládač"
 ]
 },
 {
