@@ -2,6 +2,16 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.37.0",
+"d": "2026-11-05",
+"n": [
+"Nové zvuky zbraní podľa hráčových ukážok (Dark / Deep / Universe / Bass): bleskový pokles výšky na začiatku, hutné basové telo s tmavnúcim filtrom, sub-bas a tmavé doznievanie",
+"Každá rarita znie inak (sivá kratšia a vyššia, modrá štandard, zlatá najhlbšia, červená s chvením a skreslením, prvotná s akordom); veža hlbšia a dlhšia",
+"Blesk: krátke nabitie s vlniacim sa filtrom a hlboký výboj s padajúcimi tónmi; piráti majú tmavé bzučivé výstrely s chvením, aby sa dali rozlíšiť od tvojich",
+"Hlbšie zásahy"
+]
+},
+{
 "v": "0.36.3",
 "d": "2026-11-05",
 "n": [
@@ -229,15 +239,6 @@ const CHANGELOG=[
 "Spúšťací panel pre Windows: nový tmavý moderný vzhľad ako menu v hre (karty so zaoblenými rohmi, tyrkysové ŠTART, tmavý titulok okna)",
 "Panel sa spúšťa bez prázdneho okna PowerShellu (nový skrytý spúšťač .vbs); po aktualizácii v paneli klikni na „Odkaz na ploche“, aby odkaz používal nový spúšťač",
 "Nové políčko „Po spustení hry nechať panel otvorený“ (Windows aj Mac)"
-]
-},
-{
-"v": "0.23.0",
-"d": "2026-11-04",
-"n": [
-"Orion Hlbina: nová realistická čierna diera podľa videa – čierny tieň, tenký fotónový prstenec, disk takmer z boku prechádzajúci pred tieňom, ohnutý obraz zadnej časti disku nad a pod tieňom, jedna strana jasnejšia (Dopplerov jav), dlhý šedý prachový chvost s vláknami; tmavé hviezdne pozadie",
-"Náhľady lodí v hangári sú menšie a bez pozadia (len model lode); náhľady pomocných dronov tiež bez pozadia",
-"Nastavenia: posuvník priehľadnosti menu (35–100 %); pri nižšej hodnote vidieť hru cez rozostrené menu"
 ]
 }
 ];
