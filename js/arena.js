@@ -51,13 +51,29 @@ const ringPos=(r0,r1)=>{const a=Math.random()*TAU,r=(r0+Math.random()*(r1-r0))*M
 function waveKinds(w){const k=[];const n=(c,x)=>{for(let i=0;i<x;i++)k.push(c)};
   n('fighter',Math.min(14,3+Math.floor(w/6)));if(w>=3)n('swarm',Math.min(12,Math.floor(w/4)));if(w>=5)n('corsair',Math.min(6,1+Math.floor(w/12)));
   if(w>=8)n('turret',Math.min(5,1+Math.floor(w/25)));if(w>=12)n('frigate',Math.min(4,Math.floor(w/20)+(w%5===0?1:0)));return k}
+/* ==================== v0.44: ROZMIESTNENIE VLNY ====================
+   Skupiny miest zrodu: 'near' = okruh ~250 m okolo hráča (v niektorých vlnách namiesto toho medzi zónou 1 a 2),
+   'z1' = okraj zóny 1, 'z2' = okraj zóny 2, 'z3' = stred zóny 3. Čím vyššia vlna, tým viac sa piráti rozdelia:
+   vlna 1 = všetci okolo hráča, od vlny ~60 = 10 % okolo hráča a po 30 % z okraja zóny 1, 2 a zo stredu zóny 3.
+   Každá skupina prilieta v menších kŕdľoch (po 3) z rôznych strán. Statické veže stoja na okraji zóny 2. */
+const ARENA_NEAR=250,ARENA_SPREAD_W=60;
+const ringAt=(cx,cz,r0,r1)=>{const a=Math.random()*TAU,r=r0+Math.random()*(r1-r0);return new V3(cx+Math.cos(a)*r,2,cz+Math.sin(a)*r)};
+function arenaSpots(n,w){const s=clamp((w-1)/ARENA_SPREAD_W,0,1),alt=w%4===2;   // alt = vlna prilieta spomedzi zóny 1 a 2
+  const fr=[1-.9*s,.3*s,.3*s,.3*s],cnt=fr.map(f=>Math.floor(f*n));cnt[0]+=n-cnt.reduce((a,b)=>a+b,0);
+  const px=ship.position.x,pz=ship.position.z;
+  const ring=[alt?()=>ringAt(0,0,(Z1+Z2)/2-40,(Z1+Z2)/2+40):()=>ringAt(px,pz,ARENA_NEAR-30,ARENA_NEAR+30),()=>ringAt(0,0,Z1-20,Z1+20),()=>ringAt(0,0,Z2-20,Z2+20),()=>ringAt(0,0,(Z2+Z3)/2-30,(Z2+Z3)/2+30)];
+  const out=[];cnt.forEach((c,g)=>{let base=null;for(let i=0;i<c;i++){if(i%3===0)base=ring[g]();out.push(base.clone().add(new V3((Math.random()-.5)*24,0,(Math.random()-.5)*24)))}});
+  for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]]}   // rôzne typy pirátov v rôznych skupinách
+  return out}
 function spawnWave(w){const isBoss=w%ARENA_BOSS===0;
-  if(w===ARENA_WAVES){spawnCarrier(w);for(let i=0;i<6;i++)arenaEnemy('fighter',ringPos(110,140),w);}
-  else{for(const kd of waveKinds(w))arenaEnemy(kd,kd==='turret'?ringPos(60,95):ringPos(110,150),w);if(isBoss)arenaEnemy('dread',ringPos(120,140),w)}
+  if(w===ARENA_WAVES){spawnCarrier(w);const P=arenaSpots(6,w);for(const p of P)arenaEnemy('fighter',p,w)}
+  else{const K=waveKinds(w),mob=K.filter(k=>k!=='turret'),P=arenaSpots(mob.length,w);mob.forEach((kd,i)=>arenaEnemy(kd,P[i],w));
+    for(const kd of K)if(kd==='turret')arenaEnemy(kd,ringAt(0,0,Z2-25,Z2),w);   // statické veže na okraji zóny 2
+    if(isBoss)arenaEnemy('dread',ringAt(0,0,Z2-20,Z2+20),w)}
   toast(w===ARENA_WAVES?t('ar.final'):isBoss?t('ar.boss',{n:w}):t('ar.wave',{n:w}),'bad');rumble(.4,300)}
 /* hlavný boss: krížnik + 6 modulov okolo neho; kým žije aspoň 1 modul, je nezraniteľný */
 const CMOD_OFF=[[-6,0,6],[6,0,6],[-7,0,-2],[7,0,-2],[-4,0,-9],[4,0,-9]];
-function spawnCarrier(w){const c=arenaEnemy('carrier',ringPos(120,130),w);c.invuln=true;c.mods=[];
+function spawnCarrier(w){const c=arenaEnemy('carrier',ringAt(0,0,(Z2+Z3)/2-30,(Z2+Z3)/2+30),w);c.invuln=true;c.mods=[];
   for(const o of CMOD_OFF){const m=arenaEnemy('cmod',c.pos.clone(),w);m.host=c;m.off=new V3(...o);c.mods.push(m)}}
 
 /* ---------- anomália (odmena po vlne) ---------- */
