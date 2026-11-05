@@ -2,6 +2,17 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.50.0",
+"d": "2026-11-05",
+"n": [
+"Stanica: každý obsadený sektor pridá jadru +2 úrovne. Nad úrovňou 5 výdrž stanice rastie prudko a od úrovne 8 má stanica veľký štít, ktorý zachytí útoky a sám sa dobíja (bublina so zábleskom pri zásahu).",
+"Obranné veže: sila rastie so silou pirátov v sektore aj s úrovňou výzvy a krivka vylepšenia je od +4 oveľa strmšia (+5 ≈ 4×, +10 ≈ 30× základu). Dve veže +5 tesne ubránia nájazd na 3. mape pri výzve +5.",
+"Čipy veží sú silnejšie (poškodenie 3×, kadencia a dosah 2×; staršie čipy sa zosilnili tiež) a dajú sa vylepšiť priamo v module stanice.",
+"Inventár (PC a ovládač): detail predmetu je len v plávajúcom náhľade so skratkami – vylepšiť, nasadiť/zložiť, porovnať s ďalším nasadeným, vyhodiť do vesmíru, rozobrať, zamknúť. Na ovládači B vyskočí z predmetov.",
+"Príručka: kapitoly Obrana stanice a Skratky v inventári."
+]
+},
+{
 "v": "0.49.0",
 "d": "2026-11-05",
 "n": [
@@ -238,16 +249,6 @@ const CHANGELOG=[
 "Zásahy s kovovým zvonením trupu, blesk ako séria elektrických výbojov, skok bránou ako nábeh s výbuchom",
 "Rozhranie: krátke sklenené tóny a vzdušné šuchoty, sonarový odpočet pri smrti, tlmená siréna",
 "Hlbší hukot motorov a plynulý ťažobný lúč; dlhší a tmavší dozvuk; vyvážené hlasitosti a ochrana proti skresleniu"
-]
-},
-{
-"v": "0.36.1",
-"d": "2026-11-05",
-"n": [
-"Snímky za sekundu: hra kreslí toľko snímok, koľko zvládne monitor – aj 144, 240 či 360 Hz (predvoľby Stredná, Vysoká aj Ultra); celá hra je od počtu snímok nezávislá",
-"Grafika → Limit snímok: 30 / 60 / 120 / 144 / 240 / Podľa monitora; presnejšie dodržiavanie limitu",
-"Grafika → Ukazovať FPS: malé počítadlo snímok hore v strede obrazovky",
-"Spúšťače (Windows, Mac) spúšťajú prehliadač s plným využitím grafickej karty"
 ]
 }
 ];
