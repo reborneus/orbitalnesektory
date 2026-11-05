@@ -2,6 +2,15 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.46.1",
+"d": "2026-11-05",
+"n": [
+"Oprava slotov navyše: Sokol má namiesto druhého ťažobného lasera druhý slot na zbraň; Bizón má po 2 sloty na ťažobný laser, štít aj zbraň; Klepeto (Pincer) má po jednom.",
+"Druhá zbraň pridá do každej salvy ďalšiu strelu; základné poškodenie oboch zbraní sa sčíta a násobiče poškodenia sa násobia.",
+"Predmet, ktorý bol v slote, ktorý loď už nemá (napr. druhý laser na Sokolovi), sa po načítaní hry vráti do inventára."
+]
+},
+{
 "v": "0.46.0",
 "d": "2026-11-05",
 "n": [
@@ -236,14 +245,6 @@ const CHANGELOG=[
 "Obranná veža ukazuje tenký červený laserový zameriavač od ústia hlavne k zameranému pirátovi",
 "Veža strieľa rovnaké strely ako hráč (2–3 salvy, poškodenie nesie prvá) a vyletujú z ústia hlavne; ich vzhľad určuje rarita vylepšenia veže (+0 až +10), nie vložený čip",
 "Pri prestavbe stanice či zmene sektora sa zameriavače veží správne skryjú"
-]
-},
-{
-"v": "0.33.1",
-"d": "2026-11-05",
-"n": [
-"Úroveň výzvy sa presunula z Nastavení do stanice – nová záložka Výzva vedľa Skladu",
-"Výzva ako 16 štvorčekov, ktoré sa plnia červenou – čím vyššia úroveň, tým sýtejšia; klik na štvorček nastaví úroveň priamo (klik na aktuálny ju zníži), ✕ / − / + zostali aj pre ovládač"
 ]
 }
 ];
