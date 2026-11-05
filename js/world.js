@@ -37,7 +37,7 @@ void main(){vec2 p=vUv*2.-1.;float r=length(p);if(r>1.)discard;
   float core=exp(-r*r*22.)*1.05+exp(-r*r*6.)*.35;
   vec3 col=uC*body*1.4+mix(uC,vec3(1.),.38)*veins*edge*(1.25-r*.6)+mix(uC,vec3(1.),.75)*core;
   gl_FragColor=vec4(col*uK,1.);}`});
-  const o=new THREE.Mesh(new THREE.PlaneGeometry(13,13),m);o.renderOrder=4;o.frustumCulled=false;return o}
+  const o=new THREE.Mesh(new THREE.PlaneGeometry(10.4,10.4),m);o.renderOrder=4;/* v0.32: o 20 % menšie */o.frustumCulled=false;return o}
 /* volá main.js každý snímok: stav → farba jadra, žiary a svetelných pásov stanice */
 function tickStationCore(dt,tt){if(!stationAnim||!stationAnim.orb)return;stationHitT-=dt;
   const hit=stationHitT>0||(typeof raidActive!=='undefined'&&raidActive&&enemies.some(e=>!e.wasPassive&&!e.aggro&&!e.leaving&&Math.hypot(e.pos.x,e.pos.z)<60));
@@ -50,7 +50,14 @@ function stationMats(){return _stMats||(_stMats={
   hull:kitHullMat('stH',{base:'#5d6674',vari:.22,line:'#262b33',lit:['#ffcf7a','#7fb6ff'],litP:.12,seed:51},{metalness:.7,roughness:.4,emissiveIntensity:1.8,flatShading:true}),
   dark:kitHullMat('stD',{base:'#2a3039',vari:.3,line:'#12151a',lit:['#ffcf7a'],litP:.1,seed:52},{metalness:.75,roughness:.45,emissiveIntensity:1.8,flatShading:true}),
   glow:kitGlowMat('#4f9bff',2.6),amber:kitGlowMat('#ffc46a',2.2),core:kitGlowMat('#3d86ff',1.5),
-  lattice:new THREE.MeshStandardMaterial({color:new THREE.Color('#1a2433'),metalness:.8,roughness:.4,wireframe:true,emissive:new THREE.Color('#2a6dff'),emissiveIntensity:.6})})}
+  lattice:new THREE.MeshStandardMaterial({color:new THREE.Color('#1a2433'),metalness:.8,roughness:.4,wireframe:true,emissive:new THREE.Color('#2a6dff'),emissiveIntensity:.6}),
+  // v0.32: chróm (svetlý lesklý trup), bronz so zlatými okienkami, tmavý bronz pre dno kanála
+  chrome:kitHullMat('stC2',{base:'#7d8792',vari:.2,line:'#2a3038',lit:['#9feaff'],litP:.06,seed:53},{metalness:.72,roughness:.32,emissiveIntensity:1.8}),
+  bronze:kitHullMat('stB',{base:'#9a7240',vari:.25,line:'#3d2a12',lit:['#ffd27a','#ffb24a'],litP:.22,seed:54},{metalness:.7,roughness:.35,emissiveIntensity:2.2}),
+  bronzeD:kitHullMat('stB2',{base:'#3a2a18',vari:.3,line:'#1a1208',lit:['#ffcf6a','#ffa53a'],litP:.35,seed:55},{metalness:.5,roughness:.6,emissiveIntensity:2.4})})}
+/* pomocníci pre stanicu: plochý prstenec (vodorovne) a hustota textúry na rotačných tvaroch */
+function ringGeo(r0,r1,n){const g=new THREE.RingGeometry(r0,r1,n,1);g.rotateX(-HALF);const P=g.attributes.position,U=g.attributes.uv;for(let i=0;i<P.count;i++)U.setXY(i,P.getX(i)*KIT_UV,P.getZ(i)*KIT_UV);return g}
+function uvScale(g,su,sv){const U=g.attributes.uv;for(let i=0;i<U.count;i++)U.setXY(i,U.getX(i)*su,U.getY(i)*sv);return g}
 
 function nebulaTex(c1,c2,seed){const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d');const r=rng(seed);
   g.fillStyle='#000';g.fillRect(0,0,512,512);g.globalCompositeOperation='lighter';
@@ -128,56 +135,94 @@ function rebuildStation(){
      4 = veľký naklonený gyroskopický prstenec, 5 = žiariace halo. */
   // v0.26: celá konštrukcia je v skupine S3 zväčšenej ST_SCALE× (moduly ostávajú v pôvodnej veľkosti na palube)
   g.position.y=STATION_Y;const S3=new THREE.Group();S3.scale.setScalar(ST_SCALE);g.add(S3);const K=stationMats(),P=kitParts();
-  // jadro: modrá žiariaca guľa + tmavá mriežka okolo
-  // v0.19.5: energetické jadro (plazmová guľa so svietiacimi žilkami) – makeCoreOrb nižšie, farba podľa stavu stanice
+  /* v0.32: STANICA podľa predlohy – plochý chrómovaný disk: v strede stupňovitý náboj („svadobná torta“) okolo
+     energetického jadra s venčekom svetiel ako lupene, okolo neho kanál s bronzovým, zlato osvetleným dnom,
+     cez kanál 6 mostíkov s kupolami, hrubý chrómovaný palubný prstenec s modulmi a 4 dlhé ramená do kríža.
+     Všetky rozmery sú v jednotkách S3 (× ST_SCALE vo svete); paluba pre moduly ostáva na polomere DECK_R. */
   const orb=makeCoreOrb();S3.add(orb);anim.orb=orb;
-  const lat=new THREE.Mesh(new THREE.IcosahedronGeometry(4.1,2),K.lattice);S3.add(lat);anim.rings.push({o:lat,s:.05});
-  const cg=glow('#4f9bff',26,.5);S3.add(cg);anim.coreGlow=cg;
-  for(const y of[-1,1]){P.add(K.hull,new THREE.CylinderGeometry(2.6,3.4,1.2,12),{p:[0,3.7*y,0],r:[y<0?Math.PI:0,0,0]});P.add(K.glow,new THREE.TorusGeometry(3.1,.07,4,32),{p:[0,3.2*y,0],r:[HALF,0,0]})}
-  // veže: faceted (8-hranný kosoštvorcový prierez), hore kratšia (pod rovinou letu), dole dlhá
-  const spire=(h0,h1,w,y0)=>kitLoft([{z:h0,w,h:w},{z:h0+(h1-h0)*.25,w:w*1.15,h:w*1.15},{z:h0+(h1-h0)*.7,w:w*.6,h:w*.6},{z:h1,w:.05,h:.05}],{n:8,p:1.5});
-  P.add(K.hull,spire(4.2,10.5,2.3),{r:[-HALF,0,0]});
-  P.add(K.hull,spire(4.2,30,2.8),{r:[HALF,0,0]});
-  for(const a of[0,HALF,Math.PI,-HALF]){P.add(K.glow,box(.12,5.2,.12),{p:[Math.cos(a)*1.55,6.6,Math.sin(a)*1.55],r:[Math.sin(a)*.24,0,-Math.cos(a)*.24]});
-    P.add(K.glow,box(.14,17,.14),{p:[Math.cos(a)*2.1,-13,Math.sin(a)*2.1],r:[-Math.sin(a)*.12,0,Math.cos(a)*.12]})}
-  // palubný prstenec (medzikružie) + okraje, okná a svetelný lem
+  const cg=glow('#4f9bff',21,.5);S3.add(cg);anim.coreGlow=cg;
+  const C=K.chrome,B=K.bronze,G=K.glow,A=K.amber,D=K.dark;
+  // náboj: rotačný profil (polomer, výška) – stupne s ostrými hranami, v strede otvor pre jadro
+  const hub=new THREE.LatheGeometry([[3.5,-1.7],[3.5,1.5],[3.9,1.85],[4.5,1.8],[4.7,1.5],[4.7,1.15],[6.0,1.05],[6.3,.85],[6.3,.45],[7.7,.35],[8.0,.1],[8.0,-.35],[8.9,-.45],[9.15,-.8],[9.15,-1.7]].map(([r,y])=>new THREE.Vector2(r,y)),96);
+  uvScale(hub,9,4);P.add(C,hub);
+  // bronzové vložky na stupňoch (svietia zlatými okienkami) a modré pásy okien na zvislých stenách
+  P.add(B,ringGeo(4.75,5.95,96),{p:[0,1.12,0]});P.add(B,ringGeo(6.35,7.65,96),{p:[0,.42,0]});P.add(B,ringGeo(8.05,8.85,96),{p:[0,-.4,0]});
+  for(const[r,y,h]of[[4.72,1.32,.14],[6.32,.64,.13],[8.02,-.12,.16],[9.17,-1.05,.12]])P.add(G,new THREE.CylinderGeometry(r,r,h,96,1,true),{p:[0,y,0]});
+  // venček „lupeňov“ okolo jadra: svietiace kapsuly v chrómových objímkach
+  for(let i=0;i<12;i++){const a=i/12*TAU,x=Math.cos(a),z=Math.sin(a);
+    P.add(C,box(1.15,.28,.62),{p:[x*5.35,1.2,z*5.35],r:[0,-a,0]});
+    P.add(G,new THREE.SphereGeometry(.42,14,8),{p:[x*5.35,1.36,z*5.35],r:[0,-a,0],s:[1.05,.35,.62]})}
+  // drobné svetlá na stupňoch
+  for(let i=0;i<36;i++){const a=i/36*TAU;P.add(A,box(.16,.08,.16),{p:[Math.cos(a)*7.1,.47,Math.sin(a)*7.1]})}
+  // kanál medzi nábojom a palubou: tmavé bronzové dno s množstvom zlatých svetielok (ako osvetlené mesto)
+  P.add(K.bronzeD,ringGeo(9.1,DECK_R-2.55,96),{p:[0,-1.45,0]});
+  {const R=rng(23);for(let i=0;i<150;i++){const a=R()*TAU,r=9.35+R()*(DECK_R-2.6-9.5);P.add(A,box(.09,.06,.09),{p:[Math.cos(a)*r,-1.4,Math.sin(a)*r]})}}
+  // 6 mostíkov cez kanál (medzi miestami pre moduly), na náboji bronzová kupola so svietiacou špičkou
+  for(let i=0;i<6;i++){const a=i/6*TAU,x=Math.cos(a),z=Math.sin(a),rm=(8.6+DECK_R-2.3)/2,L=DECK_R-2.3-8.6;
+    P.add(C,box(L,.42,1.0),{p:[x*rm,.05,z*rm],r:[0,-a,0]});P.add(D,box(L,.12,.5),{p:[x*rm,.3,z*rm],r:[0,-a,0]});
+    P.add(G,box(L,.06,.08),{p:[x*rm,.12,z*rm],r:[0,-a,0],s:[1,1,1]});
+    P.add(B,new THREE.SphereGeometry(.75,18,10,0,TAU,0,HALF),{p:[x*8.35,-.38,z*8.35]});P.add(G,new THREE.SphereGeometry(.24,10,6),{p:[x*8.35,.36,z*8.35]})}
+  // palubný prstenec (moduly stoja na ňom): chrómové medzikružie, zaoblené okraje, bronzová vnútorná stena, okná
   const deck=new THREE.Shape();deck.absarc(0,0,DECK_R+2.6,0,TAU,false);const hole=new THREE.Path();hole.absarc(0,0,DECK_R-2.6,0,TAU,true);deck.holes.push(hole);
-  const dg=new THREE.ExtrudeGeometry(deck,{depth:1.2,bevelEnabled:true,bevelThickness:.15,bevelSize:.15,bevelSegments:1,curveSegments:64});dg.rotateX(-HALF);dg.translate(0,-.6,0);
-  {const uv=dg.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*KIT_UV,uv.getY(i)*KIT_UV)}P.add(K.hull,dg);
-  P.add(K.dark,new THREE.TorusGeometry(DECK_R+2.7,.55,6,72),{r:[HALF,0,0]});
-  P.add(K.dark,new THREE.TorusGeometry(DECK_R-2.65,.32,6,72),{p:[0,.3,0],r:[HALF,0,0]});
-  P.add(K.glow,new THREE.TorusGeometry(DECK_R-2.95,.06,4,72),{p:[0,.35,0],r:[HALF,0,0]});
-  for(let i=0;i<64;i++){const a=i/64*TAU,r=DECK_R+3.27;P.add(K.amber,box(.42,.16,.08),{p:[Math.cos(a)*r,(i%2?.15:-.15),Math.sin(a)*r],r:[0,-a+HALF,0]})}
-  // spodné podpery a horné rebrá jadro → paluba
-  for(let i=0;i<8;i++){const a=i/8*TAU+Math.PI/8,x=Math.cos(a),z=Math.sin(a);
-    P.add(K.dark,box(DECK_R-4,.45,.6),{p:[x*(DECK_R+3)/2,-.2,z*(DECK_R+3)/2],r:[0,-a,0]});
-    P.add(K.dark,box(.4,.4,9),{p:[x*(DECK_R-1),-4,z*(DECK_R-1)],r:[0,0,0],s:1});
-    P.add(K.hull,box(DECK_R*.55,.3,.3),{p:[x*DECK_R*.55,-3.6,z*DECK_R*.55],r:[0,-a,-.5*1]})}
+  const dg=new THREE.ExtrudeGeometry(deck,{depth:1.2,bevelEnabled:true,bevelThickness:.15,bevelSize:.15,bevelSegments:2,curveSegments:96});dg.rotateX(-HALF);dg.translate(0,-.6,0);
+  {const uv=dg.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*KIT_UV,uv.getY(i)*KIT_UV)}P.add(C,dg);
+  P.add(C,new THREE.TorusGeometry(DECK_R+2.75,.62,12,128),{r:[HALF,0,0]});                       // hrubý vonkajší val
+  P.add(D,new THREE.TorusGeometry(DECK_R+2.75,.66,4,128),{p:[0,-.05,0],r:[HALF,0,0],s:[1,1,.35]}); // tmavá drážka uprostred valu
+  P.add(C,new THREE.TorusGeometry(DECK_R-2.62,.34,10,128),{p:[0,.32,0],r:[HALF,0,0]});
+  P.add(G,new THREE.TorusGeometry(DECK_R-2.95,.06,4,128),{p:[0,.38,0],r:[HALF,0,0]});
+  P.add(G,new THREE.TorusGeometry(DECK_R+1.85,.05,4,128),{p:[0,.78,0],r:[HALF,0,0]});
+  P.add(B,new THREE.CylinderGeometry(DECK_R-2.72,DECK_R-2.72,1.8,96,1,true),{p:[0,-.6,0]});
+  // okná na vonkajšom vale: 32 modrých pásov a medzi nimi jantárové svetielka
+  for(let i=0;i<32;i++){const a=(i+.5)/32*TAU,r=DECK_R+3.38;P.add(G,box(1.5,.12,.08),{p:[Math.cos(a)*r,0,Math.sin(a)*r],r:[0,-a+HALF,0]});
+    const b=i/32*TAU;P.add(A,box(.18,.18,.08),{p:[Math.cos(b)*r,0,Math.sin(b)*r],r:[0,-b+HALF,0]})}
+  // panely paluby: radiálne švy a prstence
+  for(let i=0;i<48;i++){const a=i/48*TAU;P.add(D,box(4.6,.05,.07),{p:[Math.cos(a)*DECK_R,.77,Math.sin(a)*DECK_R],r:[0,-a,0]})}
+  P.add(D,ringGeo(DECK_R-.06,DECK_R+.06,96),{p:[0,.78,0]});
   // drobné nadstavby na palube (mimo miest pre moduly)
-  const RR=rng(11);for(let i=0;i<90;i++){const a=RR()*TAU;let near=false;for(let k=0;k<6;k++){const sa=k/6*TAU+Math.PI/6;if(Math.abs(Math.atan2(Math.sin(a-sa),Math.cos(a-sa)))<.28)near=true}if(near)continue;
-    const r=DECK_R-2+RR()*4;P.add(RR()<.85?K.dark:K.hull,box(.2+RR()*.9,.15+RR()*.5,.2+RR()*.9),{p:[Math.cos(a)*r,.75,Math.sin(a)*r],r:[0,-a,0]})}
-  for(let i=0;i<24;i++){const a=i/24*TAU;P.add(K.amber,box(.1,.1,.1),{p:[Math.cos(a)*(DECK_R-2.3),.8,Math.sin(a)*(DECK_R-2.3)]})}
+  const RR=rng(11);for(let i=0;i<70;i++){const a=RR()*TAU;let near=false;for(let k=0;k<6;k++){const sa=k/6*TAU+Math.PI/6;if(Math.abs(Math.atan2(Math.sin(a-sa),Math.cos(a-sa)))<.3)near=true}if(near)continue;
+    const r=DECK_R-1.8+RR()*3.6;P.add(RR()<.7?D:C,box(.2+RR()*.8,.12+RR()*.4,.2+RR()*.8),{p:[Math.cos(a)*r,.8,Math.sin(a)*r],r:[0,-a,0]})}
+  // spodok: podpery a krátka veža (zhora sa ukáže len okrajom)
+  const spire=(h0,h1,w)=>kitLoft([{z:h0,w,h:w},{z:h0+(h1-h0)*.25,w:w*1.15,h:w*1.15},{z:h0+(h1-h0)*.7,w:w*.6,h:w*.6},{z:h1,w:.05,h:.05}],{n:8,p:1.5});
+  P.add(D,spire(1.6,16,4.5),{r:[HALF,0,0]});
+  for(let i=0;i<8;i++){const a=i/8*TAU+Math.PI/8,x=Math.cos(a),z=Math.sin(a);P.add(D,box(DECK_R*.75,.35,.35),{p:[x*DECK_R*.6,-2.4,z*DECK_R*.6],r:[0,-a,-.28]})}
   P.done(S3);
-  if(s.core>=2){const r2=new THREE.Group();r2.position.y=-1.2;r2.rotation.x=.12;S3.add(r2);anim.rings.push({o:r2,s:-.2});const Q=kitParts();
-    Q.add(K.hull,new THREE.TorusGeometry(7.4,.42,6,56),{r:[HALF,0,0]});
-    for(let i=0;i<20;i++){const a=i/20*TAU;Q.add(i%2?K.glow:K.amber,box(.3,.18,.12),{p:[Math.cos(a)*7.86,0,Math.sin(a)*7.86],r:[0,-a+HALF,0]})}
-    for(let i=0;i<4;i++)Q.add(K.dark,box(7.6,.22,.3),{r:[0,i*Math.PI/4,0]});
+  // 4 ramená do kríža (medzi miestami pre moduly): chrómový nosník so svetelnými oknami, švami, zábradlím,
+  // pri prstenci 2 bronzové kupoly a na konci valcový modul so svetlom
+  {const r0=DECK_R+2.9,r1=DECK_R+11,L=r1-r0,Q=kitParts(),arm=new THREE.Group();
+    Q.add(C,box(L,.9,2.5),{p:[r0+L/2,-.05,0]});
+    Q.add(D,box(L-.4,.32,1.1),{p:[r0+L/2,.5,0]});Q.add(C,box(L-.6,.18,.7),{p:[r0+L/2+.1,.72,0]});
+    for(const s of[-1,1]){Q.add(C,new THREE.CylinderGeometry(.16,.16,L,10),{p:[r0+L/2,.42,1.22*s],r:[0,0,HALF]});
+      for(let k=0;k<7;k++)Q.add(G,box(L/8,.1,.06),{p:[r0+L*(k+.75)/8,0,1.27*s]});
+      Q.add(B,new THREE.SphereGeometry(.95,20,12,0,TAU,0,HALF),{p:[r0+.9,.3,2.15*s]});Q.add(C,new THREE.CylinderGeometry(1.05,1.15,.35,20),{p:[r0+.9,.18,2.15*s]});
+      Q.add(G,new THREE.TorusGeometry(.95,.04,4,24),{p:[r0+.9,.36,2.15*s],r:[HALF,0,0]})}
+    for(let k=1;k<9;k++)Q.add(D,box(.08,.06,2.52),{p:[r0+L*k/9,.42,0]});
+    Q.add(C,new THREE.CylinderGeometry(1.15,1.15,2.2,20),{p:[r1+.6,0,0],r:[0,0,HALF]});
+    Q.add(D,new THREE.CylinderGeometry(1.2,1.2,.3,20),{p:[r1+.1,0,0],r:[0,0,HALF]});
+    Q.add(B,new THREE.SphereGeometry(1.15,20,12,0,TAU,0,HALF),{p:[r1+1.7,0,0],r:[0,0,-HALF]});
+    Q.add(G,new THREE.TorusGeometry(1.17,.05,4,28),{p:[r1+1.0,0,0],r:[0,HALF,0]});
+    Q.add(D,box(L,.5,1.2),{p:[r0+L/2,-.75,0]});                                            // spodný nosník
+    Q.done(arm);
+    for(let k=0;k<4;k++){const g2=k?arm.clone():arm;g2.rotation.y=-(k*HALF+Math.PI/4);S3.add(g2);
+      const tip=glow('#ffc46a',2.6,.9),ang=k*HALF+Math.PI/4;tip.position.set(Math.cos(ang)*(r1+2.4),.1,Math.sin(ang)*(r1+2.4));S3.add(tip);anim.blink.push({o:tip,f:.9+k*.13,base:2.6})}}
+  if(s.core>=2){const r2=new THREE.Group();r2.position.y=-.95;S3.add(r2);anim.rings.push({o:r2,s:-.2});const Q=kitParts();   // otáčavý prstenec v kanáli
+    Q.add(C,new THREE.TorusGeometry(9.75,.2,8,96),{r:[HALF,0,0]});
+    for(let i=0;i<24;i++){const a=i/24*TAU;Q.add(i%2?G:A,box(.32,.16,.14),{p:[Math.cos(a)*9.75,.18,Math.sin(a)*9.75],r:[0,-a+HALF,0]})}
     Q.done(r2)}
-  if(s.core>=3){const Q=kitParts();for(const a of[Math.PI/4,3*Math.PI/4,5*Math.PI/4,7*Math.PI/4]){const x=Math.cos(a)*2.4,z=Math.sin(a)*2.4;
-      Q.add(K.hull,spire(0,4.5,.8),{p:[x,4.6,z],r:[-HALF+Math.sin(a)*.2,0,-Math.cos(a)*.2]});Q.add(K.hull,spire(0,9,1),{p:[x,-4.6,z],r:[HALF-Math.sin(a)*.15,0,Math.cos(a)*.15]})}Q.done(S3);
-    const b=glow('#ff6a4d',2.4,1);b.position.y=10.8;S3.add(b);anim.blink.push({o:b,f:1.3,base:2.4})}
+  if(s.core>=3){const Q=kitParts();for(let k=0;k<4;k++){const a=k*HALF+Math.PI/4,r=DECK_R+4.2;   // antény pri koreni ramien
+      Q.add(C,new THREE.CylinderGeometry(.12,.22,5.5,8),{p:[Math.cos(a)*r,3.4,Math.sin(a)*r]});Q.add(C,new THREE.SphereGeometry(.3,10,6),{p:[Math.cos(a)*r,6.2,Math.sin(a)*r]})}
+    Q.done(S3);const b=glow('#ff6a4d',2.4,1);b.position.set(Math.cos(Math.PI/4)*(DECK_R+4.2),6.4,Math.sin(Math.PI/4)*(DECK_R+4.2));S3.add(b);anim.blink.push({o:b,f:1.3,base:2.4})}
   if(s.core>=4){const gy=new THREE.Group();gy.rotation.x=.38;S3.add(gy);const sp=new THREE.Group();gy.add(sp);anim.rings.push({o:sp,s:.07});const Q=kitParts();
     Q.add(K.dark,new THREE.TorusGeometry(DECK_R+7,.45,6,96),{r:[HALF,0,0]});Q.add(K.glow,new THREE.TorusGeometry(DECK_R+7,.08,4,96),{p:[0,.45,0],r:[HALF,0,0]});
     for(let i=0;i<16;i++){const a=i/16*TAU;Q.add(K.hull,box(1.8,.9,1.1),{p:[Math.cos(a)*(DECK_R+7),0,Math.sin(a)*(DECK_R+7)],r:[0,-a,0]})}
     Q.done(sp)}
-  if(s.core>=5){const halo=new THREE.Mesh(new THREE.TorusGeometry(DECK_R+11,.12,6,120),M.hullGlow);halo.rotation.x=HALF;halo.position.y=-1;S3.add(halo)}
-  const beacon=glow(s.captured?'#ffd27a':'#58d0c0',s.captured?11:8,.85);beacon.position.y=11;S3.add(beacon);anim.blink.push({o:beacon,f:.6,base:s.captured?11:8});
+  if(s.core>=5){const halo=new THREE.Mesh(new THREE.TorusGeometry(DECK_R+14.5,.12,6,160),M.hullGlow);halo.rotation.x=HALF;halo.position.y=-1;S3.add(halo)}
+  const beacon=glow(s.captured?'#ffd27a':'#58d0c0',s.captured?11:8,.85);beacon.position.y=5;S3.add(beacon);anim.blink.push({o:beacon,f:.6,base:s.captured?11:8});
   const aura=glow(s.captured?'#ffd27a':'#58d0c0',40,.1);aura.position.y=-1;S3.add(aura);
   const n=slotsFor(s.core);
   for(let i=0;i<n;i++){const p=slotPos(i);const pad=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.4,.35,6),M.pad);pad.position.copy(p).setY(DECK_TOP);g.add(pad);
     const m=s.slots[i];const mp=p.clone().setY(DECK_TOP+.85);
     if(!m){const e=glow('#58d0c0',3.4,.35);e.position.copy(p).setY(DECK_TOP+.55);g.add(e);anim.blink.push({o:e,f:.4,base:3.4,soft:1})}
-    else{g.add(makeModule(m.t,mp,anim));
+    else{g.add(makeModule(m.t,mp,anim,i));
       // žiara pod modulom vo farbe jeho rarity (stúpa s vylepšením +0..+10)
       const R=modRar(m),c=RAR[R].col;const rg=glow(c,4.5+R*.5,.18+R*.04);rg.position.copy(p).setY(DECK_TOP+.35);g.add(rg);anim.blink.push({o:rg,f:.3,base:4.5+R*.5,soft:1});
       if(R>=6){const ring=new THREE.Mesh(new THREE.RingGeometry(2.4,2.65,36),new THREE.MeshBasicMaterial({color:new THREE.Color(c),transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
@@ -187,24 +232,118 @@ function rebuildStation(){
   world.add(g);
   syncDrones();
 }
-function makeModule(type,p,anim){const g=new THREE.Group();g.position.copy(p);g.lookAt(0,p.y,0);
-  if(type==='drone'){const b=new THREE.Mesh(new THREE.BoxGeometry(3.2,1.7,2.6),M.plate);b.position.y=.2;g.add(b);
-    {const dm=droneModel();dm.position.set(0,1.75,.1);dm.scale.multiplyScalar(1.25);g.add(dm)}   // v0.22: zaparkovaný ťažobný dron (nový model)
-    const door=new THREE.Mesh(new THREE.BoxGeometry(2.2,.9,.1),M.amber);door.position.set(0,.1,-1.32);g.add(door);
-    const roof=new THREE.Mesh(new THREE.BoxGeometry(2.6,.3,2),M.dark);roof.position.y=1.2;g.add(roof);
-    const l=glow('#f0a644',3,.6);l.position.set(0,.1,-1.6);g.add(l)}
-  else if(type==='tower'){const base=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.5,1.4,8),M.plate);base.position.y=-.1;g.add(base);
-    const tur=new THREE.Group();tur.position.y=1;g.add(tur);const head=new THREE.Mesh(new THREE.BoxGeometry(1.5,.8,1.6),M.metal);tur.add(head);
-    for(const sd of[-1,1]){const br=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,2.2,6),M.dark);br.rotation.x=Math.PI/2;br.position.set(.38*sd,.1,1.5);tur.add(br);
-      const tip=glow('#ff6a4d',1.1,.9);tip.position.set(.38*sd,.1,2.6);tur.add(tip)}
-    anim.turrets.push({o:tur,ph:Math.random()*TAU})}
-  else if(type==='sensor'){const post=new THREE.Mesh(new THREE.CylinderGeometry(.18,.25,2.6,6),M.metal);post.position.y=.6;g.add(post);
-    const dg=new THREE.Group();dg.position.y=1.9;g.add(dg);
-    const dish=new THREE.Mesh(new THREE.SphereGeometry(1.7,16,6,0,TAU,0,Math.PI/3.2),M.metal);dish.rotation.x=Math.PI*.75;dg.add(dish);
-    const feed=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,1.4,4),M.dark);feed.rotation.x=-Math.PI/4;feed.position.set(0,.45,.45);dg.add(feed);
-    const bl=glow('#a98bff',2.4,1);bl.position.set(0,.95,.95);dg.add(bl);anim.blink.push({o:bl,f:2.1,base:2.4});anim.dishes.push({o:dg})}
+function makeModule(type,p,anim,idx){const g=new THREE.Group();g.position.copy(p);g.lookAt(0,p.y,0);
+  if(type==='drone'){const T=dockModel();g.add(T);
+    {const dm=droneModel();dm.position.set(0,1.9,.15);dm.scale.multiplyScalar(.85);g.add(dm)}   // zaparkovaný ťažobný dron na streche
+    const l=glow('#ffc46a',3.2,.55);l.position.set(0,.15,-1.75);g.add(l);const b=glow('#62f4ff',1.2,.9);b.position.set(1.25,2.55,1.0);g.add(b);anim.blink.push({o:b,f:1.1,base:1.2})}
+  else if(type==='tower'){const T=towerModel();g.add(T.g);anim.turrets.push(Object.assign(T,{i:idx,yaw:0,pitch:.3,ty:(Math.random()-.5)*3,tp:.3,wait:Math.random()*3,kick:0}))}
+  else if(type==='sensor'){const T=sensorModel();g.add(T.g);anim.blink.push({o:T.bl,f:2.1,base:1.6});anim.dishes.push({o:T.dg})}
   return g}
 
+/* ==================== v0.32: OBRANNÁ VEŽA (podľa predlohy) ====================
+   Podstavec so 4 roztiahnutými nohami s pásovými chodidlami, otočná plošina (yaw) s bočnými ložiskami
+   a dlhé delo (pitch): zväzok hlavní s modrými svietiacimi cievkami, zadný blok s energetickými valcami
+   a tyrkysové ústie. Delo mieri +z. towerModel() vracia {g, o = otočná časť, pg = náklon, bar = hlavne, muz = ústie}. */
+function towerModel(){const K=stationMats(),C=K.chrome,D=K.dark,BL=tMat(K,'tBlue','#2f8bff',1.6),CY=tMat(K,'tCyan','#62f4ff',2.2);
+  const g=new THREE.Group(),P=kitParts();
+  // podstavec: náboj + 4 nohy s kolenom a pásovým chodidlom
+  P.add(D,new THREE.CylinderGeometry(.85,1.0,.55,16),{p:[0,.05,0]});P.add(C,new THREE.CylinderGeometry(1.05,1.05,.18,20),{p:[0,.38,0]});
+  P.add(BL,new THREE.TorusGeometry(1.06,.035,4,28),{p:[0,.3,0],r:[HALF,0,0]});
+  for(let k=0;k<4;k++){const a=k*HALF+Math.PI/4,c=Math.cos(a),s=Math.sin(a),rot=[0,-a,0];
+    const at=(r,y)=>[c*r,y,s*r];
+    P.add(C,box(1.25,.26,.34),{p:at(1.25,-.02),r:[0,-a,-.32]});P.add(BL,box(.8,.05,.06),{p:at(1.25,.12),r:[0,-a,-.32]});
+    P.add(D,new THREE.CylinderGeometry(.2,.2,.46,12),{p:at(1.88,-.28),r:[HALF,-a,0]});
+    P.add(C,box(.5,.5,.3),{p:at(2.0,-.42),r:rot});
+    P.add(D,box(.42,.22,1.05),{p:at(2.2,-.62),r:rot});                                           // pás
+    for(const z of[-.38,0,.38])P.add(C,new THREE.CylinderGeometry(.1,.1,.46,8),{p:[c*2.2-s*z,-.62,s*2.2+c*z],r:[0,-a,HALF]})}
+  P.done(g);
+  // otočná plošina
+  const o=new THREE.Group();o.position.y=.5;g.add(o);const Q=kitParts();
+  Q.add(C,new THREE.CylinderGeometry(.95,1.05,.3,20),{p:[0,0,0]});Q.add(D,box(1.3,.35,1.5),{p:[0,.3,-.1]});
+  for(const sd of[-1,1]){Q.add(C,box(.24,1.0,1.15),{p:[.78*sd,.62,0]});Q.add(D,new THREE.CylinderGeometry(.34,.34,.3,18),{p:[.95*sd,.85,0],r:[0,0,HALF]});
+    Q.add(BL,new THREE.TorusGeometry(.24,.05,6,18),{p:[1.1*sd,.85,0],r:[0,HALF,0]});Q.add(D,box(.18,.5,.5),{p:[.95*sd,.25,.6]})}
+  Q.done(o);
+  // delo (náklon okolo osi x v ložiskách)
+  const pg=new THREE.Group();pg.position.y=.85;o.add(pg);const R=kitParts();
+  R.add(C,box(1.15,.72,1.7),{p:[0,0,.05]});R.add(D,box(1.25,.2,1.4),{p:[0,.42,.05]});
+  R.add(D,box(1.05,.85,1.0),{p:[0,-.02,-1.2]});R.add(C,box(1.12,.3,1.05),{p:[0,.38,-1.2]});
+  for(const sd of[-1,1]){R.add(C,new THREE.CylinderGeometry(.22,.22,1.0,14),{p:[.42*sd,-.3,-1.25],r:[HALF,0,0]});R.add(BL,new THREE.CylinderGeometry(.13,.13,.6,12),{p:[.42*sd,-.3,-1.6],r:[HALF,0,0]});
+    R.add(BL,box(.05,.08,.85),{p:[.56*sd,.05,-1.2]});R.add(C,box(.1,.5,.9),{p:[.6*sd,0,.4]})}
+  R.add(C,box(.4,.25,.35),{p:[0,.55,-.6]});
+  R.done(pg);
+  // hlavne (pri výstrele cúvnu): 2 horné koľajnice, spodná hrubá hlaveň, modré jadro s cievkami, ústie
+  const bar=new THREE.Group();pg.add(bar);const H=kitParts(),L=3.7,zc=.85+L/2;
+  for(const sd of[-1,1])H.add(C,new THREE.CylinderGeometry(.1,.1,L,10),{p:[.24*sd,.24,zc],r:[HALF,0,0]});
+  H.add(C,new THREE.CylinderGeometry(.17,.17,L*.94,12),{p:[0,-.2,zc-.1],r:[HALF,0,0]});H.add(D,new THREE.CylinderGeometry(.2,.2,.5,12),{p:[0,-.2,zc+L*.38],r:[HALF,0,0]});
+  // modré energetické jadro medzi hlavňami, ovinuté tmavými cievkami (svetlo presvitá medzi závitmi)
+  H.add(BL,new THREE.CylinderGeometry(.16,.16,L*.8,12),{p:[0,.04,zc-.15],r:[HALF,0,0]});
+  for(let k=0;k<16;k++)H.add(D,new THREE.TorusGeometry(.17,.035,5,14),{p:[0,.04,1.05+k*.19]});
+  for(const sd of[-1,1])H.add(BL,box(.04,.04,L*.75),{p:[.36*sd,-.02,zc-.2]});
+  for(let k=0;k<3;k++)H.add(C,box(.7,.5,.12),{p:[0,.04,1.0+k*1.2]});                     // objímky zväzku hlavní
+  H.add(C,new THREE.CylinderGeometry(.34,.3,.55,16),{p:[0,.04,.85+L+.15],r:[HALF,0,0]});H.add(D,new THREE.CylinderGeometry(.36,.36,.12,16),{p:[0,.04,.85+L-.08],r:[HALF,0,0]});
+  H.add(CY,new THREE.TorusGeometry(.27,.06,6,18),{p:[0,.04,.85+L+.44]});H.add(CY,new THREE.CircleGeometry(.2,16),{p:[0,.04,.85+L+.43]});
+  H.done(bar);
+  const muz=glow('#62f4ff',1.5,.8);muz.position.set(0,.04,.85+L+.55);bar.add(muz);
+  g.scale.setScalar(.85);return{g,o,pg,bar,muz}}
+/* v0.32: DOK DRONOV v štýle novej stanice – chrómový hangár s oblou rebrovanou strechou, osvetlenou bránou
+   (vonkajšia strana, −z), pristávacou plochou na streche, bronzovými nádržami po stranách a anténou. */
+function dockModel(){const K=stationMats(),C=K.chrome,D=K.dark,B=K.bronze,A=K.amber,CY=tMat(K,'tCyan','#62f4ff',2.2),BL=tMat(K,'tBlue','#2f8bff',1.6),BAY=tMat(K,'bay','#ff9a3a',.8);
+  const g=new THREE.Group(),P=kitParts();
+  P.add(D,box(3.7,.34,3.1),{p:[0,-.45,0]});P.add(C,box(3.8,.1,3.2),{p:[0,-.25,0]});
+  P.add(C,box(2.8,.95,2.5),{p:[0,.25,0]});P.add(C,box(2.84,.06,2.54),{p:[0,.73,0]});
+  const roof=new THREE.CylinderGeometry(1.42,1.42,2.5,28,1,true,HALF,Math.PI);P.add(C,roof,{p:[0,.72,0],r:[HALF,0,0],s:[1,1,.55]});
+  for(let k=0;k<6;k++)P.add(D,new THREE.TorusGeometry(1.44,.045,4,24,Math.PI),{p:[0,.72,-1.1+k*.44],s:[1,.55,1]});
+  for(const sd of[-1,1]){P.add(BL,box(.04,.1,1.9),{p:[1.41*sd,.45,0]});P.add(D,box(.06,.5,2.2),{p:[1.42*sd,.05,0]});
+    P.add(B,new THREE.CylinderGeometry(.32,.32,1.9,16),{p:[1.75*sd,-.02,0],r:[HALF,0,0]});
+    for(const z of[-.95,.95])P.add(B,new THREE.SphereGeometry(.32,14,8),{p:[1.75*sd,-.02,z]});
+    P.add(C,box(.5,.1,.14),{p:[1.6*sd,-.02,-.5]});P.add(C,box(.5,.1,.14),{p:[1.6*sd,-.02,.5]})}
+  // brána hangáru (vonkajšia strana): rám, svietiace vnútro, výstražné pruhy
+  P.add(D,box(2.3,1.25,.16),{p:[0,.3,-1.27]});P.add(BAY,box(1.9,.95,.04),{p:[0,.32,-1.33]});for(let k=0;k<4;k++)P.add(D,box(1.9,.04,.05),{p:[0,-.05+k*.24,-1.36]});
+  for(let k=0;k<6;k++)P.add(k%2?D:A,box(.32,.1,.05),{p:[-.8+k*.32,-.25,-1.36]});
+  // pristávacia plocha na streche so svetlami
+  P.add(D,new THREE.CylinderGeometry(.95,1.0,.12,24),{p:[0,1.5,.15]});P.add(CY,new THREE.TorusGeometry(.9,.035,4,32),{p:[0,1.57,.15],r:[HALF,0,0]});
+  for(let k=0;k<4;k++){const a=k*HALF+Math.PI/4;P.add(CY,box(.1,.06,.1),{p:[Math.cos(a)*.7,1.58,.15+Math.sin(a)*.7]})}
+  // anténa v zadnom rohu
+  P.add(C,new THREE.CylinderGeometry(.04,.07,1.3,6),{p:[1.25,1.85,1.0]});P.add(C,new THREE.SphereGeometry(.09,8,6),{p:[1.25,2.5,1.0]});
+  P.done(g);return g}
+/* v0.32: SENZOROVÉ POLE v štýle stanice – technický podstavec s bronzovými skriňami a anténkami, chrómový stĺp
+   s prstencami a otočná hlava: veľká parabola (vnútri svetlá, zvonka tmavé panely) s trojnožkou a fialovým snímačom. */
+function sensorModel(){const K=stationMats(),C=K.chrome,D=K.dark,B=K.bronze,A=K.amber,V=tMat(K,'sViolet','#a98bff',2.0),BL=tMat(K,'tBlue','#2f8bff',1.6);
+  const g=new THREE.Group(),P=kitParts();
+  P.add(D,new THREE.CylinderGeometry(1.7,1.85,.36,8),{p:[0,-.45,0]});P.add(C,new THREE.CylinderGeometry(1.75,1.75,.1,8),{p:[0,-.24,0]});
+  P.add(C,new THREE.CylinderGeometry(.9,1.15,.7,16),{p:[0,.1,0]});P.add(BL,new THREE.TorusGeometry(1.0,.035,4,28),{p:[0,.22,0],r:[HALF,0,0]});
+  for(let k=0;k<4;k++){const a=k*HALF+Math.PI/4,c=Math.cos(a),s=Math.sin(a);P.add(B,box(.55,.5,.7),{p:[c*1.3,-.05,s*1.3],r:[0,-a,0]});P.add(A,box(.06,.08,.4),{p:[c*1.58,0,s*1.58],r:[0,-a,0]});
+    P.add(C,new THREE.CylinderGeometry(.03,.03,.9,5),{p:[c*1.45+s*.3,.6,s*1.45-c*.3]});P.add(C,box(.22,.3,.03),{p:[c*1.45+s*.3,.95,s*1.45-c*.3],r:[0,-a,0]})}
+  P.add(C,new THREE.CylinderGeometry(.2,.28,1.9,12),{p:[0,1.25,0]});for(const y of[.75,1.35,1.9])P.add(D,new THREE.CylinderGeometry(.32,.32,.1,12),{p:[0,y,0]});
+  P.add(V,new THREE.CylinderGeometry(.06,.06,1.5,6),{p:[.24,1.25,0]});
+  P.done(g);
+  const dg=new THREE.Group();dg.position.y=2.2;g.add(dg);const Q=kitParts();
+  Q.add(D,new THREE.CylinderGeometry(.42,.48,.4,14),{p:[0,0,0]});Q.add(C,box(.5,.5,.5),{p:[0,.2,-.25],r:[.6,0,0]});
+  Q.done(dg);
+  // parabola: rotačný profil y = k·r² (otvorená hore), naklonená dopredu; vnútro chróm, zvonka tmavé panely, trojnožka k ohnisku
+  const dsh=new THREE.Group();dsh.position.set(0,.45,.1);dsh.rotation.x=.75;dg.add(dsh);const W=kitParts(),kk=.24,RD=1.6,f=1/(4*kk);
+  const prof=[];for(let i=0;i<=12;i++){const r=.12+RD*i/12;prof.push(new THREE.Vector2(r,kk*r*r))}
+  const bowl=new THREE.LatheGeometry(prof,40);uvScale(bowl,6,2);
+  W.add(K.chromeDS||(K.chromeDS=Object.assign(C.clone(),{side:THREE.DoubleSide})),bowl);W.add(K.darkDS||(K.darkDS=Object.assign(D.clone(),{side:THREE.DoubleSide})),bowl,{p:[0,-.06,0]});
+  W.add(C,new THREE.TorusGeometry(RD+.12,.045,5,48),{p:[0,kk*(RD+.12)*(RD+.12),0],r:[HALF,0,0]});
+  for(let k=0;k<8;k++){const a=k/8*TAU;W.add(D,box(.04,.03,RD),{p:[Math.cos(a)*RD*.55,kk*RD*RD*.3+.02,Math.sin(a)*RD*.55],r:[0,-a+HALF,0]})}
+  for(let k=0;k<3;k++){const a=k/3*TAU,x=Math.cos(a)*RD*.92,z=Math.sin(a)*RD*.92,y=kk*RD*RD*.85;const m=new V3(x/2,(y+f)/2,z/2),d=new V3(-x,f-y,-z),L=d.length();
+    const q=new THREE.Quaternion().setFromUnitVectors(new V3(0,1,0),d.normalize()),e=new THREE.Euler().setFromQuaternion(q);W.add(D,new THREE.CylinderGeometry(.025,.025,L,5),{p:[m.x,m.y,m.z],r:[e.x,e.y,e.z]})}
+  W.add(D,new THREE.CylinderGeometry(.09,.13,.28,10),{p:[0,f,0]});W.add(V,new THREE.SphereGeometry(.09,10,6),{p:[0,f-.17,0]});
+  W.done(dsh);const bl=glow('#a98bff',1.6,1);bl.position.set(0,f-.2,0);dsh.add(bl);
+  return{g,dg,bl}}
+/* pomocník: svietiaci materiál uložený v sade materiálov stanice (vytvorí sa raz) */
+function tMat(K,k,c,i){return K[k]||(K[k]=kitGlowMat(c,i))}
+/* Natáčanie veží: s cieľom (nastaví ho towersFire) rýchlo mieria na piráta, bez cieľa „standby“ –
+   chvíľu stoja, potom sa pomaly otočia a nakloňia na náhodnú stranu, akoby prehľadávali okolie. */
+const towerTgt={},_tv=new V3();
+const angTo=(a,b,m)=>{let d=Math.atan2(Math.sin(b-a),Math.cos(b-a));return a+Math.max(-m,Math.min(m,d))};
+function tickTurrets(dt){if(!stationAnim)return;for(const tu of stationAnim.turrets){const e=towerTgt[tu.i];let fast=false;
+    if(e&&enemies.includes(e)){tu.o.parent.worldToLocal(_tv.copy(e.pos));tu.ty=Math.atan2(_tv.x,_tv.z);tu.tp=clamp(Math.atan2(_tv.y-1.3,Math.hypot(_tv.x,_tv.z)),-.1,1.25);fast=true;tu.wait=1.5+Math.random()*2}
+    else{tu.wait-=dt;if(tu.wait<=0){tu.ty=(Math.random()-.5)*4.6;tu.tp=.08+Math.random()*.55;tu.wait=2.2+Math.random()*4.5}}
+    const sp=fast?3.2:.55;tu.yaw=angTo(tu.yaw,tu.ty,sp*dt);tu.pitch+=clamp(tu.tp-tu.pitch,-sp*.7*dt,sp*.7*dt);
+    tu.o.rotation.y=tu.yaw;tu.pg.rotation.x=-tu.pitch;
+    tu.kick=Math.max(0,tu.kick-dt*3.5);tu.bar.position.z=-tu.kick*.45;tu.muz.scale.setScalar(1.5+tu.kick*4)}}
 /* Skoková brána: v prvom sektore sa objaví až po jeho obsadení, v ďalších je vždy. Vzdialenosť 72 m od stanice, smer určuje seed sektora. */
 function updateGate(){if(gate){world.remove(gate);pickables=pickables.filter(p=>!p.userData.gate);gate=null}
   const s=cur();if(!(s.captured||state.cur>0))return;
@@ -311,11 +450,14 @@ function tickDrones(dt,tt){const s=cur();
    Malý samostatný renderer vykreslí modul (rovnaký model ako vo vesmíre) so žiarou vo farbe rarity a uloží obrázok do medzipamäte. */
 const _thumbs={};let _thumbR=null;
 function moduleThumb(type,r){const key=type+r;if(_thumbs[key]!==undefined)return _thumbs[key];
-  try{if(!_thumbR){_thumbR=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});_thumbR.setPixelRatio(1);_thumbR.setSize(160,120,false);_thumbR.outputEncoding=THREE.sRGBEncoding;_thumbR.toneMapping=THREE.ACESFilmicToneMapping}
+  try{if(!_thumbR){_thumbR=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});_thumbR.setPixelRatio(1);_thumbR.setSize(240,180,false);_thumbR.outputEncoding=THREE.sRGBEncoding;_thumbR.toneMapping=THREE.ACESFilmicToneMapping}
     const sc=new THREE.Scene();sc.add(new THREE.HemisphereLight(col('#9fb6dd'),col('#150b1c'),.9));const dl=new THREE.DirectionalLight(col('#ffe4bd'),2);dl.position.set(4,8,6);sc.add(dl);
-    const g=makeModule(type,new V3(0,0,1),{rings:[],turrets:[],dishes:[],blink:[]});g.position.set(0,0,0);sc.add(g);
-    const gl=glow(RAR[r].col,7+r*.5,.35+r*.04);gl.position.set(0,-.4,0);sc.add(gl);
-    const cam=new THREE.PerspectiveCamera(32,4/3,.1,100);cam.position.set(4.6,4.2,5.6);cam.lookAt(0,.4,0);
+    const an={rings:[],turrets:[],dishes:[],blink:[]};const g=makeModule(type,new V3(0,0,1),an,0);g.position.set(0,0,0);sc.add(g);
+    for(const tu of an.turrets){tu.o.rotation.y=Math.PI-.75;tu.pg.rotation.x=-.32}for(const d of an.dishes)d.o.rotation.y=Math.PI-.5   // veža v náhľade mierne natočená a zdvihnutá
+    // v0.32: kamera podľa veľkosti modelu (nové modely sú väčšie a detailnejšie)
+    g.updateMatrixWorld(true);const bx=new THREE.Box3().setFromObject(g),c=bx.getCenter(new V3()),rr=bx.getSize(new V3()).length()*.5;
+    const cam=new THREE.PerspectiveCamera(32,4/3,.1,200);cam.position.copy(c).add(new V3(.55,.48,.68).normalize().multiplyScalar(rr*2.35));cam.lookAt(c);
+    const gl=glow(RAR[r].col,rr*(2.2+r*.12),.3+r*.04);gl.position.set(c.x,bx.min.y+.2,c.z);sc.add(gl);   // žiara rarity pod modulom
     _thumbR.render(sc,cam);_thumbs[key]=_thumbR.domElement.toDataURL('image/png')}catch(e){_thumbs[key]=''}
   return _thumbs[key]}
 /* v0.22: náhľad 3D modelu „ako na výstave“: tmavé pozadie, bodové svetlo zhora, odraz/spot pod modelom, mierny uhol spredu.

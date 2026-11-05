@@ -4,7 +4,7 @@
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),ground=new THREE.Plane(new V3(0,1,0),0);
 const pointers=new Map();let downPos=null,dragging=false,pinch0=0,zoom0=1,zoom=isTouch?1.08:1;
 let inputMode=isTouch?'touch':'mouse';
-const ZMIN=.26,ZMAX=2;   // v0.17: bližší zoom (ZMIN .55 → .26), aby bolo vidieť detaily lodí
+const ZMIN=.26,ZMAX=3.4;   /* v0.32: ešte ďalší pohľad (ZMAX 2 → 3,4) */   // v0.17: bližší zoom (ZMIN .55 → .26), aby bolo vidieť detaily lodí
 function toNdc(x,y){const r=canvas.getBoundingClientRect();ndc.set((x-r.left)/r.width*2-1,-(y-r.top)/r.height*2+1);ray.setFromCamera(ndc,camera)}
 function groundAt(x,y){toNdc(x,y);const p=new V3();return ray.ray.intersectPlane(ground,p)?p:null}
 function clampLimit(p){const r=Math.hypot(p.x,p.z);if(r>LIMIT-2)p.multiplyScalar((LIMIT-2)/r);return p}

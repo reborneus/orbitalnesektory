@@ -86,8 +86,9 @@ function playerGun(dt){gunCd-=dt;if(dead||jumping)return;const R=gunRange();
   if(tg){gunTgt=tg;gunTgtT=1.6}   // posledný cieľ streľby (natáčanie lode, zameriavací krúžok)
   if(!tg||gunCd>0)return;gunCd=GUN_VIS_INT;playerBurst(tg)}   /* v0.19.3: salvy v stálom tempe; rýchlosť streľby mení len poškodenie (gunVolleyDmg) */   // v0.16: laserová dávka (lasers.js)
 function towersFire(dt){if(stationDown>0)return;const s=cur();s.slots.forEach((m,i)=>{if(slotType(m)!=='tower'||i>=slotsFor(s.core))return;
-  towerCd[i]=(towerCd[i]||0)-dt;if(towerCd[i]>0)return;const ts=towerStats(m);const tg=nearestEnemy(new V3(0,0,0),ts.range);if(!tg)return;
-  towerCd[i]=1/ts.rate;const from=slotPos(i).setY(2.2);fireBolt(from,tg.pos.clone().addScaledVector(tg.vel,.4),RAR[modRar(m)].col,ts.dmg,'tower',PIRATES.playerBolt)})}
+  towerCd[i]=(towerCd[i]||0)-dt;const ts=towerStats(m);const tg=nearestEnemy(new V3(0,0,0),ts.range);towerTgt[i]=tg||null;   // cieľ pre natáčanie veže
+  if(towerCd[i]>0||!tg)return;
+  towerCd[i]=1/ts.rate;const from=slotPos(i).setY(2.2);const tu=stationAnim&&stationAnim.turrets.find(x=>x.i===i);if(tu)tu.kick=1;/* spätný ráz hlavne */fireBolt(from,tg.pos.clone().addScaledVector(tg.vel,.4),RAR[modRar(m)].col,ts.dmg,'tower',PIRATES.playerBolt)})}
 /* Dron v obrannom režime: letí k pirátovi pri stanici a strieľa; vráti false, ak v okolí stanice nie je nepriateľ. */
 function droneDefend(d,st,dt){const tg=nearestEnemy(new V3(0,0,0),70);if(!tg)return false;
   d.cd-=dt;const dist=d.g.position.distanceTo(tg.pos);moveTo(d.g,tg.pos,st.speed*1.2,dt,st.range*.7);

@@ -134,7 +134,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     h+=tierCard()}
     if(canHover&&!inMenu)h+=`<div class="card"><h3>${t('set.hud')}</h3><button class="act" data-act="hudEdit">${t('set.hud.b')}</button><p>${t('set.hud.d')}</p></div>`;   // len PC
     h+=hudModeCard();   // v0.29: kompaktný / schovávaný HUD
-    h+=`<div class="card"><h3>${t('set.ma')}</h3><div class="rangerow"><input type="range" id="menuAlpha" min="35" max="100" step="5" value="${state.menuAlpha||100}"><b id="menuAlphaV">${state.menuAlpha||100} %</b></div><p>${t('set.ma.d')}</p></div>`;
+    h+=`<div class="card"><h3>${t('set.ma')}</h3><div class="rangerow"><input type="range" id="menuAlpha" min="35" max="100" step="5" value="${menuA()}"><b id="menuAlphaV">${menuA()} %</b></div><p>${t('set.ma.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.pm')}</h3><div class="langs">${['on','off'].map(v=>`<button class="langb" data-act="padMouse" data-v="${v}" aria-pressed="${padMouseOn()===(v==='on')}">${t(v)}</button>`).join('')}</div><p>${t('set.pm.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.cmp')}</h3><div class="langs">${CMP_MODES.map(m=>`<button class="langb" data-act="cmpMode" data-v="${m}" aria-pressed="${cmpMode()===m}">${t('cmp.'+m)}</button>`).join('')}</div><p>${t('set.cmp.d')}</p></div>`;
     h+=`<div class="sec-h"><span>${t('set.h')}</span></div>`;
@@ -248,7 +248,9 @@ $('#pilotBtn').addEventListener('click',()=>toggleTab('pilot'));
 $('#wikiBtn').addEventListener('click',()=>openWiki());
 
 /* v0.23: nepriehľadnosť menu (Nastavenia → posuvník); ukladá sa do state.menuAlpha (35–100 %) */
-function applyMenuAlpha(){document.documentElement.style.setProperty('--menu-a',((state&&state.menuAlpha)||100)/100)}
+/* v0.32: predvolená nepriehľadnosť pri prvom spustení je 50 % (kým ju hráč nezmení) */
+const menuA=()=>state&&state.menuAlpha!=null?state.menuAlpha:50;
+function applyMenuAlpha(){document.documentElement.style.setProperty('--menu-a',menuA()/100)}
 document.addEventListener('input',e=>{if(e.target&&e.target.id==='menuAlpha'){state.menuAlpha=+e.target.value;applyMenuAlpha();const v=$('#menuAlphaV');if(v)v.textContent=state.menuAlpha+' %';save()}});
 
 /* ==================== v0.25: VEĽKOSŤ MINIMAPY ====================

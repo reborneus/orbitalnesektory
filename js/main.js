@@ -37,7 +37,7 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
     else{if(a.g.visible){a.shrink-=dt*3;if(a.shrink<=0){a.shrink=0;a.g.visible=false}else setAstScale(a)}
       a.respawn-=dt;if(a.respawn<=0&&!a.mission){a.amt=a.max;a.alive=true;a.claims=0;a.shrink=.01;a.g.visible=true;placeAst(a,Math.random)}}}
   tickStationCore(dt,tt);
-  if(stationAnim){for(const r of stationAnim.rings)r.o.rotation.y+=r.s*dt;for(const tu of stationAnim.turrets)tu.o.rotation.y=Math.PI+Math.sin(tt*.5+tu.ph)*1.4;
+  if(stationAnim){for(const r of stationAnim.rings)r.o.rotation.y+=r.s*dt;tickTurrets(dt);
     for(const d of stationAnim.dishes)d.o.rotation.y+=dt*.6;for(const b of stationAnim.blink){const k=b.soft?.75+.25*Math.sin(tt*3*b.f):(Math.sin(tt*TAU*b.f)>.2?1:.35);b.o.scale.setScalar(b.base*k)}}
   if(gate){gate.userData.ring.rotation.z+=dt*.4;const k=1+Math.sin(tt*2)*.12;gate.userData.core.scale.set(9*GATE_K*k,9*GATE_K*k,1)}
   if(world&&world.userData.planet)world.userData.planet.rotation.y+=dt*.01;
