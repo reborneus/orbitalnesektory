@@ -12,15 +12,19 @@ const _sndLast={};let _sndVoices=0;
 
 function sndInit(){if(AC)return AC;const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;
   try{AC=new C({latencyHint:'interactive'})}catch(e){return null}
+  sndBuses();return AC}
+/* zbernice, dozvuk a šum pre aktuálny kontext (oddelené, aby sa dali zvuky vyrenderovať aj offline) */
+function sndBuses(){
   const g=()=>AC.createGain();SB={master:g(),music:g(),sfx:g(),ui:g(),rev:AC.createConvolver(),revIn:g(),comp:AC.createDynamicsCompressor()};
   SB.comp.threshold.value=-14;SB.comp.ratio.value=4;SB.comp.attack.value=.004;SB.comp.release.value=.2;
-  SB.music.connect(SB.master);SB.sfx.connect(SB.master);SB.ui.connect(SB.master);SB.master.connect(SB.comp);SB.comp.connect(AC.destination);
+  SB.music.connect(SB.master);SB.sfx.connect(SB.master);SB.ui.connect(SB.master);SB.master.connect(SB.comp);
+  SB.lim=AC.createDynamicsCompressor();SB.lim.threshold.value=-2;SB.lim.knee.value=0;SB.lim.ratio.value=20;SB.lim.attack.value=.001;SB.lim.release.value=.12;SB.comp.connect(SB.lim);SB.lim.connect(AC.destination);   // limiter proti skresleniu
   // dozvuk: impulz = doznievajúci šum (2,8 s), vo vesmíre zvuk pôsobí „priestranne“
-  const L=AC.sampleRate*2.8,ir=AC.createBuffer(2,L,AC.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<L;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/L,2.6)}
+  const L=AC.sampleRate*3.6,ir=AC.createBuffer(2,L,AC.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);let lp=0;for(let i=0;i<L;i++){lp+=((Math.random()*2-1)-lp)*(.35-.25*i/L);d[i]=lp*Math.pow(1-i/L,2.2)*1.6}}   // tmavší, dlhší dozvuk
   SB.rev.buffer=ir;SB.revIn.connect(SB.rev);SB.rev.connect(SB.master);SB.revIn.gain.value=.5;
   // spoločný biely šum (2 s)
   const N=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate),nd=N.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;SB.noise=N;
-  sndApply();return AC}
+  sndApply()}
 function sndApply(){if(!AC)return;const c=sndCfg(),t=AC.currentTime,v=x=>Math.pow(x/100,1.6);
   SB.master.gain.setTargetAtTime(v(c.m),t,.05);SB.music.gain.setTargetAtTime(v(c.mu)*.55,t,.3);SB.sfx.gain.setTargetAtTime(v(c.s),t,.05);SB.ui.gain.setTargetAtTime(v(c.u)*.7,t,.05)}
 // prvé gesto hráča: vytvoriť / prebudiť zvuk (iOS a Safari to inak nedovolia) a spustiť hudbu
@@ -29,7 +33,7 @@ for(const ev of['pointerdown','keydown','touchend'])addEventListener(ev,sndWake,
 document.addEventListener('visibilitychange',()=>{if(!AC)return;if(document.hidden)AC.suspend();else AC.resume()});
 
 /* ---- stavebné kamene ---- */
-const now=()=>AC.currentTime;
+let _sndOff=0;const now=()=>AC.currentTime+_sndOff;   // _sndOff: posun času (len pre offline ukážku zvukov)
 function env(gn,t,a,peak,d,end=.0001){const g=gn.gain;g.cancelScheduledValues(t);g.setValueAtTime(.0001,t);g.exponentialRampToValueAtTime(peak,t+a);g.exponentialRampToValueAtTime(end,t+a+d)}
 function osc(type,f,t,dur,out){const o=AC.createOscillator();o.type=type;o.frequency.setValueAtTime(f,t);o.connect(out);o.start(t);o.stop(t+dur+.05);return o}
 function noise(t,dur,out,rate=1){const s=AC.createBufferSource();s.buffer=SB.noise;s.loop=true;s.playbackRate.value=rate;s.connect(out);s.start(t,Math.random()*1.5);s.stop(t+dur+.05);return s}
@@ -42,36 +46,65 @@ function outNode(bus,pos,rev=.15,dur=1){const g=AC.createGain();let head=g;
   else{g.connect(bus);if(rev>0){const s=AC.createGain();s.gain.value=rev;g.connect(s);s.connect(SB.revIn)}}
   _sndVoices++;setTimeout(()=>{_sndVoices--;try{g.disconnect()}catch(e){}},(dur+.3)*1000);return g}
 
-/* ---- zvukové efekty ---- */
+/* v0.36.2: FILMOVÉ ZVUKY – vrstvené: ostrý prechodový „úder“ (filtrovaný šum), tónové jadro s rýchlym poklesom
+   výšky a frekvenčnou moduláciou (energia), sub-basový náraz, jemné skreslenie (saturácia) a dlhší dozvuk.
+   Žiadne štvorcové „8-bit“ pípania – rozhranie má krátke sklenené tóny a vzdušné šuchoty. */
+function dist(k){const n=1024,c=new Float32Array(n);for(let i=0;i<n;i++){const x=i/(n-1)*2-1;c[i]=Math.tanh(x*k)/Math.tanh(k)}const w=AC.createWaveShaper();w.curve=c;w.oversample='2x';return w}
+/* tónové jadro s FM: nosná + modulátor (dáva „energetický“ kovový charakter) */
+function fmTone(t,f0,f1,dur,ratio,idx,out,type='sine'){const c=AC.createOscillator(),m=AC.createOscillator(),mg=AC.createGain();c.type=type;
+  c.frequency.setValueAtTime(f0,t);c.frequency.exponentialRampToValueAtTime(f1,t+dur);m.frequency.setValueAtTime(f0*ratio,t);m.frequency.exponentialRampToValueAtTime(f1*ratio,t+dur);
+  mg.gain.setValueAtTime(f0*idx,t);mg.gain.exponentialRampToValueAtTime(f1*idx*.3+1,t+dur);m.connect(mg);mg.connect(c.frequency);c.connect(out);c.start(t);m.start(t);c.stop(t+dur+.05);m.stop(t+dur+.05);return c}
+function sub(t,f0,f1,dur,peak,out){const g=AC.createGain();env(g,t,.004,peak,dur);g.connect(out);const o=osc('sine',f0,t,dur,g);o.frequency.exponentialRampToValueAtTime(f1,t+dur)}
+function burst(t,dur,type,f,q,peak,out,rate=1){const g=AC.createGain();env(g,t,.002,peak,dur);g.connect(out);const b=filt(type,f,q);b.connect(g);noise(t,dur+.02,b,rate);return b}
 const SFX={
-  // rozhranie
-  click(){const t=now(),o=outNode(SB.ui,null,.05,.12);env(o,t,.003,.35,.07);const a=osc('triangle',1500,t,.1,o);a.frequency.exponentialRampToValueAtTime(900,t+.07)},
-  hover(){const t=now(),o=outNode(SB.ui,null,0,.06);env(o,t,.002,.07,.04);osc('sine',2400,t,.05,o)},
-  open(){const t=now(),o=outNode(SB.ui,null,.25,.4);env(o,t,.04,.22,.3);const f=filt('bandpass',500,2);f.connect(o);f.frequency.exponentialRampToValueAtTime(3200,t+.3);noise(t,.38,f);const a=osc('sine',320,t,.3,o);a.frequency.exponentialRampToValueAtTime(640,t+.25)},
-  close(){const t=now(),o=outNode(SB.ui,null,.2,.3);env(o,t,.02,.18,.24);const f=filt('bandpass',2600,2);f.connect(o);f.frequency.exponentialRampToValueAtTime(400,t+.25);noise(t,.28,f)},
-  toast(){const t=now(),o=outNode(SB.ui,null,.3,.6);env(o,t,.005,.18,.5);osc('sine',880,t,.5,o);const o2=outNode(SB.ui,null,.3,.6);env(o2,t+.09,.005,.16,.5);osc('sine',1320,t+.09,.5,o2)},
-  good(){const t=now();[0,4,7,12].forEach((n,i)=>{const o=outNode(SB.ui,null,.35,.7);env(o,t+i*.07,.005,.2,.55);osc('triangle',523.25*Math.pow(2,n/12),t+i*.07,.6,o)})},
-  bad(){const t=now(),o=outNode(SB.ui,null,.1,.4);env(o,t,.01,.22,.3);const f=filt('lowpass',900);f.connect(o);const a=osc('sawtooth',180,t,.35,f);a.frequency.linearRampToValueAtTime(120,t+.3)},
-  coin(){const t=now();[0,1].forEach(i=>{const o=outNode(SB.ui,null,.3,.5);env(o,t+i*.08,.003,.2,.4);const f=filt('lowpass',4000);f.connect(o);osc('square',i?1975:1318,t+i*.08,.42,f)})},
-  // zbrane: hráč podľa štýlu strely, veža, pirát
-  laser(pos,o={}){const st=o.st||'blue',k=o.fx?.55:1,t=now(),out=outNode(SB.sfx,pos,.18,.4);
-    const P={grey:[1600,420,'square',.16],blue:[1900,380,'sawtooth',.2],gold:[1100,220,'sawtooth',.26],red:[1400,160,'square',.24],primal:[2400,600,'sine',.22]}[st]||[1900,380,'sawtooth',.2];
-    env(out,t,.003,P[3]*k*(o.tower?.8:1),.16);const f=filt('lowpass',5200,1.5);f.connect(out);const a=osc(P[2],P[0]*(o.tower?.7:1)*(0.96+Math.random()*.08),t,.2,f);a.frequency.exponentialRampToValueAtTime(P[1]*(o.tower?.7:1),t+.15);
-    const n=AC.createGain();n.gain.value=.25;n.connect(out);const hp=filt('highpass',3000);hp.connect(n);noise(t,.06,hp)},
-  zap(pos){const t=now(),out=outNode(SB.sfx,pos,.25,.4);env(out,t,.002,.35,.28);const f=filt('bandpass',2400,.8);f.connect(out);noise(t,.32,f,1.6);const a=osc('sawtooth',90,t,.3,out);a.frequency.linearRampToValueAtTime(40,t+.25)},
-  pirate(pos){const t=now(),out=outNode(SB.sfx,pos,.15,.35);env(out,t,.003,.17,.18);const f=filt('lowpass',2400,2);f.connect(out);const a=osc('square',700*(0.95+Math.random()*.1),t,.22,f);a.frequency.exponentialRampToValueAtTime(140,t+.18)},
-  hit(pos){const t=now(),out=outNode(SB.sfx,pos,.1,.2);env(out,t,.002,.16,.1);const f=filt('bandpass',1800,1.2);f.connect(out);noise(t,.12,f)},
-  hurt(){const t=now(),out=outNode(SB.sfx,null,.1,.35);env(out,t,.003,.35,.25);const f=filt('lowpass',700);f.connect(out);noise(t,.3,f);osc('sine',90,t,.25,out)},
-  boom(pos,o={}){const big=o.big?1:0,t=now(),d=1.1+big*1.6,out=outNode(SB.sfx,pos,.35,d+.2);env(out,t,.005,.55+big*.35,d);
-    const f=filt('lowpass',big?1400:2200,.7);f.connect(out);f.frequency.exponentialRampToValueAtTime(120,t+d);noise(t,d,f,.7);
-    const s=osc('sine',big?70:110,t,d,out);s.frequency.exponentialRampToValueAtTime(28,t+d)},
-  loot(pos){const t=now();[0,7,12,19].forEach((n,i)=>{const o=outNode(SB.sfx,pos,.4,.8);env(o,t+i*.05,.003,.12,.6);osc('sine',1046.5*Math.pow(2,n/12),t+i*.05,.65,o)})},
-  warp(){const t=now(),out=outNode(SB.sfx,null,.5,1.6);env(out,t,.5,.4,1);const f=filt('bandpass',200,3);f.connect(out);f.frequency.exponentialRampToValueAtTime(5000,t+1.1);noise(t,1.5,f);
-    const lp=filt('lowpass',900);lp.connect(out);const a=osc('sawtooth',60,t,1.4,lp);a.frequency.exponentialRampToValueAtTime(900,t+1.1)},
-  beep(){const t=now(),o=outNode(SB.ui,null,.2,.3);env(o,t,.004,.2,.2);const f=filt('lowpass',2000);f.connect(o);osc('square',660,t,.22,f)},
-  alarm(){const t=now();for(let i=0;i<3;i++){const o=outNode(SB.sfx,null,.3,.4);env(o,t+i*.28,.01,.22,.22);const a=osc('sawtooth',520,t+i*.28,.25,o);a.frequency.linearRampToValueAtTime(380,t+i*.28+.22)}},
-  shield(pos){const t=now(),o=outNode(SB.sfx,pos,.3,.5);env(o,t,.01,.14,.4);const a=osc('sine',300,t,.45,o);a.frequency.exponentialRampToValueAtTime(900,t+.35)},
+  // ---- rozhranie: krátke sklenené tóny a vzdušné šuchoty ----
+  click(){const t=now(),o=outNode(SB.ui,null,.12,.2);const h=filt('highpass',900);h.connect(o);env(o,t,.002,.22,.08);osc('sine',1750,t,.09,h);const o2=AC.createGain();o2.gain.value=.4;o2.connect(h);osc('sine',2630,t,.06,o2);burst(t,.025,'bandpass',6000,1.5,.12,o)},
+  hover(){const t=now(),o=outNode(SB.ui,null,.05,.08);env(o,t,.003,.045,.05);osc('sine',3200,t,.06,o)},
+  open(){const t=now(),o=outNode(SB.ui,null,.45,.7);const b=burst(t,.45,'bandpass',300,1.2,.18,o,.8);b.frequency.exponentialRampToValueAtTime(4200,t+.4);
+    const g=AC.createGain();env(g,t,.06,.07,.5);g.connect(o);osc('sine',392,t,.55,g);const g2=AC.createGain();env(g2,t+.05,.06,.05,.5);g2.connect(o);osc('sine',587.3,t+.05,.5,g2)},
+  close(){const t=now(),o=outNode(SB.ui,null,.35,.5);const b=burst(t,.32,'bandpass',3600,1.2,.15,o,.8);b.frequency.exponentialRampToValueAtTime(280,t+.3);const g=AC.createGain();env(g,t,.02,.05,.3);g.connect(o);osc('sine',587.3,t,.32,g).frequency.exponentialRampToValueAtTime(392,t+.25)},
+  toast(){const t=now();[659.3,987.8].forEach((f,i)=>{const o=outNode(SB.ui,null,.55,1.4);env(o,t+i*.07,.004,.11,1.2);osc('sine',f,t+i*.07,1.25,o);const o2=AC.createGain();o2.gain.value=.25;o2.connect(o);osc('sine',f*2.76,t+i*.07,.5,o2)})},
+  good(){const t=now();[523.3,659.3,784,1046.5].forEach((f,i)=>{const o=outNode(SB.ui,null,.6,1.8);env(o,t+i*.06,.02,.09,1.5);const lp=filt('lowpass',3000);lp.connect(o);
+      for(const d of[-6,6]){const x=osc('sawtooth',f,t+i*.06,1.6,lp);x.detune.value=d}})},
+  bad(){const t=now(),o=outNode(SB.ui,null,.35,.9);env(o,t,.008,.3,.7);const lp=filt('lowpass',420,2);lp.connect(o);for(const f of[98,103.8]){osc('sawtooth',f,t,.8,lp)}sub(t,80,45,.5,.25,o)},
+  coin(){const t=now();[1318.5,1975.5,2637].forEach((f,i)=>{const o=outNode(SB.ui,null,.55,1.3);env(o,t+i*.05,.003,.1,1.1);osc('sine',f,t+i*.05,1.15,o);const g=AC.createGain();g.gain.value=.3;g.connect(o);osc('sine',f*2.01,t+i*.05,.4,g)})},
+  beep(){const t=now(),o=outNode(SB.ui,null,.6,1.2);env(o,t,.004,.16,1);osc('sine',880,t,1.05,o);const g=AC.createGain();g.gain.value=.2;g.connect(o);osc('sine',1760,t,.3,g)},   // sonarový ping
+  // ---- zbrane ----
+  laser(pos,o={}){const st=o.st||'blue',k=(o.fx?.5:1)*(o.tower?.85:1),t=now(),out=outNode(SB.sfx,pos,.32,.9),pt=o.tower?.7:1,j=.96+Math.random()*.08;
+    const P={grey:{f:[1300,240],r:1.5,i:1.2,d:.16,sub:.25,ds:1.5},blue:{f:[1700,260],r:2.01,i:2.2,d:.2,sub:.35,ds:2},gold:{f:[1100,140],r:1.41,i:3,d:.28,sub:.6,ds:3},
+      red:{f:[1500,120],r:3.5,i:4,d:.24,sub:.5,ds:6},primal:{f:[2200,520],r:1.5,i:1.4,d:.35,sub:.3,ds:1.5}}[st]||{f:[1700,260],r:2.01,i:2.2,d:.2,sub:.35,ds:2};
+    const m=AC.createGain();m.gain.value=k*({red:.38,gold:.45}[st]||.5);m.connect(out);const sat=dist(P.ds);   // výstrely sú časté – tichšie ako výbuchy
+    const lp=filt('lowpass',7000,.7);sat.connect(lp);lp.connect(m);
+    const tg=AC.createGain();env(tg,t,.003,.4,P.d);tg.connect(sat);fmTone(t,P.f[0]*pt*j,P.f[1]*pt*j,P.d,P.r,P.i,tg);
+    if(st==='primal'){const g2=AC.createGain();env(g2,t,.003,.18,P.d*1.4);g2.connect(sat);fmTone(t,P.f[0]*1.5*j,P.f[1]*1.5*j,P.d*1.3,1.01,.6,g2)}
+    burst(t,.05,'bandpass',4500,.9,.35,m);burst(t,.12,'highpass',2500,.7,.12,m,1.4);sub(t,110*pt,45,.18,P.sub,m)},
+  zap(pos){const t=now(),out=outNode(SB.sfx,pos,.45,1);const sat=dist(5);sat.connect(out);
+    for(let i=0;i<5;i++){const tt=t+i*.035+Math.random()*.02;const g=AC.createGain();env(g,tt,.001,.3*(1-i*.12),.07);g.connect(sat);const b=filt('bandpass',1800+Math.random()*3000,2);b.connect(g);noise(tt,.09,b,1.5)}
+    sub(t,90,30,.4,.5,out);const g=AC.createGain();env(g,t,.002,.12,.35);g.connect(out);fmTone(t,240,60,.35,7.1,6,g,'sawtooth')},
+  pirate(pos){const t=now(),out=outNode(SB.sfx,pos,.3,.8),j=.95+Math.random()*.1;const sat=dist(3);const lp=filt('lowpass',3200,1);sat.connect(lp);lp.connect(out);
+    const g=AC.createGain();env(g,t,.004,.17,.26);g.connect(sat);fmTone(t,520*j,85*j,.26,.5,3.2,g,'triangle');burst(t,.06,'bandpass',1800,1,.15,out);sub(t,95,40,.22,.22,out)},
+  hit(pos){const t=now(),out=outNode(SB.sfx,pos,.25,.6);burst(t,.09,'lowpass',2600,.7,.35,out,.9);
+    const g=AC.createGain();env(g,t,.002,.07,.35);g.connect(out);const b=filt('bandpass',900+Math.random()*1400,18);b.connect(g);noise(t,.4,b);sub(t,140,60,.12,.25,out)},   // náraz + kovové zvonenie trupu
+  hurt(){const t=now(),out=outNode(SB.sfx,null,.3,.9);const sat=dist(4);sat.connect(out);burst(t,.35,'lowpass',900,.8,.6,sat,.7);sub(t,70,30,.45,.6,out);
+    const g=AC.createGain();env(g,t,.003,.08,.6);g.connect(out);const b=filt('bandpass',620,25);b.connect(g);noise(t,.65,b)},
+  boom(pos,o={}){const big=o.big?1:0,t=now(),d=1.6+big*2.2,out=outNode(SB.sfx,pos,.55,d+.5);const sat=dist(2.5+big*2);sat.connect(out);
+    burst(t,.05,'highpass',1500,.7,.5,out);                                                    // prasknutie
+    const b=burst(t,d,'lowpass',big?2200:3000,.6,.9,sat,.6);b.frequency.setValueAtTime(big?2200:3000,t);b.frequency.exponentialRampToValueAtTime(90,t+d);   // telo výbuchu
+    sub(t,big?75:95,22,d*.8,big?1:.7,out);                                                     // sub-basový náraz
+    for(let i=0;i<(big?14:7);i++){const tt=t+.08+Math.random()*d*.6;const g=AC.createGain();env(g,tt,.001,.06+Math.random()*.06,.05+Math.random()*.1);g.connect(out);
+      const f=filt('bandpass',600+Math.random()*3500,3);f.connect(g);noise(tt,.18,f)}                                       // praskanie úlomkov
+    if(big){const r=AC.createGain();r.gain.setValueAtTime(.0001,t);r.gain.linearRampToValueAtTime(.35,t+.4);r.gain.exponentialRampToValueAtTime(.0001,t+4.5);r.connect(out);const lp=filt('lowpass',140);lp.connect(r);noise(t,4.6,lp,.4)}},
+  loot(pos){const t=now();[1046.5,1568,2093,2637].forEach((f,i)=>{const o=outNode(SB.sfx,pos,.6,1.6);env(o,t+i*.06,.004,.07,1.3);osc('sine',f,t+i*.06,1.4,o);const g=AC.createGain();g.gain.value=.3;g.connect(o);osc('triangle',f*1.5,t+i*.06,.5,g)})},
+  warp(){const t=now(),out=outNode(SB.sfx,null,.6,3.2);    const wg=AC.createGain();wg.gain.setValueAtTime(.0001,t);wg.gain.exponentialRampToValueAtTime(.4,t+1.05);wg.gain.exponentialRampToValueAtTime(.0001,t+1.3);wg.connect(out);
+    const bp=filt('bandpass',150,2.5);bp.connect(wg);bp.frequency.exponentialRampToValueAtTime(6000,t+1.15);noise(t,1.35,bp,.8);
+    const tg=AC.createGain();tg.gain.setValueAtTime(.0001,t);tg.gain.exponentialRampToValueAtTime(.12,t+1);tg.gain.exponentialRampToValueAtTime(.0001,t+1.25);tg.connect(out);
+    for(const r of[1,1.5,2]){const x=osc('sawtooth',55*r,t,1.3,tg);x.frequency.exponentialRampToValueAtTime(880*r,t+1.15)}
+    setTimeout(()=>SFX.boom(null,{}),1100);sub(t+1.15,60,25,1.4,.9,out)},
+  alarm(){const t=now();for(let i=0;i<3;i++){const tt=t+i*.6,o=outNode(SB.sfx,null,.45,.8);env(o,tt,.04,.16,.45);const lp=filt('lowpass',1400,3);lp.connect(o);
+      for(const d of[-8,8]){const x=osc('sawtooth',330,tt,.55,lp);x.detune.value=d;x.frequency.linearRampToValueAtTime(247,tt+.5)}}},
+  shield(pos){const t=now(),o=outNode(SB.sfx,pos,.45,.8);env(o,t,.01,.12,.6);fmTone(t,260,780,.5,2,1.5,o)},
 };
+
 /* sfx(meno, poloha, voľby): obmedzenie počtu hlasov a rovnakých zvukov v krátkom čase (aby salvy nezahlušili mix) */
 function sfx(name,pos,o){if(!AC||AC.state!=='running'||!SFX[name])return;const tt=performance.now(),gap={hover:60,hit:35,laser:28,pirate:40,loot:80}[name]||20;
   if(tt-(_sndLast[name]||0)<gap)return;_sndLast[name]=tt;if(_sndVoices>40&&name!=='boom')return;
@@ -80,12 +113,17 @@ function sfx(name,pos,o){if(!AC||AC.state!=='running'||!SFX[name])return;const t
 /* ---- slučky: motory a ťažobný laser (bez polohy – je to tvoja loď), poslucháč ---- */
 let _eng=null,_mine=null;
 function makeLoop(kind){const g=AC.createGain();g.gain.value=0;g.connect(SB.sfx);const L={g,nodes:[]};
-  if(kind==='eng'){const f=filt('lowpass',300,.8);f.connect(g);L.f=f;const n=AC.createBufferSource();n.buffer=SB.noise;n.loop=true;n.playbackRate.value=.5;n.connect(f);n.start();
-    const o=AC.createOscillator();o.type='sawtooth';o.frequency.value=42;const og=AC.createGain();og.gain.value=.35;o.connect(og);og.connect(f);o.start();L.o=o;L.nodes.push(n,o)}
-  else{const f=filt('bandpass',900,4);f.connect(g);L.f=f;const o=AC.createOscillator();o.type='sawtooth';o.frequency.value=110;o.connect(f);o.start();
-    const o2=AC.createOscillator();o2.type='square';o2.frequency.value=221;const g2=AC.createGain();g2.gain.value=.4;o2.connect(g2);g2.connect(f);o2.start();
-    const lfo=AC.createOscillator();lfo.frequency.value=7;const lg=AC.createGain();lg.gain.value=180;lfo.connect(lg);lg.connect(f.frequency);lfo.start();
-    const n=AC.createBufferSource();n.buffer=SB.noise;n.loop=true;const nh=filt('highpass',4000);const ng=AC.createGain();ng.gain.value=.25;n.connect(nh);nh.connect(ng);ng.connect(g);n.start();L.nodes.push(o,o2,lfo,n)}
+  if(kind==='eng'){   // motory: hlboký hnedý šum + sub tón s pomalým kolísaním (hukot pohonu)
+    if(!SB.brown){const N=AC.createBuffer(1,AC.sampleRate*3,AC.sampleRate),d=N.getChannelData(0);let v=0;for(let i=0;i<d.length;i++){v=(v+.02*(Math.random()*2-1))/1.02;d[i]=v*3.5}SB.brown=N}
+    const f=filt('lowpass',220,.7);f.connect(g);L.f=f;const n=AC.createBufferSource();n.buffer=SB.brown;n.loop=true;n.connect(f);n.start();
+    const o=AC.createOscillator();o.type='sine';o.frequency.value=38;const og=AC.createGain();og.gain.value=.5;o.connect(og);og.connect(g);o.start();L.o=o;
+    const o2=AC.createOscillator();o2.type='triangle';o2.frequency.value=76.5;const g2=AC.createGain();g2.gain.value=.12;o2.connect(g2);g2.connect(f);o2.start();L.o2=o2;
+    const lfo=AC.createOscillator();lfo.frequency.value=.35;const lg=AC.createGain();lg.gain.value=.15;lfo.connect(lg);lg.connect(og.gain);lfo.start();L.nodes.push(n,o,o2,lfo)}
+  else{   // ťažobný lúč: dva rozladené tóny s chorusom, plazmové syčanie a pomalé pulzovanie
+    const f=filt('bandpass',700,1.2);f.connect(g);L.f=f;
+    for(const[fr,ty,gv]of[[146.8,'sine',.6],[147.9,'sine',.6],[293.7,'triangle',.25],[440.6,'sine',.12]]){const o=AC.createOscillator();o.type=ty;o.frequency.value=fr;const og=AC.createGain();og.gain.value=gv;o.connect(og);og.connect(f);o.start();L.nodes.push(o)}
+    const am=AC.createOscillator();am.frequency.value=5.5;const ag=AC.createGain();ag.gain.value=.25;am.connect(ag);ag.connect(g.gain);am.start();
+    const n=AC.createBufferSource();n.buffer=SB.noise;n.loop=true;const nh=filt('bandpass',5200,1.5);const ng=AC.createGain();ng.gain.value=.18;n.connect(nh);nh.connect(ng);ng.connect(g);n.start();L.nodes.push(am,n)}
   return L}
 function sndLoop(dt){if(!AC||AC.state!=='running')return;const t=AC.currentTime,on=state&&$('#intro').hidden&&!dead&&!jumping;
   // poslucháč: nad stredom pohľadu, pozerá „dolu do obrazovky“ (hore na obrazovke = −z)
@@ -94,8 +132,8 @@ function sndLoop(dt){if(!AC||AC.state!=='running')return;const t=AC.currentTime,
   else if(Ls.setPosition){Ls.setPosition(px,26,pz+6);Ls.setOrientation(0,-.85,-.53,0,.53,-.85)}
   if(!_eng)_eng=makeLoop('eng');if(!_mine)_mine=makeLoop('mine');
   const sp=on?shipVel.length()/Math.max(1,shipVal('speed')):0;
-  _eng.g.gain.setTargetAtTime(on?.05+sp*.22:0,t,.12);_eng.f.frequency.setTargetAtTime(160+sp*900,t,.15);_eng.o.frequency.setTargetAtTime(38+sp*30,t,.2);
-  _mine.g.gain.setTargetAtTime(on&&mining?.09:0,t,mining?.05:.12);
+  _eng.g.gain.setTargetAtTime(on?.07+sp*.26:0,t,.15);_eng.f.frequency.setTargetAtTime(140+sp*700,t,.2);_eng.o.frequency.setTargetAtTime(34+sp*22,t,.3);_eng.o2.frequency.setTargetAtTime(68+sp*60,t,.3);
+  _mine.g.gain.setTargetAtTime(on&&mining?.07:0,t,mining?.08:.15);
   musicTick()}
 
 /* ==================== HUDBA – generovaná ambientná vesmírna hudba ====================

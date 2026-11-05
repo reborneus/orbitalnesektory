@@ -1,10 +1,11 @@
 {
-  "version": "0.36.1",
+  "version": "0.36.2",
   "date": "2026-11-05",
   "notes": [
-    "Snímky za sekundu: hra kreslí toľko snímok, koľko zvládne monitor – aj 144, 240 či 360 Hz (predvoľby Stredná, Vysoká aj Ultra); celá hra je od počtu snímok nezávislá",
-    "Grafika → Limit snímok: 30 / 60 / 120 / 144 / 240 / Podľa monitora; presnejšie dodržiavanie limitu",
-    "Grafika → Ukazovať FPS: malé počítadlo snímok hore v strede obrazovky",
-    "Spúšťače (Windows, Mac) spúšťajú prehliadač s plným využitím grafickej karty"
+    "Filmové zvuky namiesto „pixelových“: výstrely sú vrstvené (ostrý úder, energetické jadro s FM moduláciou, sub-basový náraz, jemná saturácia a dozvuk), každá rarita zbrane znie inak",
+    "Výbuchy s prasknutím, hutným telom, sub-basom a praskaním úlomkov; zničenie tvojej lode aj s dlhým dunením",
+    "Zásahy s kovovým zvonením trupu, blesk ako séria elektrických výbojov, skok bránou ako nábeh s výbuchom",
+    "Rozhranie: krátke sklenené tóny a vzdušné šuchoty, sonarový odpočet pri smrti, tlmená siréna",
+    "Hlbší hukot motorov a plynulý ťažobný lúč; dlhší a tmavší dozvuk; vyvážené hlasitosti a ochrana proti skresleniu"
   ]
 }
