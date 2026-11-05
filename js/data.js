@@ -4,7 +4,7 @@
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
 /* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
-const GAME_VERSION='0.37.0';
+const GAME_VERSION='0.38.0';
 const NUM=10,ECON=1.6;
 const P=(c,m=1)=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON*m);return o};
 /* v0.12: stavba a vylepšovanie stanice je v každom ďalšom sektore SEC_COST× drahšie (príjmy rastú len ~1,3×) */
@@ -76,7 +76,7 @@ const CORE_MAX=5,CORE_INF=15;
    Každé +1 zvýši vplyv modulu o MOD_ENH_INF (podiel základu) a jeho účinok podľa MOD_FX. */
 const MOD_ENH_MAX=10,MOD_ENH_INF=.1;
 const MOD_RAR=[1,2,3,4,4,5,5,6,7,8,9];
-const modEnhCost=n=>P(C(120*(n+1),n>=2?25*(n-1):0,n>=6?12*(n-5):0,Math.round(40*Math.pow(n+1,1.5))),secMul());  // cena z +n na +(n+1)
+const modEnhCost=n=>P(C(Math.round(110*Math.pow(n+1,1.35)),n>=2?Math.round(25*Math.pow(n-1,1.35)):0,n>=6?Math.round(12*Math.pow(n-5,1.5)):0,Math.round(40*Math.pow(n+1,2))),secMul());   // v0.38: strmšie  // cena z +n na +(n+1)
 /* Účinky modulov. drone: rate t/s, cap t, speed m/s (+ podiel za každé +1), dmg poškodenie výstrelu v obrannom režime, range dosah obrany;
    tower: dmg poškodenie výstrelu, rate výstrelov/s, range dosah od stanice v m; sensor: green = viridit/s v obsadenom sektore. */
 const MOD_FX={
@@ -101,14 +101,15 @@ const early=(o4,g4,c4)=>[o4,[...g4,...LATE_G],[...c4,...LATE_C],[0,0,0,0,...LATE
    Bonusy z nasadených predmetov sa pripočítajú až v shipVal() v state.js. */
 const RS_COST=3;   // násobok ceny vylepšení radiačného štítu
 const UP={
-  speed:{grp:'eng',vals:[14.4,19.2,24,28.8,33.6,36,38.4,40.8,43.2,45.6],costs:costTable(...early([80,180,320,500,800,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>v.toFixed(1)+' m/s'},
-  accel:{grp:'eng',vals:[14.4,25.2,36,46.8,57.6,62,66,70,74,78],costs:costTable(...early([70,160,300,480,760,950,1200,1450,1750],[0,25,60,110],[0,0,0,20])),fmt:v=>v.toFixed(1)+' m/s²'},
+  speed:{grp:'eng',vals:[14.4,19.2,24,28.8,33.6,36.5,39.5,43,47,52],costs:costTable(...early([80,180,320,500,800,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>v.toFixed(1)+' m/s'},
+  accel:{grp:'eng',vals:[14.4,25.2,36,46.8,57.6,63,69,76,84,93],costs:costTable(...early([70,160,300,480,760,950,1200,1450,1750],[0,25,60,110],[0,0,0,20])),fmt:v=>v.toFixed(1)+' m/s²'},
   /* obratnosť: ako ostro loď zatáča – bočná zmena rýchlosti = zrýchlenie × hodnota/100 (150 = 1,5× zrýchlenie).
      Zároveň určuje, ako rýchlo sa nos lode natočí za smerom letu. Zobrazuje sa v °/s pre lepšiu predstavu. */
-  turn:{grp:'eng',vals:[150,180,210,240,270,290,310,330,350,375],costs:costTable(...early([70,160,300,480,760,950,1200,1450,1750],[0,25,60,110],[0,0,0,20])),fmt:v=>Math.round(v)+' °/s'},
-  hull:{grp:'hull',vals:[100,140,180,220,260,300,340,380,420,460],costs:costTable(...early([100,220,380,600,900,1100,1350,1600,1900],[0,35,80,140],[0,0,0,30])),fmt:v=>fmtN(Math.round(v))},
-  cargo:{grp:'hull',vals:[50,75,100,125,150,175,200,225,250,280],costs:costTable(...early([90,200,340,540,820,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>fmtN(Math.round(v))+' t'},
-  shield:{grp:'shield',min:0,vals:[0,40,65,90,120,150,170,190,210,230,250],
+  turn:{grp:'eng',vals:[150,180,210,240,270,295,320,350,385,425],costs:costTable(...early([70,160,300,480,760,950,1200,1450,1750],[0,25,60,110],[0,0,0,20])),fmt:v=>Math.round(v)+' °/s'},
+  hull:{grp:'hull',vals:[100,130,170,220,290,380,500,650,850,1100],costs:costTable(...early([100,220,380,600,900,1100,1350,1600,1900],[0,35,80,140],[0,0,0,30])),fmt:v=>fmtN(Math.round(v))},
+  /* v0.38: náklad 8× väčší (pôvodne 50 → 280 t) */
+  cargo:{grp:'hull',vals:[50,70,95,125,165,215,280,365,475,620].map(v=>v*8),costs:costTable(...early([90,200,340,540,820,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>fmtN(Math.round(v))+' t'},
+  shield:{grp:'shield',min:0,vals:[0,40,60,85,115,155,205,270,350,460,600],
     costs:costTable([300,250,380,550,750,950,1150,1400,1650,1950],[0,40,90,150,220,260,320,380,440,520],[0,0,0,30,60,80,110,150,190,240],[0,0,0,0,0,300,500,800,1200,1800]),fmt:v=>fmtN(Math.round(v))},
   /* radiačný štít: počet sekúnd úplnej ochrany pred radiáciou (aj za horizontom); dobíja sa pri stanici rýchlosťou RADSHIELD_RECHARGE s/s */
   /* v0.11.1: kratšia ochrana (najviac 30 s) a o dosť drahšie vylepšenia (× RS_COST) */
@@ -116,11 +117,17 @@ const UP={
     costs:costTable(...[[250,300,420,600,800,1000,1250,1500,1800,2100],[20,50,90,140,200,260,320,400,480,560],[0,0,15,40,70,100,140,180,230,280],[0,0,0,0,0,300,500,800,1200,1800]].map(a=>a.map(x=>x*RS_COST))),fmt:v=>v+' s'},
   sregen:{grp:'shield',needs:'shield',vals:[[15,.10],[13,.14],[11,.18],[9,.22],[7,.26],[6.5,.28],[6,.30],[5.5,.32],[5,.34],[4.5,.36]],
     costs:costTable(...early([150,280,450,650,900,1100,1350,1600,1900],[30,70,130,200],[0,0,25,50]))},
-  laser:{grp:'laser',vals:[8,10.8,13.6,16.4,19.2,21,22.8,24.6,26.4,28.2],costs:costTable(...early([90,200,360,560,850,1050,1300,1550,1850],[0,30,75,130],[0,0,0,30])),fmt:v=>fmtN(Math.round(v))+' t/s'},
-  gun:{grp:'weapon',vals:[8,10,12,14.5,17,19.5,22,25,28,32],costs:costTable(...early([120,240,400,620,900,1100,1350,1600,1900],[0,30,70,120],[0,0,0,25])),fmt:v=>fmtN(Math.round(v))},
-  gunRate:{grp:'weapon',vals:[1.2,1.4,1.6,1.8,2,2.15,2.3,2.45,2.6,2.8],costs:costTable(...early([100,220,380,600,880,1080,1320,1580,1880],[0,25,60,110],[0,0,0,20])),fmt:v=>v.toFixed(2)+' /s'},
-  range:{grp:'laser',vals:[10,12.5,15,17.5,20,21,22,23,24,25],costs:costTable(...early([60,150,280,450,700,880,1100,1350,1600],[0,20,50,100],[0,0,0,20])),fmt:v=>v.toFixed(1)+' m'},
+  laser:{grp:'laser',vals:[8,10,12.5,15.5,19,23.5,29,36,44,54],costs:costTable(...early([90,200,360,560,850,1050,1300,1550,1850],[0,30,75,130],[0,0,0,30])),fmt:v=>fmtN(Math.round(v))+' t/s'},
+  gun:{grp:'weapon',vals:[6,8,10.5,13.5,17.5,23,30,39,51,66],costs:costTable(...early([120,240,400,620,900,1100,1350,1600,1900],[0,30,70,120],[0,0,0,25])),fmt:v=>fmtN(Math.round(v))},
+  gunRate:{grp:'weapon',vals:[1.2,1.3,1.42,1.56,1.72,1.9,2.1,2.35,2.65,3],costs:costTable(...early([100,220,380,600,880,1080,1320,1580,1880],[0,25,60,110],[0,0,0,20])),fmt:v=>v.toFixed(2)+' /s'},
+  range:{grp:'laser',vals:[10,11.5,13,14.5,16,18,20,22.5,25,28],costs:costTable(...early([60,150,280,450,700,880,1100,1350,1600],[0,20,50,100],[0,0,0,20])),fmt:v=>v.toFixed(1)+' m'},
 };
+/* v0.38: STRMŠIA KRIVKA – hodnoty vyššie rastú čoraz rýchlejšie (pozri vals) a ceny vyšších úrovní sú násobne drahšie,
+   takže každé ďalšie drahé vylepšenie je výrazný skok. UP_COST_K[i] = násobok ceny i-teho kroku. */
+const UP_COST_K=[1,1,1.1,1.25,1.45,1.75,2.1,2.6,3.2,4];
+for(const k in UP)UP[k].costs=UP[k].costs.map((c,i)=>{const o={},f=UP_COST_K[Math.min(i,UP_COST_K.length-1)];for(const r in c)o[r]=Math.round(c[r]*f);return o});
+/* krivka vylepšenia modulov stanice: 1 + per·e·(1 + 0,08·e) → pri +10 takmer 2× viac ako lineárne */
+const enhK=(per,e)=>1+per*e*(1+.08*e);
 /* doplní max, cost(L) a val(L) z tabuliek (min = najnižšia úroveň: 1, pri štíte 0) */
 for(const k in UP){const u=UP[k];if(u.min===undefined)u.min=1;
   u.max=u.vals.length-(u.min===0?1:0);

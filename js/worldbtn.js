@@ -12,7 +12,7 @@ const WB_ICON={
 const WB_LBL={station:'dock.station',giver:'npc.giver',trader:'npc.trader',gate:'sh.gate'};
 let wbLayer=null,gateOpenOnArrive=false;const wbEls={},_wbv=new V3();
 function wbEl(k){if(wbEls[k])return wbEls[k];if(!wbLayer){wbLayer=document.createElement('div');wbLayer.id='wbtns';document.body.appendChild(wbLayer)}
-  const b=document.createElement('button');b.className='wbtn '+k;b.type='button';b.innerHTML=`<span class="wbi">${WB_ICON[k]}</span><span class="wbl"></span>`;
+  const b=document.createElement('button');b.className='wbtn '+k;b.type='button';b.innerHTML=`<span class="wbi">${WB_ICON[k]}<span class="wbpad"></span></span><span class="wbl"></span>`;
   b.addEventListener('click',e=>{e.stopPropagation();wbAct(k)});b.addEventListener('pointerdown',e=>e.stopPropagation());
   wbLayer.appendChild(b);return wbEls[k]=b}
 /* kotva tlačidla vo svete (null = objekt v sektore nie je) a či je loď v dosahu */
@@ -20,6 +20,10 @@ function wbInfo(k){
   if(k==='station'){if(!stationG||inArena())return null;return{p:_wbv.set(0,STATION_Y+DECK_TOP+4,-(DECK_R-1.2)*ST_SCALE),near:nearStation(),d:Math.max(0,Math.hypot(ship.position.x,ship.position.z)-STATION_R)}}
   if(k==='gate'){if(!gate)return null;const d=ship.position.distanceTo(gate.position);return{p:_wbv.copy(gate.position).setY(gate.position.y+9*GATE_K),near:d<18*GATE_K,d:Math.max(0,d-18*GATE_K)}}
   const n=typeof npcOf==='function'&&npcOf(k);if(!n)return null;return{p:_wbv.copy(n.pos).setY(7),near:nearNpc(k),d:Math.max(0,npcDist(k)-NPC_RANGE)}}
+/* objekt v dosahu (najbližší) – pre tlačidlo A / ✕ na ovládači */
+function wbReadyKey(){let best=null,bd=1e9;for(const k of['station','giver','trader','gate']){const I=wbInfo(k);if(!I||!I.near)continue;const d=I.d;if(d<bd){bd=d;best=k}}return best}
+/* objekt v dosahu (najbližší) – pre tlačidlo A / ✕ na ovládači */
+function wbReadyKey(){let best=null,bd=1e9;for(const k of['station','giver','trader','gate']){const I=wbInfo(k);if(!I||!I.near)continue;const d=I.d;if(d<bd){bd=d;best=k}}return best}
 function wbAct(k){if(dead||jumping)return;autoPause=6;
   if(k==='station'){if(nearStation())openSheet('station');else{cmdHome();openOnArrive=true}return}
   if(k==='gate'){if(ship.position.distanceTo(gate.position)<18*GATE_K){openSheet('gate');return}
@@ -31,7 +35,7 @@ function tickWorldBtns(){const hide=!state||!$('#intro').hidden||dead||jumping||
     if(!I){el.hidden=true;continue}
     const v=I.p.clone().project(camera);if(v.z>1||Math.abs(v.x)>1.05||Math.abs(v.y)>1.05){el.hidden=true;continue}
     el.hidden=false;const x=(v.x+1)/2*innerWidth,y=(1-v.y)/2*innerHeight;el.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px) translate(-50%,-50%)`;
-    el.classList.toggle('ready',I.near);const lbl=t(WB_LBL[k])+(I.near?'':` · ${Math.round(I.d)} m`);const L=el.lastChild;if(L.textContent!==lbl)L.textContent=lbl}
+    el.classList.toggle('ready',I.near);if(I.near){const pg=el.querySelector('.wbpad');const gl=G().A;if(pg.textContent!==gl)pg.textContent=gl}const lbl=t(WB_LBL[k])+(I.near?'':` · ${Math.round(I.d)} m`);const L=el.lastChild;if(L.textContent!==lbl)L.textContent=lbl}
   // brána: menu po prílete (len ak hráč klikol na tlačidlo)
   if(gateOpenOnArrive){if(!gate||moveTarget===null&&!(ship.position.distanceTo(gate.position)<18*GATE_K))gateOpenOnArrive=false;
     else if(ship.position.distanceTo(gate.position)<18*GATE_K){gateOpenOnArrive=false;openSheet('gate')}}}

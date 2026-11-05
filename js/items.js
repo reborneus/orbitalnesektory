@@ -37,11 +37,13 @@ const STATS={
   shield: {lo:5,  hi:10, dec:0,u:''},    // body štítu
   sregen: {lo:4,  hi:8,  dec:1,u:'%'},   // rýchlejšie dobíjanie štítov
   sdelay: {lo:.2, hi:.4, dec:2,u:'s'},   // skoršie dobíjanie štítov
-  cargo:  {lo:3,  hi:6,  dec:0,u:'t'},   // náklad
+  cargo:  {lo:24, hi:48, dec:0,u:'t'},   // náklad (v0.38: 8×, ako náklad lode)
   rad:    {lo:2,  hi:4,  dec:1,u:'%',cap:75}, // ochrana pred radiáciou v pásoch 3–4 (nie za horizontom)
   mf:     {lo:3,  hi:6,  dec:1,u:'%'},   // šanca na vzácnejšiu korisť
   magnet: {lo:.5, hi:1.5,dec:1,u:'m'},   // dosah zberu koristi
-  dmg:    {lo:4,  hi:8,  dec:1,u:'%'},   // poškodenie zbrane
+  dmg:    {lo:4,  hi:8,  dec:1,u:'%'},   // poškodenie zbrane (percentá násobia aj základ z modulu zbrane)
+  wb:     {lo:0,  hi:0,  dec:0,u:''},
+  dmgX:   {lo:8,  hi:18, dec:1,u:'%'},   // v0.38: NÁSOBIČ poškodenia (endgame, len Legendárne+): predmety sa navzájom NÁSOBIA, nie sčítajú    // v0.38: základné poškodenie modulu zbrane (len zbrane, nepadá ako náhodná vlastnosť)
   frate:  {lo:3,  hi:6,  dec:1,u:'%'},   // kadencia zbrane
   crit:   {lo:1,  hi:2,  dec:1,u:'%',cap:60}, // šanca na kritický zásah (základ CRIT_BASE)
   critDmg:{lo:6,  hi:12, dec:1,u:'%'},   // kritické poškodenie navyše (základ CRIT_DMG = +100 %)
@@ -108,7 +110,8 @@ function genItem(r,ilvl,bk){bk=bk||pick(SHIP_BASES);const B=BASES[bk];const R=RA
   const n=Math.min(B.pool.length-(B.pool.includes(B.imp)?1:0),R.aff[0]+Math.floor(Math.random()*(R.aff[1]-R.aff[0]+1)));
   // hlavná vlastnosť sa medzi náhodnými neopakuje
   const pool=B.pool.filter(k=>k!==B.imp).sort(()=>Math.random()-.5).slice(0,n);
-  return{id:state.nextId++,b:bk,r,ilvl,enh:0,imp:{k:B.imp,v:rollStat(B.imp,ilvl,r,2)},aff:pool.map(k=>({k,v:rollStat(k,ilvl,r)})),
+  const aff=pool.map(k=>rollQ(k,ilvl,r));if(r>=6&&!B.mod&&Math.random()<[.3,.5,.75,1][r-6])aff.push(rollQ('dmgX',ilvl,r,1/(1+ilvl*ILVL_SCALE)*(1+ilvl*.02)));   // násobič: slabšie rastie s úrovňou predmetu
+  return{id:state.nextId++,b:bk,r,ilvl,enh:0,imp:rollQ(B.imp,ilvl,r,2),aff,wb:B.slot==='weapon'?rollWB(r,ilvl):undefined,
     title:r>=6?Math.floor(Math.random()*TITLE_COUNT):-1,lock:false,nw:true}}
 /* Predmet, ktorý padne zo zdroja: mf zo zdroja + pásu + sektora + vlastností výbavy. */
 function dropItem(source,zone,minR=0,cap){const tm=typeof tierMul==='function';const mf=MF_SOURCE[source]+MF_ZONE[zone]+state.cur*.25+bonus().mf/100+(tm?tierMul('mf'):0);
@@ -117,20 +120,36 @@ function dropItem(source,zone,minR=0,cap){const tm=typeof tierMul==='function';c
   const chip=Math.random()<(CHIP_CHANCE[source==='corsair'||source==='frigate'?'enemy':source]||0);return genItem(r,ilvl,chip?pick(CHIP_BASES):null)}
 
 /* Skutočné hodnoty vlastností predmetu vrátane vylepšenia (+N). */
-const enhMul=it=>1+ENH_STEP*it.enh;
-function itemStats(it){const m=enhMul(it);return[{k:it.imp.k,v:it.imp.v*m,imp:true},...it.aff.map(a=>({k:a.k,v:a.v*m}))]}
-function fmtStat(k,v){const S=STATS[k];const f=Math.pow(10,S.dec);const n=Math.round(v*f)/f;return '+'+n.toFixed(S.dec)+(S.u?(S.u==='%'?' %':' '+S.u):'')}
+/* v0.38: strmšia krivka vylepšenia predmetu: +5 ≈ ×1,35 · +10 ≈ ×2,0 · +15 ≈ ×3,0 · +20 ≈ ×4,2 */
+const enhMul=it=>1+.04*it.enh+.006*it.enh*it.enh;
+/* ==================== v0.38: ZÁKLADNÉ POŠKODENIE ZBRANE A KVALITA VLASTNOSTÍ ====================
+   Modul zbrane má vlastný základ poškodenia: náhodne v rozsahu podľa rarity (× úroveň predmetu, × vylepšenie).
+   Pripočíta sa k poškodeniu lode a všetky percentá (poškodenie, kritický zásah…) ho násobia.
+   q = kvalita hodu 0–1 (kde v rozsahu vlastnosť padla): ≥ 90 % sa ukazuje zlato, 100 % hrubo červeno. */
+const WB_RANGE=[[3,5],[4,7],[6,10],[9,15],[14,22],[21,33],[32,50],[48,75],[72,112],[108,168]];
+function rollWB(r,ilvl){const[lo,hi]=WB_RANGE[r],q=Math.random();return{v:Math.round((lo+(hi-lo)*q)*(1+ilvl*ILVL_SCALE*.5)*NUM),q}}
+const isWeapon=it=>BASES[it.b]&&BASES[it.b].slot==='weapon';
+function weaponBase(it){if(!isWeapon(it))return null;if(!it.wb)it.wb=rollWB(it.r,it.ilvl||1);return it.wb}   // staré zbrane dostanú základ pri prvom použití
+/* hod vlastnosti aj s kvalitou */
+function rollQ(k,ilvl,r,m=1){const S=STATS[k],q=Math.random();const v=(S.lo+(S.hi-S.lo)*q)*(1+ilvl*ILVL_SCALE)*RAR[r].mult*m;const f=Math.pow(10,S.dec);return{k,v:Math.max(1/f,Math.round(v*f)/f),q}}
+/* kvalita uloženej vlastnosti (staré predmety ju dopočítajú z hodnoty) */
+function statQ(it,st,imp){if(st.q!=null)return st.q;const S=STATS[st.k];if(!S||S.hi===S.lo)return 0;const base=(1+it.ilvl*ILVL_SCALE)*RAR[it.r].mult*(imp?2:1);return clamp((st.v/base-S.lo)/(S.hi-S.lo),0,1)}
+const qCls=q=>q>=.995?' q100':q>=.9?' q90':'';
+function itemStats(it){const m=enhMul(it),w=weaponBase(it);
+  return[...(w?[{k:'wb',v:w.v*m,q:w.q,base:true}]:[]),{k:it.imp.k,v:it.imp.v*m,imp:true,q:statQ(it,it.imp,true)},...it.aff.map(a=>({k:a.k,v:a.v*m,q:statQ(it,a,false)}))]}
+function fmtStat(k,v){if(k==='dmgX')return '×'+(1+v/100).toFixed(2);const S=STATS[k];const f=Math.pow(10,S.dec);const n=Math.round(v*f)/f;return '+'+n.toFixed(S.dec)+(S.u?(S.u==='%'?' %':' '+S.u):'')}
 /* Súčet vlastností nasadených predmetov (uložené v medzipamäti, prepočíta sa po zmene výbavy cez bonusDirty()). */
 let _bonus=null;
 function bonusDirty(){_bonus=null}
 function bonus(){if(_bonus)return _bonus;const b={};for(const k in STATS)b[k]=0;
-  if(state&&state.eq)for(const s of SLOTS){const it=state.eq[s];if(it)for(const x of itemStats(it))b[x.k]+=x.v}
+  b.dmgXm=1;   // násobič poškodenia = súčin (1 + x %) zo všetkých nasadených predmetov
+  if(state&&state.eq)for(const s of SLOTS){const it=state.eq[s];if(it)for(const x of itemStats(it)){b[x.k]+=x.v;if(x.k==='dmgX')b.dmgXm*=1+x.v/100}}
   b.mf=b.mf||0;
   if(typeof pilotBonus==='function')pilotBonus(b); // schopnosti pilota (pilot.js)
   for(const k in STATS)if(STATS[k].cap)b[k]=Math.min(STATS[k].cap,b[k]);return _bonus=b}
 
 /* Vylepšenie predmetu: cena rastie s úrovňou a raritou; od +5 hrozí neúspech (stratia sa len suroviny a kredity). */
-function enhCost(it){const n=it.enh+1;return P(C(25*n,n>5?10*(n-5):0,n>10?4*(n-10):0,Math.round(15*Math.pow(n,1.7)*(1+it.r*.35))))}
+function enhCost(it){const n=it.enh+1;return P(C(Math.round(22*Math.pow(n,1.45)),n>5?Math.round(10*Math.pow(n-5,1.4)):0,n>10?Math.round(4*Math.pow(n-10,1.5)):0,Math.round(14*Math.pow(n,2.1)*(1+it.r*.35))))}   // v0.38: strmšie
 const enhChance=it=>it.enh<5?1:Math.max(.3,1-(it.enh-4)*.05);
 const enhMax=it=>RAR[it.r].enh;
 /* Rozobratie: kredity podľa rarity, úrovne predmetu a vylepšenia. */

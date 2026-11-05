@@ -18,7 +18,7 @@ const cmpMode=()=>state.cmpMode||'both';
 function tipCard(it,where,label){const R=RAR[it.r],title=itemTitle(it),slot=BASES[it.b].slot;
   let h=`<div class="itd it r${it.r} tipcard" style="--rc:${R.col}">${label?`<div class="tiplabel">${label}</div>`:''}<div class="itd-head">${icon(it.b)}<div class="itd-names">${title?`<div class="ttl">«${title}»</div>`:''}<div class="nm">${itemName(it)}</div>
     <div class="meta"><span class="rlab">${t('r.'+R.k)}</span> · ${t('slot.'+slot)} · ${t('gear.ilvl',{n:it.ilvl})}${it.lock?' · '+t('gear.isLocked'):''}</div></div></div>
-    <ul class="stats">${itemStats(it).map(x=>`<li class="${x.imp?'imp':''}"><span>${t('s.'+x.k)}</span><b>${fmtStat(x.k,x.v)}</b></li>`).join('')}</ul>`;
+    <ul class="stats">${itemStats(it).map(x=>`<li class="${x.imp?'imp':''}${x.base?' wbase':''}${qCls(x.q)}"><span>${t('s.'+x.k)}</span><b>${fmtStat(x.k,x.v)}</b></li>`).join('')}</ul>`;
   return h}
 function tipHtml(f){const it=f.it,slot=BASES[it.b].slot,m=cmpMode();
   const eq=f.where!=='eq'&&slot!=='chip'&&state.eq[slot]&&state.eq[slot].id!==it.id?state.eq[slot]:null;

@@ -73,7 +73,7 @@ function hitEnemy(e,dmg,side){if(e.invuln)dmg=arenaHitFilter(e,dmg);e.hp-=dmg;if
   if(e.hp<=0)killEnemy(e)}
 function killEnemy(e){sfx('boom',e.pos.clone());const P=PIRATES[e.kind];world.remove(e.g);enemies=enemies.filter(x=>x!==e);pickables=pickables.filter(p=>p!==e.proxy);if(attackTarget===e)attackTarget=null;
   for(let i=0;i<(e.kind==='carrier'?160:e.kind==='dread'?110:e.kind==='frigate'?70:e.kind==='corsair'?40:22);i++)emit(debris,e.pos,['#ff8a5c','#ffe2a8','#ff3b2f'][i%3],.6+Math.random()*.8,new V3((Math.random()-.5)*22,Math.random()*5,(Math.random()-.5)*22));
-  missionKill();if(e.wasPassive)passiveQ.push({belt:e.belt,t:rnd(...(PASSIVE[state.cur]||{respawn:[120,120]}).respawn)});
+  missionKill();missionBounty(e);if(e.wasPassive)passiveQ.push({belt:e.belt,t:rnd(...(PASSIVE[state.cur]||{respawn:[120,120]}).respawn)});
   const cr=Math.round(rnd(P.cr[0],P.cr[1])*secGain(state.cur)*crMul());state.credits+=cr;bump('#crTxt');xpAt(XP.kill[e.kind]||0);
   if(Math.random()<P.drop){const z=Math.min(5,zoneOf(Math.hypot(e.pos.x,e.pos.z)));spawnLoot(dropItem(e.kind==='fighter'||e.kind==='swarm'?'enemy':e.kind,Math.max(2,z),e.kind==='frigate'?4:e.kind==='corsair'?3:0),e.pos)}
   if(raidActive&&!enemies.some(x=>!x.leaving&&!x.wasPassive)){raidActive=false;const bonus=Math.round(PIRATES.repelBonus*raidCount*crMul());state.credits+=bonus;toast(t('tt.repelled',{c:bonus}),true);missionRaid(true);save()}}

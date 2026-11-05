@@ -372,11 +372,11 @@ function updateGate(){if(gate){world.remove(gate);pickables=pickables.filter(p=>
    Bez čipu ťaží len rudu vo vnútorných pásoch. AI jadro od rarity Neobyčajné povolí viridit, od Vzácne obranu, od Epické kryštály. */
 function droneStats(m){const F=MOD_FX.drone,e=m.enh||0;
   const can={ore:true,green:chipCan(m,'green'),crystal:chipCan(m,'crystal')};
-  return{rate:F.rate*(1+F.ratePer*e)*(1+chipStat(m,'dMine')/100),cap:F.cap+F.capPer*e+chipStat(m,'dCap'),speed:F.speed*(1+F.speedPer*e)*(1+chipStat(m,'dSpeed')/100),
-    dmg:F.dmg*(1+F.dmgPer*e)*(1+chipStat(m,'dDmg')/100),range:F.range,res:can[m.res]?m.res:'ore',can,def:m.mode==='def'&&chipCan(m,'def')}}
-function towerStats(m){const F=MOD_FX.tower,e=m.enh||0;return{dmg:F.dmg*(1+F.dmgPer*e)*(1+chipStat(m,'tDmg')/100),rate:F.rate*(1+chipStat(m,'tRate')/100),range:F.range+F.rangePer*e+chipStat(m,'tRange')}}
-const sensorIncome=m=>MOD_FX.sensor.green*(1+MOD_FX.sensor.incPer*(m.enh||0))*(1+chipStat(m,'sInc')/100);
-const droneIncome=m=>MOD_FX.drone.income*(1+MOD_FX.drone.ratePer*(m.enh||0))*(1+chipStat(m,'dMine')/100);
+  return{rate:F.rate*enhK(F.ratePer,e)*(1+chipStat(m,'dMine')/100),cap:F.cap+F.capPer*e*(1+.08*e)+chipStat(m,'dCap'),speed:F.speed*(1+F.speedPer*e)*(1+chipStat(m,'dSpeed')/100),
+    dmg:F.dmg*enhK(F.dmgPer,e)*(1+chipStat(m,'dDmg')/100),range:F.range,res:can[m.res]?m.res:'ore',can,def:m.mode==='def'&&chipCan(m,'def')}}
+function towerStats(m){const F=MOD_FX.tower,e=m.enh||0;return{dmg:F.dmg*enhK(F.dmgPer,e)*(1+chipStat(m,'tDmg')/100),rate:F.rate*(1+chipStat(m,'tRate')/100),range:F.range+F.rangePer*e+chipStat(m,'tRange')}}
+const sensorIncome=m=>MOD_FX.sensor.green*enhK(MOD_FX.sensor.incPer,m.enh||0)*(1+chipStat(m,'sInc')/100);
+const droneIncome=m=>MOD_FX.drone.income*enhK(MOD_FX.drone.ratePer,m.enh||0)*(1+chipStat(m,'dMine')/100);
 const DRONE_GEO=new THREE.OctahedronGeometry(.55,0);
 /* ==================== v0.19.5: MODEL ŤAŽOBNÉHO DRONA ====================
    Tmavý oceľový dron: zaoblený pancierový trup so šikmým nosom, vrstvené vrchné pláty s priduchmi, dva spodné „kly“ vpredu

@@ -37,6 +37,7 @@ function migrate(s){
   for(const k of['weapon'])if(s.ship.gun==null){s.ship.gun=1;s.ship.gunRate=1}
   // sektory obsadené pred v0.5: vyplatí sa ich odmena v kredítoch
   s.sec.forEach((x,i)=>{if(x.captured&&!x.rewarded){s.credits+=SECTORS[i].reward.cr;x.rewarded=true}});
+  if(s.tier){const cap=s.sec.filter(x=>x.captured).length,best=(s.arena&&s.arena.best)||0;s.tier=Math.min(s.tier,cap+2*Math.floor(best/5))}   // v0.38: výzva len do odomknutej úrovne
   return s}
 function loadState(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return null;const s=JSON.parse(raw);if(s&&s.v===3&&Array.isArray(s.sec))return migrate(s)}catch(e){}return null}
 let state=null;
@@ -83,7 +84,7 @@ function shipVal(k){const v=upVal(k,state.ship[k]);const b=bonus();
     case'sregen':return{delay:Math.max(3,v.delay-b.sdelay),rate:v.rate*(1+b.sregen/100)};
     case'laser':return v*(1+b.mine/100);
     case'range':return v+b.range;
-    case'gun':return v*(1+b.dmg/100);
+    case'gun':return(v+(b.wb||0))*(1+b.dmg/100)*(b.dmgXm||1);   // v0.38: poškodenie lode + základ modulu zbrane, percentá násobia oboje
     case'gunRate':return v*(1+b.frate/100)}
   return v}
 /* Kritický zásah: šanca = CRIT_BASE % + vlastnosť crit (max. 75 %), poškodenie = 1 + (CRIT_DMG % + critDmg) / 100 (základ = dvojnásobok). */

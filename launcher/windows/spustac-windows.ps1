@@ -21,9 +21,12 @@ $osSig = @'
 [DllImport("kernel32.dll")] public static extern System.IntPtr GetConsoleWindow();
 [DllImport("user32.dll")] public static extern bool ShowWindow(System.IntPtr h, int n);
 [DllImport("dwmapi.dll")] public static extern int DwmSetWindowAttribute(System.IntPtr h, int a, ref int v, int s);
+[DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)] public static extern int SetCurrentProcessExplicitAppUserModelID(string id);
 '@
 try { Add-Type -Name Win -Namespace OsLauncher -MemberDefinition $osSig } catch {}
 try { $cw = [OsLauncher.Win]::GetConsoleWindow(); if ($cw -ne [IntPtr]::Zero) { [void][OsLauncher.Win]::ShowWindow($cw, 0) } } catch {}
+# v0.38: vlastné ID aplikácie – panel úloh potom ukáže ikonu hry (okna panela), nie ikonu PowerShellu
+try { [void][OsLauncher.Win]::SetCurrentProcessExplicitAppUserModelID('Reborneus.OrbitalneSektory.Launcher') } catch {}
 
 # --- nastavenie repozitára a priečinkov ---
 $Repo       = 'reborneus/orbitalnesektory'

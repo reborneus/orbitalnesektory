@@ -25,7 +25,7 @@ function detailHtml(f){const it=f.it,R=RAR[it.r],title=itemTitle(it),slot=BASES[
   let h=`<div class="itd it r${it.r}${cmp?' compact':''}" ${rc(it)}>
     <div class="itd-head">${icon(it.b)}<div class="itd-names">${title?`<div class="ttl">«${title}»</div>`:''}<div class="nm">${itemName(it)}</div>
       <div class="meta"><span class="rlab">${t('r.'+R.k)}</span> · ${t('slot.'+slot)} · ${t('gear.ilvl',{n:it.ilvl})}${it.lock?' · '+t('gear.isLocked'):''}</div></div></div>
-    ${cmp?'':`<ul class="stats">${itemStats(it).map(x=>`<li class="${x.imp?'imp':''}"><span>${t('s.'+x.k)}</span><b>${fmtStat(x.k,x.v)}</b></li>`).join('')}</ul>`}`;
+    ${cmp?'':`<ul class="stats">${itemStats(it).map(x=>`<li class="${x.imp?'imp':''}${x.base?' wbase':''}${qCls(x.q)}"><span>${t('s.'+x.k)}</span><b>${fmtStat(x.k,x.v)}</b></li>`).join('')}</ul>`}`;
   if(!cmp&&f.where==='inv'&&slot!=='chip'&&state.eq[slot]&&(state.cmpMode||'both')!=='off')h+=cmpHtml(it,state.eq[slot]);
   h+=`<div class="itd-acts">`;
   if(slot==='chip')h+=`<p class="note" style="margin:0;flex-basis:100%">${t('gear.chipNote')}</p>`;

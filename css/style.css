@@ -801,3 +801,18 @@ body.hudc .wbtn .wbi{width:40px;height:40px}body.hudc .wbtn .wbl{font-size:10px}
 /* v0.36.1: počítadlo FPS a voľby limitu */
 #fpsCnt{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 4px);z-index:30;pointer-events:none;font:700 11px/1 var(--f-data);color:#7ef2a8;background:rgba(0,0,0,.55);padding:3px 7px;border-radius:5px}
 .fpsopts{flex-wrap:wrap}
+
+/* v0.38: tlačidlo ovládača na objekte v dosahu */
+.wbtn .wbi{position:relative}
+.wbpad{display:none;position:absolute;right:-6px;bottom:-6px;min-width:18px;height:18px;border-radius:9px;background:#1fbf6a;color:#04110a;font:700 11px/18px var(--f-data);text-align:center;padding:0 3px;box-shadow:0 0 8px rgba(31,191,106,.6)}
+body.pad .wbtn.ready .wbpad{display:block}
+
+/* v0.38: kvalita vlastností predmetu – ≥ 90 % rozsahu zlato, 100 % hrubo červeno; základ zbrane zvýraznený */
+.stats li.q90 span,.stats li.q90 b,.qs.q90{color:#ffd24a!important;text-shadow:0 0 8px rgba(255,210,74,.45)}
+.stats li.q100 span,.stats li.q100 b,.qs.q100{color:#ff3b3b!important;font-weight:800!important;text-shadow:0 0 10px rgba(255,59,59,.55)}
+.stats li.wbase{border-bottom:1px solid var(--line);padding-bottom:4px;margin-bottom:2px}
+.stats li.wbase b{font-size:1.08em}
+
+/* v0.38: zamknuté úrovne výzvy */
+.trsq.lock{display:grid;place-items:center;background:rgba(255,255,255,.02);border-color:rgba(130,175,215,.18);opacity:.75}
+.trsq.lock svg{width:46%;height:46%;stroke:var(--muted);fill:none;stroke-width:1.8}

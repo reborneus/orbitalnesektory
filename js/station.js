@@ -18,7 +18,7 @@ function modRefund(s,m){const c=MOD[m.t].cost(countMod(s,m.t)-1),sp=m.spent||C()
   return C(Math.floor(c.ore*SELL_BUILD+sp.ore*SELL_ENH),Math.floor(c.green*SELL_BUILD+sp.green*SELL_ENH),Math.floor(c.crystal*SELL_BUILD+sp.crystal*SELL_ENH),Math.floor((sp.cr||0)*SELL_ENH))}
 function chipHtml(m,i){let h=`<div class="sec-h"><span>${t('chip.h')}</span></div>`;
   if(m.chip){const it=m.chip;h+=`<div class="mchip it r${it.r}" style="--rc:${RAR[it.r].col}">${icon(it.b)}<div class="eqc-txt"><b>${itemName(it)}</b><small>${t('r.'+RAR[it.r].k)} · ${t('gear.ilvl',{n:it.ilvl})}</small>
-      <small>${itemStats(it).map(x=>`${t('s.'+x.k)} ${fmtStat(x.k,x.v)}`).join(' · ')}</small></div></div>`;
+      <small>${itemStats(it).map(x=>`<span class="qs${qCls(x.q)}">${t('s.'+x.k)} ${fmtStat(x.k,x.v)}</span>`).join(' · ')}</small></div></div>`;
     h+=`<button class="btn" data-act="chipOut" data-i="${i}">${t('btn.chipOut')}</button>`}
   else{const fit=state.inv.filter(it=>BASES[it.b].mod===m.t).sort(byRarity);
     h+=fit.length?`<p class="note" style="margin:0">${t('chip.pick')}</p><div class="mchips">${fit.map(it=>`<button class="itm it r${it.r}" style="--rc:${RAR[it.r].col}" data-act="chipIn" data-i="${i}" data-id="${it.id}" title="${t('r.'+RAR[it.r].k)} ${t('base.'+it.b)}">${icon(it.b)}${it.enh?`<span class="enh">+${it.enh}</span>`:''}<span class="il">${it.ilvl}</span></button>`).join('')}</div>`:`<p class="note" style="margin:0">${t('chip.none')}</p>`}

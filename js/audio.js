@@ -22,6 +22,10 @@ function sndBuses(){
   // dozvuk: impulz = doznievajúci šum (2,8 s), vo vesmíre zvuk pôsobí „priestranne“
   const L=AC.sampleRate*3.6,ir=AC.createBuffer(2,L,AC.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);let lp=0;for(let i=0;i<L;i++){lp+=((Math.random()*2-1)-lp)*(.35-.25*i/L);d[i]=lp*Math.pow(1-i/L,2.2)*1.6}}   // tmavší, dlhší dozvuk
   SB.rev.buffer=ir;SB.revIn.connect(SB.rev);SB.rev.connect(SB.master);SB.revIn.gain.value=.5;
+  // v0.38: vesmírna ozvena (ping-pong medzi kanálmi, tmavne s každým odrazom) – dlhší „filmový“ chvost výstrelov
+  {SB.echoIn=AC.createGain();const dl=AC.createDelay(1),dr=AC.createDelay(1);dl.delayTime.value=.23;dr.delayTime.value=.31;const fb=AC.createGain();fb.gain.value=.42;const lp=filt('lowpass',1600,.6);
+    const mL=AC.createChannelMerger(2),pl=AC.createGain(),pr=AC.createGain();SB.echoIn.connect(dl);dl.connect(lp);lp.connect(dr);dr.connect(fb);fb.connect(dl);
+    dl.connect(pl);dr.connect(pr);pl.connect(mL,0,0);pr.connect(mL,0,1);const eo=AC.createGain();eo.gain.value=.55;mL.connect(eo);eo.connect(SB.sfx)}
   // spoločný biely šum (2 s)
   const N=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate),nd=N.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;SB.noise=N;
   sndApply()}
@@ -73,8 +77,8 @@ const SFX={
   /* v0.37: výstrely podľa hráčových ukážok (Dark / Deep / Universe / Bass): bleskový pokles výšky na začiatku („piu“),
      potom hutné basové telo – pílovitý tón 60–110 Hz cez zatvárajúci sa filter, sub-bas a tmavé doznievanie šumu. */
   laser(pos,o={}){const st=o.st||'blue',k=(o.fx?.45:1)*(o.tower?1.1:1),t=now(),j=.97+Math.random()*.06;
-    const P={grey:{f0:2400,b:105,d:.28,cut:1800,ds:2,sub:.35,tail:.45},blue:{f0:3200,b:82,d:.38,cut:2400,ds:2.5,sub:.5,tail:.6},gold:{f0:2600,b:62,d:.5,cut:2000,ds:3,sub:.7,tail:.8},
-      red:{f0:3600,b:74,d:.45,cut:2800,ds:6,sub:.6,tail:.7,trem:34},primal:{f0:4200,b:55,d:.6,cut:3200,ds:2,sub:.65,tail:1,chord:1}}[st]||{f0:3200,b:82,d:.38,cut:2400,ds:2.5,sub:.5,tail:.6};
+    const P={grey:{f0:2400,b:105,d:.42,cut:1800,ds:2,sub:.35,tail:.8,ring:520},blue:{f0:3200,b:82,d:.58,cut:2400,ds:2.5,sub:.5,tail:1.1,ring:410},gold:{f0:2600,b:62,d:.75,cut:2000,ds:3,sub:.7,tail:1.4,ring:330},
+      red:{f0:3600,b:74,d:.68,cut:2800,ds:6,sub:.6,tail:1.2,trem:34,ring:370},primal:{f0:4200,b:55,d:.9,cut:3200,ds:2,sub:.65,tail:1.7,chord:1,ring:290}}[st]||{f0:3200,b:82,d:.58,cut:2400,ds:2.5,sub:.5,tail:1.1,ring:410};   // v0.38: dlhšie (inšpirácia DarkOrbit)
     const tw=o.tower?.78:1,d=P.d*(o.tower?1.25:1),out=outNode(SB.sfx,pos,.2,d+P.tail+.4);const m=AC.createGain();m.gain.value=.55*k;m.connect(out);
     // 1) „piu“: rýchly pokles zhora do basu
     {const g=AC.createGain();env(g,t,.002,.22,.11);g.connect(m);const lp=filt('lowpass',5000,.8);lp.connect(g);const x=osc('sawtooth',P.f0*j*tw,t,.13,lp);x.frequency.exponentialRampToValueAtTime(P.b*1.5*tw,t+.09)}
@@ -85,6 +89,9 @@ const SFX={
       for(const dt of[-9,9]){const x=osc('sawtooth',P.b*1.9*j*tw,t,d+.05,tg);x.detune.value=dt;x.frequency.exponentialRampToValueAtTime(P.b*j*tw,t+d*.6)}
       if(P.chord)for(const r of[1.5,2.01]){const x=osc('sawtooth',P.b*r*1.9*j,t,d,tg);x.frequency.exponentialRampToValueAtTime(P.b*r*j,t+d*.6)}}
     // 3) sub-bas a 4) tmavé doznievanie (šum cez nízky filter)
+    // kovové doznievanie (rezonancia trupu zbrane) a ozvena – dlhší chvost ako v klasických vesmírnych hrách
+    {const g=AC.createGain();env(g,t+.02,.01,.08,d+.5);g.connect(m);const bp=filt('bandpass',P.ring*tw,22);bp.connect(g);noise(t,d+.6,bp,.7);const o2=AC.createGain();env(o2,t+.02,.01,.05,d+.4);o2.connect(m);osc('sine',P.ring*tw*1.5,t,d+.45,o2)}
+    if(!o.fx){const es=AC.createGain();es.gain.value=.28;m.connect(es);es.connect(SB.echoIn)}
     sub(t,P.b*1.2*tw,34,d+.15,P.sub,m);
     {const g=AC.createGain();env(g,t+.03,.03,.12,P.tail);g.connect(m);const lp=filt('lowpass',700,.7);lp.connect(g);lp.frequency.exponentialRampToValueAtTime(120,t+P.tail);noise(t,P.tail+.1,lp,.5)}},
   /* blesk (Božská zbraň): krátke „nabitie“ s vlniacim sa filtrom a hlboký výboj s padajúcimi harmonickými (ako charge-zap) */
@@ -95,14 +102,14 @@ const SFX={
       const ng=AC.createGain();env(ng,tt,.002,.3,1);ng.connect(m);const nl=filt('lowpass',3000,.7);nl.connect(ng);nl.frequency.exponentialRampToValueAtTime(200,tt+1);noise(tt,1.05,nl,.8);sub(tt,90,30,.8,.7,m)}},
   /* piráti: bzučivé „stredné“ výstrely s rýchlym chvením (ako laser-1) – odlíšené od hráča, ale tiež tmavé */
   pirate(pos){const t=now(),j=.94+Math.random()*.12,out=outNode(SB.sfx,pos,.32,.9),m=AC.createGain();m.gain.value=.4;m.connect(out);
-    const sat=dist(4),bp=filt('bandpass',900,1.1),g=AC.createGain();env(g,t,.003,.4,.32);sat.connect(bp);bp.connect(g);g.connect(m);bp.frequency.exponentialRampToValueAtTime(300,t+.3);
-    const tr=AC.createGain();tr.gain.value=.55;tr.connect(sat);const lf=AC.createOscillator();lf.frequency.value=38;const lg=AC.createGain();lg.gain.value=.45;lf.connect(lg);lg.connect(tr.gain);lf.start(t);lf.stop(t+.4);
-    for(const d of[-12,12]){const x=osc('sawtooth',220*j,t,.36,tr);x.detune.value=d;x.frequency.exponentialRampToValueAtTime(110*j,t+.3)}sub(t,90,40,.25,.3,m)},
+    const sat=dist(4),bp=filt('bandpass',900,1.1),g=AC.createGain();env(g,t,.003,.4,.5);{const es=AC.createGain();es.gain.value=.2;m.connect(es);es.connect(SB.echoIn)}sat.connect(bp);bp.connect(g);g.connect(m);bp.frequency.exponentialRampToValueAtTime(300,t+.3);
+    const tr=AC.createGain();tr.gain.value=.55;tr.connect(sat);const lf=AC.createOscillator();lf.frequency.value=38;const lg=AC.createGain();lg.gain.value=.45;lf.connect(lg);lg.connect(tr.gain);lf.start(t);lf.stop(t+.6);
+    for(const d of[-12,12]){const x=osc('sawtooth',220*j,t,.55,tr);x.detune.value=d;x.frequency.exponentialRampToValueAtTime(95*j,t+.45)}sub(t,90,40,.35,.3,m)},
   hit(pos){const t=now(),out=outNode(SB.sfx,pos,.3,.7);burst(t,.09,'lowpass',1400,.7,.35,out,.7);
     const g=AC.createGain();env(g,t,.002,.07,.35);g.connect(out);const b=filt('bandpass',900+Math.random()*1400,18);b.connect(g);noise(t,.4,b);sub(t,110,40,.18,.35,out)},   // náraz + kovové zvonenie trupu
   hurt(){const t=now(),out=outNode(SB.sfx,null,.3,.9);const sat=dist(4);sat.connect(out);burst(t,.35,'lowpass',900,.8,.6,sat,.7);sub(t,70,30,.45,.6,out);
     const g=AC.createGain();env(g,t,.003,.08,.6);g.connect(out);const b=filt('bandpass',620,25);b.connect(g);noise(t,.65,b)},
-  boom(pos,o={}){const big=o.big?1:0,t=now(),d=1.6+big*2.2,out=outNode(SB.sfx,pos,.55,d+.5);const sat=dist(2.5+big*2);sat.connect(out);
+  boom(pos,o={}){const big=o.big?1:0,t=now(),d=2.2+big*2.4,out=outNode(SB.sfx,pos,.55,d+.5);const sat=dist(2.5+big*2);sat.connect(out);{const es=AC.createGain();es.gain.value=.3;out.connect(es);es.connect(SB.echoIn)}
     burst(t,.05,'highpass',1500,.7,.5,out);                                                    // prasknutie
     const b=burst(t,d,'lowpass',big?2200:3000,.6,.9,sat,.6);b.frequency.setValueAtTime(big?2200:3000,t);b.frequency.exponentialRampToValueAtTime(90,t+d);   // telo výbuchu
     sub(t,big?75:95,22,d*.8,big?1:.7,out);                                                     // sub-basový náraz

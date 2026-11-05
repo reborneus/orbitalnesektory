@@ -6,7 +6,7 @@
 const L10N={
 sk:{
   /* --- v0.7: radiačný štít, misie --- */
-  'm.deliver':'Dodávka: {r}','m.scan':'Prieskum radiácie','m.relic':'Stratený relikt','m.hunt':'Lov na pirátov','m.defend':'Obrana stanice',
+  'm.deliver':'Dodávka: {r}','m.scan':'Prieskum radiácie','m.relic':'Stratený relikt','m.hunt':'Lov na pirátov','m.bounty':'Odmena za hlavu: {k}','md.bounty':'V {zone} sa skrýva hľadaný pirát ({k}) – fialový stĺp na mape. Je silnejší ako ostatní a zaútočí, keď sa priblížiš. Znič ho.','m.defend':'Obrana stanice',
   'md.deliver':'Dovez na stanicu {n} t a vylož ich (počíta sa náklad tvojej lode po prijatí misie).','md.scan':'Leť k označenému bodu v {zone} a zdrž sa v okruhu {rad} m, kým skener nedokončí meranie ({s} s).',
   'md.relic':'V {zone} sa objavil stratený relikt (fialový stĺp). Vyťaž ho – padne z neho predmet aspoň rarity {r}.','md.hunt':'Znič {n} pirátov v tomto sektore.',
   'md.defend':'Odraz najbližší nájazd pirátov tak, aby stanica nepadla. Ak padne, misia zlyhá.',
@@ -23,7 +23,7 @@ sk:{
   'map.paused':'Pasívny príjem je pozastavený: vplyv {a} / {b}. Doplň moduly, aby sektor znova zarábal.',
   'grp.weapon':'Zbrane','up.gun':'Poškodenie zbrane','up.gun.d':'Poškodenie jedného výstrelu laserového dela.','up.gunRate':'Kadencia','up.gunRate.d':'Počet výstrelov za sekundu.',
   'slot.weapon':'Zbraň','slot.chip':'Čip modulu','base.cannon':'Laserové delo','base.droneAI':'AI jadro dronu','base.towerCore':'Zameriavač veže','base.sensorCore':'Zosilňovač senzorov',
-  's.dmg':'Poškodenie zbrane','s.frate':'Kadencia zbrane','s.crit':'Šanca na kritický zásah','s.hit':'Presnosť','cmb.missT':'vedľa','s.critDmg':'Kritické poškodenie','s.grange':'Dosah zbrane','s.dMine':'Výkon ťažby dronu','s.dCap':'Kapacita dronu',
+  's.wb':'Základné poškodenie','s.dmgX':'Násobič poškodenia','s.dmg':'Poškodenie zbrane','s.frate':'Kadencia zbrane','s.crit':'Šanca na kritický zásah','s.hit':'Presnosť','cmb.missT':'vedľa','s.critDmg':'Kritické poškodenie','s.grange':'Dosah zbrane','s.dMine':'Výkon ťažby dronu','s.dCap':'Kapacita dronu',
   's.dSpeed':'Rýchlosť dronu','s.dDmg':'Poškodenie dronu','s.tDmg':'Poškodenie veže','s.tRange':'Dosah veže','s.tRate':'Kadencia veže','s.sInc':'Príjem senzorov','s.inf':'Vplyv modulu',
   'cap.green':'dron ťaží viridit','cap.def':'obranný režim','cap.crystal':'dron ťaží kryštály','cap.need':'od rarity {r} (modul alebo čip)','cap.eff':'Schopnosti dronu: platí vyššia rarita z modulu a AI jadra – teraz {r}.',
   'sp.hp':'Výdrž','sp.down':'Stanica je vyradená, moduly sú offline ešte {s} s.','st.emptySlot':'Prázdny slot {n}','st.buildHere':'Rozbaľ a vyber modul','st.lockedSlot':'Slot {n} – odomkne jadro úrovne {l}',
@@ -109,7 +109,7 @@ sk:{
   'gfx.pr':'Rozlíšenie vykresľovania','gfx.max':'Max','gfx.prd':'Násobok hustoty pixelov obrazovky. Nižšie = rýchlejšie, ale menej ostré.',
   'gfx.fx':'Častice a efekty','gfx.fxd':'Množstvo iskier, úlomkov a stôp motorov.','gfx.bg':'Animované pozadie','gfx.bgd':'Pohyb hmlovín, diskov a hviezd v pozadí. Vypnuté = statický obraz (šetrí výkon).',
   'gfx.fps':'Limit snímok za sekundu','gfx.nolim':'Podľa monitora','gfx.fpsd':'„Podľa monitora“ kreslí toľko snímok, koľko zvládne tvoj monitor – aj 144, 240 či 360 Hz. 30 snímok šetrí batériu na telefóne.','gfx.cnt':'Ukazovať FPS','gfx.cntd':'Malé počítadlo snímok za sekundu v rohu obrazovky.',
-  'tr.h':'Úroveň výzvy','snd.h':'Zvuk','snd.m':'Celková hlasitosť','snd.mu':'Hudba','snd.s':'Efekty','snd.u':'Rozhranie','snd.sp':'Priestorový zvuk','snd.d':'Všetky zvuky a hudba sa tvoria priamo v hre. Priestorový zvuk: výstrely a výbuchy počuť zo strany, kde sa dejú (najlepšie v slúchadlách).','tr.tab':'Výzva','tr.none':'žiadna','tr.p':'Vyššia výzva = silnejší piráti a radiácia, ale aj väčšie odmeny: viac surovín, kreditov, XP a vzácnejšia korisť. Meniť ju môžeš pri stanici – klikni na štvorček.',
+  'tr.h':'Úroveň výzvy','tr.lock':'Zamknuté – odomkneš obsadením ďalšieho sektora alebo vlnami v aréne','tr.un':'Odomknuté: {n} / {m} · +1 za každý obsadený sektor, +2 za každých 5 vĺn v aréne (najlepší beh). Pri zmene sa sektor znova načíta.','snd.h':'Zvuk','snd.m':'Celková hlasitosť','snd.mu':'Hudba','snd.s':'Efekty','snd.u':'Rozhranie','snd.sp':'Priestorový zvuk','snd.d':'Všetky zvuky a hudba sa tvoria priamo v hre. Priestorový zvuk: výstrely a výbuchy počuť zo strany, kde sa dejú (najlepšie v slúchadlách).','tr.tab':'Výzva','tr.none':'žiadna','tr.p':'Vyššia výzva = silnejší piráti a radiácia, ale aj väčšie odmeny: viac surovín, kreditov, XP a vzácnejšia korisť. Meniť ju môžeš pri stanici – klikni na štvorček.',
   'tr.hp':'Výdrž pirátov','tr.dmg':'Poškodenie pirátov','tr.rad':'Radiácia','tr.gain':'Suroviny, kredity a XP','tr.mf':'Šanca na vzácnu korisť',
   'tr.next':'Výzva +{n}: piráti {h} výdrže, odmeny {g}.','tr.far':'Výzvu môžeš zmeniť len pri stanici.','tr.set':'Úroveň výzvy: +{n}',
   'sec6.name':'Pirátska aréna','sec6.sub':'Žiadna ťažba – piráti útočia vo vlnách. Po každej vlne čaká v strede odmena v kozmickej anomálii.',
@@ -212,7 +212,7 @@ sk:{
 },
 en:{
   /* --- v0.7: radiation shield, missions --- */
-  'm.deliver':'Delivery: {r}','m.scan':'Radiation survey','m.relic':'Lost relic','m.hunt':'Pirate hunt','m.defend':'Station defense',
+  'm.deliver':'Delivery: {r}','m.scan':'Radiation survey','m.relic':'Lost relic','m.hunt':'Pirate hunt','m.bounty':'Bounty: {k}','md.bounty':'A wanted pirate ({k}) is hiding in the {zone} – purple pillar on the map. It is stronger than the others and attacks when you get close. Destroy it.','m.defend':'Station defense',
   'md.deliver':'Bring {n} t to the station and unload it (your ship’s cargo counts after you accept).','md.scan':'Fly to the marked point in the {zone} and stay within {rad} m until the scanner finishes ({s} s).',
   'md.relic':'A lost relic appeared in the {zone} (purple pillar). Mine it – it drops an item of at least {r} rarity.','md.hunt':'Destroy {n} pirates in this sector.',
   'md.defend':'Repel the next pirate raid without the station falling. If it falls, the mission fails.',
@@ -229,7 +229,7 @@ en:{
   'map.paused':'Passive income paused: influence {a} / {b}. Add modules so the sector earns again.',
   'grp.weapon':'Weapons','up.gun':'Weapon damage','up.gun.d':'Damage of one laser cannon shot.','up.gunRate':'Fire rate','up.gunRate.d':'Shots per second.',
   'slot.weapon':'Weapon','slot.chip':'Module chip','base.cannon':'Laser cannon','base.droneAI':'Drone AI core','base.towerCore':'Tower targeting core','base.sensorCore':'Sensor amplifier',
-  's.dmg':'Weapon damage','s.frate':'Weapon fire rate','s.crit':'Critical hit chance','s.hit':'Accuracy','cmb.missT':'miss','s.critDmg':'Critical damage','s.grange':'Weapon range','s.dMine':'Drone mining power','s.dCap':'Drone capacity',
+  's.wb':'Base damage','s.dmgX':'Damage multiplier','s.dmg':'Weapon damage','s.frate':'Weapon fire rate','s.crit':'Critical hit chance','s.hit':'Accuracy','cmb.missT':'miss','s.critDmg':'Critical damage','s.grange':'Weapon range','s.dMine':'Drone mining power','s.dCap':'Drone capacity',
   's.dSpeed':'Drone speed','s.dDmg':'Drone damage','s.tDmg':'Tower damage','s.tRange':'Tower range','s.tRate':'Tower fire rate','s.sInc':'Sensor income','s.inf':'Module influence',
   'cap.green':'drone mines viridite','cap.def':'defense mode','cap.crystal':'drone mines crystals','cap.need':'from {r} (module or chip)','cap.eff':'Drone abilities use the higher rarity of the module and its AI core – now {r}.',
   'sp.hp':'Integrity','sp.down':'The station is knocked out; modules are offline for {s} more s.','st.emptySlot':'Empty slot {n}','st.buildHere':'Expand and pick a module','st.lockedSlot':'Slot {n} – unlocks at core level {l}',
@@ -315,7 +315,7 @@ en:{
   'gfx.pr':'Render resolution','gfx.max':'Max','gfx.prd':'Multiple of the screen pixel density. Lower = faster but less sharp.',
   'gfx.fx':'Particles and effects','gfx.fxd':'Amount of sparks, debris and engine trails.','gfx.bg':'Animated background','gfx.bgd':'Motion of nebulae, disks and stars in the background. Off = static image (saves performance).',
   'gfx.fps':'Frame rate limit','gfx.nolim':'Match monitor','gfx.fpsd':'“Match monitor” renders as many frames as your monitor can show – even 144, 240 or 360 Hz. 30 frames saves battery on a phone.','gfx.cnt':'Show FPS','gfx.cntd':'A small frames-per-second counter in the corner of the screen.',
-  'tr.h':'Challenge level','snd.h':'Sound','snd.m':'Master volume','snd.mu':'Music','snd.s':'Effects','snd.u':'Interface','snd.sp':'Spatial sound','snd.d':'All sounds and music are generated in the game. Spatial sound: shots and explosions come from the side where they happen (best with headphones).','tr.tab':'Challenge','tr.none':'none','tr.p':'Higher challenge = stronger pirates and radiation, but bigger rewards too: more resources, credits, XP and rarer loot. Change it at the station – click a square.',
+  'tr.h':'Challenge level','tr.lock':'Locked – unlock it by capturing another sector or by arena waves','tr.un':'Unlocked: {n} / {m} · +1 for each captured sector, +2 for every 5 arena waves (best run). Changing it reloads the sector.','snd.h':'Sound','snd.m':'Master volume','snd.mu':'Music','snd.s':'Effects','snd.u':'Interface','snd.sp':'Spatial sound','snd.d':'All sounds and music are generated in the game. Spatial sound: shots and explosions come from the side where they happen (best with headphones).','tr.tab':'Challenge','tr.none':'none','tr.p':'Higher challenge = stronger pirates and radiation, but bigger rewards too: more resources, credits, XP and rarer loot. Change it at the station – click a square.',
   'tr.hp':'Pirate integrity','tr.dmg':'Pirate damage','tr.rad':'Radiation','tr.gain':'Resources, credits and XP','tr.mf':'Rare loot chance',
   'tr.next':'Challenge +{n}: pirates {h} integrity, rewards {g}.','tr.far':'You can change the challenge only at the station.','tr.set':'Challenge level: +{n}',
   'sec6.name':'Pirate Arena','sec6.sub':'No mining – pirates attack in waves. After each wave a reward waits in a cosmic anomaly in the middle.',

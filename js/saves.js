@@ -10,11 +10,14 @@
      krok do SAVE_MIGRATIONS (index i prevedie schému i na i+1). Pri načítaní sa kroky spustia postupne,
      potom ešte migrate() zo state.js doplní chýbajúce polia – takže uloženie zo staršej verzie vždy pokračuje.
    Stará hra (kľúč SAVE_KEY z verzií ≤ 0.29) sa pri prvom spustení prenesie do slotu 1 (pôvodný kľúč zostane nedotknutý). */
-const SAVE_FMT=1,SAVE_SCHEMA=1,SLOT_N=3,AUTO_N=3,MAN_N=6,AUTO_ROT=300;
+const SAVE_FMT=1,SAVE_SCHEMA=2,SLOT_N=3,AUTO_N=3,MAN_N=6,AUTO_ROT=300;
 const SAVE_IDX='os-saves',PREFS_KEY='os-prefs';
 /* Kroky migrácie: SAVE_MIGRATIONS[i](state) prevedie schému i → i+1. Schéma 0 = surový stav zo starých verzií. */
 const SAVE_MIGRATIONS=[
-  s=>{if(typeof s.playT!=='number')s.playT=0;return s}   // 0 → 1: odohraný čas
+  s=>{if(typeof s.playT!=='number')s.playT=0;return s},   // 0 → 1: odohraný čas
+  s=>{const its=[...(s.inv||[]),...Object.values(s.eq||{}).filter(Boolean),...((s.storage&&s.storage.items)||[])];   // 1 → 2: v0.38 náklad 8× – aj vlastnosť Náklad na predmetoch
+    for(const it of its)for(const st of[it.imp,...(it.aff||[])])if(st&&st.k==='cargo')st.v*=8;
+    if(s.missions)for(const m of[...(s.missions.active||[]),...(s.missions.offers||[])])if(m.type==='deliver'){m.need*=4;m.prog*=4}return s}
 ];
 /* Spoločné nastavenia: tieto polia stavu sa neukladajú do slotu, ale do os-prefs (platia pre všetky sloty aj hlavné menu). */
 const PREF_KEYS=['menuAlpha','hudCompact','hudAuto','padMouse','miniSize','hudPos','cmpMode','snd','gfx','holdFollow'];
