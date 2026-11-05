@@ -26,7 +26,7 @@ function saveSlotCard(n,mode){const E=slotEntries(n),m=E[0];
     ${mode==='new'?`<small class="warn">${t('mn.overwrite')}</small>`:''}</span></button>`}
 /* Riadok uloženia v slote. */
 function entryRow(n,m){const kind=m.label==='import'?'imp':m.kind==='auto'?'auto':'man';
-  return `<div class="mentry"><button class="mload" data-load="${m.k}"><span class="mk ${kind}">${t('mn.k.'+kind)}</span>
+  return `<div class="mentry"><button class="mload" data-load="${m.k}"><span class="mkind ${kind}">${t('mn.k.'+kind)}</span>
     <span class="msi"><b>${sname(m.sec)} · ${t('diff.'+m.diff)}</b><small>${fmtWhen(m.ts)} · ${t('mn.pilot',{n:m.lv})} · ${fmtPlay(m.play)} · v${m.game||'?'}</small></span></button>
     <button class="mdel" data-del="${m.k}" aria-label="${t('mn.del')}" title="${t('mn.del')}">${menuArm==='del'+m.k?t('mn.sure'):'✕'}</button></div>`}
 

@@ -61,7 +61,7 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
 let sheetTab=null,shipGrp='eng',focusIdx=0,setTab='save';   // setTab = sekcia Nastavení (v0.35)
 const sheet=$('#sheet'),body=$('#sheetBody');
 const TABS=['station','ship','gear','pilot','map','settings'];
-function openSheet(tab){applyMenuAlpha();if(sheetTab!==tab)sfx(sheetTab?'click':'open');if(sheetTab!==tab)focusIdx=0;sheetTab=tab;sheet.hidden=false;sheet.classList.toggle('side',tab==='station');renderSheet();document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));lastHint=''}
+function openSheet(tab){applyMenuAlpha();sheet.dataset.tab=tab;if(sheetTab!==tab)sfx(sheetTab?'click':'open');if(sheetTab!==tab)focusIdx=0;sheetTab=tab;sheet.hidden=false;sheet.classList.toggle('side',tab==='station');renderSheet();document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));lastHint=''}
 function closeSheet(){if(typeof tipHide==='function')tipHide();if(sheetTab)sfx('close');sheetTab=null;sheet.hidden=true;document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.remove('on'));lastHint=''}
 function toggleTab(tb){sheetTab===tb?closeSheet():openSheet(tb)}
 function cycleTab(d){const i=TABS.indexOf(sheetTab);openSheet(TABS[(i+d+TABS.length)%TABS.length])}
@@ -150,7 +150,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
 function refreshSheet(){if(!sheetTab)return;
   body.querySelectorAll('[data-need]').forEach(el=>el.classList.toggle('lack',amt(el.dataset.need)<+el.dataset.n));
   body.querySelectorAll('.act[data-ore]').forEach(b=>{b.disabled=b.dataset.block==='1'||state.ore<+b.dataset.ore||state.green<+b.dataset.green||state.crystal<+b.dataset.cry||state.credits<+(b.dataset.crd||0)})}
-function focusables(){return[...body.querySelectorAll('.seg,.act,.langb:not(:disabled),.ghost,.btn,button.lo-slot,.itm,.eqc,summary,.trsq:not(:disabled)')]}   // v0.39.1: aj nasadené predmety na lodi (výbava)
+function focusables(){return[...body.querySelectorAll('.seg,.act,.langb:not(:disabled),.ghost,.btn,button.lo-slot,.itm,.eqc,summary,.trsq:not(:disabled)')].filter(e=>{const d=e.closest('details');return e.getClientRects().length&&(!d||d.open||e.parentElement===d)})}   // v0.39.3: len viditeľné (nie v zbalenom slote – zbalený obsah má v novom Chrome stále rozmery)   // v0.39.1: aj nasadené predmety na lodi (výbava)
 function applyFocus(){body.querySelectorAll('.pad-focus,.pad-focus-in').forEach(el=>el.classList.remove('pad-focus','pad-focus-in'));if(inputMode!=='pad'||!sheetTab)return;
   const f=focusables();if(!f.length)return;focusIdx=clamp(focusIdx,0,f.length-1);const el=f[focusIdx];
   // v0.39.2: zvýrazní sa vždy samotný prvok (tlačidlo); jeho karta / slot dostane len jemný rámik, aby bolo vidieť, v ktorej časti si

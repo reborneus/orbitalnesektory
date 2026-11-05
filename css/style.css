@@ -702,8 +702,8 @@ body.inmenu .sheet{z-index:12}
 .msi small.warn{color:var(--ore)}
 .mentry{display:flex;gap:6px;align-items:stretch}
 .mentry .mload{flex:1;min-width:0;padding:9px 12px}
-.mk{flex:none;font:700 9.5px/1 var(--f-data);letter-spacing:.1em;padding:4px 6px;border-radius:4px;border:1px solid;min-width:52px;text-align:center}
-.mk.auto{color:var(--muted);border-color:var(--line)} .mk.man{color:var(--hull);border-color:rgba(88,208,192,.45)} .mk.imp{color:var(--gold);border-color:rgba(255,210,122,.45)}
+.mkind{flex:none;font:700 9.5px/1 var(--f-data);letter-spacing:.1em;padding:4px 6px;border-radius:4px;border:1px solid;min-width:52px;text-align:center}
+.mkind.auto{color:var(--muted);border-color:var(--line)} .mkind.man{color:var(--hull);border-color:rgba(88,208,192,.45)} .mkind.imp{color:var(--gold);border-color:rgba(255,210,122,.45)}
 .mdel{flex:none;min-width:40px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;font:600 12px/1 inherit;padding:0 10px}
 .mdel:hover{color:var(--warn);border-color:rgba(255,107,94,.5)}
 .mpanel .go{margin-top:4px}
@@ -821,3 +821,7 @@ body.pad .wbtn.ready .wbpad{display:block}
 
 /* v0.39: pri ovládaní ovládačom sa systémový kurzor myši skryje (vráti sa pri pohybe myšou) */
 body.pad,body.pad *{cursor:none!important}
+
+/* v0.39.3: okno Výbavy má pevnú výšku – pri prechode medzi predmetmi (iná karta v náhľade) sa už nemení jeho veľkosť */
+.sheet[data-tab="gear"]{height:70%}
+@media (min-width:900px) and (hover:hover){.sheet[data-tab="gear"]:not(.side){height:calc(100vh - 150px)}}
