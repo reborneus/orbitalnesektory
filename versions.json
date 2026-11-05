@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.51.2", "date": "2026-11-05", "time": "2026-11-05T23:23:40+01:00", "sha": "2d2889e775674b0e5fd51566779fe608d38508d7", "title": "Zdvojená úroveň vylepšenia čipu v module"},
   {"version": "0.51.1", "date": "2026-11-05", "time": "2026-11-05T23:10:52+01:00", "sha": "b4c1cbde14430f5a4ecc0a626afb7294f8eff3a3", "title": "Rýchle rakety, krúženie, Pirátska Hmlovina, anomália, bezpečné zóny, názov mapy"},
   {"version": "0.51.0", "date": "2026-11-05", "time": "2026-11-05T22:39:01+01:00", "sha": "5617984738a6cd56d0ceecd71f1a4fd62c2088a7", "title": "Drony v boji, dosah skenovania, hodnosti, body, radiálne menu"},
   {"version": "0.50.2", "date": "2026-11-05", "time": "2026-11-05T22:14:26+01:00", "sha": "3bdf49e2dfa957c084ceb9122610147b95f99843", "title": "Ostrá minimapa po načítaní, oddeľovače tisícov na kartách"},

@@ -2,6 +2,13 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.51.2",
+"d": "2026-11-05",
+"n": [
+"Čip vložený v module stanice už neukazuje úroveň vylepšenia dvakrát (napr. „+3 +3 Zameriavač veže“)."
+]
+},
+{
 "v": "0.51.1",
 "d": "2026-11-05",
 "n": [
@@ -236,14 +243,6 @@ const CHANGELOG=[
 "d": "2026-11-05",
 "n": [
 "Ovládač: vo Výbave sa dá krížovým ovládačom presunúť aj na nasadené predmety na lodi (štvorce okolo lode) – ukáže sa ich karta a A otvorí akcie, netreba prepínať na myš"
-]
-},
-{
-"v": "0.39.0",
-"d": "2026-11-05",
-"n": [
-"Balans pirátov: výdrž rastie s úrovňou výzvy oveľa strmšie (×2,5 za úroveň), poškodenie mierne (×1,25); s rastúcou výbavou hra pôsobí postupne ľahšie a na úplnom vrchole (najlepšia výbava, výzva +16) padnú stredne silní piráti (korzári) na 1–2 rany, stíhačky na jednu, fregaty na 4–5",
-"Ovládač: pri ovládaní ovládačom sa kurzor myši automaticky skryje (vráti sa, keď pohneš myšou)"
 ]
 }
 ];

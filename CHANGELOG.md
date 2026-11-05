@@ -4,6 +4,9 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 
 ## 0.51
 
+### v0.51.2 · 2026-11-05
+- Čip vložený v module stanice už neukazuje úroveň vylepšenia dvakrát (napr. „+3 +3 Zameriavač veže“).
+
 ### v0.51.1 · 2026-11-05
 - Rakety statických pirátov sú omnoho rýchlejšie a letia cez celú mapu – raketové veže sa oplatí zničiť ako prvé.
 - Autopilot krúži okolo statických pirátov v dosahu svojich zbraní a polovičnou rýchlosťou, takže lepšie trafí.
