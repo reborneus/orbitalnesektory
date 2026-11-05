@@ -151,9 +151,11 @@ function refreshSheet(){if(!sheetTab)return;
   body.querySelectorAll('[data-need]').forEach(el=>el.classList.toggle('lack',amt(el.dataset.need)<+el.dataset.n));
   body.querySelectorAll('.act[data-ore]').forEach(b=>{b.disabled=b.dataset.block==='1'||state.ore<+b.dataset.ore||state.green<+b.dataset.green||state.crystal<+b.dataset.cry||state.credits<+(b.dataset.crd||0)})}
 function focusables(){return[...body.querySelectorAll('.seg,.act,.langb:not(:disabled),.ghost,.btn,button.lo-slot,.itm,.eqc,summary,.trsq:not(:disabled)')]}   // v0.39.1: aj nasadené predmety na lodi (výbava)
-function applyFocus(){body.querySelectorAll('.pad-focus').forEach(el=>el.classList.remove('pad-focus'));if(inputMode!=='pad'||!sheetTab)return;
-  const f=focusables();if(!f.length)return;focusIdx=clamp(focusIdx,0,f.length-1);const el=f[focusIdx];const box=el.classList.contains('act')?(el.closest('.card')||el):el;
-  box.classList.add('pad-focus');box.scrollIntoView({block:'nearest',behavior:'smooth'});
+function applyFocus(){body.querySelectorAll('.pad-focus,.pad-focus-in').forEach(el=>el.classList.remove('pad-focus','pad-focus-in'));if(inputMode!=='pad'||!sheetTab)return;
+  const f=focusables();if(!f.length)return;focusIdx=clamp(focusIdx,0,f.length-1);const el=f[focusIdx];
+  // v0.39.2: zvýrazní sa vždy samotný prvok (tlačidlo); jeho karta / slot dostane len jemný rámik, aby bolo vidieť, v ktorej časti si
+  el.classList.add('pad-focus');const box=el.closest('.card,.mslot,.mbuild');if(box&&box!==el)box.classList.add('pad-focus-in');
+  (box&&box!==el&&box.offsetHeight<body.clientHeight*.8?box:el).scrollIntoView({block:'nearest',behavior:'smooth'});
   if(sheetTab==='gear'&&el.dataset.id&&!el.closest('#gearInsp')&&typeof gearInspect==='function')gearInspect(+el.dataset.id)}   // v0.27
 function moveFocus(v){focusIdx+=v;applyFocus()}
 /* v0.17: priestorový pohyb výberu (krížový ovládač) – vyberie najbližší prvok v danom smere podľa polohy na obrazovke,

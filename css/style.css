@@ -66,7 +66,9 @@ button:focus-visible{outline:2px solid var(--hull);outline-offset:2px}
 kbd{font-family:var(--f-data);font-size:12px;font-weight:700;padding:0 6px;margin:0 1px;border:1px solid rgba(221,231,241,.4);border-bottom-width:2px;border-radius:5px;background:rgba(9,15,27,.75);color:var(--text)}
 .pg{display:none;position:absolute;top:3px;right:5px;font-family:var(--f-data);font-size:10px;line-height:1;padding:2px 4px;border-radius:4px;background:rgba(221,231,241,.14);color:var(--text);letter-spacing:0;text-transform:none}
 body.pad .pg{display:block}
-.pad-focus{outline:2px solid var(--hull);outline-offset:2px;box-shadow:0 0 18px rgba(88,208,192,.25)}
+.pad-focus{outline:2px solid var(--hull)!important;outline-offset:-2px!important;box-shadow:inset 0 0 0 1px rgba(88,208,192,.55),0 0 16px rgba(88,208,192,.45)!important;position:relative;z-index:1}
+button.pad-focus,summary.pad-focus{filter:brightness(1.25)}
+.pad-focus-in{box-shadow:inset 0 0 0 1px rgba(88,208,192,.45)!important}   /* v0.39.2: karta, v ktorej je vybraný prvok */
 #hurt,#radv{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:0}
 #hurt{box-shadow:inset 0 0 120px 30px rgba(255,80,60,.75)}
 #hurt.low{opacity:.3;animation:lowhp 1.4s ease-in-out infinite}
