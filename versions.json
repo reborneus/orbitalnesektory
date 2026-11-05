@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.38.0", "date": "2026-11-05", "time": "2026-11-05T13:42:17+01:00", "sha": "60b98dcbb89794a4d97612e792f62399caffe320", "title": "Väčší náklad, odmena za hlavu, A na objektoch, nový balans zbraní, výzva postupom, dlhšie "},
   {"version": "0.37.0", "date": "2026-11-05", "time": "2026-11-05T13:24:14+01:00", "sha": "cf750211df6ed7cd129f9250ca5b4bfd69bb371f", "title": "Tmavé basové zvuky zbraní podľa ukážok"},
   {"version": "0.36.3", "date": "2026-11-05", "time": "2026-11-05T12:38:13+01:00", "sha": "39a1b29cd2dde7d88c7639533eda2208029f5c5c", "title": "Oprava stáleho šumu"},
   {"version": "0.36.2", "date": "2026-11-05", "time": "2026-11-05T12:26:56+01:00", "sha": "de29fe03e1b7d6ae8e6956a9f7cd7e6315572510", "title": "Filmové zvuky"},
