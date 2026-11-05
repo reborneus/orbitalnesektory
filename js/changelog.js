@@ -2,6 +2,15 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.40.3",
+"d": "2026-11-05",
+"n": [
+"Sokol má druhý slot na laser, Bizón druhý slot na laser aj na štít. Vlastnosti oboch predmetov rovnakého typu sa sčítajú.",
+"Pri nasadení sa predmet vloží do voľného slotu; ak sú oba obsadené, vymení slabší z nich. Klik na prázdny slot ponúkne predmety presne doňho.",
+"Pri prestupe na loď bez slotu navyše sa predmet z neho vráti do inventára. Sloty navyše ukazuje aj karta lode v hangári."
+]
+},
+{
 "v": "0.40.2",
 "d": "2026-11-05",
 "n": [
@@ -228,15 +237,6 @@ const CHANGELOG=[
 "Ručné uloženie ukáže chybu, ak sa nepodarí zapísať (namiesto ticha)",
 "Uložiť a ukončiť: tam, kde sa okno zavrieť nedá (iPhone, aplikácia na ploche, bežná karta), hra uloží a prejde do hlavného menu",
 "Súbory hry majú značku verzie, aby prehliadač a aplikácia na ploche po aktualizácii nemiešali staré a nové súbory"
-]
-},
-{
-"v": "0.31.0",
-"d": "2026-11-05",
-"n": [
-"Nové minerály vo vysokom rozlíšení: tmavý kameň s veľkými štiepnymi plochami, drsným povrchom a bronzovým nádychom na hranách",
-"Cez kameň vedú svietiace pukliny ako blesky, okolo nich vnútorný svit a trblietky – ruda oranžovo, viridit zeleno, kryštály fialovo, zmiešané asteroidy všetkými tromi farbami a relikty zlato",
-"Žily jemne pulzujú; tvar aj vzor povrchu sa počítajú v hre (bez obrázkov), takže je každý asteroid iný"
 ]
 }
 ];

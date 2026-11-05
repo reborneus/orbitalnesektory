@@ -4,6 +4,11 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 
 ## 0.40
 
+### v0.40.3 · 2026-11-05
+- Sokol má druhý slot na laser, Bizón druhý slot na laser aj na štít. Vlastnosti oboch predmetov rovnakého typu sa sčítajú.
+- Pri nasadení sa predmet vloží do voľného slotu; ak sú oba obsadené, vymení slabší z nich. Klik na prázdny slot ponúkne predmety presne doňho.
+- Pri prestupe na loď bez slotu navyše sa predmet z neho vráti do inventára. Sloty navyše ukazuje aj karta lode v hangári.
+
 ### v0.40.2 · 2026-11-05
 - Lov pirátov: nová voľba „Napádať aj pasívnych pirátov“ – automatický lov potom útočí aj na pirátov, ktorí sami neútočia.
 - Lov pirátov: nová voľba „Loviť aj za horizontom“ – loď prenasleduje pirátov aj v radiácii za horizontom (lov stále skončí pri trupe pod 35 %).
