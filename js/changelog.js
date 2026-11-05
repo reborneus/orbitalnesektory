@@ -2,6 +2,17 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.43.0",
+"d": "2026-11-05",
+"n": [
+"Nový ukazovateľ výdrže nepriateľov: väčší, vždy natočený ku kamere, s tmavou dráhou (maximum), farebnou výplňou (červená → oranžová pod 50 % → žltá pod 25 %), bielym dobehom práve ubratého poškodenia a ryhami po 25 %.",
+"Boss, Dreadnought, hľadaný pirát z misie a fregata v boji majú veľký ukazovateľ hore v strede obrazovky – meno, druh, výdrž číslom aj v percentách; nezraniteľný krížnik ukazuje počet zostávajúcich modulov.",
+"Na telefóne na výšku je ukazovateľ bossa dole nad lištou namiesto pomocného textu, takže hraciu plochu nezmenšuje.",
+"Príručka: 3D obrázky minerálov, pirátov, bossov arény, modulov stanice, dronu, sprievodných lodí, obchodníka a zadávateľa misií; mapa stromu výskumu.",
+"Príručka: nové kapitoly Strom výskumu, Vyradená stanica v novom sektore, Grafika a vlastné modely; doplnené automatický lov pirátov, krúženie pri útoku, ukazovatele výdrže, počty pasívnych pirátov, výber štartu arény, sloty navyše a štatistiky pilota."
+]
+},
+{
 "v": "0.42.0",
 "d": "2026-11-05",
 "n": [
@@ -234,15 +245,6 @@ const CHANGELOG=[
 "n": [
 "Ovládanie myšou aj prstom: pri držaní tlačidla loď stále sleduje bod pod kurzorom – aj keď sa myš nehýbe (kamera ide za loďou, takže loď plynulo letí ďalej a nezastaví sa na prvom mieste)",
 "Popisy pri myši (asteroidy, piráti, stanica, HUD) sa obnovujú stále, nielen pri pohybe myšou – napr. zostávajúca surovina asteroidu alebo život piráta sa mení priamo pred očami"
-]
-},
-{
-"v": "0.31.4",
-"d": "2026-11-05",
-"n": [
-"Bez systémových posuvníkov: menu sa už nikdy neposúvajú do strany a zvislé posuvníky sú tenké vo farbe hry",
-"Náhľad mýtických a prvotných predmetov pulzuje len jasom (zväčšovanie vytváralo blikajúce posuvníky)",
-"Panel stanice: opravené rozloženie rozbaleného slotu (zoznam modulov je pod slotom cez celú šírku), panel je širší a tlačidlo Postaviť sa zalomí, keď sa nezmestí"
 ]
 }
 ];

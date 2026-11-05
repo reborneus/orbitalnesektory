@@ -2,6 +2,15 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.43
+
+### v0.43.0 · 2026-11-05
+- Nový ukazovateľ výdrže nepriateľov: väčší, vždy natočený ku kamere, s tmavou dráhou (maximum), farebnou výplňou (červená → oranžová pod 50 % → žltá pod 25 %), bielym dobehom práve ubratého poškodenia a ryhami po 25 %.
+- Boss, Dreadnought, hľadaný pirát z misie a fregata v boji majú veľký ukazovateľ hore v strede obrazovky – meno, druh, výdrž číslom aj v percentách; nezraniteľný krížnik ukazuje počet zostávajúcich modulov.
+- Na telefóne na výšku je ukazovateľ bossa dole nad lištou namiesto pomocného textu, takže hraciu plochu nezmenšuje.
+- Príručka: 3D obrázky minerálov, pirátov, bossov arény, modulov stanice, dronu, sprievodných lodí, obchodníka a zadávateľa misií; mapa stromu výskumu.
+- Príručka: nové kapitoly Strom výskumu, Vyradená stanica v novom sektore, Grafika a vlastné modely; doplnené automatický lov pirátov, krúženie pri útoku, ukazovatele výdrže, počty pasívnych pirátov, výber štartu arény, sloty navyše a štatistiky pilota.
+
 ## 0.42
 
 ### v0.42.0 · 2026-11-05
