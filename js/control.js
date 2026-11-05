@@ -9,7 +9,7 @@ const SHIP_R=2.3,inVec=new V3(),padVec=new V3(),_dv=new V3(),_des=new V3(),_a=ne
 const mineRange=a=>astScale(a)*1.1+shipVal('range');
 const mineStop=a=>mineRange(a)-2.5;
 const nearStation=()=>Math.hypot(ship.position.x,ship.position.z)<STATION_R+14;
-function cmdMove(p){autoPause=6;attackTarget=null;moveTarget=p.clone().setY(0);mineTarget=null;openOnArrive=false}
+function cmdMove(p){autoPause=6;attackTarget=null;moveTarget=p.clone().setY(0);mineTarget=null;openOnArrive=false;if(typeof gateOpenOnArrive!=='undefined')gateOpenOnArrive=false}
 function cmdMine(a){attackTarget=null;if(a.type!=='relic'&&cargoTotal()>=shipVal('cargo')-.01){toast(t('tt.cargoFull'));return}
   mineTarget=a;moveTarget=a.pos.clone().setY(0);openOnArrive=false;fullWarned=false}
 function cmdHome(){attackTarget=null;const dir=ship.position.clone().setY(0);if(dir.lengthSq()<1)dir.set(0,0,1);dir.normalize().multiplyScalar(STATION_R+2);moveTarget=dir;mineTarget=null}
@@ -182,6 +182,6 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
     for(const r of RES){const n=Math.floor(state.cargo[r]);if(state.cargo[r]>0)missionDeliver(r,state.cargo[r]);state[r]+=state.cargo[r];state.cargo[r]=0;if(n>0){parts.push(t('res.'+r+'.gain',{n}));bump('#'+RCLS[r]+'Txt')}}
     fullWarned=false;if(parts.length)toast(t('tt.unloaded',{list:parts.join(', ')}));save();refreshSheet()}
   if(openOnArrive&&dStation<STATION_R+8){openOnArrive=false;openSheet('station')}
-  if(gate&&ship.position.distanceTo(gate.position)<9*GATE_K&&!sheetTab&&!gateNear){gateNear=true;openSheet('gate')}
+  if(gate&&ship.position.distanceTo(gate.position)<9*GATE_K&&!gateNear)gateNear=true;   // v0.33: menu brány už sa pri prelete samo neotvára (tlačidlo nad bránou)
   if(gate&&ship.position.distanceTo(gate.position)>14*GATE_K)gateNear=false}
 let gateNear=false;

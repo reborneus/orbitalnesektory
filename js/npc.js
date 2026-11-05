@@ -41,7 +41,7 @@ function tickNpc(dt,tt){for(const n of npcs){n.g.rotation.y+=dt*.05;const s=14*(
     const near=nearNpc(n.kind);
     if(near&&!npcNear[n.kind]){npcNear[n.kind]=true;
       // automaticky otvorí menu pri ručnom priblížení (nie počas autopilota) alebo po prílete na ťuknutie
-      if(npcOpenOnArrive===n.kind||(!state.autoPilot&&!sheetTab&&!dead))openSheet(NPC_SHEET[n.kind]);npcOpenOnArrive=null}
+      if(npcOpenOnArrive===n.kind&&!dead)openSheet(NPC_SHEET[n.kind]);npcOpenOnArrive=null}   /* v0.33: len po kliku na tlačidlo, nie pri prelete */
     else if(!near&&npcDist(n.kind)>NPC_RANGE+10)npcNear[n.kind]=false}
   if(sheetTab==='trader'){const T=tstate();if(Date.now()>=T.until){renderSheet()}}}
 

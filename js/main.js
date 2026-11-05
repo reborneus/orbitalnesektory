@@ -49,6 +49,7 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
   const look=ship.position.clone().addScaledVector(shipVel,.35);look.y=0;camTarget.lerp(look,1-Math.exp(-dt*3.5));
   const sx=shake>0?(Math.random()-.5)*shake*1.6:0,sz=shake>0?(Math.random()-.5)*shake*1.6:0;shake=Math.max(0,shake-dt*2.2);
   camera.position.set(camTarget.x+sx,52*zoom,camTarget.z+36*zoom+sz);camera.lookAt(camTarget.x+sx*.5,0,camTarget.z+sz*.5);
+  tickWorldBtns();
   hudT-=dt;if(hudT<=0){hudT=.12;updateHUD()}
   miniT-=dt;if(miniT<=0){miniT=.08;drawMini()}
   saveT+=dt;if(saveT>6){saveT=0;save()}

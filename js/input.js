@@ -12,9 +12,7 @@ function tapAt(x,y){autoPause=6;toNdc(x,y);const hits=ray.intersectObjects(picka
   for(const h of hits){const u=h.object.userData;
     if(u.enemy&&enemies.includes(u.enemy)){cmdAttack(u.enemy);return}
     if(u.ast&&u.ast.alive){cmdMine(u.ast);flashMarker(u.ast.pos,'#58d0c0');return}
-    if(u.station){if(nearStation())openSheet('station');else{cmdHome();openOnArrive=true}return}
-    if(u.npc){npcTap(u.npc);return}
-    if(u.gate){cmdMove(gate.position);return}}
+    /* v0.33: stanica, NPC a brána sa otvárajú len cez svoje tlačidlo (worldbtn.js); klik na ne = presun lode */}
   const p=groundAt(x,y);if(p){clampLimit(p);cmdMove(p);flashMarker(p,'#58d0c0')}}
 function flashMarker(p,c){marker.position.set(p.x,.05,p.z);marker.material.color.set(c);markerT=.6}
 canvas.addEventListener('pointerdown',e=>{canvas.focus({preventScroll:true});setMode(e.pointerType==='touch'?'touch':'mouse');pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});canvas.setPointerCapture(e.pointerId);

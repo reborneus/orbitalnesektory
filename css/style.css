@@ -750,3 +750,20 @@ body.inmenu .sheet{z-index:12}
 .mbuild{flex-wrap:wrap}
 .mbuild .eqc-txt{flex:1 1 150px}
 .mbuild .act{flex:none;margin-left:auto}
+
+/* ===================== v0.33: TLAČIDLÁ NA OBJEKTOCH (js/worldbtn.js) ===================== */
+#wbtns{position:fixed;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+.wbtn{position:absolute;left:0;top:0;pointer-events:auto;display:grid;justify-items:center;gap:4px;background:none;border:0;padding:0;cursor:pointer;color:var(--text);
+  opacity:.5;transition:opacity .18s ease,filter .18s ease;font:inherit;-webkit-tap-highlight-color:transparent}
+.wbtn .wbi{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:rgba(9,15,27,.55);border:1.5px solid rgba(160,190,220,.45);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:transform .18s ease,border-color .18s,box-shadow .18s,background .18s}
+.wbtn .wbi svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.6}
+.wbtn .wbl{font:600 11px/1.1 var(--f-data);letter-spacing:.06em;white-space:nowrap;padding:2px 7px;border-radius:6px;background:rgba(9,15,27,.6);text-shadow:0 1px 3px #000}
+.wbtn.station{color:#7fd8ff}.wbtn.giver{color:var(--rad)}.wbtn.trader{color:var(--gold)}.wbtn.gate{color:#7ef2e2}
+/* v dosahu: plne viditeľné a jemne pulzujúce – dá sa otvoriť hneď */
+.wbtn.ready{opacity:.85}.wbtn.ready .wbi{border-color:currentColor;box-shadow:0 0 14px color-mix(in srgb,currentColor 45%,transparent);animation:wbPulse 1.8s ease-in-out infinite}
+/* myš nad tlačidlom: zvýraznenie */
+.wbtn:hover,.wbtn:focus-visible,.wbtn.pmhov{opacity:1;filter:brightness(1.25)}
+.wbtn:hover .wbi,.wbtn:focus-visible .wbi,.wbtn.pmhov .wbi{transform:scale(1.14);border-color:currentColor;background:rgba(9,15,27,.85);box-shadow:0 0 22px color-mix(in srgb,currentColor 60%,transparent);animation:none}
+@keyframes wbPulse{50%{box-shadow:0 0 24px color-mix(in srgb,currentColor 70%,transparent)}}
+body.hudc .wbtn .wbi{width:40px;height:40px}body.hudc .wbtn .wbl{font-size:10px}
