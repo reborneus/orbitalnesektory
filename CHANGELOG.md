@@ -4,6 +4,12 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 
 ## 0.36
 
+### v0.36.1 · 2026-11-05
+- Snímky za sekundu: hra kreslí toľko snímok, koľko zvládne monitor – aj 144, 240 či 360 Hz (predvoľby Stredná, Vysoká aj Ultra); celá hra je od počtu snímok nezávislá
+- Grafika → Limit snímok: 30 / 60 / 120 / 144 / 240 / Podľa monitora; presnejšie dodržiavanie limitu
+- Grafika → Ukazovať FPS: malé počítadlo snímok hore v strede obrazovky
+- Spúšťače (Windows, Mac) spúšťajú prehliadač s plným využitím grafickej karty
+
 ### v0.36.0 · 2026-11-05
 - Zničenie tvojej lode počas nájazdu na stanicu = prehraný súboj: stanica sa hneď vyradí ako pri jej zničení (piráti ukradnú časť surovín, stanica je na chvíľu mimo prevádzky)
 - Odpočet po smrti trvá 10 s a obnovenie treba potvrdiť: Obnoviť na základni (zadarmo, 20 % trupu) alebo Plné obnovenie za kredity (trup aj štíty na maximum, cena podľa veľkosti trupu a štítov)

@@ -2,6 +2,16 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.36.1",
+"d": "2026-11-05",
+"n": [
+"Snímky za sekundu: hra kreslí toľko snímok, koľko zvládne monitor – aj 144, 240 či 360 Hz (predvoľby Stredná, Vysoká aj Ultra); celá hra je od počtu snímok nezávislá",
+"Grafika → Limit snímok: 30 / 60 / 120 / 144 / 240 / Podľa monitora; presnejšie dodržiavanie limitu",
+"Grafika → Ukazovať FPS: malé počítadlo snímok hore v strede obrazovky",
+"Spúšťače (Windows, Mac) spúšťajú prehliadač s plným využitím grafickej karty"
+]
+},
+{
 "v": "0.36.0",
 "d": "2026-11-05",
 "n": [
@@ -228,16 +238,6 @@ const CHANGELOG=[
 "Nové pozadie 1. mapy (Kepler-12): tmavá planéta so žeravým akrečným diskom (biely až oranžovo-červený, prašný okraj), jasnou žiarou na okraji, prachovým výtryskom a hlbokým pozadím s dymom, ohnivými oblakmi, iskrami a hviezdami; disk sa pomaly otáča a vďaka hĺbke sa pri lete posúva pomalšie (paralaxa)",
 "Náhľad 1. mapy na karte sektora sa vykresľuje z rovnakého pozadia",
 "Oprava: energetické jadro základne sa po pár minútach postupne skrútilo do víru – teraz zostáva stále rovnako pekné"
-]
-},
-{
-"v": "0.20.0",
-"d": "2026-11-04",
-"n": [
-"Pomocné drony pre Sokola a Bizóna: kúpiš ich len u obchodníka v sektore 5 (najviac 2, sú veľmi drahé, druhý ešte drahší)",
-"Drony krúžia ponad a popod loď; v boji a pri ťažbe zostanú po bokoch lode",
-"Každý dron má osadený útočný laser (strieľa na cieľ lode jednu salvu v tempe lode, 35 % poškodenia) alebo ťažobný laser (pri ťažbe lúč do asteroidu, ťažba o 25 % rýchlejšia); laser sa dá kedykoľvek prepnúť v Loď → Hangár",
-"Detailný guľový model drona: svetlejší pás, šošovka so svietiacim prstencom a oblúkmi, bočné štíty so svietiacim lemom, priduchmi a portmi; oranžové svetlá = útočný, tyrkysové = ťažobný"
 ]
 }
 ];
