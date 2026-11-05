@@ -4,7 +4,7 @@
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
 /* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
-const GAME_VERSION='0.46.0';
+const GAME_VERSION='0.46.1';
 const NUM=10,ECON=1.6;
 const P=(c,m=1)=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON*m);return o};
 /* v0.12: stavba a vylepšovanie stanice je v každom ďalšom sektore SEC_COST× drahšie (príjmy rastú len ~1,3×) */
@@ -57,10 +57,11 @@ const SECTORS=[
    Každá loď má vlastné úrovne vylepšení; nasadené predmety (výbava) sú spoločné. */
 const SHIPS={
   klepeto:{mul:{},upMul:1,cost:null,need:-1,col:'#58d0c0',scale:1.1},
-  sokol:{mul:{speed:1.2,accel:1.25,turn:1.3,hull:.8,cargo:.6,laser:.85,gun:1.35,gunRate:1.2,shield:1.1},extra:['laser2'],upMul:1.15,cost:{ore:800,green:300,crystal:0,cr:4000},need:1,col:'#ffb35a',scale:1},
-  bizon:{mul:{speed:.82,accel:.75,turn:.75,hull:1.5,cargo:2,laser:1.3,gun:.85,gunRate:.9,shield:1.3,radShield:1.25},extra:['laser2','shield2'],upMul:1.3,cost:{ore:1500,green:600,crystal:250,cr:8000},need:2,col:'#b38bff',scale:1.25},
+  sokol:{mul:{speed:1.2,accel:1.25,turn:1.3,hull:.8,cargo:.6,laser:.85,gun:1.35,gunRate:1.2,shield:1.1},extra:['weapon2'],upMul:1.15,cost:{ore:800,green:300,crystal:0,cr:4000},need:1,col:'#ffb35a',scale:1},
+  bizon:{mul:{speed:.82,accel:.75,turn:.75,hull:1.5,cargo:2,laser:1.3,gun:.85,gunRate:.9,shield:1.3,radShield:1.25},extra:['laser2','shield2','weapon2'],upMul:1.3,cost:{ore:1500,green:600,crystal:250,cr:8000},need:2,col:'#b38bff',scale:1.25},
 };
-/* v0.40.3: extra = ďalšie sloty výbavy navyše (laser2 / shield2 = druhý laser / štít), pozri items.js → shipSlots() */
+/* v0.40.3: extra = ďalšie sloty výbavy navyše (laser2 / shield2 / weapon2 = druhý ťažobný laser / štít / zbraň), pozri items.js → shipSlots().
+   v0.46.1: Sokol = 2 zbrane, Bizón = 2 lasery, 2 štíty a 2 zbrane, Klepeto (Pincer) bez slotov navyše. */
 const SHIP_IDS=Object.keys(SHIPS);
 /* C(ruda, viridit, kryštály, kredity) = pomocník na zápis ceny. Kredity (cr) sa zarábajú obsadzovaním sektorov a rozoberaním predmetov. */
 const C=(o,g,c,cr)=>({ore:o||0,green:g||0,crystal:c||0,cr:cr||0});

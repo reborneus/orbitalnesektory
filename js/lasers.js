@@ -27,7 +27,7 @@ function showBeam(a,c,col,w,life){const B=getBeam();if(!B)return;B.life=B.max=li
    v budúcnosti vystrelia viac striel naraz). Strela je krátky svetelný úsek (STREAK_LEN m), ktorý letí rýchlosťou STREAK_SPEED
    a vždy smeruje na cieľ; poškodenie sa započíta pri dopade. Poškodenie výstrelu sa rozdelí medzi strely salvy. */
 const STREAK_SPEED=160,STREAK_LEN=5,SALVO_GAP=.05;
-const weaponMounts=()=>Math.max(1,SLOTS.filter(k=>BASES[state.eq[k]?state.eq[k].b:'']&&BASES[state.eq[k].b].slot==='weapon').length);
+const weaponMounts=()=>Math.max(1,shipSlots().filter(k=>BASES[state.eq[k]?state.eq[k].b:'']&&BASES[state.eq[k].b].slot==='weapon').length);
 const streaks=[];
 function fireStreak(from,tg,o){const st=o.st||'blue';if(o.side==='enemy')sfx('pirate',from);else sfx('laser',from,{st,fx:o.fx,tower:o.side==='tower'});   // v0.35: zvuk výstrelu
   streaks.push({p:from.clone(),tg,to:tg.pos?null:tg.clone(),off:o.miss?new V3((Math.random()-.5)*6,0,(Math.random()-.5)*6):new V3(),...o,mesh:getBolt(st,o.col),ph:Math.random()*TAU});

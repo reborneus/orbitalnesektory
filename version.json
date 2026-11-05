@@ -1,9 +1,9 @@
 {
-  "version": "0.46.0",
+  "version": "0.46.1",
   "date": "2026-11-05",
   "notes": [
-    "Loot filter (Nastavenia → Hra): označ rarity, ktoré nechceš zbierať – takéto predmety sa neobjavia ako korisť ani v inventári, ale hneď sa na pozadí rozoberú na kredity.",
-    "Predané predmety sa zhrnú do jednej správy (počet a získané kredity). Nastavenie je spoločné pre všetky sloty uložených hier.",
-    "Príručka: loot filter v kapitole Automatizácia."
+    "Oprava slotov navyše: Sokol má namiesto druhého ťažobného lasera druhý slot na zbraň; Bizón má po 2 sloty na ťažobný laser, štít aj zbraň; Klepeto (Pincer) má po jednom.",
+    "Druhá zbraň pridá do každej salvy ďalšiu strelu; základné poškodenie oboch zbraní sa sčíta a násobiče poškodenia sa násobia.",
+    "Predmet, ktorý bol v slote, ktorý loď už nemá (napr. druhý laser na Sokolovi), sa po načítaní hry vráti do inventára."
   ]
 }

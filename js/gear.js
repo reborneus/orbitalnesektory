@@ -43,7 +43,7 @@ function detailHtml(f){const it=f.it,R=RAR[it.r],title=itemTitle(it),slot=BASES[
    od lode k nim vedú šípky. Klik na predmet v inventári ho rovno nasadí / vymení s tým v lodi (čipy sa nasádzajú do modulov).
    Inšpektor (prilepený dole v okne) ukazuje predmet pod myšou alebo pod výberom ovládača: na ovládači celú kartu s vlastnosťami
    a porovnaním, na PC kompaktne (vlastnosti sú v plávajúcom náhľade) – vždy s akciami: vylepšiť, rozobrať, zamknúť, do skladu, zložiť. */
-const LO_POS={laser:[24,20],engine:[24,50],hull:[24,80],shield:[176,20],util:[176,50],weapon:[176,80],laser2:[60,20],shield2:[140,20]};   // laser2/shield2 = sloty navyše (Sokol, Bizón)   // stredy slotov v súradniciach 200×100
+const LO_POS={laser:[24,20],engine:[24,50],hull:[24,80],shield:[176,20],util:[176,50],weapon:[176,80],laser2:[60,20],shield2:[140,20],weapon2:[140,80]};   // laser2/shield2 = sloty navyše (Sokol, Bizón)   // stredy slotov v súradniciach 200×100
 function loadoutHtml(){const src=typeof shipPreviewSrc==='function'?shipPreviewSrc(state.shipId):'';
   let svg=`<svg class="lo-svg" viewBox="0 0 200 100" preserveAspectRatio="none"><defs><marker id="loArr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs>`;
   let boxes='';

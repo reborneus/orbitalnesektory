@@ -17,6 +17,8 @@ function migrate(s){
   if(typeof s.credits!=='number')s.credits=0;
   if(!Array.isArray(s.inv))s.inv=[];
   if(!s.eq)s.eq={};for(const k of ALL_SLOTS)if(s.eq[k]===undefined)s.eq[k]=null;
+  // v0.46.1: predmety v slotoch, ktoré aktuálna loď nemá (napr. po zmene slotov lodí), sa vrátia do inventára
+  {const ok=SLOTS.concat((SHIPS[s.shipId]&&SHIPS[s.shipId].extra)||[]);if(!s.inv)s.inv=[];for(const k of ALL_SLOTS)if(!ok.includes(k)&&s.eq[k]){s.inv.push(s.eq[k]);s.eq[k]=null}}
   if(!s.nextId)s.nextId=1;
   if(s.ship.radShield==null)s.ship.radShield=0;if(typeof s.radCharge!=='number')s.radCharge=0;if(!s.radMode)s.radMode='auto';
   // moduly stanice: staršie uloženia mali v slote len typ ('drone'), teraz je to objekt s vylepšením a čipom

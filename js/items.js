@@ -63,7 +63,7 @@ const STATS={
 const SLOTS=['laser','engine','hull','shield','util','weapon'];
 /* v0.40.3: ďalšie sloty niektorých lodí (SHIPS[id].extra): laser2 = druhý laser, shield2 = druhý štít.
    Do slotu laser2 ide každý predmet typu laser (slotBase), vlastnosti oboch predmetov sa sčítajú. */
-const SLOT_EXTRA={laser2:'laser',shield2:'shield'};
+const SLOT_EXTRA={laser2:'laser',shield2:'shield',weapon2:'weapon'};
 const slotBase=s=>SLOT_EXTRA[s]||s;
 const ALL_SLOTS=SLOTS.concat(Object.keys(SLOT_EXTRA));
 function shipSlots(){const x=(typeof state!=='undefined'&&state&&SHIPS[state.shipId]&&SHIPS[state.shipId].extra)||[];return SLOTS.concat(x)}
