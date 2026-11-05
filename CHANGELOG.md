@@ -4,6 +4,11 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 
 ## 0.40
 
+### v0.40.4 · 2026-11-05
+- Pilot → nová záložka Štatistiky: DPS (priemerné aj bez minutí a kritických zásahov), poškodenie salvy, presnosť, kritické zásahy, dostrel, trup, štíty, dobíjanie, ťažba, náklad, let a zisk. Každá hodnota v 3 stĺpcoch: základ lode s vylepšeniami, s výbavou a celkom so schopnosťami pilota.
+- Útok na piráta (automatický lov aj klik na piráta): loď okolo neho krúži v blízkosti, v dosahu jeho streľby. Kto chce držať odstup, musí loď viesť ručne.
+- Piráti majú o 10 % kratší dostrel, takže sa ich streľbe dá ručne vyhnúť a stále ich zasahovať.
+
 ### v0.40.3 · 2026-11-05
 - Sokol má druhý slot na laser, Bizón druhý slot na laser aj na štít. Vlastnosti oboch predmetov rovnakého typu sa sčítajú.
 - Pri nasadení sa predmet vloží do voľného slotu; ak sú oba obsadené, vymení slabší z nich. Klik na prázdny slot ponúkne predmety presne doňho.

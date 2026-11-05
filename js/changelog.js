@@ -2,6 +2,15 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.40.4",
+"d": "2026-11-05",
+"n": [
+"Pilot → nová záložka Štatistiky: DPS (priemerné aj bez minutí a kritických zásahov), poškodenie salvy, presnosť, kritické zásahy, dostrel, trup, štíty, dobíjanie, ťažba, náklad, let a zisk. Každá hodnota v 3 stĺpcoch: základ lode s vylepšeniami, s výbavou a celkom so schopnosťami pilota.",
+"Útok na piráta (automatický lov aj klik na piráta): loď okolo neho krúži v blízkosti, v dosahu jeho streľby. Kto chce držať odstup, musí loď viesť ručne.",
+"Piráti majú o 10 % kratší dostrel, takže sa ich streľbe dá ručne vyhnúť a stále ich zasahovať."
+]
+},
+{
 "v": "0.40.3",
 "d": "2026-11-05",
 "n": [
@@ -227,16 +236,6 @@ const CHANGELOG=[
 "Oprava ukladania v aplikácii z plochy na iPhone: hra sa teraz ukladá naraz do localStorage aj do IndexedDB a načíta sa z oboch – keď systém zápis do localStorage odmietne, uloženie aj tak prebehne",
 "Pri štarte hra požiada systém, aby uložené dáta nemazal",
 "V Nastaveniach pri uloženej hre je malý riadok so stavom úložiska (localStorage / IndexedDB) a chybová hláška ukazuje aj názov chyby"
-]
-},
-{
-"v": "0.31.1",
-"d": "2026-11-05",
-"n": [
-"Oprava ukladania: ak hra beží bez zvoleného slotu (napr. po aktualizácii aplikácie na ploche zo starej verzie), slot sa priradí sám – automatické aj ručné ukladanie teraz vždy funguje",
-"Ručné uloženie ukáže chybu, ak sa nepodarí zapísať (namiesto ticha)",
-"Uložiť a ukončiť: tam, kde sa okno zavrieť nedá (iPhone, aplikácia na ploche, bežná karta), hra uloží a prejde do hlavného menu",
-"Súbory hry majú značku verzie, aby prehliadač a aplikácia na ploche po aktualizácii nemiešali staré a nové súbory"
 ]
 }
 ];
