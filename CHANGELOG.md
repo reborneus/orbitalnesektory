@@ -2,6 +2,13 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.34
+
+### v0.34.0 · 2026-11-05
+- Obranná veža ukazuje tenký červený laserový zameriavač od ústia hlavne k zameranému pirátovi
+- Veža strieľa rovnaké strely ako hráč (2–3 salvy, poškodenie nesie prvá) a vyletujú z ústia hlavne; ich vzhľad určuje rarita vylepšenia veže (+0 až +10), nie vložený čip
+- Pri prestavbe stanice či zmene sektora sa zameriavače veží správne skryjú
+
 ## 0.33
 
 ### v0.33.1 · 2026-11-05

@@ -2,6 +2,15 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.34.0",
+"d": "2026-11-05",
+"n": [
+"Obranná veža ukazuje tenký červený laserový zameriavač od ústia hlavne k zameranému pirátovi",
+"Veža strieľa rovnaké strely ako hráč (2–3 salvy, poškodenie nesie prvá) a vyletujú z ústia hlavne; ich vzhľad určuje rarita vylepšenia veže (+0 až +10), nie vložený čip",
+"Pri prestavbe stanice či zmene sektora sa zameriavače veží správne skryjú"
+]
+},
+{
 "v": "0.33.1",
 "d": "2026-11-05",
 "n": [
@@ -222,16 +231,6 @@ const CHANGELOG=[
 "n": [
 "Boj: pri streľbe je loď vždy natočená nosom na cieľ (aj keď letí bokom) a okolo cieľa sa točí červený zameriavací krúžok",
 "Na okraji obrazovky sa ukazujú šípky smerom k pirátom mimo obrazovky do vzdialenosti polovice pásu (červené = nepriatelia, oranžové = pasívni) aj so vzdialenosťou"
-]
-},
-{
-"v": "0.19.3",
-"d": "2026-11-04",
-"n": [
-"Ovládač: nad najbližším cieľom poskakuje ukazovateľ (červený = pirát, oranžový = pasívny pirát, tyrkysový = asteroid); RT alebo A naň zaútočí / začne ťažiť, LB/RB prepnú na ďalší cieľ",
-"Salvy laserov letia vždy v rovnakom tempe; vylepšenie rýchlosti streľby zvyšuje len poškodenie (poškodenie za sekundu je rovnaké ako predtým)",
-"Kurzor myši na ovládači ukazuje náhľad predmetov rovnako ako myš",
-"Krátke popisy pri myši (aj pri kurzore ovládača): tlačidlá dolnej lišty, suroviny, náklad, trup, štít, radiačný štít, vplyv, stanica, pilot, minimapa; v priestore asteroid (surovina a množstvo), pirát (typ a výdrž), stanica, NPC lode a brána"
 ]
 }
 ];
