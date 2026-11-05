@@ -8,7 +8,9 @@
 const HIT_BASE=.7,HIT_MAX=.9,PIRATE_HIT=.7,LASER_BURST=1;   // LASER_BURST = strely na 1 zbraň v salve
 const hitChance=()=>Math.min(HIT_MAX,HIT_BASE+(bonus().hit||0)/100);
 /* vzhľad lasera podľa rarity zbrane */
-function laserStyle(){const w=state.eq&&state.eq.weapon;const r=w?w.r:-1;
+function laserStyle(){const w=state.eq&&state.eq.weapon;return laserStyleR(w?w.r:-1)}
+/* v0.34: vzhľad strely podľa rarity (hráč = rarita zbrane, obranná veža = rarita jej vylepšenia) */
+function laserStyleR(r){
   if(r<0)return{k:'grey',col:'#9aa3ad',w:.22};
   if(r<=4)return{k:'blue',col:'#4aa8ff',w:.26};
   if(r<=6)return{k:'gold',col:'#ffd24a',w:.4};
@@ -30,12 +32,17 @@ const streaks=[];
 function fireStreak(from,tg,o){const st=o.st||'blue';streaks.push({p:from.clone(),tg,to:tg.pos?null:tg.clone(),off:o.miss?new V3((Math.random()-.5)*6,0,(Math.random()-.5)*6):new V3(),...o,mesh:getBolt(st,o.col),ph:Math.random()*TAU});
   boltFlash(from,o.col,st==='gold'?3.2:2.4)}   // záblesk pri hlavni
 /* výstrel hráča: Božská = okamžitý blesk, Prvotná = pulz po dúhovom lúči, ostatné = letiace strely */
-function laserFx(from,tg,o){const st=laserStyle();
+function laserFx(from,tg,o,st){st=st||laserStyle();o.col=o.col||st.col;
   if(st.k==='bolt'){const tp=tg.pos.clone().add(o.miss?new V3((Math.random()-.5)*6,0,(Math.random()-.5)*6):new V3());showBolt(from,tp,st.col);landShot(o,tg);return}
   if(st.k==='primal'){const pu={p:glow('#ffffff',3.2,1),t:0,from:from.clone(),tg,o};world.add(pu.p);pulses.push(pu);return}
   fireStreak(from,tg,{...o,col:st.col,w:st.w,st:st.k})}
+/* v0.34: výstrel obrannej veže – rovnaké strely ako hráč (2–3 salvy, poškodenie nesie prvá), vzhľad podľa rarity vylepšenia veže */
+function towerBurst(from,tg,r,dmg){const st=laserStyleR(r),v=VOLLEY_MIN+Math.floor(Math.random()*(VOLLEY_MAX-VOLLEY_MIN+1));
+  for(let j=0;j<v;j++)shotQ.push({t:j*VOLLEY_GAP,tg,tower:true,from:from.clone(),st,fx:j>0,dmg})}
 /* dopad strely hráča na cieľ */
 function landShot(o,tg){if(o.side==='enemy'){landPirate(o);return}if(!enemies.includes(tg))return;
+  if(o.side==='tower'){if(o.fx){emit(debris,tg.pos,o.col,.25,new V3((Math.random()-.5)*6,Math.random()*3,(Math.random()-.5)*6));return}
+    hitEnemy(tg,o.dmg,'tower');dmgText(tg.pos,o.dmg,'tower');emit(debris,tg.pos,o.col,.3,new V3((Math.random()-.5)*6,Math.random()*3,(Math.random()-.5)*6));return}
   if(o.fx){emit(debris,tg.pos,laserStyle().col,.25,new V3((Math.random()-.5)*6,Math.random()*3,(Math.random()-.5)*6));return}   // vizuálna salva: len iskra, bez poškodenia
   if(o.miss){dmgText(tg.pos,1,'miss');return}hitEnemy(tg,o.dmg,'player');dmgText(tg.pos,o.dmg,o.crit?'crit':'player');emit(debris,tg.pos,laserStyle().col,.3,new V3((Math.random()-.5)*6,Math.random()*3,(Math.random()-.5)*6))}
 const shotQ=[];
@@ -50,6 +57,7 @@ const gunVolleyDmg=()=>shipVal('gun')*shipVal('gunRate')*GUN_VIS_INT;
 function playerBurst(tg){const n=weaponMounts(),v=VOLLEY_MIN+Math.floor(Math.random()*(VOLLEY_MAX-VOLLEY_MIN+1));
   for(let j=0;j<v;j++)for(let i=0;i<n;i++)shotQ.push({t:j*VOLLEY_GAP+i*SALVO_GAP,tg,i,n,fx:j>0})}
 function tickShots(dt){for(const s of shotQ.slice()){s.t-=dt;if(s.t>0)continue;shotQ.splice(shotQ.indexOf(s),1);const tg=s.tg;
+    if(s.tower){if(enemies.includes(tg))laserFx(s.from,tg,{fx:s.fx,miss:false,dmg:s.dmg,side:'tower'},s.st);continue}   // strela veže
     if(dead||!enemies.includes(tg))continue;const from=ship.localToWorld(NOSE.clone().add(new V3((s.i-(s.n-1)/2)*1.2,0,0)));if(from.distanceTo(tg.pos)>gunRange()+tg.r+2)continue;
     if(s.fx){laserFx(from,tg,{fx:true,miss:false,dmg:0,side:'player'});continue}   // len vizuálna salva
     const hit=Math.random()<hitChance();const crit=hit&&Math.random()<critChance();

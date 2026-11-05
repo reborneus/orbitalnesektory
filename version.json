@@ -1,8 +1,9 @@
 {
-  "version": "0.33.1",
+  "version": "0.34.0",
   "date": "2026-11-05",
   "notes": [
-    "Úroveň výzvy sa presunula z Nastavení do stanice – nová záložka Výzva vedľa Skladu",
-    "Výzva ako 16 štvorčekov, ktoré sa plnia červenou – čím vyššia úroveň, tým sýtejšia; klik na štvorček nastaví úroveň priamo (klik na aktuálny ju zníži), ✕ / − / + zostali aj pre ovládač"
+    "Obranná veža ukazuje tenký červený laserový zameriavač od ústia hlavne k zameranému pirátovi",
+    "Veža strieľa rovnaké strely ako hráč (2–3 salvy, poškodenie nesie prvá) a vyletujú z ústia hlavne; ich vzhľad určuje rarita vylepšenia veže (+0 až +10), nie vložený čip",
+    "Pri prestavbe stanice či zmene sektora sa zameriavače veží správne skryjú"
   ]
 }

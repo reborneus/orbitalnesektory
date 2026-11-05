@@ -126,7 +126,7 @@ function setAstScale(a){a.g.scale.setScalar(Math.max(.001,astScale(a)))}
 
 /* Stanica sa prestavia pri každej zmene (vylepšenie jadra, stavba/predaj modulu). Vzhľad závisí od úrovne jadra. */
 function rebuildStation(){
-  if(stationG)world.remove(stationG);
+  clearTurretBeams();if(stationG)world.remove(stationG);
   if(inArena()){stationG=null;stationAnim=null;return} // v aréne nie je stanica (v strede sa objavuje anomália)
   const s=cur();const g=new THREE.Group();stationG=g;const anim={rings:[],turrets:[],dishes:[],blink:[]};stationAnim=anim;
   /* v0.18: MEGAŠTRUKTÚRA – stanica je zapustená hlboko pod rovinou letu (STATION_Y), takže nad ňou preletíš a nenarazíš.
@@ -343,7 +343,13 @@ function tickTurrets(dt){if(!stationAnim)return;for(const tu of stationAnim.turr
     else{tu.wait-=dt;if(tu.wait<=0){tu.ty=(Math.random()-.5)*4.6;tu.tp=.08+Math.random()*.55;tu.wait=2.2+Math.random()*4.5}}
     const sp=fast?3.2:.55;tu.yaw=angTo(tu.yaw,tu.ty,sp*dt);tu.pitch+=clamp(tu.tp-tu.pitch,-sp*.7*dt,sp*.7*dt);
     tu.o.rotation.y=tu.yaw;tu.pg.rotation.x=-tu.pitch;
-    tu.kick=Math.max(0,tu.kick-dt*3.5);tu.bar.position.z=-tu.kick*.45;tu.muz.scale.setScalar(1.5+tu.kick*4)}}
+    tu.kick=Math.max(0,tu.kick-dt*3.5);tu.bar.position.z=-tu.kick*.45;tu.muz.scale.setScalar(1.5+tu.kick*4);
+    // v0.34: tenký červený laserový zameriavač od ústia k zameranému pirátovi
+    if(fast){if(!tu.aimB){tu.aimB=makeBeam('#ff2a2a');tu.aimB.userData.core.material.color.set('#ff4a3a')}tu.muz.getWorldPosition(_tm);setBeam(tu.aimB,_tm,e.pos,.05,'#ff2a2a');tu.aimB.userData.core.material.opacity=.55;tu.aimB.userData.outer.material.opacity=.35;tu.aimB.userData.hit.scale.setScalar(1.6)}
+    else if(tu.aimB)hideBeam(tu.aimB)}}
+const _tm=new V3();
+/* zameriavače veží sú v scéne (mimo stanice) – pri prestavbe stanice / zmene sektora sa skryjú a uvoľnia */
+function clearTurretBeams(){if(!stationAnim)return;for(const tu of stationAnim.turrets)if(tu.aimB){hideBeam(tu.aimB);scene.remove(tu.aimB);scene.remove(tu.aimB.userData.hit);tu.aimB=null}}
 /* Skoková brána: v prvom sektore sa objaví až po jeho obsadení, v ďalších je vždy. Vzdialenosť 72 m od stanice, smer určuje seed sektora. */
 function updateGate(){if(gate){world.remove(gate);pickables=pickables.filter(p=>!p.userData.gate);gate=null}
   const s=cur();if(!(s.captured||state.cur>0))return;
