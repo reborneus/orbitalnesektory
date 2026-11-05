@@ -404,9 +404,10 @@ function updateGate(){if(gate){world.remove(gate);pickables=pickables.filter(p=>
    Bez čipu ťaží len rudu vo vnútorných pásoch. AI jadro od rarity Neobyčajné povolí viridit, od Vzácne obranu, od Epické kryštály. */
 function droneStats(m){const F=MOD_FX.drone,e=m.enh||0;
   const can={ore:true,green:chipCan(m,'green'),crystal:chipCan(m,'crystal')};
-  return{rate:F.rate*enhK(F.ratePer,e)*(1+chipStat(m,'dMine')/100),cap:F.cap+F.capPer*e*(1+.08*e)+chipStat(m,'dCap'),speed:F.speed*(1+F.speedPer*e)*(1+chipStat(m,'dSpeed')/100),
+  const R=bonus().rs||{},rk=1+((R.dRatePct||0)+(rsK('s2')?RSK.s2.k:0))/100;   // v0.42: výskum + Rojová inteligencia
+  return{rate:F.rate*enhK(F.ratePer,e)*(1+chipStat(m,'dMine')/100)*rk,cap:F.cap+F.capPer*e*(1+.08*e)+chipStat(m,'dCap'),speed:F.speed*(1+F.speedPer*e)*(1+chipStat(m,'dSpeed')/100),
     dmg:F.dmg*enhK(F.dmgPer,e)*(1+chipStat(m,'dDmg')/100),range:F.range,res:can[m.res]?m.res:'ore',can,def:m.mode==='def'&&chipCan(m,'def')}}
-function towerStats(m){const F=MOD_FX.tower,e=m.enh||0;return{dmg:F.dmg*enhK(F.dmgPer,e)*(1+chipStat(m,'tDmg')/100),rate:F.rate*(1+chipStat(m,'tRate')/100),range:F.range+F.rangePer*e+chipStat(m,'tRange')}}
+function towerStats(m){const F=MOD_FX.tower,e=m.enh||0;const R=bonus().rs||{};return{dmg:F.dmg*enhK(F.dmgPer,e)*(1+chipStat(m,'tDmg')/100)*(1+(R.tDmgPct||0)/100),rate:F.rate*(1+chipStat(m,'tRate')/100),range:(F.range+F.rangePer*e+chipStat(m,'tRange'))*(1+(R.tRangePct||0)/100)}}   // v0.42: + výskum
 const sensorIncome=m=>MOD_FX.sensor.green*enhK(MOD_FX.sensor.incPer,m.enh||0)*(1+chipStat(m,'sInc')/100);
 const droneIncome=m=>MOD_FX.drone.income*enhK(MOD_FX.drone.ratePer,m.enh||0)*(1+chipStat(m,'dMine')/100);
 const DRONE_GEO=new THREE.OctahedronGeometry(.55,0);
@@ -522,7 +523,11 @@ function depleteAst(a,byPlayer){a.alive=false;a.respawn=a.type==='relic'?rnd(REL
   if(byPlayer){const z=Math.min(5,zoneOf(Math.hypot(a.pos.x,a.pos.z)));if(a.type==='relic')xpAt(XP.relic*(1+z*.25));
     // relikt z misie: lepšia korisť podľa stupňa misie, už sa neobjaví a misia sa splní
     if(a.mission){a.respawn=1e9;const m=mstate().active.find(x=>x.id===a.mission);giveItem(dropItem('relic',z,m?MTIER[m.tier].minR:2),a.pos);missionRelic(a)}
-    else if(a.type==='relic')giveItem(dropItem('relic',z,2),a.pos);else if(Math.random()<ASTEROID_DROP)spawnLoot(dropItem('asteroid',z),a.pos)}
+    else if(a.type==='relic')giveItem(dropItem('relic',z,2),a.pos);else if(Math.random()<ASTEROID_DROP)spawnLoot(dropItem('asteroid',z),a.pos);
+    // v0.42: Dvojitý výťažok (bonus surovín) a Nálezca (predmet navyše)
+    if(a.type!=='relic'&&!a.mission){if(rsK('m1')&&Math.random()<RSK.m1.p/100){const y=D().yield*(1+bonus().yield/100)*tierMul('gain'),fr=shipVal('cargo')-cargoTotal(),g=Math.min(fr,a.max*RSK.m1.b/100*y);
+        if(g>0){if(a.mixp){for(const k in a.mixp)state.cargo[k]+=g*a.mixp[k]}else state.cargo[a.type]+=g;dmgText(a.pos,g,'player')}}
+      if(rsK('m3')&&Math.random()<RSK.m3.p/100)spawnLoot(dropItem('asteroid',z),a.pos)}}
   if(mineTarget===a){if(!autoNext(a))stopMining()}}
 /* optional auto-mining: move on to the nearest asteroid of the same resource while cargo has room */
 function autoNext(a){if(typeof huntAfterMine==='function'&&huntAfterMine(a))return true;   // v0.40.1: pirát v dosahu → najprv lov

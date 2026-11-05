@@ -101,7 +101,7 @@ function readInput(){inVec.set(0,0,0);
    8 View/Share, 9 Menu/Options, 12–15 krížový ovládač (hore, dole, vľavo, vpravo). Osi: 0/1 ľavá páčka, 2/3 pravá páčka. */
 /* gamepad: Xbox and PlayStation controllers through the browser's standard mapping */
 const GLY={xbox:{A:'A',B:'B',X:'X',Y:'Y',LB:'LB',RB:'RB',LT:'LT',M:'Menu',V:'View'},ps:{A:'✕',B:'○',X:'□',Y:'△',LB:'L1',RB:'R1',LT:'L2',M:'Options',V:'Share'}};
-let padType='xbox',padPrev=[],activePad=null,navT=0,navLast=0;
+let padType='xbox',padPrev=[],activePad=null,navT=0,navLast=0,dlgIdx=0;
 const G=()=>GLY[padType];
 const padKind=id=>/054c|dualsense|dualshock|playstation|wireless controller/i.test(id||'')?'ps':'xbox';
 function setMode(m){if(pmSynth||inputMode===m)return;inputMode=m;document.body.classList.toggle('pad',m==='pad');
@@ -123,6 +123,11 @@ function pollPad(dt){let pads=[];try{pads=navigator.getGamepads?navigator.getGam
   const pm=padMouseOn()&&$('#intro').hidden;pmCursor(pm);
   if(pm){pmMove(lx,ly,dt);const rx=p.axes[2]||0,ry2=p.axes[3]||0;pmScroll(rx,ry2,dt);if(press(0))pmClick()}
   if(wikiOpen()){const m=$('#wikiMain');if(m)m.scrollTop+=((pm?0:ly)+dy)*dt*900;if(press(1)||press(9))closeWiki();if(press(4))wikiStep(-1);if(press(5))wikiStep(1);padPrev=p.buttons.map((b,i)=>btn(i));return}
+  // v0.42: dialógy arény (výber štartu, pokračovanie po odmene): kríž = výber tlačidla, A = potvrdiť, B = zavrieť výber štartu
+  {const dl=[...document.querySelectorAll('#arPick:not([hidden]) button,#arAsk:not([hidden]) button')];if(dl.length&&!sheetTab){
+    if(press(14)||press(12))dlgIdx--;if(press(15)||press(13))dlgIdx++;dlgIdx=(dlgIdx+dl.length)%dl.length;dl.forEach((b,i)=>b.classList.toggle('pad-focus',i===dlgIdx));
+    if(press(0))dl[dlgIdx].click();else if(press(1)){const c=dl.find(b=>b.dataset.w==='0');if(c)c.click()}padPrev=p.buttons.map((b,i)=>btn(i));return}}
+  if(typeof rsOpen==='function'&&rsOpen()){rsPad(p,btn,press,lx,ly,dx,dy,dt);padPrev=p.buttons.map((b,i)=>btn(i));return}   // v0.42: strom výskumu
   if(dead&&$('#deathBtns').classList.contains('on')){if(press(0))respawnConfirm(false);if(press(2))respawnConfirm(true);padPrev=p.buttons.map((b,i)=>btn(i));return}   // v0.36: obrazovka smrti
   if(!$('#intro').hidden&&!sheetTab){
     // v0.30: hlavné menu – D-pad / páčka hore-dole = výber, A = potvrdiť, B = späť, X = jazyk

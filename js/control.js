@@ -41,7 +41,8 @@ function damage(n,kind){const out={shield:0,hull:0};if(dead||n<=0)return out;
   hullSince=0;shSince=0;
   if(kind!=='void'&&state.sh>0){const a=Math.min(state.sh,n);state.sh-=a;n-=a;out.shield=a}
   if(n>0&&ad.godHull){hullSince=99;return out}
-  if(n>0){state.hp-=n;out.hull=n;if(state.hp<=0){state.hp=0;destroyShip()}}
+  if(n>0){state.hp-=n;out.hull=n;if(typeof rsK==='function'&&rsK('f2')&&kind!=='void'&&kind!=='rad')rsBurnT=RSK.f2.t;
+    if(state.hp<=0){if(typeof rsLastChance==='function'&&rsLastChance()){out.hull=0}else{state.hp=0;destroyShip()}}}
   return out}
 function blockedAt(p){for(const a of asts){if(!a.alive)continue;const ar=astScale(a)*.95+SHIP_R;
     if(Math.hypot(p.x-a.pos.x,p.z-a.pos.z)<ar+.5&&Math.hypot(ship.position.x-a.pos.x,ship.position.z-a.pos.z)<ar+3)return true}return false}
@@ -164,7 +165,7 @@ function tickAuto(dt){autoPause-=dt;apNoneT-=dt;
 /* Radiácia v bodoch za sekundu podľa vzdialenosti r od stanice: v pásoch 3–4 rastie z 0,8 na 3,5; za horizontom 12 a viac. */
 /* Radiačný filter a podobné vlastnosti predmetov (bonus().rad) znižujú radiáciu v pásoch 3–4, za horizontom nie. */
 function radBase(r){if(r<Z2)return 0;if(r<HORIZON)return RAD.start+(r-Z2)/(HORIZON-Z2)*(RAD.end-RAD.start);return RAD.voidBase+(r-HORIZON)*RAD.voidPerM}
-function radAt(r){if(inArena())return 0;const b=radBase(r)*tierMul('rad');if(r<HORIZON)return b*D().rad*(1-bonus().rad/100);return b*D().voidM}
+function radAt(r){if(inArena())return 0;const b=radBase(r)*tierMul('rad')*(r>=HORIZON&&typeof rsK==='function'&&rsK('f3')?1-RSK.f3.k/100:1);   /* v0.42: Fázový plášť */if(r<HORIZON)return b*D().rad*(1-bonus().rad/100);return b*D().voidM}
 const zoneOf=r=>r<Z1?1:r<Z2?2:r<Z3?3:r<HORIZON?4:5;
 
 /* Pohyb lode každý snímok: loď mení rýchlosť smerom k želanej rýchlosti najviac o hodnotu zrýchlenia (preto má zotrvačnosť). */
@@ -216,6 +217,10 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
         // relikt nedáva surovinu, len sa "vyťaží" a vypadne z neho predmet
         if(isRelic){a.amt-=Math.min(rate*dt,a.amt)}else{const take=Math.min(rate*dt,a.amt,free/y);a.amt-=take;
           if(a.mixp){for(const k in a.mixp){state.cargo[k]+=take*y*a.mixp[k];xpAt(take*y*a.mixp[k]*(XP.ton[k]||1))}}else{state.cargo[a.type]+=take*y;xpAt(take*y*(XP.ton[a.type]||1))}}setAstScale(a);
+        // v0.42 Rezonančný lúč: asteroidy rovnakej suroviny v okolí sa ťažia súčasne (zlomkom rýchlosti)
+        if(!isRelic&&rsK('m2'))for(const o of asts){if(o===a||!o.alive||o.type!==a.type||o.mission||o.pos.distanceTo(a.pos)>RSK.m2.r+astScale(o))continue;
+          const fr=capV-cargoTotal();if(fr<=.01)break;const tk=Math.min(rate*dt*RSK.m2.k/100,o.amt,fr/y);o.amt-=tk;
+          if(o.mixp){for(const k in o.mixp)state.cargo[k]+=tk*y*o.mixp[k]}else state.cargo[o.type]+=tk*y;setAstScale(o);if(o.amt<=0)depleteAst(o,true)}
         if(a.amt<=0){const rel=isRelic;depleteAst(a,true);if(!rel)toast(t('tt.depleted'))}else beamA=a;
         debrisT-=dt;if(debrisT<=0){debrisT=.06;const from=a.pos.clone().add(new V3((Math.random()-.5)*2,Math.random(),(Math.random()-.5)*2).multiplyScalar(astScale(a)*.8));
           emit(debris,from,a.type==='crystal'?'#b9a0ff':a.type==='green'?'#a8f080':'#ffb85c',.6,null,ship.position.clone())}}}

@@ -92,7 +92,15 @@ function arenaStart(from){const A=astate();removeAnomaly();arenaRun={wave:Math.m
 function arenaEnd(reason){const A=astate();const q=$('#arAsk');if(q)q.hidden=true;if(!arenaRun)return;const w=arenaRun.wave-(arenaRun.phase==='fight'?1:0);
   if(w>A.best)A.best=w;for(const e of enemies.slice()){world.remove(e.g);pickables=pickables.filter(p=>p!==e.proxy)}enemies=[];bolts.forEach(b=>world.remove(b.s));bolts=[];
   removeAnomaly();arenaRun=null;if(reason)toast(t(reason,{n:Math.max(0,w)}),'bad');save()}
-function arenaEnter(){arenaRun=null;removeAnomaly()}
+function arenaEnter(){arenaRun=null;removeAnomaly();if(astate().ckpt>0&&inArena())setTimeout(()=>{if(inArena()&&!arenaRun&&!dead)arenaPick()},900)}   // v0.42: pri príchode ponúkne výber štartu
+/* v0.42: VÝBER ŠTARTU – od 1. vlny alebo hneď za ktorýmkoľvek porazeným bossom (kontrolné body po ARENA_BOSS vlnách) */
+const arenaStarts=()=>{const A=astate(),o=[1];for(let w=ARENA_BOSS;w<=A.ckpt&&w<ARENA_WAVES;w+=ARENA_BOSS)o.push(w+1);return o};
+function arenaPick(){if(arenaRun)return;const o=arenaStarts();if(o.length<2){arenaStart(1);return}
+  let el=$('#arPick');if(!el){el=document.createElement('div');el.id='arPick';document.body.appendChild(el);
+    el.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;el.hidden=true;const w=+b.dataset.w;if(w&&!arenaRun)arenaStart(w);arBtnKey=''})}
+  el.innerHTML=`<div class="glass arask"><h3>${t('ar.pickH')}</h3><p>${t('ar.pickP',{n:astate().ckpt})}</p>
+    <div class="arpick">${o.slice().reverse().map((w,i)=>`<button class="btn${i===0?' prim':''}" data-w="${w}">▶ ${t('ar.go',{n:w})}</button>`).join('')}<button class="btn" data-w="0">${t('ar.pickNo')}</button></div></div>`;
+  el.hidden=false;dlgIdx=0}
 function tickArena(dt,tt){if(!inArena())return;const R=arenaRun;
   if(anomaly){anomaly.ring.rotation.z+=dt;anomaly.cube.userData.tick(dt,tt);anomaly.cube.position.y=2.2+Math.sin(tt*1.5)*.4;const k=1+.2*Math.sin(tt*3);anomaly.core.scale.set(9*k,9*k,1);anomaly.c2.material.color.setHSL((tt*.2)%1,.8,.7)}
   if(!R)return;
@@ -124,8 +132,7 @@ function arenaHitFilter(e,dmg){if(e.invuln){dmgText(e.pos,1,'imm');return 0}retu
 function renderArena(){const A=astate(),R=arenaRun;let h='';
   h+=`<div class="card arcard"><h3>${t('ar.h')} <span class="lv">${t('ar.best',{n:A.best})}</span></h3><p>${t('ar.p',{w:ARENA_WAVES,b:ARENA_BOSS})}</p>`;
   if(R)h+=`<div class="stat"><em>${t('ar.now',{n:R.wave,p:t('ar.ph.'+R.phase)})}</em></div><button class="act" data-act="arQuit">${t('ar.quit')}</button>`;
-  else{h+=`<button class="act" data-act="arGo" data-w="1">${t('ar.go',{n:1})}</button>`;
-    if(A.ckpt&&A.ckpt<ARENA_WAVES)h+=`<button class="act" data-act="arGo" data-w="${A.ckpt+1}" style="grid-column:2">${t('ar.go',{n:A.ckpt+1})}</button>`}
+  else{const o=arenaStarts().reverse();h+=o.map((w,i)=>`<button class="act" data-act="arGo" data-w="${w}"${i?' style="grid-column:2"':''}>${t('ar.go',{n:w})}</button>`).join('')}   // v0.42: všetky kontrolné body
   h+='</div>';
   h+=`<ul class="caps arl">${[t('ar.l1'),t('ar.l2',{b:ARENA_BOSS}),t('ar.l3'),t('ar.l4')].map(x=>`<li>${x}</li>`).join('')}</ul>`;
   h+=`<p class="note">${t('ar.note')}</p>`;
@@ -136,7 +143,7 @@ function arenaAct(act,b){if(act==='arGo'){if(arenaRun)return true;arenaStart(+b.
 let arBtnKey='';
 function arenaButtons(){const el=$('#arBtns');if(!el)return;const on=inArena();el.hidden=!on;if(!on){arBtnKey='';arTipHide();return}
   const A=astate(),R=arenaRun;const key=(R?'run':'idle')+A.ckpt+lang;if(key===arBtnKey)return;arBtnKey=key;
-  el.innerHTML=R?`<button class="arb stop" data-ar="quit">■ ${t('ar.quitS')}</button>`:`<button class="arb" data-ar="1">▶ ${t('ar.startS')}</button>`+(A.ckpt&&A.ckpt<ARENA_WAVES?`<button class="arb" data-ar="${A.ckpt+1}">▶ ${t('ar.fromS',{n:A.ckpt+1})}</button>`:'')}
+  el.innerHTML=R?`<button class="arb stop" data-ar="quit">■ ${t('ar.quitS')}</button>`:`<button class="arb" data-ar="pick">▶ ${t('ar.startS')}</button>`}   // v0.42: štart otvorí výber vlny
 let arTip=null;
 function arTipShow(b){if(!arTip){arTip=document.createElement('div');arTip.id='arTip';arTip.className='glass';document.body.appendChild(arTip)}
   arTip.innerHTML=arenaInfo();arTip.hidden=false;const r=b.getBoundingClientRect();arTip.style.left=Math.min(innerWidth-arTip.offsetWidth-8,r.left)+'px';arTip.style.top=(r.bottom+8)+'px'}
@@ -144,7 +151,7 @@ function arTipHide(){if(arTip)arTip.hidden=true}
 function arenaInfo(){const A=astate();return `<h3>${t('ar.h')} <span class="lv">${t('ar.best',{n:A.best})}</span></h3><p>${t('ar.p',{w:ARENA_WAVES,b:ARENA_BOSS})}</p>
   <ul>${[t('ar.l1'),t('ar.l2',{b:ARENA_BOSS}),t('ar.l3'),t('ar.l4')].map(x=>`<li>${x}</li>`).join('')}</ul><p class="note">${t('ar.note')}${A.ckpt?' '+t('ar.ck',{n:A.ckpt}):''}</p>`}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#arBtns .arb');if(!b)return;e.stopPropagation();arTipHide();
-  if(b.dataset.ar==='quit')arenaEnd('ar.quitT');else if(!arenaRun)arenaStart(+b.dataset.ar);arBtnKey=''});
+  if(b.dataset.ar==='quit')arenaEnd('ar.quitT');else if(!arenaRun)arenaPick();arBtnKey=''});
 document.addEventListener('pointerover',e=>{const b=e.target.closest&&e.target.closest('#arBtns .arb');if(b&&e.pointerType==='mouse')arTipShow(b)});
 document.addEventListener('pointerout',e=>{const b=e.target.closest&&e.target.closest('#arBtns .arb');if(b)arTipHide()});
 function arenaHud(){arenaButtons();if(!inArena())return false;const A=astate(),R=arenaRun;

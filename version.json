@@ -1,11 +1,12 @@
 {
-  "version": "0.41.0",
+  "version": "0.42.0",
   "date": "2026-11-05",
   "notes": [
-    "Nový sektor: pri prvej návšteve je hlavná stanica vyradená a viditeľne poškodená (ohorené plechy, zastavené prstence, blikajúce červené jadro, ohne s iskrami, plávajúce trosky).",
-    "Vyradená stanica neprijme náklad, nedá sa na nej stavať, prestupovať na lode ani dobíjať radiačný štít a piráti na ňu nenalietavajú. Autopilot sa k nej nevracia.",
-    "Opravíš ju v paneli Stanica za suroviny, ktoré sa ťažia v predošlom sektore (cena rastie so sektorom).",
-    "Ak ťa zničia pri ešte neopravenej stanici, po odpočte a potvrdení sa nová loď zrodí na poslednej funkčnej základni, ktorú si navštívil.",
-    "Staršie uložené hry: stanice v obsadených sektoroch, v sektoroch s modulmi a v sektore, kde práve si, sú už opravené."
+    "Aréna: pred štartom (aj hneď po príchode do arény) si vyberieš, odkiaľ začať – od 1. vlny alebo hneď za ktorýmkoľvek porazeným bossom (napr. od vlny 21, 41…). Výber funguje aj na ovládači.",
+    "Nový strom výskumu (Pilot → Výskum): od 70. úrovne pilota idú všetky XP aj do výskumu – 250 úrovní, každá dá 1 bod výskumu.",
+    "Strom má 6 vetiev (zbrane, obrana, ťažba, let, obchod, stanica) a 265 uzlov: základné vylepšenia (napr. +1 % poškodenia, štítov, ťažby), význačné uzly so silnejšími bonusmi a 18 kľúčových uzlov so špeciálnymi schopnosťami.",
+    "Špeciálne schopnosti napr.: Odrazený lúč a Reťazový výboj (laser preskočí na ďalších nepriateľov), Supernova, Zrkadlový štít (odrazí pirátsku strelu na iného piráta), Nanoopravy, Posledná šanca, Rezonančný lúč (ťaží viac asteroidov naraz), Úskok, Zlatý dotyk, Prepojené veže a ďalšie.",
+    "Strom sa ovláda ťahaním (posun), kolieskom alebo dvoma prstami (priblíženie), tlačidlami +/− aj ovládačom; výskum sa dá za kredity vynulovať.",
+    "Štatistiky pilota v stĺpci Celkom zarátavajú aj výskum."
   ]
 }

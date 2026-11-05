@@ -128,7 +128,8 @@ function genItem(r,ilvl,bk){bk=bk||pick(SHIP_BASES);const B=BASES[bk];const R=RA
 /* Predmet, ktorý padne zo zdroja: mf zo zdroja + pásu + sektora + vlastností výbavy. */
 function dropItem(source,zone,minR=0,cap){const tm=typeof tierMul==='function';const mf=MF_SOURCE[source]+MF_ZONE[zone]+state.cur*.25+bonus().mf/100+(tm?tierMul('mf'):0);
   let c=cap===undefined?secRar(state.cur):cap;if(c&&tm&&state.tier)c={max:c.max,top:Math.min(2,c.top*tierMul('top'))};
-  const r=rollRarity(mf,minR,c);const ilvl=SECTORS[state.cur].ilvl+ILVL_ZONE[zone]+Math.floor(Math.random()*3);
+  let r=rollRarity(mf,minR,c);if(typeof rsK==='function'&&rsK('e3')&&Math.random()<RSK.e3.p/100)r=Math.min(RAR.length-1,r+1);   // v0.42: Zlatý dotyk
+  const ilvl=SECTORS[state.cur].ilvl+ILVL_ZONE[zone]+Math.floor(Math.random()*3);
   const chip=Math.random()<(CHIP_CHANCE[source==='corsair'||source==='frigate'?'enemy':source]||0);return genItem(r,ilvl,chip?pick(CHIP_BASES):null)}
 
 /* Skutočné hodnoty vlastností predmetu vrátane vylepšenia (+N). */
@@ -160,7 +161,9 @@ function bonus(){if(_bonus)return _bonus;const b={};for(const k in STATS)b[k]=0;
   b.dmgXm=1;   // násobič poškodenia = súčin (1 + x %) zo všetkých nasadených predmetov
   if(state&&state.eq&&!(_bonusMask&&_bonusMask.eq===false))for(const s of shipSlots()){const it=state.eq[s];if(it)for(const x of itemStats(it)){b[x.k]+=x.v;if(x.k==='dmgX')b.dmgXm*=1+x.v/100}}
   b.mf=b.mf||0;
+  b.rs={};   // v0.42: vlastnosti len z výskumu (štíty %, náklad %, XP %, veže, drony…)
   if(typeof pilotBonus==='function'&&!(_bonusMask&&_bonusMask.pl===false))pilotBonus(b); // schopnosti pilota (pilot.js)
+  if(typeof rsBonus==='function'&&!(_bonusMask&&_bonusMask.pl===false))rsBonus(b);     // strom výskumu (research.js)
   for(const k in STATS)if(STATS[k].cap)b[k]=Math.min(STATS[k].cap,b[k]);if(_bonusMask)return b;return _bonus=b}
 
 /* Vylepšenie predmetu: cena rastie s úrovňou a raritou; od +5 hrozí neúspech (stratia sa len suroviny a kredity). */
@@ -168,7 +171,7 @@ function enhCost(it){const n=it.enh+1;return P(C(Math.round(22*Math.pow(n,1.45))
 const enhChance=it=>it.enh<5?1:Math.max(.3,1-(it.enh-4)*.05);
 const enhMax=it=>RAR[it.r].enh;
 /* Rozobratie: kredity podľa rarity, úrovne predmetu a vylepšenia. */
-const salvValue=it=>Math.round(RAR[it.r].salv*(1+it.ilvl/10)*(1+it.enh*.15)*NUM*(typeof crMul==='function'&&state&&state.pilot?crMul():1));
+const salvValue=it=>Math.round(RAR[it.r].salv*(1+it.ilvl/10)*(1+it.enh*.15)*NUM*(typeof crMul==='function'&&state&&state.pilot?crMul():1)*(typeof rsK==='function'&&rsK('e2')?1+RSK.e2.k/100:1));   // v0.42: Recyklácia
 /* Mená predmetov. Ozdobné tituly pre Legendárne a vyššie sú v i18n.js (TITLES). */
 function itemName(it){return(it.enh?'+'+it.enh+' ':'')+t('base.'+it.b)}
 function itemTitle(it){return it.title>=0?(TITLES[lang]||TITLES.sk)[it.title]:''}

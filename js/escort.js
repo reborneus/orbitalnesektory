@@ -70,7 +70,7 @@ function tickEscorts(dt,tt){if(escObjs.length!==escList().length||escObjs.some((
     o.cd-=dt;
     if(o.mode==='gun'&&ct&&o.cd<=0&&o.g.position.distanceTo(ct.pos)<=gunRange()+ct.r+2){o.cd=GUN_VIS_INT;
       const hit=Math.random()<hitChance(),crit=hit&&Math.random()<critChance();const st=laserStyle();
-      fireStreak(o.g.position.clone(),ct,{miss:!hit,crit,dmg:gunVolleyDmg()*ESCORT.dmg*(crit?critMult():1),side:'player',col:st.col,w:st.w,st:st.k==='bolt'||st.k==='primal'?'blue':st.k})}
+      fireStreak(o.g.position.clone(),ct,{miss:!hit,crit,dmg:gunVolleyDmg()*ESCORT.dmg*(crit?critMult():1)*(1+(((bonus().rs||{}).escPct||0)+(rsK('s2')?RSK.s2.k:0))/100),side:'player',col:st.col,w:st.w,st:st.k==='bolt'||st.k==='primal'?'blue':st.k})}
     // ťažobný lúč
     if(o.mode==='mine'&&mineOn){if(!o.beam)o.beam=makeBeam('#2ee6ff');setBeam(o.beam,o.g.position,mineTarget.pos,.16+.04*Math.sin(tt*20+o.i),'#2ee6ff')}
     else if(o.beam)hideBeam(o.beam)}}

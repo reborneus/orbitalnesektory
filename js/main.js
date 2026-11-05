@@ -8,7 +8,7 @@ const clock=new THREE.Clock();let saveT=0,incomeT=0,miniT=0,tt=0;
 function frame(){requestAnimationFrame(frame);if(gfxSkip())return;const dt=Math.min(clock.getDelta(),.05);tt+=dt;
   pollPad(dt);readInput();
   const playing=$('#intro').hidden;
-  sndLoop(dt);   // v0.35: zvukové slučky, poslucháč, hudba
+  sndLoop(dt);if(typeof rsTick==='function'&&$('#intro').hidden)rsTick(dt);   // v0.42: výskum (nanoopravy, odpočty)   // v0.35: zvukové slučky, poslucháč, hudba
   if(!playing){menuArtFrame(dt,tt);return}   // v0.30: v hlavnom menu sa kreslí len fanart, svet hry stojí
   state.playT=(state.playT||0)+dt;MIN_U.uT.value=tt;          // odohraný čas (zobrazuje sa pri uložených hrách)
   if(!jumping&&!dead&&playing){tickAuto(dt);tickShip(dt,tt)}tickHudMode(dt);if(!jumping)tickDrones(dt,tt);

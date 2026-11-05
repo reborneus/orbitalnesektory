@@ -43,9 +43,9 @@ function towerBurst(from,tg,r,dmg){const st=laserStyleR(r),v=VOLLEY_MIN+Math.flo
 /* dopad strely hráča na cieľ */
 function landShot(o,tg){if(o.side==='enemy'){landPirate(o);return}if(!enemies.includes(tg))return;
   if(o.side==='tower'){if(o.fx){emit(debris,tg.pos,o.col,.25,new V3((Math.random()-.5)*6,Math.random()*3,(Math.random()-.5)*6));return}
-    hitEnemy(tg,o.dmg,'tower');dmgText(tg.pos,o.dmg,'tower');sfx('hit',tg.pos);emit(debris,tg.pos,o.col,.3,new V3((Math.random()-.5)*6,Math.random()*3,(Math.random()-.5)*6));return}
+    hitEnemy(tg,o.dmg,'tower');dmgText(tg.pos,o.dmg,'tower');if(typeof rsTowerHit==='function')rsTowerHit(tg,o);sfx('hit',tg.pos);emit(debris,tg.pos,o.col,.3,new V3((Math.random()-.5)*6,Math.random()*3,(Math.random()-.5)*6));return}
   if(o.fx){emit(debris,tg.pos,laserStyle().col,.25,new V3((Math.random()-.5)*6,Math.random()*3,(Math.random()-.5)*6));return}   // vizuálna salva: len iskra, bez poškodenia
-  if(o.miss){dmgText(tg.pos,1,'miss');return}sfx('hit',tg.pos);hitEnemy(tg,o.dmg,'player');dmgText(tg.pos,o.dmg,o.crit?'crit':'player');emit(debris,tg.pos,laserStyle().col,.3,new V3((Math.random()-.5)*6,Math.random()*3,(Math.random()-.5)*6))}
+  if(o.miss){dmgText(tg.pos,1,'miss');return}sfx('hit',tg.pos);hitEnemy(tg,o.dmg,'player');dmgText(tg.pos,o.dmg,o.crit?'crit':'player');if(typeof rsOnHit==='function'&&enemies.length)rsOnHit(tg,o);emit(debris,tg.pos,laserStyle().col,.3,new V3((Math.random()-.5)*6,Math.random()*3,(Math.random()-.5)*6))}
 const shotQ=[];
 /* v0.19.2: každý výstrel = 2–3 salvy tesne po sebe (VOLLEY_GAP s). Poškodenie (aj zásah/minutie a kritický zásah) nesie len
    prvá salva; ďalšie sú iba vizuálne (fx) a letia rovnakým smerom. Tempo streľby a poškodenie za sekundu sa nemení. */
@@ -80,7 +80,7 @@ function tickShots(dt){for(const s of shotQ.slice()){s.t-=dt;if(s.t>0)continue;s
 function pirateShot(e,onShip){if(onShip&&dead)return;const hit=Math.random()<PIRATE_HIT;
   fireStreak(e.pos,onShip?{pos:ship.position}:new V3(0,2,0),{miss:!hit,dmg:e.dmg,side:'enemy',onShip,col:'#ff4b3a',w:.22,st:'pir'})}
 function landPirate(o){if(o.miss)return;
-  if(o.onShip){if(dead)return;const r=damage(o.dmg,'hit');if(r.hull+r.shield>0)dmgText(ship.position,r.hull+r.shield,'hurt');if(r.hull>0)hurtFlash(.3);if(r.shield>0)bubbleT=1;rumble(.25,90)}
+  if(o.onShip){if(dead)return;if(typeof rsShipHit==='function'&&rsShipHit(o))return;const r=damage(o.dmg,'hit');if(r.hull+r.shield>0)dmgText(ship.position,r.hull+r.shield,'hurt');if(r.hull>0)hurtFlash(.3);if(r.shield>0)bubbleT=1;rumble(.25,90)}
   else if(stationDown<=0)stationHit(o.dmg)}
 function clearLasers(){shotQ.length=0;streaks.length=0;for(const b of boltPool)b.visible=false;for(const f of flashes)f.s.visible=false;flashes.length=0;for(const z of zaps)z.m.visible=false;zaps.length=0;for(const B of laserPool){B.life=0;hideBeam(B.b)}for(const p of pulses)world.remove(p.p);pulses.length=0;if(primalBeam)hideBeam(primalBeam);primalT=0}
 

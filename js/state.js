@@ -78,12 +78,12 @@ function upCost(k,L){const c=UP[k].cost(L),m=curShip().upMul;if(m===1)return c;c
 /* Hodnota vlastnosti lode = úroveň vylepšenia (UP, × násobok lode) + bonusy z nasadených predmetov (bonus() v items.js). */
 function shipVal(k){const v=upVal(k,state.ship[k]);const b=bonus();
   switch(k){
-    case'speed':return v*(1+b.speed/100);
+    case'speed':return v*(1+b.speed/100)*(typeof rsBurnT!=='undefined'&&rsBurnT>0?1+RSK.f2.s/100:1);   // v0.42: Prídavné spaľovanie
     case'accel':return v*(1+b.accel/100);
     case'turn':return v*(1+b.turn/100);
     case'hull':return Math.round((v+b.hull)*(1+b.hullPct/100));
-    case'cargo':return Math.round(v+b.cargo);
-    case'shield':return Math.round(v+b.shield);
+    case'cargo':return Math.round((v+b.cargo)*(1+((b.rs&&b.rs.cargoPct)||0)/100));
+    case'shield':return Math.round((v+b.shield)*(1+((b.rs&&b.rs.shieldPct)||0)/100));   // v0.42: percentá z výskumu
     case'sregen':return{delay:Math.max(3,v.delay-b.sdelay),rate:v.rate*(1+b.sregen/100)};
     case'laser':return v*(1+b.mine/100);
     case'range':return v+b.range;

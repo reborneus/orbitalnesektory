@@ -7,7 +7,7 @@
    Keď výdrž stanice klesne na 0, piráti ukradnú časť rudy a viriditu, odletia a moduly sú chvíľu offline (stationDown). */
 let enemies=[],bolts=[],raidT=0,raidActive=false,raidCount=0,stationHp=0,stationDown=0,gunCd=0,attackTarget=null,towerCd={};
 const raidCfg=()=>stationBroken()?null:PIRATES.raid[state.cur];   // v0.41: na vyradenú stanicu piráti nenalietavajú
-const stationMaxHp=()=>PIRATES.stationHp(cur().core);
+const stationMaxHp=()=>PIRATES.stationHp(cur().core)*(1+((bonus().rs||{}).stHpPct||0)/100);   // v0.42: + výskum
 /* Zavolá sa pri stavbe sektora: vymaže nepriateľov a naplánuje prvý nájazd. */
 function resetCombat(){if(typeof clearLasers==='function')clearLasers();for(const d of dmgTexts)d.el.remove();dmgTexts.length=0;enemies=[];bolts=[];raidActive=false;raidCount=0;stationDown=0;attackTarget=null;towerCd={};passiveQ.length=0;
   const c=raidCfg();raidT=c?c.first:0;stationHp=stationMaxHp();spawnPassives()}
@@ -75,6 +75,7 @@ function killEnemy(e){sfx('boom',e.pos.clone());const P=PIRATES[e.kind];world.re
   for(let i=0;i<(e.kind==='carrier'?160:e.kind==='dread'?110:e.kind==='frigate'?70:e.kind==='corsair'?40:22);i++)emit(debris,e.pos,['#ff8a5c','#ffe2a8','#ff3b2f'][i%3],.6+Math.random()*.8,new V3((Math.random()-.5)*22,Math.random()*5,(Math.random()-.5)*22));
   missionKill();missionBounty(e);if(e.wasPassive)passiveQ.push({belt:e.belt,t:rnd(...(PASSIVE[state.cur]||{respawn:[120,120]}).respawn)});
   const cr=Math.round(rnd(P.cr[0],P.cr[1])*secGain(state.cur)*crMul());state.credits+=cr;bump('#crTxt');xpAt(XP.kill[e.kind]||0);
+  if(rsK('e1')&&Math.random()<RSK.e1.p/100){const z=Math.min(5,zoneOf(Math.hypot(e.pos.x,e.pos.z)));spawnLoot(dropItem(e.kind==='fighter'||e.kind==='swarm'?'enemy':e.kind,Math.max(2,z)),e.pos)}   // v0.42: Lovec odmien
   if(Math.random()<P.drop){const z=Math.min(5,zoneOf(Math.hypot(e.pos.x,e.pos.z)));spawnLoot(dropItem(e.kind==='fighter'||e.kind==='swarm'?'enemy':e.kind,Math.max(2,z),e.kind==='frigate'?4:e.kind==='corsair'?3:0),e.pos)}
   if(raidActive&&!enemies.some(x=>!x.leaving&&!x.wasPassive)){raidActive=false;const bonus=Math.round(PIRATES.repelBonus*raidCount*crMul());state.credits+=bonus;toast(t('tt.repelled',{c:bonus}),true);missionRaid(true);save()}}
 
@@ -122,7 +123,7 @@ function fireMissile(e){const s=glow('#ff9a3a',2.6,1);s.position.copy(e.pos);wor
 function tickCombat(dt,tt){
   gunTgtT-=dt;tickLock(dt);tickEdgeArrows();
   if(stationDown>0)stationDown-=dt;
-  if(!raidActive&&stationHp<stationMaxHp())stationHp=Math.min(stationMaxHp(),stationHp+PIRATES.stationRegen*dt);
+  if(!raidActive&&stationHp<stationMaxHp())stationHp=Math.min(stationMaxHp(),stationHp+PIRATES.stationRegen*(rsK('s3')?RSK.s3.g:1)*dt);
   tickPassiveQ(dt);const c=raidCfg();if(c&&!raidActive&&!enemies.some(e=>!e.wasPassive)&&$('#intro').hidden){raidT-=dt;if(raidT<=0){spawnRaid();raidT=rnd(c.every[0],c.every[1])}}
   // útok na vybraného piráta: loď sa drží v dosahu zbrane (ručné ovládanie má prednosť)
   if(attackTarget&&!enemies.includes(attackTarget))attackTarget=null;

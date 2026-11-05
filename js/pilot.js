@@ -26,8 +26,10 @@ function pilotBonus(b){if(!state||!state.pilot)return;for(const k in SKILLS){con
 /* násobok kreditov zo zničených pirátov, misií, odmien a rozoberania (schopnosť Obchodník) */
 const crMul=()=>(1+(bonus().cr||0)/100)*(typeof tierMul==='function'?tierMul('gain'):1);
 let lvlFlash=0;
-function addXP(n,src){if(!(n>0)||!state)return;const P=pstate();if(P.lv>=PILOT_MAX)return;
-  const g=n*(XP_DIFF[state.diff]||1)*(typeof tierMul==='function'?tierMul('gain'):1);P.xp+=g;P.total+=g;let up=0;
+function addXP(n,src){if(!(n>0)||!state)return;const P=pstate();
+  const g=n*(XP_DIFF[state.diff]||1)*(typeof tierMul==='function'?tierMul('gain'):1)*(1+((bonus().rs&&bonus().rs.xpPct)||0)/100);
+  if(typeof rsAddXP==='function')rsAddXP(g);   // v0.42: od 70. úrovne idú XP aj do výskumu
+  if(P.lv>=PILOT_MAX)return;P.xp+=g;P.total+=g;let up=0;
   while(P.lv<PILOT_MAX&&P.xp>=xpNeed(P.lv)){P.xp-=xpNeed(P.lv);P.lv++;P.pts++;up++}
   if(P.lv>=PILOT_MAX)P.xp=0;
   if(up){toast(t('pl.up',{n:P.lv}),true);lvlFlash=1.2;bump('#pilotBtn');save();if(sheetTab==='pilot')renderSheet()}}
@@ -78,8 +80,9 @@ function renderStats(){let h=`<p class="note" style="margin:0">${t('sx.note',{s:
     h+='</tbody></table></div>'}
   return h}
 function renderPilot(){const P=pstate(),need=xpNeed(P.lv);
-  let h=`<div class="segs two pltabs"><button class="seg" data-act="plTab" data-v="lv" aria-pressed="${plTab==='lv'}">${t('pl.tab.lv')}</button><button class="seg" data-act="plTab" data-v="stats" aria-pressed="${plTab==='stats'}">${t('pl.tab.stats')}</button></div>`;
+  let h=`<div class="segs pltabs" style="grid-template-columns:repeat(3,1fr)">${['lv','stats','rs'].map(k=>`<button class="seg" data-act="plTab" data-v="${k}" aria-pressed="${plTab===k}">${t('pl.tab.'+k)}</button>`).join('')}</div>`;
   if(plTab==='stats')return h+renderStats();
+  if(plTab==='rs')return h+renderResearch();   // v0.42: strom výskumu (research.js)
   h+=`<div class="card plcard"><h3>${t('pl.lv',{n:P.lv})} <span class="lv">${P.lv>=PILOT_MAX?'MAX':`${fmtN(P.xp)} / ${fmtN(need)} XP`}</span></h3>
     <div class="meter" style="grid-column:1/-1"><div class="bar"><i style="width:${P.lv>=PILOT_MAX?100:P.xp/need*100}%;background:var(--xp)"></i></div></div>
     <p>${t('pl.p',{t:fmtN(P.total)})}</p><div class="stat">${P.pts?`<em>${t('pl.pts',{n:P.pts})}</em>`:t('pl.noPts')}</div></div>`;
@@ -94,7 +97,7 @@ function renderPilot(){const P=pstate(),need=xpNeed(P.lv);
   h+=`<p class="note">${t('pl.how')}</p>`;
   return h}
 const nf1=x=>(Math.round(x*10)/10).toString();
-function pilotAct(act,b){if(act==='plTab'){plTab=b.dataset.v;renderSheet();return true}
+function pilotAct(act,b){if(act==='plTab'){plTab=b.dataset.v;renderSheet();return true}if(act==='rsOpen'){rsOpenTree();return true}
   if(act!=='plUp'&&act!=='plReset')return false;const P=pstate();
   if(act==='plUp'){const k=b.dataset.k;if(P.pts<=0||(P.sk[k]||0)>=SKILLS[k].max)return true;P.sk[k]=(P.sk[k]||0)+1;P.pts--}
   else{const c=respecCost();if(!afford(c)){toast(t('tt.noRes'));return true}pay(c);for(const k in P.sk){P.pts+=P.sk[k];P.sk[k]=0}toast(t('pl.respecOk'))}
