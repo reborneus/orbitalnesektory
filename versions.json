@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.31.1", "date": "2026-11-05", "time": "2026-11-05T10:56:55+01:00", "sha": "a75dc2c0903b502bad616749fd0d68dba46f601d", "title": "Oprava ukladania na iOS, ukončenie do menu, značky verzie proti cache"},
   {"version": "0.31.0", "date": "2026-11-05", "time": "2026-11-05T10:37:26+01:00", "sha": "640301c2bcc442af469afaaba85ad1425b347cc2", "title": "Minerály vo vysokom rozlíšení so svietiacimi žilami"},
   {"version": "0.30.0", "date": "2026-11-05", "time": "2026-11-05T10:26:08+01:00", "sha": "b33d2b766b83bb9e19b5c3e433453e376a5b9d11", "title": "Hlavné menu s fanartom, 3 sloty uložení, tmavý Pincer"},
   {"version": "0.29.0", "date": "2026-11-05", "time": "2026-11-05T09:59:13+01:00", "sha": "5fb88e85623a7f883bbb9f30d97d9284f8295989", "title": "Kompaktný a schovávaný HUD pre telefóny, inštalácia na plochu"},

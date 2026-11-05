@@ -2,6 +2,16 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.31.1",
+"d": "2026-11-05",
+"n": [
+"Oprava ukladania: ak hra beží bez zvoleného slotu (napr. po aktualizácii aplikácie na ploche zo starej verzie), slot sa priradí sám – automatické aj ručné ukladanie teraz vždy funguje",
+"Ručné uloženie ukáže chybu, ak sa nepodarí zapísať (namiesto ticha)",
+"Uložiť a ukončiť: tam, kde sa okno zavrieť nedá (iPhone, aplikácia na ploche, bežná karta), hra uloží a prejde do hlavného menu",
+"Súbory hry majú značku verzie, aby prehliadač a aplikácia na ploche po aktualizácii nemiešali staré a nové súbory"
+]
+},
+{
 "v": "0.31.0",
 "d": "2026-11-05",
 "n": [
@@ -220,15 +230,6 @@ const CHANGELOG=[
 "Lasery: krátke salvy – jedna letiaca laserová strela za každú osadenú zbraň (lode s viac slotmi pre zbrane vystrelia viac naraz); poškodenie sa započíta pri dopade",
 "Piráti strieľajú rovnakými krátkymi strelami",
 "Výbava: hromadné rozoberanie – Označiť na rozobratie, výber ťuknutím alebo podľa rarity, zamknuté predmety sa preskočia"
-]
-},
-{
-"v": "0.16.2",
-"d": "2026-11-04",
-"n": [
-"Dostrel: bežní piráti strieľajú kratšie ako tvoja zbraň (stíhačky 82 %, korzári 88 %, fregaty 95 %), bossovia ďalej (Dreadnought 120 %, krížnik 135 %); posúva sa s vylepšením dosahu",
-"Mapy ešte 2× väčšie (spolu 8× oproti v0.14), väčšie pozadie hmloviny",
-"Nájazdy pirátov prilietajú z pásu 4, aby na veľkých mapách neleteli príliš dlho"
 ]
 }
 ];
