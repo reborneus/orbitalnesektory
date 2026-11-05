@@ -20,8 +20,8 @@ const renderIntro=()=>renderMenu();   // staré volania (zmena jazyka) prekresli
 
 /* Karta slotu: najnovšie uloženie (sektor, obtiažnosť, pilot, odohraný čas, kedy) alebo „Prázdny slot“. */
 function saveSlotCard(n,mode){const E=slotEntries(n),m=E[0];
-  if(!m)return `<button class="mslot empty" data-slot="${n}"${mode==='load'?' disabled':''}><span class="msn">${n}</span><span class="msi"><b>${t('mn.empty')}</b><small>${mode==='new'?t('mn.emptyNew'):t('mn.emptyLoad')}</small></span></button>`;
-  return `<button class="mslot" data-slot="${n}"><span class="msn">${n}</span><span class="msi"><b>${sname(m.sec)} <em class="d-${m.diff}">${t('diff.'+m.diff)}</em></b>
+  if(!m)return `<button class="msave empty" data-slot="${n}"${mode==='load'?' disabled':''}><span class="msn">${n}</span><span class="msi"><b>${t('mn.empty')}</b><small>${mode==='new'?t('mn.emptyNew'):t('mn.emptyLoad')}</small></span></button>`;
+  return `<button class="msave" data-slot="${n}"><span class="msn">${n}</span><span class="msi"><b>${sname(m.sec)} <em class="d-${m.diff}">${t('diff.'+m.diff)}</em></b>
     <small>${t('mn.pilot',{n:m.lv})} · ${t('ship.'+m.ship)} · ${fmtPlay(m.play)}</small><small>${t('mn.saved')} ${fmtWhen(m.ts)} · ${t('mn.count',{n:E.length})}</small>
     ${mode==='new'?`<small class="warn">${t('mn.overwrite')}</small>`:''}</span></button>`}
 /* Riadok uloženia v slote. */
@@ -39,13 +39,13 @@ function renderMenu(){const box=$('#introBox');let h='';const back=(v,title)=>`<
       <button class="mi" data-m="set"><b>${t('dock.settings')}</b></button>
       <button class="mi" data-m="wiki"><b>${t('mn.wiki')}</b></button></nav>
       <div class="mfoot">${langBtns()}<button class="mlogb" data-m="log">${t('mn.log')}</button></div>`}
-  else if(menuView==='new'){h+=back('main',t('mn.newH'))+`<div class="mslots">${[1,2,3].map(n=>saveSlotCard(n,'new')).join('')}</div>`}
+  else if(menuView==='new'){h+=back('main',t('mn.newH'))+`<div class="msaves">${[1,2,3].map(n=>saveSlotCard(n,'new')).join('')}</div>`}
   else if(menuView==='diff'){const used=slotUsed(menuSlot);
     h+=back('new',t('mn.newSlot',{n:menuSlot}))+`<div class="sec-h"><span>${t('in.diff')}</span></div>
       <div class="diffs">${DIFFS.map(d=>`<button class="diff ${d}" data-d="${d}" aria-pressed="${pendingDiff===d}"><b>${d==='nightmare'?'☠ ':''}${t('diff.'+d)}</b><span>${t('diff.'+d+'D')}</span></button>`).join('')}</div>
       ${nmRecord()}<details class="mhow"><summary>${t('mn.how')}</summary><ol>${[1,2,3,4,5,6].map(i=>`<li>${t('in.'+i)}</li>`).join('')}</ol></details>
       <button class="go" id="goBtn">${used?(menuArm==='go'?t('mn.sure'):t('mn.goOver')):t('in.go')}</button>`}
-  else if(menuView==='load'){h+=back('main',t('mn.loadH'))+`<div class="mslots">${[1,2,3].map(n=>saveSlotCard(n,'load')).join('')}</div>`}
+  else if(menuView==='load'){h+=back('main',t('mn.loadH'))+`<div class="msaves">${[1,2,3].map(n=>saveSlotCard(n,'load')).join('')}</div>`}
   else if(menuView==='slot'){const E=slotEntries(menuSlot);
     h+=back('load',t('mn.slotH',{n:menuSlot}))+`<div class="mentries">${E.map(m=>entryRow(menuSlot,m)).join('')||`<p class="note">${t('mn.none')}</p>`}</div>
       <p class="note">${t('mn.slotNote',{a:AUTO_N,m:MAN_N})}</p>${E.length?`<button class="ghost danger" data-delslot="1">${menuArm==='slot'?t('mn.sure'):t('mn.delSlot')}</button>`:''}`}

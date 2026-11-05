@@ -685,12 +685,12 @@ body.inmenu .sheet{z-index:12}
 .mback{width:38px;height:38px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--text);font-size:24px;line-height:1;cursor:pointer;padding:0 0 3px}
 .mback:hover{border-color:var(--hull);color:var(--hull)}
 .mslots,.mentries{display:grid;gap:8px}
-.mslot,.mload{display:flex;align-items:center;gap:14px;width:100%;text-align:left;font:inherit;color:var(--text);cursor:pointer;padding:12px 14px;border-radius:10px;
+.msave,.mload{display:flex;align-items:center;gap:14px;width:100%;text-align:left;font:inherit;color:var(--text);cursor:pointer;padding:12px 14px;border-radius:10px;
   border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:border-color .15s,transform .15s}
-.mslot:hover:not(:disabled),.mslot.mfoc,.mload:hover,.mload.mfoc,.diff.mfoc,.go.mfoc,.mdel.mfoc{border-color:var(--hull);box-shadow:0 0 0 1px rgba(88,208,192,.35),0 0 18px rgba(88,208,192,.15)}
-.mslot:disabled{opacity:.45;cursor:default}
+.msave:hover:not(:disabled),.msave.mfoc,.mload:hover,.mload.mfoc,.diff.mfoc,.go.mfoc,.mdel.mfoc{border-color:var(--hull);box-shadow:0 0 0 1px rgba(88,208,192,.35),0 0 18px rgba(88,208,192,.15)}
+.msave:disabled{opacity:.45;cursor:default}
 .msn{font:700 30px/1 var(--f-data);color:var(--hull);width:34px;text-align:center;flex:none}
-.mslot.empty .msn{color:var(--muted)}
+.msave.empty .msn{color:var(--muted)}
 .msi{display:grid;gap:3px;min-width:0}
 .msi b{font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .msi b em{font-style:normal;font:600 10px/1 var(--f-data);letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);border-radius:4px;padding:2px 5px;margin-left:6px;vertical-align:2px;color:var(--muted)}
@@ -731,3 +731,22 @@ body.inmenu .sheet{z-index:12}
 @media (max-width:760px),(max-height:520px){.mlog:not(.open){display:none}.mlog.open{left:16px;right:16px;width:auto;top:calc(env(safe-area-inset-top,0px) + 16px);bottom:calc(env(safe-area-inset-bottom,0px) + 16px);max-height:none;z-index:2;background:rgba(9,15,27,.96)}}
 /* telefón na šírku: nízka výška – menšie logo a položky */
 @media (max-height:520px) and (min-aspect-ratio:23/20){.mpanel{gap:8px;padding-top:14px;padding-bottom:14px;padding-left:max(28px,env(safe-area-inset-left,0px))}.mlogo{margin:0;gap:4px}.mlogo h1 span:last-child{font-size:40px}.mlogo h1 span:first-child{font-size:13px}.mi{padding:5px 12px 5px 16px}.mi b{font-size:16px}.mi.big b{font-size:18px}.mfoot{margin-top:4px}}
+
+/* ===================== v0.31.4: BEZ SYSTÉMOVÝCH POSUVNÍKOV ===================== */
+/* Vodorovné posúvanie v menu nikdy (obsah sa zalomí), zvislé posuvníky len tenké vo farbe hry. */
+.sheet .body,.gear-insp,.mpanel,.intro{overflow-x:hidden}
+*{scrollbar-width:thin;scrollbar-color:rgba(88,208,192,.32) transparent}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track,::-webkit-scrollbar-corner{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(88,208,192,.3);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(88,208,192,.55)}
+::-webkit-scrollbar-button{display:none;width:0;height:0}
+/* náhľad predmetu vpravo: pulzovanie mýtických a prvotných predmetov bez zväčšovania (zväčšenie vytváralo posuvníky) */
+.gear-insp{--pz:1}
+.itd.r7,.itd.r8,.itd.r9,.gear-insp .r7,.gear-insp .r9{--pz:1}   /* veľké karty predmetov pulzujú len jasom */
+.gear-insp .itd{max-width:100%}
+/* panel stanice zboku je širší; karta stavby modulu zalomí tlačidlo pod text, keď sa nezmestí */
+@media (min-width:900px){.sheet.side{width:min(470px,calc(100vw - 32px))}}
+.mbuild{flex-wrap:wrap}
+.mbuild .eqc-txt{flex:1 1 150px}
+.mbuild .act{flex:none;margin-left:auto}
