@@ -4,6 +4,14 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 
 ## 0.51
 
+### v0.51.1 · 2026-11-05
+- Rakety statických pirátov sú omnoho rýchlejšie a letia cez celú mapu – raketové veže sa oplatí zničiť ako prvé.
+- Autopilot krúži okolo statických pirátov v dosahu svojich zbraní a polovičnou rýchlosťou, takže lepšie trafí.
+- Pirátska aréna sa volá Pirátska Hmlovina. Jej stred už nefunguje ako stanica (nevykladá sa tam a na minimape nie je značka stanice); anomália má na minimape aj veľkej mape pulzujúcu značku.
+- Keď sa objaví anomália, cez stred obrazovky pulzuje oznámenie a veľká šípka ukazuje smer a vzdialenosť k nej.
+- Bezpečné zóny: pri stanici (keď nie je nájazd) a pri bráne sa nebojuje – nad stredom obrazovky svieti nápis Bezpečná zóna.
+- Po skoku na mapu jej názov krátko zasvieti cez stred obrazovky, každá mapa vlastnou farbou.
+
 ### v0.51.0 · 2026-11-05
 - Drony s odomknutou obranou pri nájazde samy bránia stanicu a pri tvojom útoku na piráta slabo pomôžu (5–10 % tvojho DPS podľa vylepšenia); potom sa vrátia k ťažbe. Prepínač ťažba/obrana je preč.
 - Minimapa a veľká mapa ukazujú asteroidy a pirátov len okolo lode (250 m) a v dosahu senzorov stanice – ostatok je zatemnený. Senzory rozširujú dosah (2 senzory +5 s čipom ≈ 80 % minimapy). Stanica, brána, obchodník, zadávateľ misií a korisť sú vidieť stále.

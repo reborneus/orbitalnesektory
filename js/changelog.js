@@ -2,6 +2,18 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.51.1",
+"d": "2026-11-05",
+"n": [
+"Rakety statických pirátov sú omnoho rýchlejšie a letia cez celú mapu – raketové veže sa oplatí zničiť ako prvé.",
+"Autopilot krúži okolo statických pirátov v dosahu svojich zbraní a polovičnou rýchlosťou, takže lepšie trafí.",
+"Pirátska aréna sa volá Pirátska Hmlovina. Jej stred už nefunguje ako stanica (nevykladá sa tam a na minimape nie je značka stanice); anomália má na minimape aj veľkej mape pulzujúcu značku.",
+"Keď sa objaví anomália, cez stred obrazovky pulzuje oznámenie a veľká šípka ukazuje smer a vzdialenosť k nej.",
+"Bezpečné zóny: pri stanici (keď nie je nájazd) a pri bráne sa nebojuje – nad stredom obrazovky svieti nápis Bezpečná zóna.",
+"Po skoku na mapu jej názov krátko zasvieti cez stred obrazovky, každá mapa vlastnou farbou."
+]
+},
+{
 "v": "0.51.0",
 "d": "2026-11-05",
 "n": [
@@ -232,22 +244,6 @@ const CHANGELOG=[
 "n": [
 "Balans pirátov: výdrž rastie s úrovňou výzvy oveľa strmšie (×2,5 za úroveň), poškodenie mierne (×1,25); s rastúcou výbavou hra pôsobí postupne ľahšie a na úplnom vrchole (najlepšia výbava, výzva +16) padnú stredne silní piráti (korzári) na 1–2 rany, stíhačky na jednu, fregaty na 4–5",
 "Ovládač: pri ovládaní ovládačom sa kurzor myši automaticky skryje (vráti sa, keď pohneš myšou)"
-]
-},
-{
-"v": "0.38.0",
-"d": "2026-11-05",
-"n": [
-"Náklad lode 8× väčší (aj vlastnosť Náklad na predmetoch, staré predmety sa prepočítajú); dodávkové misie chcú 4× viac a platia 2× viac",
-"Nová misia Odmena za hlavu: na mieste misie čaká silný hľadaný pirát (korzár, na ťažkej misii fregata) s červenou žiarou – zničením sa misia splní; misie Lov na pirátov sú teraz na všetkých mapách",
-"Ovládač: A (Xbox) / ✕ (PlayStation) pri stanici, NPC alebo bráne v dosahu otvorí ich menu; tlačidlo na objekte ukazuje symbol",
-"Zbrane: loď bez modulu zbrane má malé základné poškodenie; každý modul zbrane má vlastné Základné poškodenie – náhodne v rozsahu podľa rarity a úrovne predmetu; všetky percentá ho násobia",
-"Kvalita vlastností: ak vlastnosť modulu padla v 90 % a viac zo svojho rozsahu, svieti zlato; pri 100 % hrubo červeno",
-"Endgame: nová vlastnosť Násobič poškodenia (len Legendárne a vyššie) – násobiče z rôznych predmetov sa navzájom NÁSOBIA; s najlepšou výbavou ide poškodenie do stoviek miliónov až miliárd",
-"Strmšie krivky: vylepšenia lode rastú na vyšších úrovniach oveľa viac a sú násobne drahšie; vylepšenie predmetov (+20 ≈ ×4,2) aj modulov stanice tiež strmšie",
-"Výzva: úrovne sa odomykajú postupom (+1 za obsadený sektor, +2 za každých 5 vĺn v aréne), zamknuté štvorčeky majú zámok; zmena výzvy znova načíta sektor (ako skok), loď ostane pri stanici",
-"Zvuky dlhšie (inšpirácia DarkOrbit): kovové doznievanie výstrelov, vesmírna ozvena medzi kanálmi, dlhšie výbuchy",
-"Spúšťač Windows: v paneli úloh ikona hry namiesto ikony PowerShellu"
 ]
 }
 ];
