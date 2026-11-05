@@ -2,6 +2,14 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.44
+
+### v0.44.0 · 2026-11-05
+- Aréna: piráti sa už nerodia na konci zóny 3, ale v okruhu asi 250 m okolo hráča; každá 4. vlna prilieta spomedzi zóny 1 a 2.
+- Čím vyššia vlna, tým viac sú piráti rozmiestnení: od vlny ~60 prilieta 10 % okolo hráča a po 30 % z okraja zóny 1, z okraja zóny 2 a zo stredu zóny 3 – v kŕdľoch po troch z rôznych strán.
+- Statické raketové veže stoja na okraji zóny 2, boss Dreadnought prilieta z okraja zóny 2 a hlavný boss zo stredu zóny 3.
+- Príručka: popis rozmiestnenia pirátov v aréne.
+
 ## 0.43
 
 ### v0.43.0 · 2026-11-05

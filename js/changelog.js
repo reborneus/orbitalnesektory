@@ -2,6 +2,16 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.44.0",
+"d": "2026-11-05",
+"n": [
+"Aréna: piráti sa už nerodia na konci zóny 3, ale v okruhu asi 250 m okolo hráča; každá 4. vlna prilieta spomedzi zóny 1 a 2.",
+"Čím vyššia vlna, tým viac sú piráti rozmiestnení: od vlny ~60 prilieta 10 % okolo hráča a po 30 % z okraja zóny 1, z okraja zóny 2 a zo stredu zóny 3 – v kŕdľoch po troch z rôznych strán.",
+"Statické raketové veže stoja na okraji zóny 2, boss Dreadnought prilieta z okraja zóny 2 a hlavný boss zo stredu zóny 3.",
+"Príručka: popis rozmiestnenia pirátov v aréne."
+]
+},
+{
 "v": "0.43.0",
 "d": "2026-11-05",
 "n": [
@@ -237,14 +247,6 @@ const CHANGELOG=[
 "Senzorové pole: technický podstavec s bronzovými skriňami a anténkami, stĺp a otáčajúca sa veľká parabola s trojnožkou a fialovým snímačom",
 "Nové náhľady modulov vo všetkých menu (väčšie, kamera sa prispôsobí modelu)",
 "Pohľad sa dá oddialiť ešte viac; nepriehľadnosť menu je pri prvom spustení 50 %"
-]
-},
-{
-"v": "0.31.5",
-"d": "2026-11-05",
-"n": [
-"Ovládanie myšou aj prstom: pri držaní tlačidla loď stále sleduje bod pod kurzorom – aj keď sa myš nehýbe (kamera ide za loďou, takže loď plynulo letí ďalej a nezastaví sa na prvom mieste)",
-"Popisy pri myši (asteroidy, piráti, stanica, HUD) sa obnovujú stále, nielen pri pohybe myšou – napr. zostávajúca surovina asteroidu alebo život piráta sa mení priamo pred očami"
 ]
 }
 ];
