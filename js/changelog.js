@@ -2,6 +2,15 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.40.1",
+"d": "2026-11-05",
+"n": [
+"Automatický lov pirátov (Nastavenia → Hra): zapnutý samostatne loď sama letí po najbližšom pirátovi, zostrelí ho, pozbiera korisť a pokračuje ďalším.",
+"Lov spolu s ťažbou: ťažba sa nepreruší, ale keď sa asteroid vyčerpá a pirát je v dosahu (šípka na okraji obrazovky), loď letí za ním a po boji sa vráti k ťažbe tej istej suroviny. Pri trupe pod 35 % lov skončí.",
+"Oprava: pri automatickej ťažbe ťažobný laser po vyčerpaní asteroidu nakrátko preblikol až k novému cieľu."
+]
+},
+{
 "v": "0.40.0",
 "d": "2026-11-05",
 "n": [
@@ -232,16 +241,6 @@ const CHANGELOG=[
 "Uloženia majú číslo schémy a postupné migrácie, takže hry uložené v starších verziách sa dajú načítať aj v nových; hra z verzie 0.29 a starších sa automaticky prenesie do slotu 1",
 "Nightmare: zničenie lode zmaže celý slot a vráti hru do hlavného menu",
 "Štartovacia loď Pincer má tmavý grafitový pancier namiesto bieleho (v hre aj v náhľadoch)"
-]
-},
-{
-"v": "0.29.0",
-"d": "2026-11-05",
-"n": [
-"Kompaktný HUD: na telefónoch sa zapne automaticky – menšie panely a minimapa, spodné menu len s ikonami, zo sledovaných misií sa ukáže len jedna s čipom „+N“ (ťuknutím sa rozbalia všetky). V Nastaveniach sa dá prepnúť Auto / Zap / Vyp",
-"Automatické schovávanie HUD (Nastavenia): po 4 s bez dotyku HUD sa spodné menu schová za malú šípku dole a panely ukážu len sektor, náklad, trup a minimapu; ťuknutím na panel alebo šípku (na PC priblížením myši k spodnému okraju) sa HUD rozbalí",
-"Hra sa dá pridať na plochu telefónu ako aplikácia na celú obrazovku (iOS: Safari → Zdieľať → Pridať na plochu, Android: Chrome → ⋮ → Inštalovať aplikáciu); návod je v README",
-"Hrateľná online verzia: https://reborneus.github.io/orbitalnesektory/"
 ]
 }
 ];

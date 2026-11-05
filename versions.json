@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.40.1", "date": "2026-11-05", "time": "2026-11-05T15:27:36+01:00", "sha": "999b716926b3ca4c98c1f43c0467b28e29e7482c", "title": "Automatický lov pirátov, oprava bliknutia lasera"},
   {"version": "0.40.0", "date": "2026-11-05", "time": "2026-11-05T15:04:24+01:00", "sha": "d53ba6f006a0f20c1de57669867da14ba48913aa", "title": "Bloom, odrazy prostredia, vlastné GLB modely"},
   {"version": "0.39.4", "date": "2026-11-05", "time": "2026-11-05T14:33:49+01:00", "sha": "ce8a9a87aaee548ec3219fe7c4e850bb15e3d466", "title": "Zvuk: vyšší limit hlasov, test zvuku"},
   {"version": "0.39.3", "date": "2026-11-05", "time": "2026-11-05T14:17:17+01:00", "sha": "d25048a47160411d43935461bb942197f6a1642a", "title": "Opravy: označovanie, výška výbavy, ovládač v zbalených slotoch"},
