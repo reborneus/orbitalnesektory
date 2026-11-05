@@ -2,6 +2,13 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.33.1",
+"d": "2026-11-05",
+"n": [
+"Výzva v stanici (štvorčeky)"
+]
+},
+{
 "v": "0.33.0",
 "d": "2026-11-05",
 "n": [
@@ -224,14 +231,6 @@ const CHANGELOG=[
 "Salvy laserov letia vždy v rovnakom tempe; vylepšenie rýchlosti streľby zvyšuje len poškodenie (poškodenie za sekundu je rovnaké ako predtým)",
 "Kurzor myši na ovládači ukazuje náhľad predmetov rovnako ako myš",
 "Krátke popisy pri myši (aj pri kurzore ovládača): tlačidlá dolnej lišty, suroviny, náklad, trup, štít, radiačný štít, vplyv, stanica, pilot, minimapa; v priestore asteroid (surovina a množstvo), pirát (typ a výdrž), stanica, NPC lode a brána"
-]
-},
-{
-"v": "0.19.2",
-"d": "2026-11-04",
-"n": [
-"Boj: každý výstrel lode sú 2–3 laserové salvy tesne po sebe; poškodenie sa započíta len raz, tempo a sila streľby zostávajú rovnaké",
-"Hrubšie laserové strely (hráč aj piráti)"
 ]
 }
 ];
