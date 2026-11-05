@@ -4,6 +4,10 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 
 ## 0.50
 
+### v0.50.2 · 2026-11-05
+- Minimapa je ostrá hneď po načítaní hry – už ju netreba zväčšiť ani zmenšiť, aby sa obnovila kvalita.
+- Veľké čísla na kartách (veže, drony, stanica) a vo vlastnostiach predmetov majú oddelené tisíce bodkami (627.340), od milióna sa skracujú (1,62 M).
+
 ### v0.50.1 · 2026-11-05
 - Hlavné menu má nové tlačidlo Ukončiť hru – v spúšťači zavrie okno hry, v prehliadači ukáže, že hra je uložená a kartu môžeš zavrieť.
 

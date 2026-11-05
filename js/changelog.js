@@ -2,6 +2,14 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.50.2",
+"d": "2026-11-05",
+"n": [
+"Minimapa je ostrá hneď po načítaní hry – už ju netreba zväčšiť ani zmenšiť, aby sa obnovila kvalita.",
+"Veľké čísla na kartách (veže, drony, stanica) a vo vlastnostiach predmetov majú oddelené tisíce bodkami (627.340), od milióna sa skracujú (1,62 M)."
+]
+},
+{
 "v": "0.50.1",
 "d": "2026-11-05",
 "n": [
@@ -237,14 +245,6 @@ const CHANGELOG=[
 "Každá rarita znie inak (sivá kratšia a vyššia, modrá štandard, zlatá najhlbšia, červená s chvením a skreslením, prvotná s akordom); veža hlbšia a dlhšia",
 "Blesk: krátke nabitie s vlniacim sa filtrom a hlboký výboj s padajúcimi tónmi; piráti majú tmavé bzučivé výstrely s chvením, aby sa dali rozlíšiť od tvojich",
 "Hlbšie zásahy"
-]
-},
-{
-"v": "0.36.3",
-"d": "2026-11-05",
-"n": [
-"Oprava: stály šum v pozadí – zvuk ťažobného lúča bol počuť aj vtedy, keď loď neťažila (pulzovanie lúča obchádzalo jeho stlmenie); teraz je pri vypnutej ťažbe úplné ticho",
-"Motory v pokoji takmer nepočuť, pri lete hlbší a menej šumivý hukot"
 ]
 }
 ];
