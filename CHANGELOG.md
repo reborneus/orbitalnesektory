@@ -2,6 +2,19 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.47
+
+### v0.47.0 · 2026-11-05
+- Nový model zadávateľa misií: biela veža s červenými svetlami – široká základňa so žiariacim podbruškom, vysoká veža so svetelnou štrbinou, zahnuté čepele a antény.
+- Nový model obchodníka: tmavosivá bojová stanica s modrými svetlami – pancierový trup s vežami, kruhový disk s kupolou a modrými prstencami, malé lode v sprievode.
+- Obchodník je teraz na každej mape. Prvú sprievodnú loď predáva v sektore 4 (Cygnus), druhú až v sektore 5 (Andromeda).
+- Z pirátov padá aj malé množstvo surovín rovno do nákladu. Náklad lode je ešte 2× väčší.
+- Štíty rastú rýchlejšie a zvládnu až asi 5× viac ako trup (body štítu z predmetov ×3, štítom pomáhajú % trupu aj nová vlastnosť % štítu). Radiácia teraz pomerne ubíja aj štíty, do trupu ostáva rovnaká.
+- Rýchlosť sa zobrazuje v cs (cosmic speed); maximum je 1 400 cs (160 m/s) a dosiahne sa asi pri 60 % všetkých vylepšení. Rýchlosť nad limit sa prepočíta na dosah zbraní.
+- Dosah pirátov rastie s tvojím dosahom zbraní už len z polovice – vylepšovať dosah sa oplatí.
+- Autopilot pri nájazde pirátov na stanicu preruší ťažbu a najprv bráni stanicu, aby si neprišiel o suroviny.
+- Príručka: nová kapitola Štíty, rýchlosť, náklad a dosah; aktualizovaný obchodník.
+
 ## 0.46
 
 ### v0.46.1 · 2026-11-05

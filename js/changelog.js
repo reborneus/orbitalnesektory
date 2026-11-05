@@ -2,6 +2,21 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.47.0",
+"d": "2026-11-05",
+"n": [
+"Nový model zadávateľa misií: biela veža s červenými svetlami – široká základňa so žiariacim podbruškom, vysoká veža so svetelnou štrbinou, zahnuté čepele a antény.",
+"Nový model obchodníka: tmavosivá bojová stanica s modrými svetlami – pancierový trup s vežami, kruhový disk s kupolou a modrými prstencami, malé lode v sprievode.",
+"Obchodník je teraz na každej mape. Prvú sprievodnú loď predáva v sektore 4 (Cygnus), druhú až v sektore 5 (Andromeda).",
+"Z pirátov padá aj malé množstvo surovín rovno do nákladu. Náklad lode je ešte 2× väčší.",
+"Štíty rastú rýchlejšie a zvládnu až asi 5× viac ako trup (body štítu z predmetov ×3, štítom pomáhajú % trupu aj nová vlastnosť % štítu). Radiácia teraz pomerne ubíja aj štíty, do trupu ostáva rovnaká.",
+"Rýchlosť sa zobrazuje v cs (cosmic speed); maximum je 1 400 cs (160 m/s) a dosiahne sa asi pri 60 % všetkých vylepšení. Rýchlosť nad limit sa prepočíta na dosah zbraní.",
+"Dosah pirátov rastie s tvojím dosahom zbraní už len z polovice – vylepšovať dosah sa oplatí.",
+"Autopilot pri nájazde pirátov na stanicu preruší ťažbu a najprv bráni stanicu, aby si neprišiel o suroviny.",
+"Príručka: nová kapitola Štíty, rýchlosť, náklad a dosah; aktualizovaný obchodník."
+]
+},
+{
 "v": "0.46.1",
 "d": "2026-11-05",
 "n": [
@@ -236,15 +251,6 @@ const CHANGELOG=[
 "Nastavenia sú rozdelené do sekcií: Uloženie, Hra, Ovládanie, Rozhranie, Grafika, Zvuk (z hlavného menu len spoločné sekcie)",
 "Grafika: predvoľby Nízka / Stredná / Vysoká / Ultra a jednotlivo rozlíšenie vykresľovania, množstvo častíc, animované pozadie a limit snímok (30 / 60 / bez limitu)",
 "Ovládanie: dá sa vypnúť sledovanie kurzora pri držaní tlačidla"
-]
-},
-{
-"v": "0.34.0",
-"d": "2026-11-05",
-"n": [
-"Obranná veža ukazuje tenký červený laserový zameriavač od ústia hlavne k zameranému pirátovi",
-"Veža strieľa rovnaké strely ako hráč (2–3 salvy, poškodenie nesie prvá) a vyletujú z ústia hlavne; ich vzhľad určuje rarita vylepšenia veže (+0 až +10), nie vložený čip",
-"Pri prestavbe stanice či zmene sektora sa zameriavače veží správne skryjú"
 ]
 }
 ];
