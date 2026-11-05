@@ -134,7 +134,7 @@ $UPDATE_ERR" stop; return 1; }; }
 start_game() { local page="${1:-index.html}" b; prepare_version || return 1; b=$(find_browser)
   if [ -z "$b" ]; then open -a Safari "$RUN_DIR/$page" 2>/dev/null || open "$RUN_DIR/$page"; return; fi
   mkdir -p "$RUN_PROFILE"
-  local args=("--app=$(file_url "$RUN_DIR/$page")" "--user-data-dir=$RUN_PROFILE" --no-first-run --no-default-browser-check --window-size=1440,900)
+  local args=("--app=$(file_url "$RUN_DIR/$page")" "--user-data-dir=$RUN_PROFILE" --no-first-run --no-default-browser-check --window-size=1440,900 --ignore-gpu-blocklist --enable-gpu-rasterization)
   [ "$FULLSCREEN" = 1 ] && args+=(--start-fullscreen)
   open -na "$b" --args "${args[@]}"; }
 

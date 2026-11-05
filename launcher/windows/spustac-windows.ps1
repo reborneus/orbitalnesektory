@@ -133,7 +133,7 @@ function Start-Game($page = 'index.html') {
   $url = ([Uri]$idx).AbsoluteUri
   $b = Find-Browser
   if (-not $b) { Start-Process $idx; return }
-  $a = @("--app=$url", "--user-data-dir=`"$prof`"", '--no-first-run', '--no-default-browser-check', '--window-size=1440,900')
+  $a = @("--app=$url", "--user-data-dir=`"$prof`"", '--no-first-run', '--no-default-browser-check', '--window-size=1440,900', '--ignore-gpu-blocklist', '--enable-gpu-rasterization')
   if ($Cfg.fullscreen) { $a += '--start-fullscreen' }
   Start-Process -FilePath $b -ArgumentList $a
 }

@@ -797,3 +797,7 @@ body.hudc .wbtn .wbi{width:40px;height:40px}body.hudc .wbtn .wbl{font-size:10px}
 .deathBtns button{width:min(360px,82vw);justify-self:center}
 .deathBtns .ghost{border:1px solid rgba(255,210,122,.5);color:var(--gold);padding:10px 14px;border-radius:9px;background:rgba(20,12,4,.6);cursor:pointer;font:600 14px/1.2 inherit}
 .deathBtns .ghost:disabled,.deathBtns .go:disabled{opacity:.45;cursor:default}
+
+/* v0.36.1: počítadlo FPS a voľby limitu */
+#fpsCnt{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 4px);z-index:30;pointer-events:none;font:700 11px/1 var(--f-data);color:#7ef2a8;background:rgba(0,0,0,.55);padding:3px 7px;border-radius:5px}
+.fpsopts{flex-wrap:wrap}
