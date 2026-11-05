@@ -43,39 +43,46 @@ function miniSkull(g,x,y,u){const s=3.6*u;g.save();g.shadowColor='#ff2a2a';g.sha
   g.shadowBlur=0;g.fillStyle='#1a0306';g.beginPath();g.arc(x-s*.42,y-s*.12,s*.3,0,TAU);g.arc(x+s*.42,y-s*.12,s*.3,0,TAU);g.fill();
   g.beginPath();g.moveTo(x,y+s*.22);g.lineTo(x-s*.14,y+s*.48);g.lineTo(x+s*.14,y+s*.48);g.closePath();g.fill();
   g.fillRect(x-s*.2,y+s*.68,s*.08,s*.27);g.fillRect(x+s*.12,y+s*.68,s*.08,s*.27);g.restore()}
-function drawMini(){const W=mini.width,c=W/2,R=c-1,k=R/MINI_R,u=W/150;const g=mctx;
-  g.clearRect(0,0,W,W);g.save();g.beginPath();g.arc(c,c,R,0,TAU);g.clip();
-  g.fillStyle='rgba(6,11,20,.85)';g.fillRect(0,0,W,W);
-  g.beginPath();g.arc(c,c,HORIZON*k,0,TAU);g.arc(c,c,Z2*k,0,TAU,true);g.fillStyle='rgba(240,166,68,.10)';g.fill();
-  g.beginPath();g.arc(c,c,R,0,TAU);g.arc(c,c,HORIZON*k,0,TAU,true);g.fillStyle='rgba(255,59,47,.20)';g.fill();
-  g.lineWidth=1*u;g.strokeStyle='rgba(127,167,208,.25)';for(const rr of[Z1,Z2,Z3]){g.beginPath();g.arc(c,c,rr*k,0,TAU);g.stroke()}
-  g.strokeStyle='rgba(255,138,92,.8)';g.lineWidth=1.4*u;g.beginPath();g.arc(c,c,HORIZON*k,0,TAU);g.stroke();
-  for(const a of asts){if(!a.alive)continue;g.fillStyle=RCOL[a.type];
-    if(a.type==='relic'){const x=c+a.pos.x*k,y=c+a.pos.z*k,s=3*u;g.beginPath();g.moveTo(x,y-s);g.lineTo(x+s,y);g.lineTo(x,y+s);g.lineTo(x-s,y);g.closePath();g.fill();continue}const s=(a.type==='ore'?1.3:1.7)*u*(.6+.4*a.amt/a.max);
-    g.beginPath();g.arc(c+a.pos.x*k,c+a.pos.z*k,s,0,TAU);g.fill()}
-  if(mineTarget&&mineTarget.alive){g.strokeStyle='#58d0c0';g.lineWidth=1.2*u;g.beginPath();g.arc(c+mineTarget.pos.x*k,c+mineTarget.pos.z*k,4*u,0,TAU);g.stroke()}
+/* v0.45: kreslenie mapy je spoločné pre minimapu aj veľkú mapu (bigmap.js).
+   (ox, oy) = bod plátna, kde je stred sektora; k = pixely na meter; u = mierka čiar a značiek; R = polomer orezania
+   (minimapa) alebo 0 = veľká mapa bez orezania; hits = pole, do ktorého sa zapíšu značky pre zisťovanie myšou. */
+function drawMini(){const W=mini.width,c=W/2,R=c-1;paintMap(mctx,W,W,c,c,R/MINI_R,W/150,R,null)}
+function paintMap(g,W,Hh,ox,oy,k,u,R,hits){const hit=(x,y,r,info)=>{if(hits)hits.push({x,y,r:Math.max(r,6*u),info})};
+  g.clearRect(0,0,W,Hh);g.save();
+  if(R){g.beginPath();g.arc(ox,oy,R,0,TAU);g.clip();g.fillStyle='rgba(6,11,20,.85)';g.fillRect(0,0,W,Hh)}else{g.fillStyle='rgba(4,7,13,.97)';g.fillRect(0,0,W,Hh)}
+  const outer=R||Math.hypot(W,Hh);
+  g.beginPath();g.arc(ox,oy,HORIZON*k,0,TAU);g.arc(ox,oy,Z2*k,0,TAU,true);g.fillStyle='rgba(240,166,68,.10)';g.fill();
+  g.beginPath();g.arc(ox,oy,Math.max(outer,LIMIT*k),0,TAU);g.arc(ox,oy,HORIZON*k,0,TAU,true);g.fillStyle='rgba(255,59,47,.20)';g.fill();
+  g.lineWidth=1*u;g.strokeStyle='rgba(127,167,208,.25)';for(const rr of[Z1,Z2,Z3]){g.beginPath();g.arc(ox,oy,rr*k,0,TAU);g.stroke()}
+  g.strokeStyle='rgba(255,138,92,.8)';g.lineWidth=1.4*u;g.beginPath();g.arc(ox,oy,HORIZON*k,0,TAU);g.stroke();
+  if(!R){g.strokeStyle='rgba(255,59,47,.6)';g.setLineDash([6*u,6*u]);g.beginPath();g.arc(ox,oy,LIMIT*k,0,TAU);g.stroke();g.setLineDash([])}
+  for(const a of asts){if(!a.alive)continue;g.fillStyle=RCOL[a.type];const x=ox+a.pos.x*k,y=oy+a.pos.z*k;
+    if(a.type==='relic'){const s=3*u;g.beginPath();g.moveTo(x,y-s);g.lineTo(x+s,y);g.lineTo(x,y+s);g.lineTo(x-s,y);g.closePath();g.fill();hit(x,y,s,{t:'ast',a});continue}
+    const s=(a.type==='ore'?1.3:1.7)*u*(.6+.4*a.amt/a.max);g.beginPath();g.arc(x,y,s,0,TAU);g.fill();hit(x,y,s,{t:'ast',a})}
+  if(mineTarget&&mineTarget.alive){g.strokeStyle='#58d0c0';g.lineWidth=1.2*u;g.beginPath();g.arc(ox+mineTarget.pos.x*k,oy+mineTarget.pos.z*k,4*u,0,TAU);g.stroke()}
   // korisť: kosoštvorec vo farbe rarity s bielym okrajom, od Legendárnej aj krúžok
-  for(const l of loot){const x=c+l.g.position.x*k,y=c+l.g.position.z*k,s=(3.2+l.it.r*.25)*u;g.fillStyle=RAR[l.it.r].col;g.strokeStyle='#fff';g.lineWidth=.8*u;
+  for(const l of loot){const x=ox+l.g.position.x*k,y=oy+l.g.position.z*k,s=(3.2+l.it.r*.25)*u;g.fillStyle=RAR[l.it.r].col;g.strokeStyle='#fff';g.lineWidth=.8*u;
     g.beginPath();g.moveTo(x,y-s);g.lineTo(x+s,y);g.lineTo(x,y+s);g.lineTo(x-s,y);g.closePath();g.fill();g.stroke();
-    if(l.it.r>=6){g.strokeStyle=RAR[l.it.r].col;g.beginPath();g.arc(x,y,s+3*u,0,TAU);g.stroke()}}
+    if(l.it.r>=6){g.strokeStyle=RAR[l.it.r].col;g.beginPath();g.arc(x,y,s+3*u,0,TAU);g.stroke()}hit(x,y,s,{t:'loot',l})}
   // misie: fialová hviezda na cieli prieskumu/reliktu
-  for(const mk of mMarks){const x=c+mk.m.pos.x*k,y=c+mk.m.pos.z*k;g.fillStyle=MCOL;g.strokeStyle='#fff';g.lineWidth=.8*u;g.beginPath();for(let i=0;i<10;i++){const an=i/10*TAU-Math.PI/2,rr=(i%2?2.2:5)*u;g.lineTo(x+Math.cos(an)*rr,y+Math.sin(an)*rr)}g.closePath();g.fill();g.stroke()}
+  for(const mk of mMarks){const x=ox+mk.m.pos.x*k,y=oy+mk.m.pos.z*k;g.fillStyle=MCOL;g.strokeStyle='#fff';g.lineWidth=.8*u;g.beginPath();for(let i=0;i<10;i++){const an=i/10*TAU-Math.PI/2,rr=(i%2?2.2:5)*u;g.lineTo(x+Math.cos(an)*rr,y+Math.sin(an)*rr)}g.closePath();g.fill();g.stroke();hit(x,y,5*u,{t:'mis',m:mk.m})}
   // piráti: červené trojuholníky v smere letu
-  for(const e of enemies){const x=c+e.pos.x*k,y=c+e.pos.z*k,a=e.body.rotation.y,s=(e.kind==='frigate'?6:e.kind==='corsair'?4.5:3.2)*u,fx=Math.sin(a),fz=Math.cos(a);
+  for(const e of enemies){const x=ox+e.pos.x*k,y=oy+e.pos.z*k,a=e.body.rotation.y,s=(e.kind==='carrier'||e.kind==='dread'?8:e.kind==='frigate'?6:e.kind==='corsair'?4.5:3.2)*u,fx=Math.sin(a),fz=Math.cos(a);
     g.fillStyle=e.leaving?'rgba(255,90,74,.45)':e.passive&&!e.hostile?'#ffb35a':'#ff5a4a';   // oranžová = pasívny pirát
-    g.beginPath();g.moveTo(x+fx*s,y+fz*s);g.lineTo(x-fx*s*.7+fz*s*.7,y-fz*s*.7-fx*s*.7);g.lineTo(x-fx*s*.7-fz*s*.7,y-fz*s*.7+fx*s*.7);g.closePath();g.fill()}
+    g.beginPath();g.moveTo(x+fx*s,y+fz*s);g.lineTo(x-fx*s*.7+fz*s*.7,y-fz*s*.7-fx*s*.7);g.lineTo(x-fx*s*.7-fz*s*.7,y-fz*s*.7+fx*s*.7);g.closePath();g.fill();hit(x,y,s,{t:'en',e})}
   // lode NPC: fialový štvorec = zadávateľ misií, zlatý = obchodník
-  for(const n of npcs){const x=c+n.pos.x*k,y=c+n.pos.z*k,s=3.4*u;g.fillStyle=n.kind==='trader'?'#ffd27a':MCOL;g.strokeStyle='#fff';g.lineWidth=.8*u;g.fillRect(x-s,y-s,s*2,s*2);g.strokeRect(x-s,y-s,s*2,s*2)}
+  for(const n of npcs){const x=ox+n.pos.x*k,y=oy+n.pos.z*k,s=3.4*u;g.fillStyle=n.kind==='trader'?'#ffd27a':MCOL;g.strokeStyle='#fff';g.lineWidth=.8*u;g.fillRect(x-s,y-s,s*2,s*2);g.strokeRect(x-s,y-s,s*2,s*2);hit(x,y,s,{t:'npc',n})}
   // miesto poslednej smrti: červená smrtka (mimo dosahu minimapy sa prilepí k okraju); keď k nemu loď priletí, značka zmizne
   const dp=state.deathPos;if(dp&&dp.s===state.cur&&!dead){if(Math.hypot(ship.position.x-dp.x,ship.position.z-dp.z)<10)state.deathPos=null;
-    else{let x=dp.x*k,y=dp.z*k;const L=Math.hypot(x,y),mx=R-6*u;if(L>mx){x*=mx/L;y*=mx/L}miniSkull(g,c+x,c+y,u)}}
-  if(gate){g.strokeStyle='#7ef2e2';g.lineWidth=1.4*u;g.beginPath();g.arc(c+gate.position.x*k,c+gate.position.z*k,3.2*u,0,TAU);g.stroke()}
-  const won=cur().captured;g.fillStyle=won?'#ffd27a':'#58d0c0';g.beginPath();for(let i=0;i<6;i++){const an=i/6*TAU;g.lineTo(c+Math.cos(an)*4*u,c+Math.sin(an)*4*u)}g.closePath();g.fill();
-  g.fillStyle='#ffe2a8';for(const d of drones){g.beginPath();g.arc(c+d.g.position.x*k,c+d.g.position.z*k,1.2*u,0,TAU);g.fill()}
-  if(!dead){const sx=c+ship.position.x*k,sz=c+ship.position.z*k,fx=Math.sin(shipYaw),fz=Math.cos(shipYaw);
+    else{let x=dp.x*k,y=dp.z*k;if(R){const L=Math.hypot(x,y),mx=R-6*u;if(L>mx){x*=mx/L;y*=mx/L}}miniSkull(g,ox+x,oy+y,u);hit(ox+x,oy+y,4*u,{t:'death'})}}
+  if(gate){const x=ox+gate.position.x*k,y=oy+gate.position.z*k;g.strokeStyle='#7ef2e2';g.lineWidth=1.4*u;g.beginPath();g.arc(x,y,3.2*u,0,TAU);g.stroke();hit(x,y,3.2*u,{t:'gate'})}
+  const won=cur().captured;g.fillStyle=typeof stationBroken==='function'&&stationBroken()?'#ff5a4a':won?'#ffd27a':'#58d0c0';g.beginPath();for(let i=0;i<6;i++){const an=i/6*TAU;g.lineTo(ox+Math.cos(an)*4*u,oy+Math.sin(an)*4*u)}g.closePath();g.fill();
+  if(!inArena())hit(ox,oy,4*u,{t:'st'});
+  g.fillStyle='#ffe2a8';for(const d of drones){g.beginPath();g.arc(ox+d.g.position.x*k,oy+d.g.position.z*k,1.2*u,0,TAU);g.fill()}
+  if(!dead){const sx=ox+ship.position.x*k,sz=oy+ship.position.z*k,fx=Math.sin(shipYaw),fz=Math.cos(shipYaw);
     g.fillStyle='#ffffff';g.strokeStyle='#04070d';g.lineWidth=1*u;g.beginPath();
-    g.moveTo(sx+fx*6*u,sz+fz*6*u);g.lineTo(sx-fx*4*u+fz*3.6*u,sz-fz*4*u-fx*3.6*u);g.lineTo(sx-fx*2*u,sz-fz*2*u);g.lineTo(sx-fx*4*u-fz*3.6*u,sz-fz*4*u+fx*3.6*u);g.closePath();g.fill();g.stroke()}
-  g.restore();g.strokeStyle='rgba(130,175,215,.3)';g.lineWidth=1*u;g.beginPath();g.arc(c,c,R-.5,0,TAU);g.stroke()}
+    g.moveTo(sx+fx*6*u,sz+fz*6*u);g.lineTo(sx-fx*4*u+fz*3.6*u,sz-fz*4*u-fx*3.6*u);g.lineTo(sx-fx*2*u,sz-fz*2*u);g.lineTo(sx-fx*4*u-fz*3.6*u,sz-fz*4*u+fx*3.6*u);g.closePath();g.fill();g.stroke();hit(sx,sz,5*u,{t:'ship'})}
+  g.restore();if(R){g.strokeStyle='rgba(130,175,215,.3)';g.lineWidth=1*u;g.beginPath();g.arc(ox,oy,R-.5,0,TAU);g.stroke()}}
 
 /* keyboard */
 const keys=new Set();const MOVE_KEYS=['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'];

@@ -55,6 +55,7 @@ sk:{
   'rs.eff':"Účinok",
   'are.pick':"Výber štartu: po porazení bossa (každých {b} vĺn) sa pri štarte aj pri príchode do arény ponúkne začať hneď za ktorýmkoľvek porazeným bossom.",
   'are.bar':"Boss má veľký ukazovateľ výdrže hore v strede obrazovky; nezraniteľný krížnik ukazuje počet zostávajúcich modulov.",
+  'are.count':'Počet pirátov rastie s vlnou aj s úrovňou výzvy (+3 % za úroveň): bez výzvy asi {a} vo vlne 25, {b} vo vlne 50 a {c} vo vlne 99; naraz najviac {m} (na grafike Nízka {l}).','are.rad':'V aréne platí radiácia ako na ostatných mapách – pásy 3 a 4 a priestor za horizontom.','bm.h':'Veľká mapa (PC)','bm.l':['Kláves TAB otvorí mapu sektora cez celú obrazovku (len na počítači s myšou); TAB alebo Esc ju zavrie.','Myšou nad značkou uvidíš, čo tam je: asteroid (surovina, koľko ešte ostáva, za ako dlho ho vyťažíš), pirát (druh, výdrž, poškodenie, či je pasívny), korisť, cieľ misie, obchodník, brána, stanica.','Koliesko približuje, ťahanie posúva; klik na asteroid ho začne ťažiť, na piráta zaútočí, inde loď poletí na to miesto.'],
   'are.spawn':'Kde sa piráti objavia: v prvých vlnách v okruhu asi {n} m okolo teba (každá 4. vlna spomedzi zóny 1 a 2), statické veže na okraji zóny 2. S vyššou vlnou sa rozdelia: okolo vlny {w} prilieta 10 % okolo teba a po 30 % z okraja zóny 1, z okraja zóny 2 a zo stredu zóny 3 – v kŕdľoch z rôznych strán.',
   'hg.extra':"Sloty navyše",
   'hg.extraP':"Sloty navyše (druhý laser, druhý štít) sú v paneli Výbava hneď vedľa lode; vlastnosti oboch predmetov sa sčítajú. Pri prestupe na loď bez takého slotu sa predmet vráti do inventára.",
@@ -176,6 +177,7 @@ en:{
   'rs.eff':"Effect",
   'are.pick':"Start choice: after you defeat a boss (every {b} waves), starting a run or arriving in the arena offers to start right after any defeated boss.",
   'are.bar':"Bosses have a large health bar at the top centre of the screen; the invulnerable carrier shows how many modules remain.",
+  'are.count':'The number of pirates grows with the wave and the challenge level (+3 % per level): without challenge about {a} in wave 25, {b} in wave 50 and {c} in wave 99; at most {m} at once ({l} on Low graphics).','are.rad':'Radiation applies in the arena like on other maps – belts 3 and 4 and beyond the horizon.','bm.h':'Large map (PC)','bm.l':['The TAB key opens a full-screen sector map (only on a computer with a mouse); TAB or Esc closes it.','Hover a marker to see what it is: an asteroid (resource, how much is left, how long it takes to mine), a pirate (type, health, damage, whether it is passive), loot, a mission target, trader, gate, station.','Wheel zooms, drag pans; clicking an asteroid starts mining it, a pirate attacks it, elsewhere the ship flies there.'],
   'are.spawn':'Where pirates appear: in early waves within about {n} m around you (every 4th wave between zones 1 and 2), static turrets at the edge of zone 2. Higher waves spread out: around wave {w}, 10 % arrive around you and 30 % each from the edge of zone 1, the edge of zone 2 and the middle of zone 3 – in packs from different sides.',
   'hg.extra':"Extra slots",
   'hg.extraP':"Extra slots (second laser, second shield) are in the Gear panel right next to the ship; stats of both items add up. When you switch to a ship without that slot, the item goes back to your inventory.",
@@ -375,7 +377,7 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
   { const from={fighter:1,swarm:3,corsair:5,turret:8,frigate:12,dread:20,carrier:100,cmod:100};const nm={fighter:wt('cmb.fighter'),swarm:'Roj',corsair:wt('cmb.corsair'),turret:'Raketová veža',frigate:wt('cmb.frigate'),dread:'Dreadnought (boss)',carrier:'Bojový krížnik (hlavný boss)',cmod:'Modul krížnika'};
     const rows=Object.keys(AK).map(k=>[`<b>${lang==='en'?({swarm:'Swarm',turret:'Missile turret',dread:'Dreadnought (boss)',carrier:'Battle carrier (main boss)',cmod:'Carrier module'}[k]||nm[k]):nm[k]}</b>`,nf(AK[k].hp*NUM),nf(AK[k].dmg*NUM),from[k]]);
     const g=(b,n)=>nf(Math.pow(b,n),1);
-    H('arena',wt('are.h'),`<p>${t('ar.p',{w:ARENA_WAVES,b:ARENA_BOSS})}</p>`+wgal(['swarm','turret','dread','carrier'].map(k=>[wPir(k),{swarm:wt('w3.swarm'),turret:wt('w3.turret'),dread:'Dreadnought',carrier:t('bb.n.carrier')}[k]]))+list([t('ar.l1'),t('ar.l2',{b:ARENA_BOSS}),t('ar.l3'),t('ar.l4'),t('ar.note'),wt('are.pick',{b:ARENA_BOSS}),wt('are.bar'),wt('are.spawn',{n:ARENA_NEAR,w:ARENA_SPREAD_W})])+tbl([wt('are.k'),wt('are.hp'),wt('are.dm'),wt('are.from')],rows)+`<p class="wnote">${wt('are.g',{h:ARENA_HP,d:ARENA_DMG,h50:g(ARENA_HP,49),d50:g(ARENA_DMG,49),h100:g(ARENA_HP,99),d100:g(ARENA_DMG,99)})}</p>`)}
+    H('arena',wt('are.h'),`<p>${t('ar.p',{w:ARENA_WAVES,b:ARENA_BOSS})}</p>`+wgal(['swarm','turret','dread','carrier'].map(k=>[wPir(k),{swarm:wt('w3.swarm'),turret:wt('w3.turret'),dread:'Dreadnought',carrier:t('bb.n.carrier')}[k]]))+list([t('ar.l1'),t('ar.l2',{b:ARENA_BOSS}),t('ar.l3'),t('ar.l4'),t('ar.note'),wt('are.pick',{b:ARENA_BOSS}),wt('are.bar'),wt('are.spawn',{n:ARENA_NEAR,w:ARENA_SPREAD_W}),wt('are.count',{a:waveKinds(25).length,b:waveKinds(50).length,c:waveKinds(99).length,m:ARENA_CAP,l:ARENA_CAP_LOW}),wt('are.rad')])+tbl([wt('are.k'),wt('are.hp'),wt('are.dm'),wt('are.from')],rows)+`<p class="wnote">${wt('are.g',{h:ARENA_HP,d:ARENA_DMG,h50:g(ARENA_HP,49),d50:g(ARENA_DMG,49),h100:g(ARENA_HP,99),d100:g(ARENA_DMG,99)})}</p>`)}
   { const ex=[0,1,2,3,4].map(n=>[`<b>${STORE_CAP0+n*STORE_STEP} → ${STORE_CAP0+(n+1)*STORE_STEP}</b>`,costTxt(storeExpCost(n))]);
     H('storage',wt('stor.h'),`<p>${wt('stor.p',{s:secName(STORE_SEC),c0:STORE_CAP0,st:STORE_STEP,mx:STORE_MAX})}</p>`+tbl([wt('sto.k'),wt('ship.cost')],ex))}
   { // hangár a lode (v0.8)
@@ -405,6 +407,7 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
   {const E=DIFF.easy,Hd=DIFF.hard,N=DIFF.nightmare;const v={e1:E.rad,h1:Hd.rad,n1:N.rad,e2:E.voidM,h2:Hd.voidM,n2:N.voidM,e3:E.speed,h3:Hd.speed,n3:N.speed,e4:E.yield,h4:Hd.yield,n4:N.yield,e5:E.pdmg,h5:Hd.pdmg,n5:N.pdmg};
     H('diff',wt('diff.h'),`<p>${wt('diff.p')}</p>`+tbl([wt('diff.k'),t('diff.easy'),t('diff.hard'),t('diff.nightmare')],wt('diff.rows').map(r=>[`<b>${r[0]}</b>`,fill(r[1],v),fill(r[2],v),fill(r[3],v)])))}
   H('gate',wt('gate.h'),list(wt('gate.l').map(x=>fill(x,{g:GATE_R}))));
+  H('bigmap',wt('bm.h'),list(wt('bm.l')));   // v0.45: veľká mapa
   H('gfx',wt('gfx.h'),list(wt('gfx.l')));   // v0.43: grafika a vlastné modely
   return S}
 

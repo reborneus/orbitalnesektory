@@ -48,9 +48,15 @@ function arenaEnemy(kind,pos,w){const A=AK[kind];const v=makeArenaPirate(kind);v
   v.proxy.userData.enemy=e;pickables.push(v.proxy);enemies.push(e);return e}
 const ringPos=(r0,r1)=>{const a=Math.random()*TAU,r=(r0+Math.random()*(r1-r0))*MAP_SCALE;return new V3(Math.cos(a)*r,2,Math.sin(a)*r)};
 /* zloženie vlny w */
-function waveKinds(w){const k=[];const n=(c,x)=>{for(let i=0;i<x;i++)k.push(c)};
-  n('fighter',Math.min(14,3+Math.floor(w/6)));if(w>=3)n('swarm',Math.min(12,Math.floor(w/4)));if(w>=5)n('corsair',Math.min(6,1+Math.floor(w/12)));
-  if(w>=8)n('turret',Math.min(5,1+Math.floor(w/25)));if(w>=12)n('frigate',Math.min(4,Math.floor(w/20)+(w%5===0?1:0)));return k}
+/* v0.45: oveľa viac pirátov vo vyšších vlnách a s vyššou úrovňou výzvy (+3 % za úroveň).
+   Strop pre výkon: ARENA_CAP pirátov naraz (na grafike Nízka ARENA_CAP_LOW); pri prekročení sa všetky počty zmenšia rovnakým pomerom. */
+const ARENA_CAP=140,ARENA_CAP_LOW=70;
+function waveKinds(w){const tk=1+(state.tier||0)*.03;
+  const C={fighter:Math.min(40,4+Math.floor(w/3)),swarm:w>=3?Math.min(40,Math.floor(w/2.5)):0,corsair:w>=5?Math.min(18,1+Math.floor(w/6)):0,
+    turret:w>=8?Math.min(8,1+Math.floor(w/15)):0,frigate:w>=12?Math.min(10,Math.floor(w/10)+(w%5===0?1:0)):0};
+  for(const c in C)C[c]*=tk;
+  const tot=Object.values(C).reduce((a,b)=>a+b,0),cap=typeof gfxCfg==='function'&&gfxCfg().q==='low'?ARENA_CAP_LOW:ARENA_CAP,f=Math.min(1,cap/tot);
+  const k=[];for(const c in C){const x=C[c]?Math.max(c==='frigate'||c==='turret'?1:0,Math.round(C[c]*f)):0;for(let i=0;i<x;i++)k.push(c)}return k}
 /* ==================== v0.44: ROZMIESTNENIE VLNY ====================
    Skupiny miest zrodu: 'near' = okruh ~250 m okolo hráča (v niektorých vlnách namiesto toho medzi zónou 1 a 2),
    'z1' = okraj zóny 1, 'z2' = okraj zóny 2, 'z3' = stred zóny 3. Čím vyššia vlna, tým viac sa piráti rozdelia:
@@ -66,7 +72,7 @@ function arenaSpots(n,w){const s=clamp((w-1)/ARENA_SPREAD_W,0,1),alt=w%4===2;   
   for(let i=out.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[out[i],out[j]]=[out[j],out[i]]}   // rôzne typy pirátov v rôznych skupinách
   return out}
 function spawnWave(w){const isBoss=w%ARENA_BOSS===0;
-  if(w===ARENA_WAVES){spawnCarrier(w);const P=arenaSpots(6,w);for(const p of P)arenaEnemy('fighter',p,w)}
+  if(w===ARENA_WAVES){spawnCarrier(w);const P=arenaSpots(30,w);for(const p of P)arenaEnemy('fighter',p,w)}
   else{const K=waveKinds(w),mob=K.filter(k=>k!=='turret'),P=arenaSpots(mob.length,w);mob.forEach((kd,i)=>arenaEnemy(kd,P[i],w));
     for(const kd of K)if(kd==='turret')arenaEnemy(kd,ringAt(0,0,Z2-25,Z2),w);   // statické veže na okraji zóny 2
     if(isBoss)arenaEnemy('dread',ringAt(0,0,Z2-20,Z2+20),w)}

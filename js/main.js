@@ -52,7 +52,7 @@ function frame(){requestAnimationFrame(frame);if(gfxSkip())return;const dt=Math.
   camera.position.set(camTarget.x+sx,52*zoom,camTarget.z+36*zoom+sz);camera.lookAt(camTarget.x+sx*.5,0,camTarget.z+sz*.5);
   tickWorldBtns();
   hudT-=dt;if(hudT<=0){hudT=.12;updateHUD()}
-  miniT-=dt;if(miniT<=0){miniT=.08;drawMini()}
+  miniT-=dt;if(miniT<=0){miniT=.08;drawMini()}if(typeof bigTick==='function')bigTick(dt);   // v0.45: veľká mapa (TAB)
   saveT+=dt;if(saveT>6){saveT=0;save()}
   gfxRender([[scene,camera]])}
 
