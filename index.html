@@ -23,7 +23,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Sektory">
 <meta name="theme-color" content="#04070d">
-<link rel="stylesheet" href="css/style.css?v=0.35.0">
+<link rel="stylesheet" href="css/style.css?v=0.36.0">
 </head>
 <body>
 <!-- 3D plátno hry (celá obrazovka) -->
@@ -94,50 +94,51 @@
   <svg class="deathSkull" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 4C17 4 7 14 7 28c0 8 4 14 9 17v8c0 3 2 5 5 5h22c3 0 5-2 5-5v-8c5-3 9-9 9-17C57 14 47 4 32 4z" fill="currentColor"/><circle cx="21.5" cy="29" r="7" fill="#12030a"/><circle cx="42.5" cy="29" r="7" fill="#12030a"/><path d="M32 37l-4.5 7h9z" fill="#12030a"/><rect x="24" y="50" width="3" height="8" fill="#12030a"/><rect x="30.5" y="50" width="3" height="8" fill="#12030a"/><rect x="37" y="50" width="3" height="8" fill="#12030a"/></svg>
   <h2 id="deathT"></h2><p id="deathLost"></p>
   <div class="deathN" id="deathN">5</div><div class="deathBarW"><i id="deathBar"></i></div><p class="deathSub" id="deathSub"></p>
+  <div class="deathBtns" id="deathBtns"><button class="go" id="respBase" disabled></button><button class="ghost" id="respFull" disabled></button></div>
 </div></div>
 <div class="warp" id="warp"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="js/util.js?v=0.35.0"></script>
-<script src="js/i18n.js?v=0.35.0"></script>
-<script src="js/data.js?v=0.35.0"></script>
-<script src="js/items.js?v=0.35.0"></script>
-<script src="js/state.js?v=0.35.0"></script>
-<script src="js/saves.js?v=0.35.0"></script>
-<script src="js/changelog.js?v=0.35.0"></script>
-<script src="js/scene.js?v=0.35.0"></script>
-<script src="js/audio.js?v=0.35.0"></script>
-<script src="js/gfx.js?v=0.35.0"></script>
-<script src="js/shipkit.js?v=0.35.0"></script>
-<script src="js/bgdisk.js?v=0.35.0"></script>
-<script src="js/bgscenes.js?v=0.35.0"></script>
-<script src="js/ship.js?v=0.35.0"></script>
-<script src="js/pirmodels.js?v=0.35.0"></script>
-<script src="js/minerals.js?v=0.35.0"></script>
-<script src="js/world.js?v=0.35.0"></script>
-<script src="js/menuart.js?v=0.35.0"></script>
-<script src="js/control.js?v=0.35.0"></script>
-<script src="js/combat.js?v=0.35.0"></script>
-<script src="js/lasers.js?v=0.35.0"></script>
-<script src="js/missions.js?v=0.35.0"></script>
-<script src="js/input.js?v=0.35.0"></script>
-<script src="js/ui.js?v=0.35.0"></script>
-<script src="js/gear.js?v=0.35.0"></script>
-<script src="js/tooltip.js?v=0.35.0"></script>
-<script src="js/hudmode.js?v=0.35.0"></script>
-<script src="js/menu.js?v=0.35.0"></script>
-<script src="js/mapthumb.js?v=0.35.0"></script>
-<script src="js/station.js?v=0.35.0"></script>
-<script src="js/hangar.js?v=0.35.0"></script>
-<script src="js/storage.js?v=0.35.0"></script>
-<script src="js/pilot.js?v=0.35.0"></script>
-<script src="js/arena.js?v=0.35.0"></script>
-<script src="js/tier.js?v=0.35.0"></script>
-<script src="js/worldbtn.js?v=0.35.0"></script>
-<script src="js/npc.js?v=0.35.0"></script>
-<script src="js/escort.js?v=0.35.0"></script>
-<script src="js/admin.js?v=0.35.0"></script>
-<script src="js/wiki.js?v=0.35.0"></script>
-<script src="js/main.js?v=0.35.0"></script>
+<script src="js/util.js?v=0.36.0"></script>
+<script src="js/i18n.js?v=0.36.0"></script>
+<script src="js/data.js?v=0.36.0"></script>
+<script src="js/items.js?v=0.36.0"></script>
+<script src="js/state.js?v=0.36.0"></script>
+<script src="js/saves.js?v=0.36.0"></script>
+<script src="js/changelog.js?v=0.36.0"></script>
+<script src="js/scene.js?v=0.36.0"></script>
+<script src="js/audio.js?v=0.36.0"></script>
+<script src="js/gfx.js?v=0.36.0"></script>
+<script src="js/shipkit.js?v=0.36.0"></script>
+<script src="js/bgdisk.js?v=0.36.0"></script>
+<script src="js/bgscenes.js?v=0.36.0"></script>
+<script src="js/ship.js?v=0.36.0"></script>
+<script src="js/pirmodels.js?v=0.36.0"></script>
+<script src="js/minerals.js?v=0.36.0"></script>
+<script src="js/world.js?v=0.36.0"></script>
+<script src="js/menuart.js?v=0.36.0"></script>
+<script src="js/control.js?v=0.36.0"></script>
+<script src="js/combat.js?v=0.36.0"></script>
+<script src="js/lasers.js?v=0.36.0"></script>
+<script src="js/missions.js?v=0.36.0"></script>
+<script src="js/input.js?v=0.36.0"></script>
+<script src="js/ui.js?v=0.36.0"></script>
+<script src="js/gear.js?v=0.36.0"></script>
+<script src="js/tooltip.js?v=0.36.0"></script>
+<script src="js/hudmode.js?v=0.36.0"></script>
+<script src="js/menu.js?v=0.36.0"></script>
+<script src="js/mapthumb.js?v=0.36.0"></script>
+<script src="js/station.js?v=0.36.0"></script>
+<script src="js/hangar.js?v=0.36.0"></script>
+<script src="js/storage.js?v=0.36.0"></script>
+<script src="js/pilot.js?v=0.36.0"></script>
+<script src="js/arena.js?v=0.36.0"></script>
+<script src="js/tier.js?v=0.36.0"></script>
+<script src="js/worldbtn.js?v=0.36.0"></script>
+<script src="js/npc.js?v=0.36.0"></script>
+<script src="js/escort.js?v=0.36.0"></script>
+<script src="js/admin.js?v=0.36.0"></script>
+<script src="js/wiki.js?v=0.36.0"></script>
+<script src="js/main.js?v=0.36.0"></script>
 </body>
 </html>

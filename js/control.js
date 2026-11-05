@@ -63,11 +63,13 @@ function impactHit(impact,x,z,a){const k=clamp(impact/22,.15,1);shake=Math.max(s
 function hurtFlash(k){sfx('hurt');const h=$('#hurt');h.style.setProperty('--k',(.35+k*.6).toFixed(2));h.classList.remove('on');void h.offsetWidth;h.classList.add('on')}
 /* v0.28: smrť lode. Zapamätá miesto smrti (červená smrtka na minimape), zruší všetky ciele,
    ktoré by loď po znovuzrodení ťahali späť (útok, autopilot, NPC), a spustí obrazovku smrti s odpočtom. */
-const RESPAWN_S=5,RESPAWN_HP=.2;   // čakanie na novú loď v sekundách a podiel trupu po znovuzrodení
+const RESPAWN_S=10,RESPAWN_HP=.2,RESPAWN_FULL_K=.3;   // v0.36: odpočet 10 s, potom treba obnovenie potvrdiť; plné obnovenie stojí kredity = (trup + štíty) × RESPAWN_FULL_K   // čakanie na novú loď v sekundách a podiel trupu po znovuzrodení
 let respawnT=0,respawnTimer=null;
 function clearShipOrders(){mineTarget=null;moveTarget=null;attackTarget=null;openOnArrive=false;returnSent=false;apHurtSent=false;
   if(typeof gunTgt!=='undefined'){gunTgt=null;gunTgtT=0}if(typeof npcOpenOnArrive!=='undefined')npcOpenOnArrive=null;if(typeof padTgt!=='undefined')padTgt=null}
-function destroyShip(){dead=true;clearShipOrders();sfx('boom',ship.position.clone(),{big:1});setTimeout(()=>sfx('alarm'),500);hideBeam(beam);shake=1;rumble(1,600);
+function destroyShip(){dead=true;clearShipOrders();
+  // v0.36: zničenie lode počas nájazdu = prehraný súboj → stanica je vyradená (ako keď ju piráti zničia)
+  if(typeof raidActive!=='undefined'&&raidActive&&!inArena()&&!D().permadeath){toast(t('tt.raidLost'),'bad');stationDestroyed()}sfx('boom',ship.position.clone(),{big:1});setTimeout(()=>sfx('alarm'),500);hideBeam(beam);shake=1;rumble(1,600);
   for(let i=0;i<60;i++)emit(debris,ship.position,['#ffe2a8','#ff9a4d','#58d0c0'][i%3],.8+Math.random()*.9,new V3((Math.random()-.5)*30,Math.random()*8,(Math.random()-.5)*30));
   ship.visible=false;const lost=Math.floor(cargoTotal()+.05);for(const r of RES)state.cargo[r]=0;
   toast(lost>0?t('tt.destroyed',{n:lost}):t('tt.destroyed0'),'bad');
@@ -78,16 +80,27 @@ function destroyShip(){dead=true;clearShipOrders();sfx('boom',ship.position.clon
   deathScreen(lost);save()}
 /* Obrazovka smrti: po krátkom výbuchu sa ukáže prekrytie s odpočtom; po RESPAWN_S sekundách sa loď zrodí pri stanici. */
 function deathScreen(lost){const el=$('#death');respawnT=RESPAWN_S;
-  $('#deathT').textContent=t('death.title');$('#deathSub').textContent=t('death.sub');$('#deathLost').textContent=lost>0?t('death.lost',{n:lost}):t('death.lost0');$('#deathN').textContent=RESPAWN_S;
+  $('#deathT').textContent=t('death.title');$('#deathSub').textContent=t('death.sub');respawnBtns(false);$('#deathLost').textContent=lost>0?t('death.lost',{n:lost}):t('death.lost0');$('#deathN').textContent=RESPAWN_S;
   setTimeout(()=>{if(dead)el.classList.add('on')},600);
   const end=performance.now()+RESPAWN_S*1000;   // odpočet podľa skutočného času (nezávisí od plynulosti snímok)
   clearInterval(respawnTimer);respawnTimer=setInterval(()=>{respawnT=(end-performance.now())/1000;{const nn=Math.max(1,Math.ceil(respawnT-.001));if($('#deathN').textContent!==String(nn))sfx('beep');$('#deathN').textContent=nn}
     $('#deathBar').style.width=(Math.max(0,1-respawnT/RESPAWN_S)*100).toFixed(1)+'%';
-    if(respawnT<=.45)$('#warp').classList.add('on');
-    if(respawnT<=0){clearInterval(respawnTimer);respawnShip()}},100)}
-function respawnShip(){clearShipOrders();autoPause=2;
+    if(respawnT<=0){clearInterval(respawnTimer);respawnBtns(true)}},100)}   // po odpočte treba obnovenie potvrdiť
+/* tlačidlá na obrazovke smrti: obnovenie na základni (20 % trupu, zadarmo) alebo plné obnovenie za kredity */
+const fullRespCost=()=>Math.max(100,Math.round((shipVal('hull')+shieldMax())*RESPAWN_FULL_K));
+function respawnBtns(on){const b=$('#respBase'),f=$('#respFull'),c=fullRespCost();$('#deathBtns').classList.toggle('on',on);
+  b.textContent=t('death.base');f.innerHTML=t('death.full',{c:fmtN(c)});b.disabled=!on;f.disabled=!on||state.credits<c;f.title=state.credits<c?t('death.noCr'):'';
+  if(on){$('#deathN').textContent='✓';sfx('toast');b.focus({preventScroll:true})}}
+function respawnConfirm(full){if(!dead||!$('#deathBtns').classList.contains('on'))return;const c=fullRespCost();
+  if(full&&state.credits<c){toast(t('death.noCr'),'bad');return}
+  if(full)state.credits-=c;respawnBtns(false);$('#warp').classList.add('on');setTimeout(()=>respawnShip(full),450)}
+$('#respBase').addEventListener('click',()=>respawnConfirm(false));$('#respFull').addEventListener('click',()=>respawnConfirm(true));
+addEventListener('keydown',e=>{if(dead&&$('#deathBtns').classList.contains('on')&&e.key==='Enter'){respawnConfirm(false);e.preventDefault()}});
+function respawnShip(full){clearShipOrders();autoPause=2;
   ship.position.set(0,0,STATION_R+8);shipVel.set(0,0,0);shipYaw=0;ship.rotation.y=0;
-  state.hp=Math.max(1,shipVal('hull')*RESPAWN_HP);state.sh=0;hullSince=0;shSince=0;lastZone=1;   // nová loď má len 20 % trupu a prázdny štít
+  if(full){state.hp=shipVal('hull');state.sh=shieldMax();hullSince=99;shSince=99}                 // plné obnovenie za kredity
+  else{state.hp=Math.max(1,shipVal('hull')*RESPAWN_HP);state.sh=0;hullSince=0;shSince=0}           // nová loď má len 20 % trupu a prázdny štít
+  lastZone=1;
   ship.visible=true;dead=false;$('#death').classList.remove('on');$('#warp').classList.remove('on');toast(t('tt.respawn'));save()}
 /* Automatizácia: autoPause = sekundy, počas ktorých je autopilot pozastavený po ručnom zásahu. */
 /* automation: auto-return when full, and the autopilot loop (mine chosen resource -> haul home -> repeat) */

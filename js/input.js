@@ -123,6 +123,7 @@ function pollPad(dt){let pads=[];try{pads=navigator.getGamepads?navigator.getGam
   const pm=padMouseOn()&&$('#intro').hidden;pmCursor(pm);
   if(pm){pmMove(lx,ly,dt);const rx=p.axes[2]||0,ry2=p.axes[3]||0;pmScroll(rx,ry2,dt);if(press(0))pmClick()}
   if(wikiOpen()){const m=$('#wikiMain');if(m)m.scrollTop+=((pm?0:ly)+dy)*dt*900;if(press(1)||press(9))closeWiki();if(press(4))wikiStep(-1);if(press(5))wikiStep(1);padPrev=p.buttons.map((b,i)=>btn(i));return}
+  if(dead&&$('#deathBtns').classList.contains('on')){if(press(0))respawnConfirm(false);if(press(2))respawnConfirm(true);padPrev=p.buttons.map((b,i)=>btn(i));return}   // v0.36: obrazovka smrti
   if(!$('#intro').hidden&&!sheetTab){
     // v0.30: hlavné menu – D-pad / páčka hore-dole = výber, A = potvrdiť, B = späť, X = jazyk
     let v=dy||dx;if(!v&&Math.abs(ly)>.55)v=Math.sign(ly);const key=v;navT-=dt;
