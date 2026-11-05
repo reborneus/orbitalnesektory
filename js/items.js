@@ -34,7 +34,8 @@ const STATS={
   hull:   {lo:6,  hi:12, dec:0,u:''},    // body trupu
   hullPct:{lo:2,  hi:4,  dec:1,u:'%'},   // trup v percentách
   coll:   {lo:2,  hi:4,  dec:1,u:'%',cap:60}, // menšie poškodenie z nárazov
-  shield: {lo:5,  hi:10, dec:0,u:''},    // body štítu
+  shield: {lo:5,  hi:10, dec:0,u:''},    // body štítu (v0.47: v lodi sa počítajú ×3)
+  shieldPct:{lo:3,hi:6,  dec:1,u:'%'},   // v0.47: štíty v percentách
   sregen: {lo:4,  hi:8,  dec:1,u:'%'},   // rýchlejšie dobíjanie štítov
   sdelay: {lo:.2, hi:.4, dec:2,u:'s'},   // skoršie dobíjanie štítov
   cargo:  {lo:24, hi:48, dec:0,u:'t'},   // náklad (v0.38: 8×, ako náklad lode)
@@ -77,9 +78,9 @@ const BASES={
   laser:  {slot:'laser', imp:'mine',  pool:['range','yield','mf','mine','magnet','speed','critDmg']},
   engine: {slot:'engine',imp:'speed', pool:['accel','turn','speed','magnet','coll','cargo','rad']},
   plating:{slot:'hull',  imp:'hull',  pool:['hullPct','coll','rad','cargo','hull','shield']},
-  emitter:{slot:'shield',imp:'shield',pool:['sregen','sdelay','rad','shield','hullPct','hull']},
+  emitter:{slot:'shield',imp:'shield',pool:['sregen','sdelay','rad','shield','shieldPct','hullPct','hull']},
   cargo:  {slot:'util',  imp:'cargo', pool:['yield','mf','magnet','speed','rad','mine']},
-  filter: {slot:'util',  imp:'rad',   pool:['shield','hull','coll','sregen','mf','cargo']},
+  filter: {slot:'util',  imp:'rad',   pool:['shield','shieldPct','hull','coll','sregen','mf','cargo']},
   scanner:{slot:'util',  imp:'mf',    pool:['magnet','yield','range','mine','speed','rad','crit']},
   cannon: {slot:'weapon',imp:'dmg',   pool:['frate','crit','critDmg','grange','dmg','hull','speed']},
   /* čipy modulov stanice: slot 'chip', mod = do akého modulu patria. Schopnosti dronu odomyká vyššia z rarít modul/čip (CHIP_CAP, droneCapR). */

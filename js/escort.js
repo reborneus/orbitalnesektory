@@ -7,7 +7,8 @@
    'mine' = ťažobný: pri ťažbe svieti lúčom do asteroidu a zrýchli ťažbu lode o ESCORT.mine (×100 %).
    Pohyb: mimo boja a ťažby krúžia ponad a popod loď (dráha vo zvislej rovine naprieč loďou); v boji a pri ťažbe zostanú
    po bokoch lode. Na ostatných lodiach (Klepeto) sú drony uložené a nelietajú. Laser sa dá prepnúť kedykoľvek (Loď → Hangár). */
-const ESCORT={max:2,sec:4,ships:['sokol','bizon'],dmg:.35,mine:.25,orbit:3.4,side:2.8,scale:.5};
+/* v0.47: secMax = koľko sprievodných lodí najviac sa dá mať po nákupe u obchodníka v danom sektore (4. mapa = prvá, 5. mapa = aj druhá) */
+const ESCORT={max:2,sec:4,secMax:{3:1,4:2},ships:['sokol','bizon'],dmg:.35,mine:.25,orbit:3.4,side:2.8,scale:.5};
 const escortCost=i=>{const k=i?1.8:1;return{ore:Math.round(60000*k),green:Math.round(30000*k),crystal:Math.round(15000*k),cr:Math.round(600000*k)}};
 const escList=()=>state.escorts||(state.escorts=[]);
 const escActive=()=>!!state&&ESCORT.ships.includes(state.shipId)&&!dead&&!inArenaDead();
@@ -76,7 +77,8 @@ function tickEscorts(dt,tt){if(escObjs.length!==escList().length||escObjs.some((
     else if(o.beam)hideBeam(o.beam)}}
 
 /* ---------- obchod (obchodník v sektore 5) a nastavenie lasera ---------- */
-function escortShopHtml(near){if(state.cur!==ESCORT.sec)return'';const L=escList();
+function escortShopHtml(near){const L=escList(),mx=ESCORT.secMax[state.cur]||0;if(!mx)return escortModesHtml();
+  if(L.length>=mx&&mx<ESCORT.max)return `<div class="sec-h"><span>${t('esc.h')}</span><span>${L.length}/${ESCORT.max}</span></div><p class="note">${t('esc.next',{s:secName(4)})}</p>`+escortModesHtml();
   let h=`<div class="sec-h"><span>${t('esc.h')}</span><span>${L.length}/${ESCORT.max}</span></div><div class="card escard">${escIcon('gun',true)}<h3>${t('esc.name')}</h3>`;
   if(L.length>=ESCORT.max)h+=`<button class="act max" disabled>${t('btn.max')}</button>`;
   else{const c=escortCost(L.length);h+=actBtn('escBuy',t('btn.buy'),c,!near)+`<div class="costs">${costHtml(c)}</div>`}
@@ -90,7 +92,7 @@ const escIconSvg=()=>`<svg class="escico" viewBox="0 0 24 24"><circle cx="12" cy
 const escPreview=(mode='gun')=>typeof modelPreview==='function'?modelPreview('esc_'+mode,()=>{const g=escortModel(mode);g.scale.setScalar(1);return g},{w:220,h:220,dir:[.7,.35,1],fit:.9}):'';
 const escIcon=(mode='gun',big)=>{const s=escPreview(mode);return s?`<img class="escico${big?' big':''}" src="${s}" alt="">`:escIconSvg()};
 function escortAct(act,b){if(act!=='escBuy'&&act!=='escMode')return false;const L=escList();
-  if(act==='escBuy'){if(state.cur!==ESCORT.sec||L.length>=ESCORT.max)return true;if(!nearNpc('trader')){toast(t('trd.far'));return true}
+  if(act==='escBuy'){if(L.length>=(ESCORT.secMax[state.cur]||0))return true;if(!nearNpc('trader')){toast(t('trd.far'));return true}
     const c=escortCost(L.length);if(!afford(c)){toast(t('tt.noRes'));return true}pay(c);L.push({mode:'gun'});toast(t('esc.bought',{n:L.length}),true)}
   else{const e=L[+b.dataset.i];if(!e)return true;e.mode=b.dataset.v==='mine'?'mine':'gun'}
   save();renderSheet();updateHUD();return true}

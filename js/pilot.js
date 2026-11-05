@@ -65,8 +65,9 @@ const STAT_ROWS=[
     ['sx.mrange',()=>shipVal('range'),x=>nf1(x)+' m'],
     ['sx.cargo',()=>shipVal('cargo'),_n]]],
   ['fly',[
-    ['sx.speed',()=>shipVal('speed'),x=>nf1(x)+' m/s'],
-    ['sx.accel',()=>shipVal('accel'),x=>nf1(x)+' m/s²'],
+    ['sx.speed',()=>shipVal('speed'),x=>csFmt(x)],
+    ['sx.spdOver',()=>spdOver()*SPD_OVER_K,_pct],
+    ['sx.accel',()=>shipVal('accel'),x=>fmtN(Math.round(x*CS_K))+' cs/s'],
     ['sx.turn',()=>shipVal('turn'),_n]]],
   ['eco',[
     ['sx.cr',()=>bonus().cr||0,_pct],

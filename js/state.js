@@ -77,15 +77,23 @@ function pay(c){for(const r of RES)state[r]-=c[r]||0;state.credits-=c.cr||0}
 const curShip=()=>SHIPS[state.shipId]||SHIPS.klepeto;
 function upVal(k,L){const v=UP[k].val(L);const m=curShip().mul[k]||1;if(m===1)return v;if(k==='sregen')return{delay:v.delay,rate:v.rate*m};return v*m}
 function upCost(k,L){const c=UP[k].cost(L),m=curShip().upMul;if(m===1)return c;const o={};for(const r of COST_KEYS)o[r]=Math.round((c[r]||0)*m);return o}
+/* ==================== v0.47: STROP RÝCHLOSTI ====================
+   Skutočná rýchlosť je najviac SPD_CAP m/s (na obrazovke 1400 cs – „cosmic speed“, 1 m/s = CS_K cs). Percentá rýchlosti z výbavy
+   a výskumu sa počítajú zo SPD_PCT_K (aby sa strop dosiahol zhruba pri 60 % všetkých možných vylepšení). Čo je nad stropom,
+   sa prepočíta na dosah zbraní: každé 1 % nad stropom = +SPD_OVER_K % dosahu (spdOver, gunRange v combat.js). */
+const SPD_CAP=160,CS_K=1400/160,SPD_PCT_K=.7,SPD_OVER_K=.5;
+const csFmt=v=>fmtN(Math.round(v*CS_K))+' cs';
+function spdRaw(){const v=upVal('speed',state.ship.speed),b=bonus();return v*(1+b.speed*SPD_PCT_K/100)}
+const spdOver=()=>Math.max(0,spdRaw()/SPD_CAP-1)*100;   // % nad stropom
 /* Hodnota vlastnosti lode = úroveň vylepšenia (UP, × násobok lode) + bonusy z nasadených predmetov (bonus() v items.js). */
 function shipVal(k){const v=upVal(k,state.ship[k]);const b=bonus();
   switch(k){
-    case'speed':return v*(1+b.speed/100)*(typeof rsBurnT!=='undefined'&&rsBurnT>0?1+RSK.f2.s/100:1);   // v0.42: Prídavné spaľovanie
+    case'speed':return Math.min(SPD_CAP,spdRaw())*(typeof rsBurnT!=='undefined'&&rsBurnT>0?1+RSK.f2.s/100:1);   // v0.47: strop rýchlosti; v0.42: Prídavné spaľovanie
     case'accel':return v*(1+b.accel/100);
     case'turn':return v*(1+b.turn/100);
     case'hull':return Math.round((v+b.hull)*(1+b.hullPct/100));
-    case'cargo':return Math.round((v+b.cargo)*(1+((b.rs&&b.rs.cargoPct)||0)/100));
-    case'shield':return Math.round((v+b.shield)*(1+((b.rs&&b.rs.shieldPct)||0)/100));   // v0.42: percentá z výskumu
+    case'cargo':return Math.round((v+b.cargo*2)*(1+((b.rs&&b.rs.cargoPct)||0)/100));   // v0.47: náklad z predmetov ×2 (ako náklad lode)
+    case'shield':return Math.round((v+b.shield*3)*(1+((b.shieldPct||0)+b.hullPct+((b.rs&&b.rs.shieldPct)||0))/100));   // v0.47: predmety ×3, % štítu aj % trupu
     case'sregen':return{delay:Math.max(3,v.delay-b.sdelay),rate:v.rate*(1+b.sregen/100)};
     case'laser':return v*(1+b.mine/100);
     case'range':return v+b.range;

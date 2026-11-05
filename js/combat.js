@@ -80,10 +80,11 @@ function spawnRaid(force){const c=raidCfg()||(force?PIRATES.raid[1]:null);if(!c)
    Nad zasiahnutým cieľom vyletí číslo (fmtN: 1.2K, 3.4M…). kind: player/tower/drone = tvoje zásahy, crit = kritický zásah
    (väčšie, zlaté), hurt = poškodenie tvojej lode. Číslo je HTML prvok v #dmgLayer, poloha sa prepočíta z 3D do obrazovky. */
 const dmgTexts=[];let dmgLayer=null;
-function dmgText(pos,n,kind){if(!(n>0)||typeof camera==='undefined'||!pos.clone)return;
+const PIR_RES={swarm:2,fighter:5,corsair:12,turret:10,frigate:30,cmod:20,dread:90,carrier:250};   // v0.47: tony surovín za zostrelenie (× sektor)
+function dmgText(pos,n,kind,col){if(!(n>0)||typeof camera==='undefined'||!pos.clone)return;
   if(!dmgLayer){dmgLayer=document.createElement('div');dmgLayer.id='dmgLayer';document.body.appendChild(dmgLayer)}
   if(dmgTexts.length>40){const o=dmgTexts.shift();o.el.remove()}
-  const el=document.createElement('div');el.className='dmgt '+kind;el.textContent=kind==='miss'?t('cmb.missT'):kind==='imm'?t('ar.imm'):(kind==='crit'?'✦ ':kind==='hurt'?'−':'')+fmtN(Math.round(n));dmgLayer.appendChild(el);
+  const el=document.createElement('div');el.className='dmgt '+kind;el.textContent=kind==='miss'?t('cmb.missT'):kind==='imm'?t('ar.imm'):kind==='res'?'+'+fmtN(Math.round(n))+' t':(kind==='crit'?'✦ ':kind==='hurt'?'−':'')+fmtN(Math.round(n));if(col)el.style.color=col;dmgLayer.appendChild(el);
   dmgTexts.push({el,p:pos.clone().add(new V3((Math.random()-.5)*2,3,(Math.random()-.5)*2)),life:kind==='crit'?1.3:1,max:kind==='crit'?1.3:1})}
 function tickDmgText(dt){if(!dmgTexts.length)return;const W=innerWidth,H=innerHeight;
   for(const d of dmgTexts.slice()){d.life-=dt;if(d.life<=0){d.el.remove();dmgTexts.splice(dmgTexts.indexOf(d),1);continue}
@@ -115,13 +116,16 @@ function killEnemy(e){sfx('boom',e.pos.clone());const P=PIRATES[e.kind];world.re
   for(let i=0;i<(e.kind==='carrier'?160:e.kind==='dread'?110:e.kind==='frigate'?70:e.kind==='corsair'?40:22);i++)emit(debris,e.pos,['#ff8a5c','#ffe2a8','#ff3b2f'][i%3],.6+Math.random()*.8,new V3((Math.random()-.5)*22,Math.random()*5,(Math.random()-.5)*22));
   missionKill();missionBounty(e);if(e.wasPassive)passiveQ.push({belt:e.belt,t:rnd(...(PASSIVE[state.cur]||{respawn:[120,120]}).respawn)});
   const cr=Math.round(rnd(P.cr[0],P.cr[1])*secGain(state.cur)*crMul());state.credits+=cr;bump('#crTxt');xpAt(XP.kill[e.kind]||0);
+  // v0.47: malé množstvo surovín z pirátov rovno do nákladu (ak je miesto); druh podľa surovín sektora
+  {const amt=(PIR_RES[e.kind]||0)*secGain(Math.min(state.cur,5))*D().yield*tierMul('gain');const rl=SECTORS[state.cur].res&&SECTORS[state.cur].res.length?SECTORS[state.cur].res:['ore','green','crystal'];
+    if(amt>0&&!dead){const r=pick(rl),g=Math.min(shipVal('cargo')-cargoTotal(),amt*(.7+Math.random()*.6));if(g>=1){state.cargo[r]+=g;dmgText(e.pos.clone().add(new V3(0,0,2)),g,'res',RCOL[r])}}}
   if(rsK('e1')&&Math.random()<RSK.e1.p/100){const z=Math.min(5,zoneOf(Math.hypot(e.pos.x,e.pos.z)));spawnLoot(dropItem(e.kind==='fighter'||e.kind==='swarm'?'enemy':e.kind,Math.max(2,z)),e.pos)}   // v0.42: Lovec odmien
   if(Math.random()<P.drop){const z=Math.min(5,zoneOf(Math.hypot(e.pos.x,e.pos.z)));spawnLoot(dropItem(e.kind==='fighter'||e.kind==='swarm'?'enemy':e.kind,Math.max(2,z),e.kind==='frigate'?4:e.kind==='corsair'?3:0),e.pos)}
   if(raidActive&&!enemies.some(x=>!x.leaving&&!x.wasPassive)){raidActive=false;const bonus=Math.round(PIRATES.repelBonus*raidCount*crMul());state.credits+=bonus;toast(t('tt.repelled',{c:bonus}),true);missionRaid(true);save()}}
 
 /* ---------- jednotlivé zbrane ---------- */
 function nearestEnemy(from,maxD){let best=null,bd=maxD;for(const e of enemies){if(e.leaving||e.manual||e.invuln||(e.passive&&!e.hostile))continue;/* pasívnych automaticky nestrieľame */const d=from.distanceTo(e.pos);if(d<bd){bd=d;best=e}}return best}
-const gunRange=()=>GUN_RANGE+bonus().grange;
+const gunRange=()=>(GUN_RANGE+bonus().grange)*(1+(typeof spdOver==='function'?spdOver()*SPD_OVER_K:0)/100);   // v0.47: + rýchlosť nad stropom
 function playerGun(dt){gunCd-=dt;if(dead||jumping)return;const R=gunRange();
   let tg=attackTarget&&enemies.includes(attackTarget)&&ship.position.distanceTo(attackTarget.pos)<=R?attackTarget:nearestEnemy(ship.position,R);
   if(tg){gunTgt=tg;gunTgtT=1.6}   // posledný cieľ streľby (natáčanie lode, zameriavací krúžok)
@@ -141,7 +145,9 @@ const _ev=new V3(),_tp=new V3();
 /* v0.16.2: dostrel pirátov = dostrel zbrane hráča × RANGE_F. Bežní piráti dostrelia menej ako hráč (silnejší menej
    zaostávajú), bossovia ďalej ako hráč. Raketová veža má rakety na veľkú vzdialenosť. Keď hráč vylepší dosah, posunú sa aj piráti. */
 const ERANGE_K=.9;   // v0.40.4: dostrel pirátov o 10 % kratší – hráč ich môže ručne udržať mimo ich dostrelu
-const enemyRange=e=>gunRange()*(RANGE_F[e.kind]||.9)*ERANGE_K;
+/* v0.47: dosah pirátov rastie s dosahom hráča len z polovice (ERANGE_GROW) – vylepšovať dosah sa oplatí */
+const ERANGE_GROW=.5;
+const enemyRange=e=>(GUN_RANGE+(gunRange()-GUN_RANGE)*ERANGE_GROW)*(RANGE_F[e.kind]||.9)*ERANGE_K;
 function tickEnemies(dt,tt){for(const e of enemies.slice()){
     if(e.passive){tickPassive(e,dt,tt);continue}
     if(e.leaving){_ev.copy(e.pos).setY(0).normalize().multiplyScalar(e.speed*1.4);e.pos.addScaledVector(_ev,dt);e.vel.copy(_ev);e.body.rotation.y=Math.atan2(_ev.x,_ev.z);

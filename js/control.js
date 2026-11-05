@@ -39,7 +39,11 @@ function damage(n,kind){const out={shield:0,hull:0};if(dead||n<=0)return out;
   // admin panel: neobmedzené štíty zachytia všetko, neobmedzený trup neubúda
   const ad=state.admin||{};if(ad.godShield){out.shield=n;return out}
   hullSince=0;shSince=0;
-  if(kind!=='void'&&state.sh>0){const a=Math.min(state.sh,n);state.sh-=a;n-=a;out.shield=a}
+  if(kind==='rad'||kind==='void'){   // v0.47: radiácia ubíja aj štíty, pomerne k ich veľkosti (štít/trup); trup dostáva rovnako ako predtým
+    const k=Math.max(1,shieldMax()/Math.max(1,shipVal('hull')));
+    if(kind==='rad'&&state.sh>0){const need=n*k,a=Math.min(state.sh,need);state.sh-=a;out.shield=a;n-=a/k}
+    else if(kind==='void'&&state.sh>0){const a=Math.min(state.sh,n*k);state.sh-=a;out.shield=a}}
+  else if(state.sh>0){const a=Math.min(state.sh,n);state.sh-=a;n-=a;out.shield=a}
   if(n>0&&ad.godHull){hullSince=99;return out}
   if(n>0){state.hp-=n;out.hull=n;if(typeof rsK==='function'&&rsK('f2')&&kind!=='void'&&kind!=='rad')rsBurnT=RSK.f2.t;
     if(state.hp<=0){if(typeof rsLastChance==='function'&&rsLastChance()){out.hull=0}else{state.hp=0;destroyShip()}}}
@@ -115,6 +119,12 @@ const homeBound=()=>!mineTarget&&moveTarget&&Math.hypot(moveTarget.x,moveTarget.
    na okraji obrazovky (EDGE_R), loď letí za ním. Po boji sa vráti k ťažbe tej istej suroviny (autopilot ťaží podľa seba).
    Pri trupe pod 35 % lov končí. Ručné ovládanie ho na 6 s preruší (ako autopilot). */
 let huntRes=null,huntAuto=false;
+/* v0.47: AUTOPILOT BRÁNI STANICU – pri nájazde pirátov (raidActive) preruší ťažbu aj návrat a útočí na nájazdníka najbližšie k stanici,
+   kým nájazd neskončí (aby hráč neprišiel o suroviny). Pri trupe pod 35 % sa stiahne ako zvyčajne. */
+function tickDefend(){if(!state.autoPilot||!raidActive||inArena()||dead)return false;if(state.hp/shipVal('hull')<HUNT_HP)return false;
+  if(attackTarget&&enemies.includes(attackTarget)&&!attackTarget.leaving&&!attackTarget.wasPassive&&!attackTarget.passive)return true;
+  let best=null,bd=1e9;for(const e of enemies){if(e.leaving||e.wasPassive||e.passive)continue;const d=Math.hypot(e.pos.x,e.pos.z);if(d<bd){bd=d;best=e}}
+  if(!best)return false;if(mineTarget)stopMining();attackTarget=best;huntAuto=true;moveTarget=null;flashMarker(best.pos,'#ff5a4a');return true}
 const HUNT_HP=.35;
 /* v0.40.2: voľby lovu – huntPassive = napádať aj pasívnych pirátov, huntVoid = loviť aj za horizontom (radiácia!) */
 function huntFind(maxD){let best=null,bd=maxD;for(const e of enemies){if(e.leaving||e.manual||e.invuln||(e.passive&&!e.hostile&&!state.huntPassive)||(!state.huntVoid&&Math.hypot(e.pos.x,e.pos.z)>=HORIZON-2))continue;
@@ -145,6 +155,7 @@ function tickAuto(dt){autoPause-=dt;apNoneT-=dt;
   const full=cargoTotal()>=shipVal('cargo')-.01;const ap=state.autoPilot;
   if(!full)returnSent=false;
   if(autoPause>0)return;
+  if(tickDefend())return;   // v0.47: nájazd na stanicu – autopilot ju najprv bráni
   if(tickHunt())return;   // v0.40.1: automatický lov pirátov má prednosť (loď práve útočí alebo zbiera korisť)
   // autopilot: korisť v okolí pozbiera ako prvú (aj s plným nákladom – predmety náklad nezaberajú)
   if(ap&&!mineTarget&&state.inv.length<INV_MAX){const L=nearestLoot(70*MAP_SCALE);if(L){if(!moveTarget||moveTarget.distanceTo(L.g.position)>1.5)moveTarget=L.g.position.clone().setY(0);return}}

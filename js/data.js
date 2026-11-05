@@ -4,7 +4,7 @@
    ECON = o koľko sú ceny (vylepšenia, moduly, lode…) navyše drahšie oproti príjmom. P(cena) = cena × NUM × ECON.
    Hodnoty v tabuľkách nižšie sú zapísané v „starých“ jednotkách a na konci súboru (scaleNumbers) sa vynásobia. */
 /* Verzia hry (zobrazí sa na úvodnej obrazovke) – pri vydaní zvýš aj version.json. */
-const GAME_VERSION='0.46.1';
+const GAME_VERSION='0.47.0';
 const NUM=10,ECON=1.6;
 const P=(c,m=1)=>{const o={};for(const k in c)o[k]=Math.round(c[k]*NUM*ECON*m);return o};
 /* v0.12: stavba a vylepšovanie stanice je v každom ďalšom sektore SEC_COST× drahšie (príjmy rastú len ~1,3×) */
@@ -108,15 +108,16 @@ const early=(o4,g4,c4)=>[o4,[...g4,...LATE_G],[...c4,...LATE_C],[0,0,0,0,...LATE
    Bonusy z nasadených predmetov sa pripočítajú až v shipVal() v state.js. */
 const RS_COST=3;   // násobok ceny vylepšení radiačného štítu
 const UP={
-  speed:{grp:'eng',vals:[14.4,19.2,24,28.8,33.6,36.5,39.5,43,47,52],costs:costTable(...early([80,180,320,500,800,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>v.toFixed(1)+' m/s'},
+  speed:{grp:'eng',vals:[14.4,19.2,24,28.8,33.6,36.5,39.5,43,47,52],costs:costTable(...early([80,180,320,500,800,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>(typeof csFmt==='function'?csFmt(v):v.toFixed(1)+' m/s')},   // v0.47: zobrazenie v cs
   accel:{grp:'eng',vals:[14.4,25.2,36,46.8,57.6,63,69,76,84,93],costs:costTable(...early([70,160,300,480,760,950,1200,1450,1750],[0,25,60,110],[0,0,0,20])),fmt:v=>v.toFixed(1)+' m/s²'},
   /* obratnosť: ako ostro loď zatáča – bočná zmena rýchlosti = zrýchlenie × hodnota/100 (150 = 1,5× zrýchlenie).
      Zároveň určuje, ako rýchlo sa nos lode natočí za smerom letu. Zobrazuje sa v °/s pre lepšiu predstavu. */
   turn:{grp:'eng',vals:[150,180,210,240,270,295,320,350,385,425],costs:costTable(...early([70,160,300,480,760,950,1200,1450,1750],[0,25,60,110],[0,0,0,20])),fmt:v=>Math.round(v)+' °/s'},
   hull:{grp:'hull',vals:[100,130,170,220,290,380,500,650,850,1100],costs:costTable(...early([100,220,380,600,900,1100,1350,1600,1900],[0,35,80,140],[0,0,0,30])),fmt:v=>fmtN(Math.round(v))},
   /* v0.38: náklad 8× väčší (pôvodne 50 → 280 t) */
-  cargo:{grp:'hull',vals:[50,70,95,125,165,215,280,365,475,620].map(v=>v*8),costs:costTable(...early([90,200,340,540,820,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>fmtN(Math.round(v))+' t'},
-  shield:{grp:'shield',min:0,vals:[0,40,60,85,115,155,205,270,350,460,600],
+  cargo:{grp:'hull',vals:[50,70,95,125,165,215,280,365,475,620].map(v=>v*16),   /* v0.47: ešte 2× (spolu 16× oproti pôvodu) */costs:costTable(...early([90,200,340,540,820,1000,1250,1500,1800],[0,30,70,120],[0,0,0,25])),fmt:v=>fmtN(Math.round(v))+' t'},
+  /* v0.47: štíty rastú rýchlejšie ako trup (na konci až ~5× trup): vyššie hodnoty, predmety štítu ×3, aj % trupu a % štítu z predmetov */
+  shield:{grp:'shield',min:0,vals:[0,120,200,310,460,680,1000,1450,2100,3000,4200],
     costs:costTable([300,250,380,550,750,950,1150,1400,1650,1950],[0,40,90,150,220,260,320,380,440,520],[0,0,0,30,60,80,110,150,190,240],[0,0,0,0,0,300,500,800,1200,1800]),fmt:v=>fmtN(Math.round(v))},
   /* radiačný štít: počet sekúnd úplnej ochrany pred radiáciou (aj za horizontom); dobíja sa pri stanici rýchlosťou RADSHIELD_RECHARGE s/s */
   /* v0.11.1: kratšia ochrana (najviac 30 s) a o dosť drahšie vylepšenia (× RS_COST) */
