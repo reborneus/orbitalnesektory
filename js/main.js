@@ -68,4 +68,6 @@ function start(data){const hs=data&&data.state;
   document.querySelectorAll('.pg').forEach(el=>el.textContent=G()[el.dataset.g]);
   if(hs&&hs.v===3){hideMenu();applyLang()}else{applyLang();showMenu('main')}
   frame()}
-window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+/* v0.31.2: najprv sa načíta úložisko (localStorage + IndexedDB), potom sa hra spustí */
+const boot=d=>storeInit().then(()=>start(d),()=>start(d));
+window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});

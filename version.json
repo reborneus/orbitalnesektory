@@ -1,10 +1,9 @@
 {
-  "version": "0.31.1",
+  "version": "0.31.2",
   "date": "2026-11-05",
   "notes": [
-    "Oprava ukladania: ak hra beží bez zvoleného slotu (napr. po aktualizácii aplikácie na ploche zo starej verzie), slot sa priradí sám – automatické aj ručné ukladanie teraz vždy funguje",
-    "Ručné uloženie ukáže chybu, ak sa nepodarí zapísať (namiesto ticha)",
-    "Uložiť a ukončiť: tam, kde sa okno zavrieť nedá (iPhone, aplikácia na ploche, bežná karta), hra uloží a prejde do hlavného menu",
-    "Súbory hry majú značku verzie, aby prehliadač a aplikácia na ploche po aktualizácii nemiešali staré a nové súbory"
+    "Oprava ukladania v aplikácii z plochy na iPhone: hra sa teraz ukladá naraz do localStorage aj do IndexedDB a načíta sa z oboch – keď systém zápis do localStorage odmietne, uloženie aj tak prebehne",
+    "Pri štarte hra požiada systém, aby uložené dáta nemazal",
+    "V Nastaveniach pri uloženej hre je malý riadok so stavom úložiska (localStorage / IndexedDB) a chybová hláška ukazuje aj názov chyby"
   ]
 }

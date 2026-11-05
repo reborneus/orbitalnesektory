@@ -20,9 +20,35 @@ const SAVE_MIGRATIONS=[
 const PREF_KEYS=['menuAlpha','hudCompact','hudAuto','padMouse','miniSize','hudPos','cmpMode'];
 let curSlot=null,saveErrShown=false;
 const saveKey=(n,k)=>`os-save-${n}-${k}`;
-function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
-function lsSet(k,v){try{localStorage.setItem(k,v);return true}catch(e){if(!saveErrShown&&typeof toast==='function'){saveErrShown=true;toast(t('sv.err'),'bad')}return false}}
-function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
+/* ---- v0.31.2: úložisko s dvoma zálohami ----
+   Na iPhone v aplikácii z plochy localStorage niekedy odmieta zápis (QuotaExceededError aj pri pár kB).
+   Preto: všetko sa drží v pamäti (MEM), zapisuje sa do localStorage AJ do IndexedDB a pri štarte sa načíta
+   z oboch (IndexedDB má prednosť – zapisuje sa vždy). Zápis je úspešný, ak sa podaril aspoň do jedného z nich. */
+const MEM=new Map(),STORE_DB='orbitalne-sektory',STORE_OS='kv';
+let idb=null,lsOk=true,lsErr='',idbErr='',storeReady=false;
+const ourKey=k=>k&&(k.startsWith('os-')||k.startsWith(SAVE_KEY));
+function idbOpen(){return new Promise(res=>{let done=false;const fin=v=>{if(!done){done=true;res(v)}};setTimeout(()=>{if(!done)idbErr='timeout';fin(null)},4000);
+  try{const r=indexedDB.open(STORE_DB,1);r.onupgradeneeded=()=>{try{r.result.createObjectStore(STORE_OS)}catch(e){}};
+    // ak sa databáza otvorí až po čakaní, pripojí sa dodatočne a dostane všetko, čo je zatiaľ v pamäti
+    r.onsuccess=()=>{if(done&&!idb){idb=r.result;idbErr='';for(const[k,v]of MEM)if(ourKey(k))idbPut(k,v)}fin(r.result)};r.onerror=()=>{idbErr=(r.error&&r.error.name)||'error';fin(null)};r.onblocked=()=>{idbErr='blocked';fin(null)}}catch(e){idbErr=e.name||'n/a';fin(null)}})}
+function idbAll(db){return new Promise(res=>{try{const out=[],tx=db.transaction(STORE_OS,'readonly'),st=tx.objectStore(STORE_OS),rq=st.openCursor();
+    rq.onsuccess=()=>{const c=rq.result;if(c){out.push([c.key,c.value]);c.continue()}else res(out)};rq.onerror=()=>res(out)}catch(e){res([])}})}
+function idbPut(k,v){if(!idb)return;try{const tx=idb.transaction(STORE_OS,'readwrite');const st=tx.objectStore(STORE_OS);v===null?st.delete(k):st.put(v,k);tx.onerror=()=>{idbErr=(tx.error&&tx.error.name)||'error'}}catch(e){idbErr=e.name||'error'}}
+/* Načítanie úložiska pri štarte (main.js čaká na dokončenie). */
+async function storeInit(){
+  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(ourKey(k))MEM.set(k,localStorage.getItem(k))}}catch(e){lsOk=false;lsErr=e.name||'error'}
+  idb=await idbOpen();
+  if(idb)for(const[k,v]of await idbAll(idb))if(typeof v==='string')MEM.set(k,v);   // IndexedDB má prednosť
+  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}   // požiadať, aby systém úložisko nemazal
+  storeReady=true}
+function lsGet(k){if(storeReady)return MEM.has(k)?MEM.get(k):null;try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){MEM.set(k,v);let ok=false;try{localStorage.setItem(k,v);ok=true;lsOk=true}catch(e){lsOk=false;lsErr=e.name||'error'}
+  if(idb){idbPut(k,v);ok=true}
+  if(!ok&&!saveErrShown&&typeof toast==='function'){saveErrShown=true;toast(t('sv.err')+' ('+lsErr+')','bad')}
+  return ok}
+function lsDel(k){MEM.delete(k);try{localStorage.removeItem(k)}catch(e){}if(idb)idbPut(k,null)}
+/* Krátky stav úložiska pre Nastavenia (pomáha pri hľadaní chýb na telefóne). */
+function storeInfo(){return`localStorage: ${lsErr?'✕ '+lsErr:'OK'} · IndexedDB: ${idb?'OK':'✕ '+(idbErr||'n/a')}`}
 
 /* ---- spoločné nastavenia ---- */
 function loadPrefs(){try{return JSON.parse(lsGet(PREFS_KEY)||'{}')||{}}catch(e){return{}}}
@@ -63,7 +89,7 @@ function pickSlot(){const I=loadIdx();if(I.last)return I.last;for(const S of I.s
 function manualSave(k){if(!state||nmDead)return false;if(!curSlot)curSlot=pickSlot();const S=loadIdx().slots[curSlot-1];
   if(!k){for(let i=0;i<MAN_N;i++)if(!S.e['m'+i]){k='m'+i;break}
     if(!k)k=Object.values(S.e).filter(m=>m.kind==='man').sort((a,b)=>a.ts-b.ts)[0].k}
-  const ok=writeSave(curSlot,k,'man');if(typeof toast==='function')toast(ok?t('sv.saved',{n:curSlot}):t('sv.err'),ok?'':'bad');return ok}
+  const ok=writeSave(curSlot,k,'man');if(typeof toast==='function')toast(ok?t('sv.saved',{n:curSlot}):t('sv.err')+' ('+lsErr+')',ok?'':'bad');return ok}
 /* Zoznam uložení slotu, najnovšie prvé. */
 function slotEntries(n){const S=loadIdx().slots[n-1];return Object.values(S.e).sort((a,b)=>b.ts-a.ts)}
 const slotUsed=n=>slotEntries(n).length>0;

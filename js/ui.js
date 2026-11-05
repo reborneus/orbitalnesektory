@@ -123,7 +123,7 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     // v0.30: uložená hra – ručné uloženie do aktuálneho slotu a návrat do hlavného menu
     {const E=curSlot?slotEntries(curSlot):[],man=E.filter(m=>m.kind==='man').length,au=E.find(m=>m.kind==='auto');
       h+=`<div class="sec-h"><span>${t('sv.h')}</span></div><div class="card"><h3>${t('mn.slot',{n:curSlot||'–'})}</h3><div class="langs"><button class="langb" data-act="svSave">${t('sv.save')}</button><button class="langb" data-act="svMenu">${t('sv.menu')}</button></div>
-        <p>${t('sv.d',{m:man,M:MAN_N,a:au?fmtWhen(au.ts):'–'})}</p></div>`}
+        <p>${t('sv.d',{m:man,M:MAN_N,a:au?fmtWhen(au.ts):'–'})}</p><p class="note" style="margin:0;font-size:11px">${storeInfo()}</p></div>`}
     h+=`<div class="sec-h"><span>${t('set.autoH')}</span></div>`;
     h+=`<div class="card"><h3>${t('set.ap')}</h3>${onoff('autoPilot',!!state.autoPilot)}<p>${t('set.ap.d',{V:G().V})}</p>
       <div class="gems" style="gap:8px;flex-wrap:wrap"><span class="note" style="margin:0">${t('set.ap.res')}:</span>${RES.map(r=>`<button class="langb" style="border:1px solid var(--line);border-radius:6px;display:inline-flex;gap:6px;align-items:center" data-act="ares" data-r="${r}" aria-pressed="${state.autoRes===r}"><span class="gem" style="background:${RCOL[r]}"></span>${t('res.'+r)}</button>`).join('')}</div>
