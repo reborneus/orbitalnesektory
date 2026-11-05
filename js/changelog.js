@@ -2,6 +2,13 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.39.2",
+"d": "2026-11-05",
+"n": [
+"Ovládač: v menu (hlavne na stanici) je vždy zreteľne zvýraznený práve vybraný prvok – samotné tlačidlo svieti tyrkysovým rámikom aj žiarou a jeho karta/slot má jemný rámik; rámik sa už neschová za okraj ani pod efekty rarity a vybraný prvok sa vždy posunie do zorného poľa"
+]
+},
+{
 "v": "0.39.1",
 "d": "2026-11-05",
 "n": [
@@ -237,15 +244,6 @@ const CHANGELOG=[
 "Stanica v strede mapy je 3× väčšia (moduly ostali v pôvodnej veľkosti) a leží hlbšie pod rovinou letu; dosah stanice, vykladanie a zásahy pirátov sa jej veľkosti prispôsobili",
 "Po skoku bránou sa loď objaví pri bráne v novom sektore (nie v strede pri stanici)",
 "Pasívni piráti vo všetkých mapách okrem arény: 1. mapa 2× viac (26), 2. mapa ešte viac (34); od 3. mapy aj korzári, od 4. aj fregaty a pribúda agresívnych (zaútočia, keď sa priblížiš; na minimape a šípkach červení), na vyšších mapách silnejší"
-]
-},
-{
-"v": "0.25.0",
-"d": "2026-11-04",
-"n": [
-"Minimapa sa dá zväčšiť a zmenšiť (5 veľkostí): tlačidlá − / + pri minimape, koliesko myši nad minimapou, na ovládači R3 (dookola); veľkosť sa uloží",
-"PC: režim úpravy rozloženia HUD (Nastavenia → Rozloženie HUD → Upraviť) – panely sektora, surovín, minimapu a dolnú lištu presunieš ťahaním myšou; rozloženie sa uloží, dá sa vrátiť na pôvodné",
-"PC: okná ako hangár, vylepšenia lode, výbava či mapa sa otvárajú v strede obrazovky nad dolnou lištou (lišta zostáva viditeľná)"
 ]
 }
 ];
