@@ -2,6 +2,19 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.51.0",
+"d": "2026-11-05",
+"n": [
+"Drony s odomknutou obranou pri nájazde samy bránia stanicu a pri tvojom útoku na piráta slabo pomôžu (5–10 % tvojho DPS podľa vylepšenia); potom sa vrátia k ťažbe. Prepínač ťažba/obrana je preč.",
+"Minimapa a veľká mapa ukazujú asteroidy a pirátov len okolo lode (250 m) a v dosahu senzorov stanice – ostatok je zatemnený. Senzory rozširujú dosah (2 senzory +5 s čipom ≈ 80 % minimapy). Stanica, brána, obchodník, zadávateľ misií a korisť sú vidieť stále.",
+"Hodnosti pilota s odznakmi (Kadet … Vesmírny major … Veliteľ sektora … Vládca vesmíru) vedľa stavu sektora; pri povýšení príde oznámenie.",
+"Nerozdelené body pilota a výskumu pulzujú pod úrovňou pilota – ťuknutím otvoríš správnu záložku.",
+"Nové skratky: ovládač – podržanie Menu = Nastavenia, podržanie View = Pilot; na PC sa na tlačidlách menu ukazujú klávesy (L Pilot, O Nastavenia…).",
+"Nastavenia → Rozhranie → Radiálne menu: spodný panel nahradí okrúhle tlačidlo s rozbaľovacím menu (na PC aj kláves Q).",
+"Príručka: nové kapitoly Hodnosti, Dosah mapy a senzory, Drony v boji, Skratky a radiálne menu."
+]
+},
+{
 "v": "0.50.2",
 "d": "2026-11-05",
 "n": [
@@ -235,16 +248,6 @@ const CHANGELOG=[
 "Výzva: úrovne sa odomykajú postupom (+1 za obsadený sektor, +2 za každých 5 vĺn v aréne), zamknuté štvorčeky majú zámok; zmena výzvy znova načíta sektor (ako skok), loď ostane pri stanici",
 "Zvuky dlhšie (inšpirácia DarkOrbit): kovové doznievanie výstrelov, vesmírna ozvena medzi kanálmi, dlhšie výbuchy",
 "Spúšťač Windows: v paneli úloh ikona hry namiesto ikony PowerShellu"
-]
-},
-{
-"v": "0.37.0",
-"d": "2026-11-05",
-"n": [
-"Nové zvuky zbraní podľa hráčových ukážok (Dark / Deep / Universe / Bass): bleskový pokles výšky na začiatku, hutné basové telo s tmavnúcim filtrom, sub-bas a tmavé doznievanie",
-"Každá rarita znie inak (sivá kratšia a vyššia, modrá štandard, zlatá najhlbšia, červená s chvením a skreslením, prvotná s akordom); veža hlbšia a dlhšia",
-"Blesk: krátke nabitie s vlniacim sa filtrom a hlboký výboj s padajúcimi tónmi; piráti majú tmavé bzučivé výstrely s chvením, aby sa dali rozlíšiť od tvojich",
-"Hlbšie zásahy"
 ]
 }
 ];
