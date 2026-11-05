@@ -4,6 +4,11 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 
 ## 0.39
 
+### v0.39.3 · 2026-11-05
+- Oprava označovania na rozobratie: krížik na označenom predmete sa už neprekrýva s číslom vylepšenia (štýl zo zoznamu uložených hier sa omylom miešal s predmetmi)
+- Okno Výbavy má pevnú výšku – pri prechode medzi predmetmi sa už nemení jeho veľkosť
+- Ovládač na stanici: výber preskakuje tlačidlá zbalených slotov – už sa nedá omylom vylepšiť modul, ktorý nie je rozbalený
+
 ### v0.39.2 · 2026-11-05
 - Ovládač: v menu (hlavne na stanici) je vždy zreteľne zvýraznený práve vybraný prvok – samotné tlačidlo svieti tyrkysovým rámikom aj žiarou a jeho karta/slot má jemný rámik; rámik sa už neschová za okraj ani pod efekty rarity a vybraný prvok sa vždy posunie do zorného poľa
 

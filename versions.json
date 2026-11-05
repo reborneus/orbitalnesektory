@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.39.3", "date": "2026-11-05", "time": "2026-11-05T14:17:17+01:00", "sha": "d25048a47160411d43935461bb942197f6a1642a", "title": "Opravy: označovanie, výška výbavy, ovládač v zbalených slotoch"},
   {"version": "0.39.2", "date": "2026-11-05", "time": "2026-11-05T14:02:41+01:00", "sha": "0c9c408514d44895614d3fa40c6ade4aa097ada5", "title": "Ovládač: zreteľné zvýraznenie výberu v menu"},
   {"version": "0.39.1", "date": "2026-11-05", "time": "2026-11-05T13:55:27+01:00", "sha": "7bf5a1b49af44b9f8b35c4a2a636a4ada2a27cff", "title": "Ovládač: nasadené predmety vo výbave"},
   {"version": "0.39.0", "date": "2026-11-05", "time": "2026-11-05T13:47:53+01:00", "sha": "cad5f5879588585d8077b719d2de7527e8a87ca0", "title": "Balans pirátov s výzvou, skrytý kurzor pri ovládači"},

@@ -2,6 +2,15 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.39.3",
+"d": "2026-11-05",
+"n": [
+"Oprava označovania na rozobratie: krížik na označenom predmete sa už neprekrýva s číslom vylepšenia (štýl zo zoznamu uložených hier sa omylom miešal s predmetmi)",
+"Okno Výbavy má pevnú výšku – pri prechode medzi predmetmi sa už nemení jeho veľkosť",
+"Ovládač na stanici: výber preskakuje tlačidlá zbalených slotov – už sa nedá omylom vylepšiť modul, ktorý nie je rozbalený"
+]
+},
+{
 "v": "0.39.2",
 "d": "2026-11-05",
 "n": [
@@ -235,15 +244,6 @@ const CHANGELOG=[
 "Karta predmetu s možnosťami (vylepšiť, rozobrať, zamknúť, do skladu, zložiť) sa ukáže pri predmete pod myšou aj pod výberom ovládača; na širokej obrazovke vpravo vedľa okna",
 "Skoková brána je 2,6× väčšia a naklonená, aby ňou vizuálne prešli aj veľké lode",
 "Pri vkladaní predmetov sa dá zvoliť aj konkrétny typ predmetu"
-]
-},
-{
-"v": "0.26.0",
-"d": "2026-11-04",
-"n": [
-"Stanica v strede mapy je 3× väčšia (moduly ostali v pôvodnej veľkosti) a leží hlbšie pod rovinou letu; dosah stanice, vykladanie a zásahy pirátov sa jej veľkosti prispôsobili",
-"Po skoku bránou sa loď objaví pri bráne v novom sektore (nie v strede pri stanici)",
-"Pasívni piráti vo všetkých mapách okrem arény: 1. mapa 2× viac (26), 2. mapa ešte viac (34); od 3. mapy aj korzári, od 4. aj fregaty a pribúda agresívnych (zaútočia, keď sa priblížiš; na minimape a šípkach červení), na vyšších mapách silnejší"
 ]
 }
 ];
