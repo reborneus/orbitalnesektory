@@ -213,8 +213,11 @@ function passiveOf(sc){const paused=influence(sc)<SECTORS[state.sec.indexOf(sc)]
   return{ore,green,paused}}
 /* Ukončenie hry: uloží a skúsi zavrieť okno (funguje v okne spusteného spúšťačom); inak ukáže, že je možné okno zavrieť. */
 /* v0.31.1: ručné uloženie + zavretie okna; kde sa okno zavrieť nedá (telefón, aplikácia na ploche, bežná karta), hra prejde do hlavného menu. */
-function quitGame(){const ok=manualSave();if(!ok)return;try{window.close()}catch(e){}
-  setTimeout(()=>{if(!window.closed)toMenu()},350)}
+/* v0.31.3: okno sa zatvára len v hre spustenej zo spúšťača (súbor z disku na PC). Na webe a v aplikácii z plochy
+   window.close() buď nefunguje, alebo prehliadač zatvorí kartu a ukáže predchádzajúcu stránku (napr. GitHub),
+   preto tam hra po uložení vždy prejde do hlavného menu. */
+function quitGame(){const ok=manualSave();if(!ok)return;
+  if(location.protocol==='file:'&&!isTouch){try{window.close()}catch(e){}setTimeout(()=>{if(!window.closed)toMenu()},350)}else toMenu()}
 
 let jumping=false;
 /* Skok do sektora i: krátky záblesk, potom sa sektor postaví nanovo a loď sa objaví pri stanici. */
