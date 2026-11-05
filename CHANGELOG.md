@@ -4,6 +4,11 @@ Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verz
 
 ## 0.40
 
+### v0.40.2 · 2026-11-05
+- Lov pirátov: nová voľba „Napádať aj pasívnych pirátov“ – automatický lov potom útočí aj na pirátov, ktorí sami neútočia.
+- Lov pirátov: nová voľba „Loviť aj za horizontom“ – loď prenasleduje pirátov aj v radiácii za horizontom (lov stále skončí pri trupe pod 35 %).
+- Na každej mape je teraz dvojnásobný počet pirátov v pásoch.
+
 ### v0.40.1 · 2026-11-05
 - Automatický lov pirátov (Nastavenia → Hra): zapnutý samostatne loď sama letí po najbližšom pirátovi, zostrelí ho, pozbiera korisť a pokračuje ďalším.
 - Lov spolu s ťažbou: ťažba sa nepreruší, ale keď sa asteroid vyčerpá a pirát je v dosahu (šípka na okraji obrazovky), loď letí za ním a po boji sa vráti k ťažbe tej istej suroviny. Pri trupe pod 35 % lov skončí.

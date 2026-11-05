@@ -2,6 +2,15 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.40.2",
+"d": "2026-11-05",
+"n": [
+"Lov pirátov: nová voľba „Napádať aj pasívnych pirátov“ – automatický lov potom útočí aj na pirátov, ktorí sami neútočia.",
+"Lov pirátov: nová voľba „Loviť aj za horizontom“ – loď prenasleduje pirátov aj v radiácii za horizontom (lov stále skončí pri trupe pod 35 %).",
+"Na každej mape je teraz dvojnásobný počet pirátov v pásoch."
+]
+},
+{
 "v": "0.40.1",
 "d": "2026-11-05",
 "n": [
@@ -228,19 +237,6 @@ const CHANGELOG=[
 "Nové minerály vo vysokom rozlíšení: tmavý kameň s veľkými štiepnymi plochami, drsným povrchom a bronzovým nádychom na hranách",
 "Cez kameň vedú svietiace pukliny ako blesky, okolo nich vnútorný svit a trblietky – ruda oranžovo, viridit zeleno, kryštály fialovo, zmiešané asteroidy všetkými tromi farbami a relikty zlato",
 "Žily jemne pulzujú; tvar aj vzor povrchu sa počítajú v hre (bez obrázkov), takže je každý asteroid iný"
-]
-},
-{
-"v": "0.30.0",
-"d": "2026-11-05",
-"n": [
-"Nové hlavné menu ako v bežnej hre: Pokračovať, Nová hra, Načítať hru, Nastavenia, Príručka; vpravo dole malý zoznam zmien (Všetky zmeny ho rozbalí). Ovláda sa myšou, dotykom, šípkami + Enter/Esc aj ovládačom",
-"Fanart v hlavnom menu: živá 3D scéna – Bizón, Sokol a Pincer letia v zostave okolo planéty s diskom; na telefóne na výšku sú lode nad menu",
-"Uložené hry: 3 sloty, každý s vlastnými automatickými uloženiami (3 s odstupom 5 min) a až 6 ručnými (v hre Nastavenia → Uložiť); pri slote vidno sektor, obtiažnosť, úroveň pilota, loď a odohraný čas",
-"V hre v Nastaveniach: Uložiť a Hlavné menu; nastavenia HUD, ovládania a jazyk sú spoločné pre všetky sloty a dajú sa meniť aj z hlavného menu",
-"Uloženia majú číslo schémy a postupné migrácie, takže hry uložené v starších verziách sa dajú načítať aj v nových; hra z verzie 0.29 a starších sa automaticky prenesie do slotu 1",
-"Nightmare: zničenie lode zmaže celý slot a vráti hru do hlavného menu",
-"Štartovacia loď Pincer má tmavý grafitový pancier namiesto bieleho (v hre aj v náhľadoch)"
 ]
 }
 ];
