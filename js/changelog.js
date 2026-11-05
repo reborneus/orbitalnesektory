@@ -2,6 +2,20 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.35.0",
+"d": "2026-11-05",
+"n": [
+"Zvuk: všetky zvuky a hudba sa tvoria priamo v hre (bez súborov) – kliknutia a prechody po tlačidlách, otváranie okien, upozornenia, výstrely podľa rarity zbrane (aj veže a sprievodné drony), blesk, výstrely pirátov, zásahy, výbuchy, zbieranie koristi, vykladanie, skok bránou, poplach a odpočet pri smrti",
+"Nepretržité zvuky: hukot motorov podľa rýchlosti lode a bzučanie ťažobného lasera",
+"Generovaná ambientná vesmírna hudba (pomalé akordy, basový tón, hviezdne zvončeky s ozvenou); v boji sa pridá tepajúca vrstva, v hlavnom menu je jasnejšia",
+"Priestorový zvuk (HRTF): výstrely a výbuchy počuť zo strany, kde sa dejú, vzdialené tichšie – najlepšie v slúchadlách; dá sa vypnúť",
+"Nastavenia → Zvuk: celková hlasitosť, hudba, efekty, rozhranie a priestorový zvuk",
+"Nastavenia sú rozdelené do sekcií: Uloženie, Hra, Ovládanie, Rozhranie, Grafika, Zvuk (z hlavného menu len spoločné sekcie)",
+"Grafika: predvoľby Nízka / Stredná / Vysoká / Ultra a jednotlivo rozlíšenie vykresľovania, množstvo častíc, animované pozadie a limit snímok (30 / 60 / bez limitu)",
+"Ovládanie: dá sa vypnúť sledovanie kurzora pri držaní tlačidla"
+]
+},
+{
 "v": "0.34.0",
 "d": "2026-11-05",
 "n": [
@@ -223,14 +237,6 @@ const CHANGELOG=[
 "n": [
 "Nové energetické jadro základne: plazmová guľa s bielym stredom a vírivými svietiacimi žilkami; v pokoji modrá, keď si v dosahu stanice zelená, pod útokom pulzuje červeno (farby sa plynulo prelínajú, menia sa aj svetelné pásy stanice)",
 "Ťažobné drony majú nový detailný model: pancierový trup so šikmým nosom a klami, červený senzor, dve veľké turbíny po bokoch na vzperách s fialovou žiarou dýz, zadné plutvy a malá veža"
-]
-},
-{
-"v": "0.19.4",
-"d": "2026-11-04",
-"n": [
-"Boj: pri streľbe je loď vždy natočená nosom na cieľ (aj keď letí bokom) a okolo cieľa sa točí červený zameriavací krúžok",
-"Na okraji obrazovky sa ukazujú šípky smerom k pirátom mimo obrazovky do vzdialenosti polovice pásu (červené = nepriatelia, oranžové = pasívni) aj so vzdialenosťou"
 ]
 }
 ];

@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.35.0", "date": "2026-11-05", "time": "2026-11-05T12:17:06+01:00", "sha": "ee0f5ecdf60a9afc5f9742e4518f134551eda6e2", "title": "Zvuk a hudba, sekcie nastavení, grafické predvoľby"},
   {"version": "0.34.0", "date": "2026-11-05", "time": "2026-11-05T12:04:27+01:00", "sha": "ceef626fb518d919d8ba2b71547543acb866d770", "title": "Veža: laserový zameriavač a strely ako hráč"},
   {"version": "0.33.1", "date": "2026-11-05", "time": "2026-11-05T12:02:21+01:00", "sha": "4644b806cb93db8fa113b37aa32685bd6c77a247", "title": "Výzva v stanici (štvorčeky)"},
   {"version": "0.33.0", "date": "2026-11-05", "time": "2026-11-05T11:59:29+01:00", "sha": "6b43864671eca690e82459e9899e0cfa9aa24269", "title": "Tlačidlá na stanici, NPC a bráne"},
