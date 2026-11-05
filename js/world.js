@@ -95,23 +95,13 @@ function buildSector(){
 
 function makeAst(type,f,r){const g=new THREE.Group();const S=SECTORS[state.cur];
   const base=type==='mix'?4.2+r()*2.2:type==='relic'?.9+r()*.45:type==='crystal'?1.8+r()*1.5:type==='green'?1.7+r()*1.9:1.6+r()*2.3;
-  const geos=GEOS[type];
-  const rock=new THREE.Mesh(geos[(r()*geos.length)|0],M.rock);
-  rock.scale.set(1,.7+r()*.4,.85+r()*.3);rock.rotation.set(r()*TAU,r()*TAU,r()*TAU);g.add(rock);
-  if(type==='crystal'){for(let k=0;k<5;k++){const s=new THREE.Mesh(SHARD,M.crystal);const d=new V3(r()-.5,r()*.8+.2,r()-.5).normalize();
-      s.position.copy(d).multiplyScalar(.75);s.quaternion.setFromUnitVectors(UP_,d);s.scale.set(.18+r()*.1,.5+r()*.45,.18+r()*.1);g.add(s)}
-    g.add(glow('#9b7bff',5.5,.4))}
-  else if(type==='green'){for(let k=0;k<3;k++){const s=new THREE.Mesh(SHARD,M.viridit);const d=new V3(r()-.5,r()*.6+.3,r()-.5).normalize();
-      s.position.copy(d).multiplyScalar(.85);s.quaternion.setFromUnitVectors(UP_,d);s.scale.set(.22,.32+r()*.2,.22);g.add(s)}
-    g.add(glow('#86e05a',4.6,.26))}
-  else if(type==='relic'){for(let k=0;k<4;k++){const s=new THREE.Mesh(SHARD,M.relic);const d=new V3(r()-.5,r()*.7+.3,r()-.5).normalize();
+  // v0.31: kameň vo vysokom rozlíšení so svietiacimi žilami v farbe suroviny (minerals.js)
+  const mp=mineralParts(type,r);const rock=new THREE.Mesh(mp.geo,mp.mat);
+  rock.scale.set(1,.85+r()*.3,.9+r()*.2);rock.rotation.set(r()*TAU,r()*TAU,r()*TAU);g.add(rock);
+  if(type==='relic'){for(let k=0;k<4;k++){const s=new THREE.Mesh(SHARD,M.relic);const d=new V3(r()-.5,r()*.7+.3,r()-.5).normalize();
       s.position.copy(d).multiplyScalar(.8);s.quaternion.setFromUnitVectors(UP_,d);s.scale.set(.16,.4+r()*.25,.16);g.add(s)}
     const sp=glow('#ffd87a',4.2,.55);g.add(sp);g.userData.spark=sp}
-  else if(type==='mix'){ // obrí zmiešaný asteroid: výbežky viriditu aj kryštálov
-    for(let k=0;k<6;k++){const s=new THREE.Mesh(SHARD,k%2?M.crystal:M.viridit);const d=new V3(r()-.5,r()*.7+.3,r()-.5).normalize();
-      s.position.copy(d).multiplyScalar(.8);s.quaternion.setFromUnitVectors(UP_,d);s.scale.set(.14,.3+r()*.25,.14);g.add(s)}
-    g.add(glow('#e8d8ff',7,.22))}
-  else g.add(glow('#f0a644',3.6,.16));
+  else g.add(glow({ore:'#f0a644',green:'#86e05a',crystal:'#9b7bff',mix:'#e8d8ff'}[type],{ore:3.4,green:3.6,crystal:3.8,mix:6}[type],{ore:.14,green:.16,crystal:.2,mix:.16}[type]));   // jemný svit okolo
   const proxy=new THREE.Mesh(new THREE.SphereGeometry(1.9,8,6),M.pick);g.add(proxy);
   const mult={ore:30,green:20,crystal:12,relic:8,mix:40}[type]*NUM;const max=Math.round(base*mult*S.rich);
   const a={g,type,base,amt:max,max,alive:true,respawn:0,shrink:1,claims:0,spin:new V3((r()-.5)*.5,(r()-.5)*.6,(r()-.5)*.4),pos:g.position,rmin:f.r[0],rmax:f.r[1]};

@@ -9,7 +9,7 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
   pollPad(dt);readInput();
   const playing=$('#intro').hidden;
   if(!playing){menuArtFrame(dt,tt);return}   // v0.30: v hlavnom menu sa kreslí len fanart, svet hry stojí
-  state.playT=(state.playT||0)+dt;          // odohraný čas (zobrazuje sa pri uložených hrách)
+  state.playT=(state.playT||0)+dt;MIN_U.uT.value=tt;          // odohraný čas (zobrazuje sa pri uložených hrách)
   if(!jumping&&!dead&&playing){tickAuto(dt);tickShip(dt,tt)}tickHudMode(dt);if(!jumping)tickDrones(dt,tt);
   // radiation by belt; beyond the horizon it eats the hull directly
   const rr=Math.hypot(ship.position.x,ship.position.z);radRate=0;radHull=false;radProt=false;

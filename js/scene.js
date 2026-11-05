@@ -45,17 +45,5 @@ const M={
   pick:new THREE.MeshBasicMaterial({visible:false}),
 };
 
-/* Tvar asteroidu: zdeformovaný mnohosten s náhodnými škvrnami suroviny. GEOS = niekoľko variantov pre každú surovinu. */
-function rockGeo(seed,base,fleck,fleckP){const g=new THREE.IcosahedronGeometry(1,1);const p=g.attributes.position;const r=rng(seed);const cache=new Map();
-  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const k=x.toFixed(3)+','+y.toFixed(3)+','+z.toFixed(3);let d=cache.get(k);if(d===undefined){d=.72+r()*.5;cache.set(k,d)}p.setXYZ(i,x*d,y*d,z*d)}
-  const cs=new Float32Array(p.count*3);const b=col(base),f=col(fleck);
-  for(let i=0;i<p.count;i+=3){const isF=r()<fleckP;const v=.75+r()*.35;const c=isF?f:b;for(let j=0;j<3;j++){cs[(i+j)*3]=c.r*v;cs[(i+j)*3+1]=c.g*v;cs[(i+j)*3+2]=c.b*v}}
-  g.setAttribute('color',new THREE.BufferAttribute(cs,3));g.computeVertexNormals();return g}
-const GEOS={
-  ore:[1,2,3,4,5].map(i=>rockGeo(100+i,'#5e5148','#e0902e',.2)),
-  green:[1,2,3,4].map(i=>rockGeo(300+i,'#46564a','#7fdc4f',.24)),
-  crystal:[1,2,3,4].map(i=>rockGeo(200+i,'#46506a','#7a62c9',.12)),
-  relic:[1,2,3].map(i=>rockGeo(400+i,'#2a2e38','#ffd87a',.3)),
-  mix:[1,2,3].map(i=>rockGeo(500+i,'#4a4658','#e0902e',.22)),
-};
+/* v0.31: tvary a materiály asteroidov sú v js/minerals.js */
 const SHARD=new THREE.OctahedronGeometry(1,0);

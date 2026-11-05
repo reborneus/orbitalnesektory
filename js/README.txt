@@ -8,6 +8,7 @@ SÚBORY HRY (načítavajú sa v tomto poradí, pozri index.html)
   saves.js    ULOŽENÉ HRY – 3 sloty, automatické a ručné uloženia, verzia schémy a migrácie, spoločné nastavenia
   changelog.js  zoznam zmien pre hlavné menu (generuje tools/changelog.py)
   scene.js    == 4. 3D SCÉNA – renderer, kamera, svetlá, materiály
+  minerals.js MINERÁLY – tvar a materiál asteroidov (štiepne plochy, svietiace žily)
   ship.js     == 5. LOĎ – 3D model "Klepeto", štít, laser, častice
   world.js    == 6. SEKTOR – zóny, asteroidy, stanica, brána, drony, korisť vo vesmíre
   menuart.js  fanart hlavného menu (3D scéna s loďami a planétou)
