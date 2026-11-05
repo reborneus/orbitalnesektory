@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.31.3", "date": "2026-11-05", "time": "2026-11-05T11:19:09+01:00", "sha": "1284ee48d01b6de7f3780f165321878bb19b8c19", "title": "Uložiť a ukončiť prejde do hlavného menu"},
   {"version": "0.31.2", "date": "2026-11-05", "time": "2026-11-05T11:12:52+01:00", "sha": "01dc442c97be63c11c44ac787263b298d0204d89", "title": "Ukladanie aj do IndexedDB (iOS aplikácia z plochy)"},
   {"version": "0.31.1", "date": "2026-11-05", "time": "2026-11-05T10:56:55+01:00", "sha": "a75dc2c0903b502bad616749fd0d68dba46f601d", "title": "Oprava ukladania na iOS, ukončenie do menu, značky verzie proti cache"},
   {"version": "0.31.0", "date": "2026-11-05", "time": "2026-11-05T10:37:26+01:00", "sha": "640301c2bcc442af469afaaba85ad1425b347cc2", "title": "Minerály vo vysokom rozlíšení so svietiacimi žilami"},

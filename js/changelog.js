@@ -2,6 +2,13 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.31.3",
+"d": "2026-11-05",
+"n": [
+"Uložiť a ukončiť: na webe, v aplikácii z plochy aj na telefóne hra po uložení vždy prejde do hlavného menu (prehliadač už nezatvorí kartu a neprejde na predchádzajúcu stránku); okno sa zatvára len v hre spustenej zo spúšťača na PC"
+]
+},
+{
 "v": "0.31.2",
 "d": "2026-11-05",
 "n": [
@@ -223,13 +230,6 @@ const CHANGELOG=[
 "Povrch lodí má textúru plechov s drážkami, svetielkami a detailmi; dá sa priblížiť oveľa bližšie",
 "Ovládač: kurzor myši páčkou (Nastavenia alebo stlačenie ľavej páčky L3) – ľavá páčka hýbe kurzorom, A klikne, pravá páčka posúva okno; loď sa vtedy páčkou neriadi",
 "Ovládač: krížovým ovládačom sa v menu dá pohybovať všetkými smermi (napr. priamo medzi loďami v hangári)"
-]
-},
-{
-"v": "0.16.4",
-"d": "2026-11-04",
-"n": [
-"Oprava: lode pirátov z nájazdov neboli vidieť (chyba z v0.16.2) – teraz sa opäť zobrazujú"
 ]
 }
 ];
