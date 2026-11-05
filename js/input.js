@@ -50,6 +50,14 @@ function miniSkull(g,x,y,u){const s=3.6*u;g.save();g.shadowColor='#ff2a2a';g.sha
    (ox, oy) = bod plátna, kde je stred sektora; k = pixely na meter; u = mierka čiar a značiek; R = polomer orezania
    (minimapa) alebo 0 = veľká mapa bez orezania; hits = pole, do ktorého sa zapíšu značky pre zisťovanie myšou. */
 function drawMini(){const W=mini.width,c=W/2,R=c-1;paintMap(mctx,W,W,c,c,R/MINI_R,W/150,R,null)}
+/* hmla mimo dosahu skenovania: tmavá vrstva s vyrezanými kruhmi (stanica + loď), okraj kruhov jemne svieti */
+const _fogC=document.createElement('canvas'),_fogG=_fogC.getContext('2d');
+function mapFog(g,W,Hh,ox,oy,k,u,SR,sx,sy,pr){if(_fogC.width!==W||_fogC.height!==Hh){_fogC.width=W;_fogC.height=Hh}
+  const f=_fogG;f.globalCompositeOperation='source-over';f.clearRect(0,0,W,Hh);f.fillStyle='rgba(2,4,9,.62)';f.fillRect(0,0,W,Hh);
+  f.globalCompositeOperation='destination-out';f.fillStyle='#000';
+  if(SR>0){f.beginPath();f.arc(ox,oy,SR*k,0,TAU);f.fill()}f.beginPath();f.arc(sx,sy,pr,0,TAU);f.fill();
+  g.drawImage(_fogC,0,0);g.lineWidth=1*u;g.setLineDash([3*u,4*u]);g.strokeStyle='rgba(126,242,226,.35)';
+  if(SR>0){g.beginPath();g.arc(ox,oy,SR*k,0,TAU);g.stroke()}g.beginPath();g.arc(sx,sy,pr,0,TAU);g.stroke();g.setLineDash([])}
 function paintMap(g,W,Hh,ox,oy,k,u,R,hits){const hit=(x,y,r,info)=>{if(hits)hits.push({x,y,r:Math.max(r,6*u),info})};
   g.clearRect(0,0,W,Hh);g.save();
   if(R){g.beginPath();g.arc(ox,oy,R,0,TAU);g.clip();g.fillStyle='rgba(6,11,20,.85)';g.fillRect(0,0,W,Hh)}else{g.fillStyle='rgba(4,7,13,.97)';g.fillRect(0,0,W,Hh)}
@@ -58,8 +66,12 @@ function paintMap(g,W,Hh,ox,oy,k,u,R,hits){const hit=(x,y,r,info)=>{if(hits)hits
   g.beginPath();g.arc(ox,oy,Math.max(outer,LIMIT*k),0,TAU);g.arc(ox,oy,HORIZON*k,0,TAU,true);g.fillStyle='rgba(255,59,47,.20)';g.fill();
   g.lineWidth=1*u;g.strokeStyle='rgba(127,167,208,.25)';for(const rr of[Z1,Z2,Z3]){g.beginPath();g.arc(ox,oy,rr*k,0,TAU);g.stroke()}
   g.strokeStyle='rgba(255,138,92,.8)';g.lineWidth=1.4*u;g.beginPath();g.arc(ox,oy,HORIZON*k,0,TAU);g.stroke();
+  /* v0.51: dosah skenovania – mimo okruhu lode a senzorov stanice je mapa zatemnená a asteroidy/piráti sa nekreslia */
+  const SR=scanR(),spx=ship.position.x,spz=ship.position.z,PV=SCAN_SHIP,all=SR===Infinity;
+  const vis=(x,z)=>all||x*x+z*z<SR*SR||(x-spx)*(x-spx)+(z-spz)*(z-spz)<PV*PV;
+  if(!all)mapFog(g,W,Hh,ox,oy,k,u,SR,ox+spx*k,oy+spz*k,PV*k);
   if(!R){g.strokeStyle='rgba(255,59,47,.6)';g.setLineDash([6*u,6*u]);g.beginPath();g.arc(ox,oy,LIMIT*k,0,TAU);g.stroke();g.setLineDash([])}
-  for(const a of asts){if(!a.alive)continue;g.fillStyle=RCOL[a.type];const x=ox+a.pos.x*k,y=oy+a.pos.z*k;
+  for(const a of asts){if(!a.alive||!vis(a.pos.x,a.pos.z))continue;g.fillStyle=RCOL[a.type];const x=ox+a.pos.x*k,y=oy+a.pos.z*k;
     if(a.type==='relic'){const s=3*u;g.beginPath();g.moveTo(x,y-s);g.lineTo(x+s,y);g.lineTo(x,y+s);g.lineTo(x-s,y);g.closePath();g.fill();hit(x,y,s,{t:'ast',a});continue}
     const s=(a.type==='ore'?1.3:1.7)*u*(.6+.4*a.amt/a.max);g.beginPath();g.arc(x,y,s,0,TAU);g.fill();hit(x,y,s,{t:'ast',a})}
   if(mineTarget&&mineTarget.alive){g.strokeStyle='#58d0c0';g.lineWidth=1.2*u;g.beginPath();g.arc(ox+mineTarget.pos.x*k,oy+mineTarget.pos.z*k,4*u,0,TAU);g.stroke()}
@@ -70,7 +82,7 @@ function paintMap(g,W,Hh,ox,oy,k,u,R,hits){const hit=(x,y,r,info)=>{if(hits)hits
   // misie: fialová hviezda na cieli prieskumu/reliktu
   for(const mk of mMarks){const x=ox+mk.m.pos.x*k,y=oy+mk.m.pos.z*k;g.fillStyle=MCOL;g.strokeStyle='#fff';g.lineWidth=.8*u;g.beginPath();for(let i=0;i<10;i++){const an=i/10*TAU-Math.PI/2,rr=(i%2?2.2:5)*u;g.lineTo(x+Math.cos(an)*rr,y+Math.sin(an)*rr)}g.closePath();g.fill();g.stroke();hit(x,y,5*u,{t:'mis',m:mk.m})}
   // piráti: červené trojuholníky v smere letu
-  for(const e of enemies){const x=ox+e.pos.x*k,y=oy+e.pos.z*k,a=e.body.rotation.y,s=(e.kind==='carrier'||e.kind==='dread'?8:e.kind==='frigate'?6:e.kind==='corsair'?4.5:3.2)*u,fx=Math.sin(a),fz=Math.cos(a);
+  for(const e of enemies){if(!vis(e.pos.x,e.pos.z))continue;const x=ox+e.pos.x*k,y=oy+e.pos.z*k,a=e.body.rotation.y,s=(e.kind==='carrier'||e.kind==='dread'?8:e.kind==='frigate'?6:e.kind==='corsair'?4.5:3.2)*u,fx=Math.sin(a),fz=Math.cos(a);
     g.fillStyle=e.leaving?'rgba(255,90,74,.45)':e.passive&&!e.hostile?'#ffb35a':'#ff5a4a';   // oranžová = pasívny pirát
     g.beginPath();g.moveTo(x+fx*s,y+fz*s);g.lineTo(x-fx*s*.7+fz*s*.7,y-fz*s*.7-fx*s*.7);g.lineTo(x-fx*s*.7-fz*s*.7,y-fz*s*.7+fx*s*.7);g.closePath();g.fill();hit(x,y,s,{t:'en',e})}
   // lode NPC: fialový štvorec = zadávateľ misií, zlatý = obchodník
@@ -114,8 +126,14 @@ const GLY={xbox:{A:'A',B:'B',X:'X',Y:'Y',LB:'LB',RB:'RB',LT:'LT',M:'Menu',V:'Vie
 let padType='xbox',padPrev=[],activePad=null,navT=0,navLast=0,dlgIdx=0;
 const G=()=>GLY[padType];
 const padKind=id=>/054c|dualsense|dualshock|playstation|wireless controller/i.test(id||'')?'ps':'xbox';
+const PAD_HOLD=.5,_ph={};
+function padHoldTick(btn,press,dt){const o={};const live=$('#intro').hidden;
+  for(const i of[8,9]){if(press(i)&&live)_ph[i]={t:0,ok:true};const h=_ph[i];if(!h)continue;
+    if(btn(i)){h.t+=dt;if(h.ok&&h.t>=PAD_HOLD){h.ok=false;o['l'+i]=true;rumble(.35,40)}}
+    else{if(h.ok)o['s'+i]=true;_ph[i]=null}}
+  return o}
 function setMode(m){if(pmSynth||inputMode===m)return;inputMode=m;document.body.classList.toggle('pad',m==='pad');
-  document.querySelectorAll('.pg').forEach(el=>el.textContent=G()[el.dataset.g]);applyFocus();lastHint=''}
+  document.querySelectorAll('.pg').forEach(el=>el.textContent=(el.dataset.h?t('pg.hold')+' ':'')+G()[el.dataset.g]);applyFocus();lastHint=''}
 addEventListener('gamepadconnected',e=>{padType=padKind(e.gamepad.id);inputMode='';setMode('pad');toast(t('tt.padOn',{k:padType==='ps'?'PlayStation':'Xbox'}))});
 addEventListener('gamepaddisconnected',()=>{activePad=null;padVec.set(0,0,0);if(inputMode==='pad')setMode(isTouch?'touch':'mouse');toast(t('tt.padOff'))});
 function rumble(k,ms){const va=activePad&&activePad.vibrationActuator;if(!va||!va.playEffect)return;
@@ -139,6 +157,8 @@ function pollPad(dt){let pads=[];try{pads=navigator.getGamepads?navigator.getGam
     if(press(0))dl[dlgIdx].click();else if(press(1)){const c=dl.find(b=>b.dataset.w==='0');if(c)c.click()}padPrev=p.buttons.map((b,i)=>btn(i));return}}
   if(typeof rsOpen==='function'&&rsOpen()){rsPad(p,btn,press,lx,ly,dx,dy,dt);padPrev=p.buttons.map((b,i)=>btn(i));return}   // v0.42: strom výskumu
   if(dead&&$('#deathBtns').classList.contains('on')){if(press(0))respawnConfirm(false);if(press(2))respawnConfirm(true);padPrev=p.buttons.map((b,i)=>btn(i));return}   // v0.36: obrazovka smrti
+  /* v0.51: podržanie Menu (0,5 s) = Nastavenia, podržanie View = Pilot; krátke stlačenie ostáva Mapa / autopilot (reaguje pri pustení) */
+  const hk=padHoldTick(btn,press,dt);
   if(!$('#intro').hidden&&!sheetTab){
     // v0.30: hlavné menu – D-pad / páčka hore-dole = výber, A = potvrdiť, B = späť, X = jazyk
     let v=dy||dx;if(!v&&Math.abs(ly)>.55)v=Math.sign(ly);const key=v;navT-=dt;
@@ -154,9 +174,9 @@ function pollPad(dt){let pads=[];try{pads=navigator.getGamepads?navigator.getGam
       if(press(1)){const f=focusables(),i=f.findIndex(e=>!e.dataset.id);if(i>=0){focusIdx=i;applyFocus()}}
       padPrev=p.buttons.map((b,i)=>btn(i));return}
     if(press(0)&&!pm)activateFocus();if(press(1))closeSheet();if(press(4))cycleTab(-1);if(press(5))cycleTab(1);
-    if(press(3))toggleTab('station');if(press(2))toggleTab('ship');if(press(9))toggleTab('map');if(press(6))toggleTab('gear')}
+    if(press(3))toggleTab('station');if(press(2))toggleTab('ship');if(hk.s9)toggleTab('map');if(hk.l9)toggleTab('settings');if(hk.l8)toggleTab('pilot');if(press(6))toggleTab('gear')}
   else{if(!pm){padVec.set(lx+dx,0,ly+dy);if(padVec.lengthSq()>1)padVec.normalize()}   // s kurzorom myši je ovládanie lode páčkou vypnuté
-    if(press(8))toggleAutopilot();if(!pm&&press(0)){const k=wbReadyKey();if(k&&!(padTgt&&padTgt.en))wbAct(k);else padAct()}else if(!pm&&press(7))padAct();   /* v0.38: A (Xbox) / ✕ (PS) pri stanici, NPC alebo bráne otvorí ich menu */if(!pm&&(press(4)||press(5)))padCycle(press(5)?1:-1);if(press(1))goHome();if(press(3))openSheet('station');if(press(2))openSheet('ship');if(press(9))openSheet('map');if(press(6))openSheet('gear')}
+    if(hk.s8)toggleAutopilot();if(hk.l8)openSheet('pilot');if(hk.l9)openSheet('settings');if(!pm&&press(0)){const k=wbReadyKey();if(k&&!(padTgt&&padTgt.en))wbAct(k);else padAct()}else if(!pm&&press(7))padAct();   /* v0.38: A (Xbox) / ✕ (PS) pri stanici, NPC alebo bráne otvorí ich menu */if(!pm&&(press(4)||press(5)))padCycle(press(5)?1:-1);if(press(1))goHome();if(press(3))openSheet('station');if(press(2))openSheet('ship');if(hk.s9)openSheet('map');if(press(6))openSheet('gear')}
   if(press(11))miniZoom(1,true);   // R3 = ďalšia veľkosť minimapy (dookola)
   const ry=p.axes[3]||0;if(!pm&&Math.abs(ry)>.2)zoom=clamp(zoom*(1+ry*dt*1.2),ZMIN,ZMAX);
   padTargetTick(dt,inputMode==='pad'&&!pm&&!sheetTab&&!dead&&$('#intro').hidden&&!wikiOpen());

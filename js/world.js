@@ -408,19 +408,29 @@ function updateGate(){if(gate){world.remove(gate);pickables=pickables.filter(p=>
 
 /* ---------- Drony ----------
    Každý dok dronov má jedného drona. Jeho vlastnosti závisia od vylepšenia doku (+0..+10) a vloženého AI jadra (čipu):
-   droneStats(m) vráti rate (t/s), cap (t), speed (m/s), dmg a range (obranný režim), res (surovina, ktorú ťaží) a def (či bráni).
+   droneStats(m) vráti rate (t/s), cap (t), speed (m/s), dmg a range (boj), res (surovina, ktorú ťaží) a def (či vie bojovať).
+   v0.51: prepínač ťažba/obrana je preč – dron s odomknutou obranou bráni stanicu pri nájazde sám a pomáha aj pri útoku hráča.
    Bez čipu ťaží len rudu vo vnútorných pásoch. AI jadro od rarity Neobyčajné povolí viridit, od Vzácne obranu, od Epické kryštály. */
 function droneStats(m){const F=MOD_FX.drone,e=m.enh||0;
   const can={ore:true,green:chipCan(m,'green'),crystal:chipCan(m,'crystal')};
   const R=bonus().rs||{},rk=1+((R.dRatePct||0)+(rsK('s2')?RSK.s2.k:0))/100;   // v0.42: výskum + Rojová inteligencia
   return{rate:F.rate*enhK(F.ratePer,e)*(1+chipStat(m,'dMine')/100)*rk,cap:F.cap+F.capPer*e*(1+.08*e)+chipStat(m,'dCap'),speed:F.speed*(1+F.speedPer*e)*(1+chipStat(m,'dSpeed')/100),
-    dmg:F.dmg*enhK(F.dmgPer,e)*(1+chipStat(m,'dDmg')/100),range:F.range,res:can[m.res]?m.res:'ore',can,def:m.mode==='def'&&chipCan(m,'def')}}
+    dmg:F.dmg*enhK(F.dmgPer,e)*(1+chipStat(m,'dDmg')/100),range:F.range,res:can[m.res]?m.res:'ore',can,def:chipCan(m,'def')}}
 /* v0.50: SILA VEŽÍ – rastie so silou pirátov (výdrž stíhačky v aktuálnom sektore a úrovni výzvy oproti sektoru 1 bez výzvy),
    takže veže stačia aj na vysokých výzvach. Krivka vylepšenia: do +3 mierne (+25 % za úroveň), od +4 prudko (×1,5 za úroveň):
    +5 ≈ 3,9×, +10 ≈ 30× základu. Cieľ: 2 veže +5 tesne ubránia nájazd na 3. mape pri výzve +5 (stanica s jadrom 5). */
 const towerCurve=e=>e<=3?1+.25*e:1.75*Math.pow(1.5,e-3);
 function towerPirScale(){const F=PIRATES.fighter,si=Math.max(1,inArena()?5:state.cur);return pirStat(F.hp,si)*tierMul('hp')/pirStat(F.hp,1)}
 function towerStats(m){const F=MOD_FX.tower,e=m.enh||0;const R=bonus().rs||{};return{dmg:F.dmg*towerCurve(e)*towerPirScale()*(1+chipStat(m,'tDmg')/100)*(1+(R.tDmgPct||0)/100),rate:F.rate*(1+chipStat(m,'tRate')/100),range:(F.range+F.rangePer*e+chipStat(m,'tRange'))*(1+(R.tRangePct||0)/100)}}   // v0.42: + výskum
+/* v0.51: DOSAH SKENOVANIA (minimapa a veľká mapa)
+   Asteroidy a piráti sa na mape ukážu len v okruhu SCAN_SHIP okolo lode alebo v okruhu senzorov okolo stanice.
+   Každý senzor pridá SCAN_BASE × (1 + 0,25 × vylepšenie) × (1 + čip), čip = 0,15 + 0,03 × rarita čipu; senzory sa sčítajú.
+   Cieľ: 2 senzory na +5 so vzácnym čipom ≈ 1430 m = 80 % plochy minimapy (polomer 1600 m), viac senzorov / +10 až za okraj.
+   Vyradená stanica neskenuje; v aréne je vidieť všetko. Stále viditeľné: stanica, brána, obchodník, zadávateľ misií, korisť, ciele misií. */
+const SCAN_SHIP=250,SCAN_BASE=256;
+const sensorScan=m=>SCAN_BASE*(1+.25*(m.enh||0))*(1+(m.chip?.15+.03*(m.chip.r||0):0));
+function scanR(){if(typeof inArena==='function'&&inArena())return Infinity;if(typeof stationBroken==='function'&&stationBroken())return 0;
+  const s=cur();let r=0;s.slots.forEach((m,i)=>{if(m&&m.t==='sensor'&&i<slotsFor(s.core))r+=sensorScan(m)});return r}
 const sensorIncome=m=>MOD_FX.sensor.green*enhK(MOD_FX.sensor.incPer,m.enh||0)*(1+chipStat(m,'sInc')/100);
 const droneIncome=m=>MOD_FX.drone.income*enhK(MOD_FX.drone.ratePer,m.enh||0)*(1+chipStat(m,'dMine')/100);
 const DRONE_GEO=new THREE.OctahedronGeometry(.55,0);
@@ -480,11 +490,12 @@ function syncDrones(){const s=cur();const docks=[];s.slots.forEach((m,i)=>{if(sl
   while(drones.length>docks.length){const d=drones.pop();world.remove(d.g);world.remove(d.line);if(d.t)d.t.claims=Math.max(0,d.t.claims-1);if(d.load>0)state[d.ltype]+=d.load}
   drones.forEach((d,i)=>{d.slot=docks[i];d.home.copy(slotPos(docks[i])).multiplyScalar(.85).setY(1);d.e.material.color.set(RAR[modRar(s.slots[d.slot])].col)})}
 /* Dron: seek (hľadá asteroid svojej suroviny) -> go (letí) -> mine (ťaží do plnej kapacity) -> back (vezie na stanicu).
-   V obrannom režime počas nájazdu pirátov namiesto ťažby útočí (droneDefend v combat.js). Keď je stanica vyradená, drony stoja. */
+   Dron s odomknutou obranou počas nájazdu a pri útoku hráča na piráta preruší ťažbu (droneDefend v combat.js), potom pokračuje. Keď je stanica vyradená, drony stoja. */
 function tickDrones(dt,tt){const s=cur();
   for(const d of drones){const p=d.g.position;const m=s.slots[d.slot];if(!m)continue;const st=droneStats(m);
     if(stationDown>0){d.line.visible=false;moveTo(d.g,d.home,st.speed,dt,.3);continue}
-    if(st.def&&enemies.some(e=>!e.passive)&&droneDefend(d,st,dt)){d.line.visible=false;continue}
+    if(st.def&&enemies.length&&droneDefend(d,st,dt)){d.line.visible=false;d.fought=true;continue}
+    if(d.fought){d.fought=false;if(d.state==='mine')d.state='go'}   // po boji sa vráti k asteroidu a ťaží ďalej
     if(d.wait>0){d.wait-=dt;continue}
     if(d.state==='seek'){let best=null,bd=1e9;for(const a of asts){if(!a.alive||a.amt<=0||(a.type!==st.res&&a.type!=='mix')||(st.res==='ore'&&a.type!=='mix'&&a.rmax>Z2))continue;const dd=p.distanceTo(a.pos)+a.claims*25;if(dd<bd){bd=dd;best=a}}
       if(best){d.t=best;best.claims++;d.state='go'}else{d.wait=1}}

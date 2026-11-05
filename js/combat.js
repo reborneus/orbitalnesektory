@@ -142,9 +142,22 @@ function towersFire(dt){if(stationDown>0)return;const s=cur();s.slots.forEach((m
   towerCd[i]=1/ts.rate;const tu=stationAnim&&stationAnim.turrets.find(x=>x.i===i);if(tu)tu.kick=1;/* spätný ráz hlavne */
   const from=tu?tu.muz.getWorldPosition(new V3()):slotPos(i).setY(STATION_Y+DECK_TOP+3);towerBurst(from,tg,modRar(m),ts.dmg)})}   /* v0.34: strely ako hráč, rarita = vylepšenie veže */
 /* Dron v obrannom režime: letí k pirátovi pri stanici a strieľa; vráti false, ak v okolí stanice nie je nepriateľ. */
-function droneDefend(d,st,dt){const tg=nearestEnemy(new V3(0,0,0),70);if(!tg)return false;
-  d.cd-=dt;const dist=d.g.position.distanceTo(tg.pos);moveTo(d.g,tg.pos,st.speed*1.2,dt,st.range*.7);
-  if(dist<st.range&&d.cd<=0){d.cd=1;fireBolt(d.g.position,tg.pos,'#ffd27a',st.dmg,'drone',PIRATES.playerBolt)}return true}
+/* v0.51: BOJ DRONOV
+   1) Nájazd: útočníci do 70 m od stanice – dron strieľa plným poškodením (st.dmg).
+   2) Útok hráča: keď hráč útočí na piráta (attackTarget) do DRONE_LEASH od stanice, drony mu prídu pomôcť, ale len slabo –
+      každý dron dáva DRONE_HELP (5 % pri +0 až 10 % pri +10) z DPS hráča. Po boji sa drony vrátia k ťažbe. */
+const DRONE_LEASH=Z2,DRONE_HELP=e=>.05+.005*(e||0);
+const _dO=new V3();
+function droneDefend(d,st,dt){let tg=raidActive?nearestEnemy(_dO.set(0,0,0),70):null,help=false;
+  if(tg&&tg.passive&&!tg.aggro)tg=null;
+  if(!tg&&attackTarget&&enemies.includes(attackTarget)&&!attackTarget.leaving&&Math.hypot(attackTarget.pos.x,attackTarget.pos.z)<DRONE_LEASH){tg=attackTarget;help=true}
+  if(!tg)return false;
+  d.cd=(d.cd||0)-dt;const dist=d.g.position.distanceTo(tg.pos);moveTo(d.g,tg.pos,st.speed*1.2,dt,st.range*.7);
+  if(dist<st.range&&d.cd<=0){d.cd=1;
+    const m=cur().slots[d.slot],dmg=help?playerDps()*DRONE_HELP(m&&m.enh):st.dmg;   // pri pomoci 1 výstrel/s = podiel z DPS hráča
+    fireBolt(d.g.position,tg.pos,'#ffd27a',dmg,'drone',PIRATES.playerBolt)}return true}
+/* DPS hráča (rovnaký výpočet ako Pilot → Štatistiky) */
+const playerDps=()=>shipVal('gun')*shipVal('gunRate')*hitChance()*(1+critChance()*(critMult()-1));
 
 /* ---------- správanie pirátov a nájazdy ---------- */
 const _ev=new V3(),_tp=new V3();

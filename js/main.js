@@ -70,7 +70,7 @@ function start(data){const hs=data&&data.state;
   if(!stored&&(state.lang==='sk'||state.lang==='en'))lang=state.lang;state.lang=lang;
   bonusDirty();buildShip(state.shipId);applyMini();applyHud();applyHudMode();applyMenuAlpha();applyGfx();
   resize();buildSector();ship.position.set(0,0,STATION_R+8);camTarget.copy(ship.position);
-  document.querySelectorAll('.pg').forEach(el=>el.textContent=G()[el.dataset.g]);
+  document.querySelectorAll('.pg').forEach(el=>el.textContent=(el.dataset.h?t('pg.hold')+' ':'')+G()[el.dataset.g]);
   if(hs&&hs.v===3){hideMenu();applyLang()}else{applyLang();showMenu('main')}
   frame()}
 /* v0.31.2: najprv sa načíta úložisko (localStorage + IndexedDB), potom sa hra spustí */

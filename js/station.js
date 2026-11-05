@@ -10,6 +10,7 @@ function fxLines(m){const L=[];const row=(k,v)=>L.push(`<li><span>${t(k)}</span>
   if(m.t==='drone'){const d=droneStats(m);row('fx.rate',nf2(d.rate)+' t/s');row('fx.cap',fmtG(Math.round(d.cap))+' t');row('fx.speed',nf2(d.speed)+' m/s');
     row('fx.res',RES.filter(r=>d.can[r]).map(r=>t('res.'+r)).join(', '));if(chipCan(m,'def'))row('fx.dmg',nf2(d.dmg));row('fx.inc',`+${nf2(droneIncome(m)*60)} ${t('res.ore')}/min`)}
   if(m.t==='tower'){const w=towerStats(m);row('fx.dmg',nf2(w.dmg));row('fx.frate',nf2(w.rate)+' /s');row('fx.range',nf2(w.range)+' m')}
+  if(m.t==='sensor'){row('fx.scan','+'+fmtG(sensorScan(m))+' m');row('fx.scanT',(scanR()===Infinity?'∞':fmtG(scanR()))+' m')}
   if(m.t==='sensor')row('fx.inc',`+${nf2(sensorIncome(m)*60)} ${t('res.green')}/min`);
   row('fx.inf','+'+modInf(m));return `<ul class="stats">${L.join('')}</ul>`}
 const nf2=x=>fmtG(x);   // oddeľovač tisícov / skrátený tvar s M (util.js)
@@ -30,7 +31,7 @@ function chipHtml(m,i){let h=`<div class="sec-h"><span>${t('chip.h')}</span></di
   return h}
 function droneCtl(m,i){const d=droneStats(m);
   return `<div class="mctl"><span>${t('fx.res')}</span><div class="langs">${RES.map(r=>`<button class="langb" data-act="mres" data-i="${i}" data-r="${r}" aria-pressed="${d.res===r}" ${d.can[r]?'':'disabled'}>${t('res.'+r)}</button>`).join('')}</div></div>
-    <div class="mctl"><span>${t('fx.mode')}</span><div class="langs"><button class="langb" data-act="mmode" data-i="${i}" data-v="mine" aria-pressed="${!d.def}">${t('mode.mine')}</button><button class="langb" data-act="mmode" data-i="${i}" data-v="def" aria-pressed="${d.def}" ${chipCan(m,'def')?'':'disabled'}>${t('mode.def')}</button></div></div>`}
+    <p class="note" style="margin:0">${t(chipCan(m,'def')?'drn.defOn':'drn.defOff')}</p>`}
 function slotCard(s,i){const m=s.slots[i];const open=openSlot===i?' open':'';
   if(!m)return `<details class="mslot empty" data-slot="${i}"${open}><summary><span class="mthumb noimg">+</span><span class="eqc-txt"><b>${t('st.emptySlot',{n:i+1})}</b><small>${t('st.buildHere')}</small></span></summary>
     <div class="mbody">${Object.keys(MOD).map(k=>{const c=MOD[k].cost(countMod(s,k));return `<div class="mbuild">${thumbImg(k,1,'mthumb sm')}<div class="eqc-txt"><b>${t('mod.'+k)} <span class="lv">+${MOD[k].inf} ${t('fx.inf').toLowerCase()}</span></b><small class="wrap">${t('mod.'+k+'.d')}</small><div class="costs">${costHtml(c)}</div></div>${actBtn('mbuild',t('btn.build'),c,false,`data-mod="${k}" data-i="${i}"`)}</div>`}).join('')}</div></details>`;
@@ -88,9 +89,8 @@ function stationAct(act,b){if(act==='stTab'){stTab=b.dataset.v;renderSheet();ret
     case 'chipEnh':{const it=m&&m.chip;if(!it||it.enh>=enhMax(it))return true;const c=enhCost(it);if(!afford(c)){toast(t('tt.noRes'));return true}
       pay(c);if(Math.random()<enhChance(it)){it.enh++;addXP(XP.enh*it.enh);toast(t('tt.enhOk',{n:itemName(it)}),{rar:it.r})}else toast(t('tt.enhFail',{n:it.enh}),'bad');return done()}
     case 'chipOut':{if(!m||!m.chip)return true;if(state.inv.length>=INV_MAX){toast(t('tt.invFull'),'bad');return true}
-      state.inv.push(m.chip);m.chip=null;if(m.t==='drone'){const d=droneStats(m);if(!d.can[m.res])m.res='ore';if(!chipCan(m,'def'))m.mode='mine'}return done(t('tt.chipOut'))}
+      state.inv.push(m.chip);m.chip=null;if(m.t==='drone'){const d=droneStats(m);if(!d.can[m.res])m.res='ore';}return done(t('tt.chipOut'))}
     case 'mres':{if(!m)return true;const d=droneStats(m);if(d.can[b.dataset.r])m.res=b.dataset.r;return done()}
-    case 'mmode':{if(!m)return true;m.mode=b.dataset.v==='def'&&chipCan(m,'def')?'def':'mine';return done()}
     case 'msell':{if(!m)return true;
       if(!b.dataset.arm||performance.now()-(+b.dataset.arm)>3000){b.dataset.arm=performance.now();b.textContent=t('btn.sellSure');setTimeout(()=>{if(b.isConnected)b.textContent=t('btn.msell')},3000);return true}
       const r=modRefund(s,m);pay(C(-r.ore,-r.green,-r.crystal,-r.cr));

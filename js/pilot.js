@@ -36,7 +36,7 @@ function addXP(n,src){if(!(n>0)||!state)return;const P=pstate();
 function xpAt(n){addXP(n*xpSecMul())}   // XP s násobkom sektora
 function hudPilot(){const el=$('#pilotBtn');if(!el||!state)return;const P=pstate();const need=xpNeed(P.lv);
   $('#plvTxt').textContent=t('pl.lv',{n:P.lv});$('#xpBar').style.width=(P.lv>=PILOT_MAX?100:P.xp/need*100)+'%';
-  $('#xpTxt').textContent=P.lv>=PILOT_MAX?'MAX':`${fmtN(P.xp)}/${fmtN(need)} XP`;el.classList.toggle('pts',P.pts>0)}
+  $('#xpTxt').textContent=P.lv>=PILOT_MAX?'MAX':`${fmtN(P.xp)}/${fmtN(need)} XP`;el.classList.toggle('pts',P.pts>0);if(typeof hudRank==='function'){hudRank();hudPts()}}
 
 /* ==================== v0.40.4: ŠTATISTIKY LODE (Pilot → Štatistiky) ====================
    Každá hodnota sa počíta 3×: Základ = loď s vylepšeniami (bez výbavy a pilota), + Výbava = aj s nasadenými predmetmi,
@@ -81,7 +81,7 @@ function renderStats(){let h=`<p class="note" style="margin:0">${t('sx.note',{s:
     h+='</tbody></table></div>'}
   return h}
 function renderPilot(){const P=pstate(),need=xpNeed(P.lv);
-  let h=`<div class="segs pltabs" style="grid-template-columns:repeat(3,1fr)">${['lv','stats','rs'].map(k=>`<button class="seg" data-act="plTab" data-v="${k}" aria-pressed="${plTab===k}">${t('pl.tab.'+k)}</button>`).join('')}</div>`;
+  let h=`<div class="segs pltabs" style="grid-template-columns:repeat(3,1fr)">${['lv','stats','rs'].map(k=>`<button class="seg" data-act="plTab" data-v="${k}" aria-pressed="${plTab===k}">${t('pl.tab.'+k)}${(k==='lv'?P.pts:k==='rs'?(P.rs&&P.rs.pts):0)?`<i class="tabpts">${k==='lv'?P.pts:P.rs.pts}</i>`:''}</button>`).join('')}</div>`;
   if(plTab==='stats')return h+renderStats();
   if(plTab==='rs')return h+renderResearch();   // v0.42: strom výskumu (research.js)
   h+=`<div class="card plcard"><h3>${t('pl.lv',{n:P.lv})} <span class="lv">${P.lv>=PILOT_MAX?'MAX':`${fmtN(P.xp)} / ${fmtN(need)} XP`}</span></h3>

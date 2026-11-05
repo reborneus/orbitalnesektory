@@ -215,7 +215,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(hangarAct(act,b))return;
   if(escortAct(act,b))return; // pomocné drony (escort.js) // hangár (hangar.js)
   if(act==='quit'){quitGame();return}
-  if(act==='hudc'||act==='huda'){hudModeAct(act,b);return}
+  if(act==='hudc'||act==='huda'||act==='hudr'){hudModeAct(act,b);return}
   if(act==='radMode'){state.radMode=b.dataset.v;save();renderSheet();return}
   if(act==='core'){const c=coreCost(s.core);if(s.core<coreMax()&&afford(c)){pay(c);s.core++;rebuildStation();toast(t('tt.coreUp',{n:s.core}));changed()}}
   else if(act==='ship'){const k=b.dataset.k;const u=UP[k];const L=state.ship[k];const c=upCost(k,L);if(L<u.max&&afford(c)){pay(c);
@@ -265,7 +265,7 @@ function nmRecord(){let r=null;try{r=JSON.parse(localStorage.getItem(SAVE_KEY+'-
 function setLang(l){lang=l;if(state)state.lang=l;try{localStorage.setItem('os-lang',l)}catch(e){}applyLang();if(state)save()}
 function applyLang(){document.documentElement.lang=lang;document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.dataset.t));
   document.querySelectorAll('.dock button').forEach(b=>{const l=b.querySelector('[data-t]');const txt=l?t(l.dataset.t):'Wiki';b.setAttribute('aria-label',txt);b.title=txt});
-  mini.setAttribute('aria-label',t('mini'));if(!$('#intro').hidden)renderIntro();renderSheet();lastHint='';updateHUD()}
+  mini.setAttribute('aria-label',t('mini'));document.querySelectorAll('.pg').forEach(el=>{if(typeof G==='function')el.textContent=(el.dataset.h?t('pg.hold')+' ':'')+G()[el.dataset.g]});if(typeof hudRankReset==='function'&&state)hudRankReset();if(radOpen)radLayout();if(!$('#intro').hidden)renderIntro();renderSheet();lastHint='';updateHUD()}
 /* v0.30: úvodná obrazovka, nová hra a výber obtiažnosti sú v js/menu.js (hlavné menu) */
 
 document.querySelectorAll('.dock [data-tab]').forEach(b=>b.addEventListener('click',()=>toggleTab(b.dataset.tab)));
