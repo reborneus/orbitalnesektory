@@ -112,7 +112,7 @@ function tickNpc(dt,tt){for(const n of npcs){n.g.rotation.y+=dt*.05;const s=14*(
 function tstate(){if(!state.trader)state.trader={};let T=state.trader[state.cur];
   if(!T||Date.now()>=T.until){T=state.trader[state.cur]={until:Date.now()+TRADER_TIME*1000,stock:traderStock()}}return T}
 function traderStock(){const cap=TRADER_RAR[state.cur]||{max:4,top:.3};const a=[];
-  for(let i=0;i<TRADER_STOCK;i++){const r=rollRarity(1+state.cur*.3+(typeof tierMul==='function'?tierMul('mf'):0),2,cap);a.push(genItem(r,SECTORS[state.cur].ilvl+5+Math.floor(Math.random()*4),Math.random()<.15?pick(CHIP_BASES):null))}return a}
+  for(let i=0;i<TRADER_STOCK;i++){const r=rollRarity(1+state.cur*.3,2,cap,1+(typeof tierMul==='function'?tierMul('mf'):0));a.push(genItem(r,SECTORS[state.cur].ilvl+5+Math.floor(Math.random()*4),Math.random()<.15?pick(CHIP_BASES):null))}return a}
 const buyPrice=it=>Math.round(RAR[it.r].salv*(1+it.ilvl/10)*NUM*TRADER_BUY*secGain(state.cur));
 const sellPrice=it=>Math.round(salvValue(it)*TRADER_SELL);
 function renderTrader(){const T=tstate(),near=nearNpc('trader');const left=Math.max(0,Math.ceil((T.until-Date.now())/1000));

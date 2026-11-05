@@ -20,7 +20,7 @@ const SAVE_MIGRATIONS=[
     if(s.missions)for(const m of[...(s.missions.active||[]),...(s.missions.offers||[])])if(m.type==='deliver'){m.need*=4;m.prog*=4}return s}
 ];
 /* Spoločné nastavenia: tieto polia stavu sa neukladajú do slotu, ale do os-prefs (platia pre všetky sloty aj hlavné menu). */
-const PREF_KEYS=['menuAlpha','hudCompact','hudAuto','padMouse','miniSize','hudPos','cmpMode','snd','gfx','holdFollow','lootFilter'];   // v0.46: lootFilter = rarity, ktoré sa hneď predajú
+const PREF_KEYS=['menuAlpha','hudCompact','hudAuto','padMouse','miniSize','hudPos','cmpMode','snd','gfx','holdFollow','lootFilter','lootRules'];   // v0.46: lootFilter = rarity, ktoré sa hneď predajú
 let curSlot=null,saveErrShown=false;
 const saveKey=(n,k)=>`os-save-${n}-${k}`;
 /* ---- v0.31.2: úložisko s dvoma zálohami ----

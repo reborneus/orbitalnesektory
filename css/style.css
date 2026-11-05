@@ -920,3 +920,10 @@ body.pad,body.pad *{cursor:none!important}
 .lfcard .lfrow{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .lfb{border:1px solid color-mix(in srgb,var(--rc) 60%,transparent)!important;border-radius:6px;color:var(--rc)!important;padding:5px 9px}
 .lfb.off{background:rgba(255,60,50,.12)!important;color:color-mix(in srgb,var(--rc) 45%,#888)!important;text-decoration:line-through;border-style:dashed!important}
+/* v0.48: loot filter s podmienkami */
+.lfcard .lfrows{grid-column:1/-1;display:grid;gap:6px;margin-top:6px}
+.lfr{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:6px 8px;border:1px solid var(--line);border-radius:8px}
+.lfr>b{min-width:96px;font-size:13px}.lfr .langs{margin-left:auto}.lfr.off>b{text-decoration:line-through;opacity:.6}
+.lfc{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:12.5px;color:var(--muted)}
+.lfn{display:inline-flex;align-items:center;gap:4px}.lfn b{min-width:16px;text-align:center;color:var(--text)}.lfn.g{color:#ffd84a}.lfn.r{color:#ff5a6a}
+.lfn .langb{padding:1px 7px}

@@ -16,8 +16,8 @@ const RAR=[
   {k:'ordinary', col:'#5fd36b',w:18,  aff:[1,1],mult:.9, enh:6, salv:4},
   {k:'uncommon', col:'#4a9dff',w:11,  aff:[1,2],mult:1,  enh:8, salv:8},
   {k:'rare',     col:'#ffd84a',w:6.5, aff:[2,2],mult:1.1,enh:10,salv:15},
-  {k:'epic',     col:'#b36bff',w:3.5, aff:[3,3],mult:1.25,enh:12,salv:30},
-  {k:'legendary',col:'#ff8a2a',w:1.6, aff:[3,4],mult:1.4,enh:15,salv:60},
+  {k:'epic',     col:'#b36bff',w:2.625,aff:[3,3],mult:1.25,enh:12,salv:30},
+  {k:'legendary',col:'#ff8a2a',w:1.2, aff:[3,4],mult:1.4,enh:15,salv:60},
   {k:'mythic',   col:'#ff3b5c',w:.5,  aff:[4,4],mult:1.6,enh:17,salv:120},
   {k:'divine',   col:'#ffe9a0',w:.15, aff:[5,5],mult:1.8,enh:19,salv:250},
   {k:'primal',   col:'#7ff6ff',w:.05, aff:[6,6],mult:2.1,enh:20,salv:500},
@@ -110,11 +110,16 @@ const ILVL_ZONE={1:0,2:1,3:4,4:7,5:9};
    Mytické, Božské a Prvotné sú špeciálne odmeny (aréna); Mytické len s veľmi malou šancou v poslednom sektore.
    cap = {max, top} alebo null (bez stropu). */
 const secRar=i=>SECTORS[i]&&SECTORS[i].rar||{max:9,top:1};
-function rarityWeights(mf,minR=0,cap=null){const mx=cap?cap.max:9;minR=Math.min(minR,mx);
+/* v0.48: mf = základ (zdroj, zóna, sektor) – mení tvar rozdelenia ako doteraz; M = násobič šance na Vzácne a lepšie
+   zo všetkých bonusov (výbava, pilot, výskum, úroveň výzvy): +66 % = šanca × 1,66 (napr. 0,1 → 0,166).
+   Epické a Legendárne majú o 25 % menšiu základnú váhu (v0.48). */
+function rarityWeights(mf,minR=0,cap=null,M=1){const mx=cap?cap.max:9;minR=Math.min(minR,mx);
   return RAR.map((R,i)=>i<minR||i>mx?0:R.w*Math.pow(1+mf,Math.max(0,i-3)*.35)*(cap&&i===mx?cap.top:1))}
 /* Presné pravdepodobnosti rarít (súčet 1) – používa ich aj príručka. */
-function rarityProbs(mf,minR=0,cap=null){const w=rarityWeights(mf,minR,cap);const sum=w.reduce((a,b)=>a+b,0);return w.map(x=>x/sum)}
-function rollRarity(mf,minR=0,cap=null){const w=rarityWeights(mf,minR,cap);
+function rarityProbs(mf,minR=0,cap=null,M=1){const w=rarityWeights(mf,minR,cap);const sum=w.reduce((a,b)=>a+b,0);const p=w.map(x=>x/sum);
+  if(M===1)return p;const hi=p.reduce((a,x,i)=>a+(i>=4?x:0),0);if(hi<=0||hi>=1)return p;
+  const k=Math.min(M,1/hi),lo=(1-hi*k)/(1-hi);return p.map((x,i)=>x*(i>=4?k:lo))}   // šanca na Vzácne+ presne × M, nižšie rarity dorovnajú súčet
+function rollRarity(mf,minR=0,cap=null,M=1){const w=rarityProbs(mf,minR,cap,M);
   let x=Math.random()*w.reduce((a,b)=>a+b,0);for(let i=0;i<w.length;i++){x-=w[i];if(x<=0)return i}return w.length-1}
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -127,9 +132,11 @@ function genItem(r,ilvl,bk){bk=bk||pick(SHIP_BASES);const B=BASES[bk];const R=RA
   return{id:state.nextId++,b:bk,r,ilvl,enh:0,imp:rollQ(B.imp,ilvl,r,2),aff,wb:B.slot==='weapon'?rollWB(r,ilvl):undefined,
     title:r>=6?Math.floor(Math.random()*TITLE_COUNT):-1,lock:false,nw:true}}
 /* Predmet, ktorý padne zo zdroja: mf zo zdroja + pásu + sektora + vlastností výbavy. */
-function dropItem(source,zone,minR=0,cap){const tm=typeof tierMul==='function';const mf=MF_SOURCE[source]+MF_ZONE[zone]+state.cur*.25+bonus().mf/100+(tm?tierMul('mf'):0);
+/* násobič šance na lepšiu korisť zo všetkých bonusov (v0.48: násobí, nepripočítava sa) */
+const mfMul=()=>(1+(bonus().mf||0)/100)*(1+(typeof tierMul==='function'?tierMul('mf'):0));
+function dropItem(source,zone,minR=0,cap){const tm=typeof tierMul==='function';const mf=MF_SOURCE[source]+MF_ZONE[zone]+state.cur*.25;
   let c=cap===undefined?secRar(state.cur):cap;if(c&&tm&&state.tier)c={max:c.max,top:Math.min(2,c.top*tierMul('top'))};
-  let r=rollRarity(mf,minR,c);if(typeof rsK==='function'&&rsK('e3')&&Math.random()<RSK.e3.p/100)r=Math.min(RAR.length-1,r+1);   // v0.42: Zlatý dotyk
+  let r=rollRarity(mf,minR,c,mfMul());if(typeof rsK==='function'&&rsK('e3')&&Math.random()<RSK.e3.p/100)r=Math.min(RAR.length-1,r+1);   // v0.42: Zlatý dotyk
   const ilvl=SECTORS[state.cur].ilvl+ILVL_ZONE[zone]+Math.floor(Math.random()*3);
   const chip=Math.random()<(CHIP_CHANCE[source==='corsair'||source==='frigate'?'enemy':source]||0);return genItem(r,ilvl,chip?pick(CHIP_BASES):null)}
 

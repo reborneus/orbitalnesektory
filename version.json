@@ -1,15 +1,10 @@
 {
-  "version": "0.47.0",
+  "version": "0.48.0",
   "date": "2026-11-05",
   "notes": [
-    "Nový model zadávateľa misií: biela veža s červenými svetlami – široká základňa so žiariacim podbruškom, vysoká veža so svetelnou štrbinou, zahnuté čepele a antény.",
-    "Nový model obchodníka: tmavosivá bojová stanica s modrými svetlami – pancierový trup s vežami, kruhový disk s kupolou a modrými prstencami, malé lode v sprievode.",
-    "Obchodník je teraz na každej mape. Prvú sprievodnú loď predáva v sektore 4 (Cygnus), druhú až v sektore 5 (Andromeda).",
-    "Z pirátov padá aj malé množstvo surovín rovno do nákladu. Náklad lode je ešte 2× väčší.",
-    "Štíty rastú rýchlejšie a zvládnu až asi 5× viac ako trup (body štítu z predmetov ×3, štítom pomáhajú % trupu aj nová vlastnosť % štítu). Radiácia teraz pomerne ubíja aj štíty, do trupu ostáva rovnaká.",
-    "Rýchlosť sa zobrazuje v cs (cosmic speed); maximum je 1 400 cs (160 m/s) a dosiahne sa asi pri 60 % všetkých vylepšení. Rýchlosť nad limit sa prepočíta na dosah zbraní.",
-    "Dosah pirátov rastie s tvojím dosahom zbraní už len z polovice – vylepšovať dosah sa oplatí.",
-    "Autopilot pri nájazde pirátov na stanicu preruší ťažbu a najprv bráni stanicu, aby si neprišiel o suroviny.",
-    "Príručka: nová kapitola Štíty, rýchlosť, náklad a dosah; aktualizovaný obchodník."
+    "Epické a Legendárne predmety padajú o 25 % menej často.",
+    "Šanca na lepšiu korisť z výbavy, pilota, výskumu a úrovne výzvy sa už nepripočítava, ale násobí: +66 % = šanca na Vzácne a lepšie × 1,66 (napr. 10 % → 16,6 %). Základná šanca sa nemení.",
+    "Loot filter: pre každú raritu Nechať, Predať alebo Podmienka – nechá si len predmety s aspoň zadaným počtom zlatých (vzácnych) vlastností, červených (mýtických) vlastností alebo so všetkými vlastnosťami červenými. Staršie nastavenie filtra sa prevedie automaticky.",
+    "Príručka: loot filter s podmienkami a násobenie šance na korisť."
   ]
 }

@@ -579,7 +579,13 @@ function cosmicCube(col,seed,variant=0,size=1){const g=new THREE.Group(),C=new T
    state.lootFilter = zoznam rarít (indexy RAR), ktoré sa nezobrazia ako korisť: predmet sa hneď na pozadí rozoberie
    za kredity (rovnako ako tlačidlo Rozobrať). Predané predmety sa zhrnú do jednej správy za ~3 s. */
 let _lfN=0,_lfC=0,_lfT=null;
-const lootFiltered=it=>!!(it&&state&&Array.isArray(state.lootFilter)&&state.lootFilter.includes(it.r));
+/* v0.48: pravidlá podľa rarity – state.lootRules[r] = {m:'keep'|'sell'|'cond', g, r, a}:
+   cond = nechať si predmet len ak má aspoň g vzácnych (zlatých, ≥ 90 % rozsahu) vlastností ALEBO aspoň r mýtických (červených, 100 %)
+   ALEBO (a = true) všetky vlastnosti mýtické; inak sa hneď predá. Staršie nastavenie (zoznam rarít) sa prevedie na 'sell'. */
+function lfRules(){if(!state.lootRules){state.lootRules={};if(Array.isArray(state.lootFilter))for(const r of state.lootFilter)state.lootRules[r]={m:'sell',g:1,r:1,a:false}}return state.lootRules}
+function lfQual(it){const S=itemStats(it).filter(x=>x.q!=null);const gold=S.filter(x=>x.q>=.9).length,red=S.filter(x=>x.q>=.995).length;return{gold,red,all:S.length>0&&red===S.length}}
+function lootFiltered(it){if(!it||!state)return false;const R=lfRules()[it.r];if(!R||R.m==='keep')return false;if(R.m==='sell')return true;
+  const Q=lfQual(it);return!((R.g>0&&Q.gold>=R.g)||(R.r>0&&Q.red>=R.r)||(R.a&&Q.all))}
 function lootAutoSell(it){if(!lootFiltered(it))return false;const c=salvValue(it);state.credits+=c;_lfN++;_lfC+=c;
   if(!_lfT)_lfT=setTimeout(()=>{toast(t('lf.sold',{n:_lfN,c:fmtN(_lfC)}));_lfN=0;_lfC=0;_lfT=null;if(typeof bump==='function')bump('#crTxt')},3000);return true}
 function spawnLoot(it,pos){if(lootAutoSell(it))return;const g=new THREE.Group();const c=new THREE.Color(RAR[it.r].col);const tm={toneMapped:false};

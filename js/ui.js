@@ -135,9 +135,12 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
       ${SECTORS[state.cur].res.includes(state.autoRes)?'':`<div class="stat" style="color:var(--warn)">${t('set.ap.miss',{r:t('res.'+state.autoRes)})}</div>`}</div>`;
       h+=`<div class="card"><h3>${t('set.ret')}</h3>${onoff('autoReturn',state.autoReturn!==false)}<p>${t('set.ret.d')}</p></div>`;
       h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
-      {const F=state.lootFilter||[];   // v0.46: loot filter – zvolené rarity sa hneď predajú
-        h+=`<div class="card lfcard"><h3>${t('lf.h')}</h3><p>${t('lf.d')}</p><div class="lfrow">${RAR.map((R,i)=>`<button class="langb lfb${F.includes(i)?' off':''}" data-act="lootF" data-r="${i}" aria-pressed="${F.includes(i)}" style="--rc:${R.col}">${F.includes(i)?'✕ ':''}${t('r.'+R.k)}</button>`).join('')}</div>
-        <div class="stat">${F.length?t('lf.on',{n:F.length}):t('lf.off')}</div></div>`}
+      {const L=lfRules();let ns=0,nc=0;   // v0.46/v0.48: loot filter – pre každú raritu: nechať / predať / podmienka (zlaté a červené vlastnosti)
+        const rows=RAR.map((R,i)=>{const r=L[i]||{m:'keep',g:1,r:1,a:false};if(r.m==='sell')ns++;if(r.m==='cond')nc++;
+          const seg=['keep','sell','cond'].map(m=>`<button class="langb" data-act="lfM" data-r="${i}" data-v="${m}" aria-pressed="${r.m===m}">${t('lf.m.'+m)}</button>`).join('');
+          const num=(k,v,cl)=>`<span class="lfn ${cl}">${t('lf.'+k)} ≥ <button class="langb" data-act="lfN" data-r="${i}" data-k="${k}" data-d="-1" aria-label="−">−</button><b>${v||'–'}</b><button class="langb" data-act="lfN" data-r="${i}" data-k="${k}" data-d="1" aria-label="+">+</button></span>`;
+          return `<div class="lfr${r.m==='sell'?' off':''}"><b style="color:${R.col}">${t('r.'+R.k)}</b><div class="langs">${seg}</div>${r.m==='cond'?`<div class="lfc"><span>${t('lf.keepIf')}</span>${num('g',r.g,'g')}${num('r',r.r,'r')}<button class="langb" data-act="lfA" data-r="${i}" aria-pressed="${!!r.a}">${r.a?'✓ ':''}${t('lf.a')}</button></div>`:''}</div>`}).join('');
+        h+=`<div class="card lfcard"><h3>${t('lf.h')}</h3><p>${t('lf.d')}</p><div class="lfrows">${rows}</div><div class="stat">${ns||nc?t('lf.on2',{n:ns,c:nc}):t('lf.off')}</div></div>`}
       h+=`<div class="card"><h3>${t('set.hunt')}</h3>${onoff('autoHunt',!!state.autoHunt)}<p>${t('set.hunt.d')}</p>
         <div class="subopt"><span>${t('set.hunt.pas')}</span>${onoff('huntPassive',!!state.huntPassive)}</div><div class="subopt"><span>${t('set.hunt.void')}</span>${onoff('huntVoid',!!state.huntVoid)}</div><p>${t('set.hunt.void.d')}</p></div>`;
       h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`}
@@ -200,7 +203,9 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(act==='grp'){shipGrp=b.dataset.g;focusIdx=SHIP_TABS.indexOf(shipGrp);renderSheet();return}
   if(act==='lang'){setLang(b.dataset.l);return}
   if(act==='opt'){const k=b.dataset.k,v=b.dataset.v==='1';if(k==='autoPilot'){if(!!state.autoPilot!==v)toggleAutopilot();return}state[k]=v;save();renderSheet();return}
-  if(act==='lootF'){const r=+b.dataset.r,F=(state.lootFilter||[]).slice(),i=F.indexOf(r);if(i>=0)F.splice(i,1);else F.push(r);state.lootFilter=F.sort((a,c)=>a-c);save();renderSheet();return}
+  if(act==='lfM'||act==='lfN'||act==='lfA'){const L=lfRules(),i=+b.dataset.r,r=L[i]||(L[i]={m:'keep',g:1,r:1,a:false});
+    if(act==='lfM')r.m=b.dataset.v;else if(act==='lfN'){const k=b.dataset.k;r[k]=clamp((r[k]||0)+(+b.dataset.d),0,7)}else r.a=!r.a;
+    state.lootFilter=null;save();renderSheet();return}
   if(act==='ares'){state.autoRes=b.dataset.r;save();renderSheet();if(state.autoPilot)toast(t('tt.apOn',{r:t('res.'+state.autoRes)}));return}
   if(act==='repair'){if(!stationOk()){toast(t('rep.far'));return}const hm=shipVal('hull');const need=Math.ceil((hm-state.hp)/REPAIR_PER_ORE);const n=Math.min(need,Math.floor(state.ore));
     if(n<=0)return;state.ore-=n;const before=state.hp;state.hp=Math.min(hm,state.hp+n*REPAIR_PER_ORE);toast(t('tt.repaired',{n:Math.round(state.hp-before)}));changed();return}
