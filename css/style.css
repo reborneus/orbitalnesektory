@@ -916,3 +916,7 @@ body.pad,body.pad *{cursor:none!important}
 .bm-r{display:flex;justify-content:space-between;gap:12px;padding:2px 0}.bm-r span{color:var(--muted)}.bm-r b{font:500 12px var(--f-data)}
 .bm-hp{height:7px;border-radius:3px;background:#3d0f10;margin:2px 0 6px;overflow:hidden}.bm-hp i{display:block;height:100%;background:#ff4b3a}
 .bm-mis{color:#c38bff!important}
+/* v0.46: loot filter */
+.lfcard .lfrow{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.lfb{border:1px solid color-mix(in srgb,var(--rc) 60%,transparent)!important;border-radius:6px;color:var(--rc)!important;padding:5px 9px}
+.lfb.off{background:rgba(255,60,50,.12)!important;color:color-mix(in srgb,var(--rc) 45%,#888)!important;text-decoration:line-through;border-style:dashed!important}

@@ -135,6 +135,9 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
       ${SECTORS[state.cur].res.includes(state.autoRes)?'':`<div class="stat" style="color:var(--warn)">${t('set.ap.miss',{r:t('res.'+state.autoRes)})}</div>`}</div>`;
       h+=`<div class="card"><h3>${t('set.ret')}</h3>${onoff('autoReturn',state.autoReturn!==false)}<p>${t('set.ret.d')}</p></div>`;
       h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
+      {const F=state.lootFilter||[];   // v0.46: loot filter – zvolené rarity sa hneď predajú
+        h+=`<div class="card lfcard"><h3>${t('lf.h')}</h3><p>${t('lf.d')}</p><div class="lfrow">${RAR.map((R,i)=>`<button class="langb lfb${F.includes(i)?' off':''}" data-act="lootF" data-r="${i}" aria-pressed="${F.includes(i)}" style="--rc:${R.col}">${F.includes(i)?'✕ ':''}${t('r.'+R.k)}</button>`).join('')}</div>
+        <div class="stat">${F.length?t('lf.on',{n:F.length}):t('lf.off')}</div></div>`}
       h+=`<div class="card"><h3>${t('set.hunt')}</h3>${onoff('autoHunt',!!state.autoHunt)}<p>${t('set.hunt.d')}</p>
         <div class="subopt"><span>${t('set.hunt.pas')}</span>${onoff('huntPassive',!!state.huntPassive)}</div><div class="subopt"><span>${t('set.hunt.void')}</span>${onoff('huntVoid',!!state.huntVoid)}</div><p>${t('set.hunt.void.d')}</p></div>`;
       h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`}
@@ -197,6 +200,7 @@ body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)retur
   if(act==='grp'){shipGrp=b.dataset.g;focusIdx=SHIP_TABS.indexOf(shipGrp);renderSheet();return}
   if(act==='lang'){setLang(b.dataset.l);return}
   if(act==='opt'){const k=b.dataset.k,v=b.dataset.v==='1';if(k==='autoPilot'){if(!!state.autoPilot!==v)toggleAutopilot();return}state[k]=v;save();renderSheet();return}
+  if(act==='lootF'){const r=+b.dataset.r,F=(state.lootFilter||[]).slice(),i=F.indexOf(r);if(i>=0)F.splice(i,1);else F.push(r);state.lootFilter=F.sort((a,c)=>a-c);save();renderSheet();return}
   if(act==='ares'){state.autoRes=b.dataset.r;save();renderSheet();if(state.autoPilot)toast(t('tt.apOn',{r:t('res.'+state.autoRes)}));return}
   if(act==='repair'){if(!stationOk()){toast(t('rep.far'));return}const hm=shipVal('hull');const need=Math.ceil((hm-state.hp)/REPAIR_PER_ORE);const n=Math.min(need,Math.floor(state.ore));
     if(n<=0)return;state.ore-=n;const before=state.hp;state.hp=Math.min(hm,state.hp+n*REPAIR_PER_ORE);toast(t('tt.repaired',{n:Math.round(state.hp-before)}));changed();return}

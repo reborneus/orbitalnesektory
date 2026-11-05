@@ -1,11 +1,9 @@
 {
-  "version": "0.45.0",
+  "version": "0.46.0",
   "date": "2026-11-05",
   "notes": [
-    "Veľká mapa (len PC): kláves TAB otvorí mapu sektora cez celú obrazovku. Myšou nad značkou uvidíš, čo tam je – asteroid (surovina, koľko ostáva, za ako dlho ho vyťažíš), pirát (druh, výdrž, poškodenie, správanie), korisť, cieľ misie, obchodník, brána, stanica.",
-    "Na veľkej mape koliesko približuje, ťahanie posúva a klik na asteroid ho začne ťažiť, na piráta zaútočí, inde loď poletí na to miesto. TAB alebo Esc mapu zavrie.",
-    "Aréna: oveľa viac pirátov vo vyšších vlnách (asi 32 vo vlne 25, 59 vo vlne 50, 109 vo vlne 99) a navyše +3 % za každú úroveň výzvy; strop 140 naraz (na grafike Nízka 70), aby hra nespomalila.",
-    "Aréna: radiácia je zapnutá ako na ostatných mapách (pásy 3–4 a za horizontom).",
-    "Príručka: kapitola Veľká mapa, počty pirátov a radiácia v aréne."
+    "Loot filter (Nastavenia → Hra): označ rarity, ktoré nechceš zbierať – takéto predmety sa neobjavia ako korisť ani v inventári, ale hneď sa na pozadí rozoberú na kredity.",
+    "Predané predmety sa zhrnú do jednej správy (počet a získané kredity). Nastavenie je spoločné pre všetky sloty uložených hier.",
+    "Príručka: loot filter v kapitole Automatizácia."
   ]
 }

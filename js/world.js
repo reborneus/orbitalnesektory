@@ -575,7 +575,14 @@ function cosmicCube(col,seed,variant=0,size=1){const g=new THREE.Group(),C=new T
   return g}
 /* Korisť vo vesmíre svieti farbou rarity. toneMapped:false = farba sa nezmieša s tónovaním scény (ACES),
    inak by jasné farby pri prekrytí so žiarou vybledli do bielej. */
-function spawnLoot(it,pos){const g=new THREE.Group();const c=new THREE.Color(RAR[it.r].col);const tm={toneMapped:false};
+/* ==================== v0.46: LOOT FILTER (Nastavenia → Hra) ====================
+   state.lootFilter = zoznam rarít (indexy RAR), ktoré sa nezobrazia ako korisť: predmet sa hneď na pozadí rozoberie
+   za kredity (rovnako ako tlačidlo Rozobrať). Predané predmety sa zhrnú do jednej správy za ~3 s. */
+let _lfN=0,_lfC=0,_lfT=null;
+const lootFiltered=it=>!!(it&&state&&Array.isArray(state.lootFilter)&&state.lootFilter.includes(it.r));
+function lootAutoSell(it){if(!lootFiltered(it))return false;const c=salvValue(it);state.credits+=c;_lfN++;_lfC+=c;
+  if(!_lfT)_lfT=setTimeout(()=>{toast(t('lf.sold',{n:_lfN,c:fmtN(_lfC)}));_lfN=0;_lfC=0;_lfT=null;if(typeof bump==='function')bump('#crTxt')},3000);return true}
+function spawnLoot(it,pos){if(lootAutoSell(it))return;const g=new THREE.Group();const c=new THREE.Color(RAR[it.r].col);const tm={toneMapped:false};
   // v0.24: kozmická kocka (variant podľa náhodného seedu; od Mytickej vždy s rámom)
   const seed=Math.random()*1000,variant=it.r>=7?2:Math.floor(seed)%3;const core=cosmicCube(RAR[it.r].col,seed,variant,1.05);g.add(core);
   const gl=glow(RAR[it.r].col,3.2+it.r*.5,.5+it.r*.03);gl.material.toneMapped=false;g.add(gl);
@@ -588,7 +595,7 @@ function spawnLoot(it,pos){const g=new THREE.Group();const c=new THREE.Color(RAR
   loot.push({g,it,core,gl,pil,ring,ph:Math.random()*TAU,h});
   if(it.r>=6)toast(t('tt.loot',{r:t('r.'+RAR[it.r].k),n:t('base.'+it.b)}),{rar:it.r})}
 /* Predmet rovno do inventára (relikty); ak je inventár plný, objaví sa vo vesmíre ako korisť na pozícii pos. */
-function giveItem(it,pos){if(state.inv.length<INV_MAX){state.inv.push(it);
+function giveItem(it,pos){if(lootAutoSell(it))return true;if(state.inv.length<INV_MAX){state.inv.push(it);
     toast(t('tt.loot',{r:t('r.'+RAR[it.r].k),n:itemTitle(it)?'«'+itemTitle(it)+'» '+t('base.'+it.b):t('base.'+it.b)}),{rar:it.r});save();if(sheetTab==='gear')renderSheet();return true}
   spawnLoot(it,pos);toast(t('tt.invFull'),'bad');return false}
 function nearestLoot(maxD){let best=null,bd=maxD;for(const l of loot){const d=ship.position.distanceTo(l.g.position);if(d<bd){bd=d;best=l}}return best}
