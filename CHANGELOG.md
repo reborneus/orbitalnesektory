@@ -2,6 +2,15 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.45
+
+### v0.45.0 · 2026-11-05
+- Veľká mapa (len PC): kláves TAB otvorí mapu sektora cez celú obrazovku. Myšou nad značkou uvidíš, čo tam je – asteroid (surovina, koľko ostáva, za ako dlho ho vyťažíš), pirát (druh, výdrž, poškodenie, správanie), korisť, cieľ misie, obchodník, brána, stanica.
+- Na veľkej mape koliesko približuje, ťahanie posúva a klik na asteroid ho začne ťažiť, na piráta zaútočí, inde loď poletí na to miesto. TAB alebo Esc mapu zavrie.
+- Aréna: oveľa viac pirátov vo vyšších vlnách (asi 32 vo vlne 25, 59 vo vlne 50, 109 vo vlne 99) a navyše +3 % za každú úroveň výzvy; strop 140 naraz (na grafike Nízka 70), aby hra nespomalila.
+- Aréna: radiácia je zapnutá ako na ostatných mapách (pásy 3–4 a za horizontom).
+- Príručka: kapitola Veľká mapa, počty pirátov a radiácia v aréne.
+
 ## 0.44
 
 ### v0.44.0 · 2026-11-05

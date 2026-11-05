@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.45.0", "date": "2026-11-05", "time": "2026-11-05T16:56:55+01:00", "sha": "49d751d237adcd6469b3f8bc7e0cd0723747760c", "title": "Veľká mapa (TAB), viac pirátov a radiácia v aréne"},
   {"version": "0.44.0", "date": "2026-11-05", "time": "2026-11-05T16:49:23+01:00", "sha": "54cc1d8fc65e1b486b36b8adc51636bd82f53ee3", "title": "Aréna: rozmiestnenie pirátov okolo hráča a v zónach"},
   {"version": "0.43.0", "date": "2026-11-05", "time": "2026-11-05T16:45:13+01:00", "sha": "1827e4f31ca6215a216669cfd8cee269ca81c3af", "title": "Ukazovatele výdrže a bossa, príručka s 3D obrázkami"},
   {"version": "0.42.0", "date": "2026-11-05", "time": "2026-11-05T16:24:45+01:00", "sha": "f3d93ad8bc94aa37ae7fa45fd03161574ac0be70", "title": "Strom výskumu, výber štartu arény"},

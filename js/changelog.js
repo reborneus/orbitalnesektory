@@ -2,6 +2,17 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.45.0",
+"d": "2026-11-05",
+"n": [
+"Veľká mapa (len PC): kláves TAB otvorí mapu sektora cez celú obrazovku. Myšou nad značkou uvidíš, čo tam je – asteroid (surovina, koľko ostáva, za ako dlho ho vyťažíš), pirát (druh, výdrž, poškodenie, správanie), korisť, cieľ misie, obchodník, brána, stanica.",
+"Na veľkej mape koliesko približuje, ťahanie posúva a klik na asteroid ho začne ťažiť, na piráta zaútočí, inde loď poletí na to miesto. TAB alebo Esc mapu zavrie.",
+"Aréna: oveľa viac pirátov vo vyšších vlnách (asi 32 vo vlne 25, 59 vo vlne 50, 109 vo vlne 99) a navyše +3 % za každú úroveň výzvy; strop 140 naraz (na grafike Nízka 70), aby hra nespomalila.",
+"Aréna: radiácia je zapnutá ako na ostatných mapách (pásy 3–4 a za horizontom).",
+"Príručka: kapitola Veľká mapa, počty pirátov a radiácia v aréne."
+]
+},
+{
 "v": "0.44.0",
 "d": "2026-11-05",
 "n": [
@@ -233,20 +244,6 @@ const CHANGELOG=[
 "Nad stanicou, zadávateľom misií, obchodníkom a skokovou bránou je polopriehľadné okrúhle tlačidlo s ikonou a názvom (mimo dosahu aj so vzdialenosťou); myš nad ním ho zvýrazní",
 "Menu sa otvára len cez tieto tlačidlá: v dosahu tlačidlo svieti a otvorí menu hneď, inak loď k objektu doletí a menu otvorí po prílete; klik inde na stanicu či NPC je obyčajný presun lode",
 "Pri prelete okolo stanice, NPC alebo brány sa okno už samo neotvára"
-]
-},
-{
-"v": "0.32.0",
-"d": "2026-11-05",
-"n": [
-"Nová stanica podľa predlohy (rovnaká veľkosť): chrómovaný disk so stupňovitým nábojom okolo jadra, venček svetiel ako lupene, kanál s bronzovým zlato osvetleným dnom, 6 mostíkov s kupolami, hrubý palubný prstenec s oknami a 4 dlhé ramená do kríža s bronzovými kupolami a modulmi na koncoch",
-"Energetické jadro je o 20 % menšie, farby podľa stavu ostali (modrá / zelená pri stanici / červená pri útoku); svetlá stanice sa menia s ním",
-"Obranná veža podľa predlohy: podstavec so 4 nohami s pásovými chodidlami, otočná plošina a dlhé delo so zväzkom hlavní, modrým energetickým jadrom s cievkami a tyrkysovým ústím",
-"Veže pri nečinnosti „v pohotovosti“ – chvíľu stoja, potom sa pomaly natočia a nakloňia inam, akoby prehľadávali okolie; pri nájazde rýchlo zamieria na piráta a pri výstrele hlaveň cúvne",
-"Dok dronov: chrómový hangár s oblou rebrovanou strechou, osvetlenou bránou, bronzovými nádržami a pristávacou plochou so zaparkovaným dronom",
-"Senzorové pole: technický podstavec s bronzovými skriňami a anténkami, stĺp a otáčajúca sa veľká parabola s trojnožkou a fialovým snímačom",
-"Nové náhľady modulov vo všetkých menu (väčšie, kamera sa prispôsobí modelu)",
-"Pohľad sa dá oddialiť ešte viac; nepriehľadnosť menu je pri prvom spustení 50 %"
 ]
 }
 ];
