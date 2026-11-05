@@ -2,6 +2,15 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.33.0",
+"d": "2026-11-05",
+"n": [
+"Nad stanicou, zadávateľom misií, obchodníkom a skokovou bránou je polopriehľadné okrúhle tlačidlo s ikonou a názvom (mimo dosahu aj so vzdialenosťou); myš nad ním ho zvýrazní",
+"Menu sa otvára len cez tieto tlačidlá: v dosahu tlačidlo svieti a otvorí menu hneď, inak loď k objektu doletí a menu otvorí po prílete; klik inde na stanicu či NPC je obyčajný presun lode",
+"Pri prelete okolo stanice, NPC alebo brány sa okno už samo neotvára"
+]
+},
+{
 "v": "0.32.0",
 "d": "2026-11-05",
 "n": [
@@ -223,15 +232,6 @@ const CHANGELOG=[
 "n": [
 "Boj: každý výstrel lode sú 2–3 laserové salvy tesne po sebe; poškodenie sa započíta len raz, tempo a sila streľby zostávajú rovnaké",
 "Hrubšie laserové strely (hráč aj piráti)"
-]
-},
-{
-"v": "0.19.1",
-"d": "2026-11-04",
-"n": [
-"Spúšťací panel (Windows aj Mac): kontrola novej verzie už nevracia staršiu verziu z vyrovnávacej pamäte GitHubu – najnovšia verzia sa zistí hneď po zverejnení, aj keď je panel otvorený",
-"Panel ukazuje presný čas zverejnenia najnovšej verzie (napr. „4. 11. 2026 o 20:45 (pred 5 min)“) a v zozname verzií je pri každej dátum aj čas",
-"Nový panel sa použije po najbližšej aktualizácii hry a opätovnom otvorení panela"
 ]
 }
 ];
