@@ -780,3 +780,13 @@ body.hudc .wbtn .wbi{width:40px;height:40px}body.hudc .wbtn .wbl{font-size:10px}
 .trsq:hover:not(:disabled){transform:scale(1.12);border-color:var(--c)}
 .trsq:disabled{cursor:default;opacity:.7}
 .trbtns{justify-self:start}
+
+/* v0.35: karta Zvuk */
+.sndcard{grid-template-columns:1fr}
+.sndrow{display:grid;grid-template-columns:9.5em 1fr 3.6em;align-items:center;gap:10px;font-size:13.5px}
+.sndrow input{accent-color:var(--hull);width:100%}.sndrow b{font-family:var(--f-data);text-align:right;font-size:12.5px}
+.sndrow .langs{grid-column:2/4;justify-self:start}
+
+/* v0.35: záložky nastavení */
+.settabs .seg{font-size:12px;padding:8px 2px}
+@media (max-width:520px){.settabs{grid-template-columns:repeat(3,1fr)!important}}

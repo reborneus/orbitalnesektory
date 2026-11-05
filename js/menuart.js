@@ -48,7 +48,7 @@ function menuArtFrame(dt,tt){const A=menuArt||buildMenuArt();A.t+=dt;const t=A.t
   const w=innerWidth,h=innerHeight;if(A.w!==w||A.h!==h){A.w=w;A.h=h;menuArtLayout(w,h)}
   // pozadie: kamera ako na náhľade sektora, veľmi pomaly krúži
   const k=A.k,a=Math.sin(t*.03)*.06;A.bgCam.position.copy(A.P).add(new V3(380*k*Math.cos(a)-120*k,820*k,620*k+Math.sin(a)*200*k));
-  A.bgCam.lookAt(A.P.x+(A.wide?-40:60)*k,A.P.y,A.P.z+90*k);if(A.bgTick)A.bgTick(dt,tt);
+  A.bgCam.lookAt(A.P.x+(A.wide?-40:60)*k,A.P.y,A.P.z+90*k);if(A.bgTick)A.bgTick(dt,gfxBgT(tt));
   // lode: letia k divákovi (pohľad spredu zboku ako na výstave), zostava po diagonále, každá s vlastným vlnením
   const ox=A.ox,oy=A.oy;
   const place=(s,x,y,z,yaw,roll,ph)=>{s.g.position.set(ox+x*A.sx+Math.sin(t*.5+ph)*.35,oy+y*A.sy+Math.sin(t*.7+ph)*.45,z+A.dz+Math.cos(t*.4+ph)*.3);

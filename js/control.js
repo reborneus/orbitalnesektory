@@ -60,14 +60,14 @@ function impactHit(impact,x,z,a){const k=clamp(impact/22,.15,1);shake=Math.max(s
     new V3((Math.random()-.5)*(6+impact),Math.random()*4,(Math.random()-.5)*(6+impact)));
   if(hitCD>0)return;hitCD=COLL.cooldown;const dmg=(impact-COLL.minSpeed)*COLL.perMs*(1-bonus().coll/100);if(dmg<=0)return;
   const o=damage(dmg,'hit');if(o.hull>0)hurtFlash(k);if(o.shield>0)bubbleT=1}
-function hurtFlash(k){const h=$('#hurt');h.style.setProperty('--k',(.35+k*.6).toFixed(2));h.classList.remove('on');void h.offsetWidth;h.classList.add('on')}
+function hurtFlash(k){sfx('hurt');const h=$('#hurt');h.style.setProperty('--k',(.35+k*.6).toFixed(2));h.classList.remove('on');void h.offsetWidth;h.classList.add('on')}
 /* v0.28: smrť lode. Zapamätá miesto smrti (červená smrtka na minimape), zruší všetky ciele,
    ktoré by loď po znovuzrodení ťahali späť (útok, autopilot, NPC), a spustí obrazovku smrti s odpočtom. */
 const RESPAWN_S=5,RESPAWN_HP=.2;   // čakanie na novú loď v sekundách a podiel trupu po znovuzrodení
 let respawnT=0,respawnTimer=null;
 function clearShipOrders(){mineTarget=null;moveTarget=null;attackTarget=null;openOnArrive=false;returnSent=false;apHurtSent=false;
   if(typeof gunTgt!=='undefined'){gunTgt=null;gunTgtT=0}if(typeof npcOpenOnArrive!=='undefined')npcOpenOnArrive=null;if(typeof padTgt!=='undefined')padTgt=null}
-function destroyShip(){dead=true;clearShipOrders();hideBeam(beam);shake=1;rumble(1,600);
+function destroyShip(){dead=true;clearShipOrders();sfx('boom',ship.position.clone(),{big:1});setTimeout(()=>sfx('alarm'),500);hideBeam(beam);shake=1;rumble(1,600);
   for(let i=0;i<60;i++)emit(debris,ship.position,['#ffe2a8','#ff9a4d','#58d0c0'][i%3],.8+Math.random()*.9,new V3((Math.random()-.5)*30,Math.random()*8,(Math.random()-.5)*30));
   ship.visible=false;const lost=Math.floor(cargoTotal()+.05);for(const r of RES)state.cargo[r]=0;
   toast(lost>0?t('tt.destroyed',{n:lost}):t('tt.destroyed0'),'bad');
@@ -81,7 +81,7 @@ function deathScreen(lost){const el=$('#death');respawnT=RESPAWN_S;
   $('#deathT').textContent=t('death.title');$('#deathSub').textContent=t('death.sub');$('#deathLost').textContent=lost>0?t('death.lost',{n:lost}):t('death.lost0');$('#deathN').textContent=RESPAWN_S;
   setTimeout(()=>{if(dead)el.classList.add('on')},600);
   const end=performance.now()+RESPAWN_S*1000;   // odpočet podľa skutočného času (nezávisí od plynulosti snímok)
-  clearInterval(respawnTimer);respawnTimer=setInterval(()=>{respawnT=(end-performance.now())/1000;$('#deathN').textContent=Math.max(1,Math.ceil(respawnT-.001));
+  clearInterval(respawnTimer);respawnTimer=setInterval(()=>{respawnT=(end-performance.now())/1000;{const nn=Math.max(1,Math.ceil(respawnT-.001));if($('#deathN').textContent!==String(nn))sfx('beep');$('#deathN').textContent=nn}
     $('#deathBar').style.width=(Math.max(0,1-respawnT/RESPAWN_S)*100).toFixed(1)+'%';
     if(respawnT<=.45)$('#warp').classList.add('on');
     if(respawnT<=0){clearInterval(respawnTimer);respawnShip()}},100)}
@@ -180,7 +180,7 @@ function tickShip(dt,tt){const maxSp=shipVal('speed'),acc=shipVal('accel');
   const dStation=Math.hypot(ship.position.x,ship.position.z);
   if(dStation<STATION_R+5&&cargoTotal()>0){const parts=[];
     for(const r of RES){const n=Math.floor(state.cargo[r]);if(state.cargo[r]>0)missionDeliver(r,state.cargo[r]);state[r]+=state.cargo[r];state.cargo[r]=0;if(n>0){parts.push(t('res.'+r+'.gain',{n}));bump('#'+RCLS[r]+'Txt')}}
-    fullWarned=false;if(parts.length)toast(t('tt.unloaded',{list:parts.join(', ')}));save();refreshSheet()}
+    fullWarned=false;if(parts.length){toast(t('tt.unloaded',{list:parts.join(', ')}));sfx('coin')}save();refreshSheet()}
   if(openOnArrive&&dStation<STATION_R+8){openOnArrive=false;openSheet('station')}
   if(gate&&ship.position.distanceTo(gate.position)<9*GATE_K&&!gateNear)gateNear=true;   // v0.33: menu brány už sa pri prelete samo neotvára (tlačidlo nad bránou)
   if(gate&&ship.position.distanceTo(gate.position)>14*GATE_K)gateNear=false}

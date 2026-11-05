@@ -554,7 +554,7 @@ function giveItem(it,pos){if(state.inv.length<INV_MAX){state.inv.push(it);
     toast(t('tt.loot',{r:t('r.'+RAR[it.r].k),n:itemTitle(it)?'«'+itemTitle(it)+'» '+t('base.'+it.b):t('base.'+it.b)}),{rar:it.r});save();if(sheetTab==='gear')renderSheet();return true}
   spawnLoot(it,pos);toast(t('tt.invFull'),'bad');return false}
 function nearestLoot(maxD){let best=null,bd=maxD;for(const l of loot){const d=ship.position.distanceTo(l.g.position);if(d<bd){bd=d;best=l}}return best}
-function pickLoot(l){state.inv.push(l.it);world.remove(l.g);loot=loot.filter(x=>x!==l);invWarned=false;
+function pickLoot(l){sfx('loot',l.g.position.clone());state.inv.push(l.it);world.remove(l.g);loot=loot.filter(x=>x!==l);invWarned=false;
   toast(t('tt.loot',{r:t('r.'+RAR[l.it.r].k),n:itemTitle(l.it)?'«'+itemTitle(l.it)+'» '+t('base.'+l.it.b):t('base.'+l.it.b)}),{rar:l.it.r});save();if(sheetTab==='gear')renderSheet()}
 function tickLoot(dt,tt){const mag=LOOT_RANGE+bonus().magnet;
   for(const l of loot.slice()){const k=l.it.r;

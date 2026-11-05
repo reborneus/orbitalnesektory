@@ -5,9 +5,10 @@ const camTarget=new V3();
 function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w<h?52:40;camera.updateProjectionMatrix();sizeMini()}
 addEventListener('resize',resize);
 const clock=new THREE.Clock();let saveT=0,incomeT=0,miniT=0,tt=0;
-function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.05);tt+=dt;
+function frame(){requestAnimationFrame(frame);if(gfxSkip())return;const dt=Math.min(clock.getDelta(),.05);tt+=dt;
   pollPad(dt);readInput();
   const playing=$('#intro').hidden;
+  sndLoop(dt);   // v0.35: zvukové slučky, poslucháč, hudba
   if(!playing){menuArtFrame(dt,tt);return}   // v0.30: v hlavnom menu sa kreslí len fanart, svet hry stojí
   state.playT=(state.playT||0)+dt;MIN_U.uT.value=tt;          // odohraný čas (zobrazuje sa pri uložených hrách)
   if(!jumping&&!dead&&playing){tickAuto(dt);tickShip(dt,tt)}tickHudMode(dt);if(!jumping)tickDrones(dt,tt);
@@ -41,7 +42,7 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
     for(const d of stationAnim.dishes)d.o.rotation.y+=dt*.6;for(const b of stationAnim.blink){const k=b.soft?.75+.25*Math.sin(tt*3*b.f):(Math.sin(tt*TAU*b.f)>.2?1:.35);b.o.scale.setScalar(b.base*k)}}
   if(gate){gate.userData.ring.rotation.z+=dt*.4;const k=1+Math.sin(tt*2)*.12;gate.userData.core.scale.set(9*GATE_K*k,9*GATE_K*k,1)}
   if(world&&world.userData.planet)world.userData.planet.rotation.y+=dt*.01;
-  if(world&&world.userData.bgTick)world.userData.bgTick(dt,tt);
+  if(world&&world.userData.bgTick)world.userData.bgTick(dt,gfxBgT(tt));
   tickPool(trail,dt);tickPool(debris,dt);if(!jumping){tickLoot(dt,tt);tickCombat(dt,tt);tickMissions(dt,tt);tickArena(dt,tt);tickNpc(dt,tt)}
   if(markerT>0){markerT-=dt;const k=markerT/.6;marker.material.opacity=k*.9;marker.scale.setScalar(1+(1-k)*1.8)}else marker.material.opacity=0;
   if(mineTarget&&mineTarget.alive){tRing.visible=true;tRing.position.set(mineTarget.pos.x,mineTarget.pos.y-.2,mineTarget.pos.z);tRing.scale.setScalar(astScale(mineTarget)*1.6+1.2);tRing.rotation.z+=dt*1.2}else tRing.visible=false;
@@ -64,7 +65,7 @@ function start(data){const hs=data&&data.state;
   let stored=null;try{stored=localStorage.getItem('os-lang')}catch(e){}
   if(hs&&hs.v===3){state=applyPrefs(migrate(hs));curSlot=loadIdx().last||1}else state=applyPrefs(freshState());
   if(!stored&&(state.lang==='sk'||state.lang==='en'))lang=state.lang;state.lang=lang;
-  bonusDirty();buildShip(state.shipId);applyMini();applyHud();applyHudMode();applyMenuAlpha();
+  bonusDirty();buildShip(state.shipId);applyMini();applyHud();applyHudMode();applyMenuAlpha();applyGfx();
   resize();buildSector();ship.position.set(0,0,STATION_R+8);camTarget.copy(ship.position);
   document.querySelectorAll('.pg').forEach(el=>el.textContent=G()[el.dataset.g]);
   if(hs&&hs.v===3){hideMenu();applyLang()}else{applyLang();showMenu('main')}

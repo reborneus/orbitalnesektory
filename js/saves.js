@@ -17,7 +17,7 @@ const SAVE_MIGRATIONS=[
   s=>{if(typeof s.playT!=='number')s.playT=0;return s}   // 0 → 1: odohraný čas
 ];
 /* Spoločné nastavenia: tieto polia stavu sa neukladajú do slotu, ale do os-prefs (platia pre všetky sloty aj hlavné menu). */
-const PREF_KEYS=['menuAlpha','hudCompact','hudAuto','padMouse','miniSize','hudPos','cmpMode'];
+const PREF_KEYS=['menuAlpha','hudCompact','hudAuto','padMouse','miniSize','hudPos','cmpMode','snd','gfx','holdFollow'];
 let curSlot=null,saveErrShown=false;
 const saveKey=(n,k)=>`os-save-${n}-${k}`;
 /* ---- v0.31.2: úložisko s dvoma zálohami ----

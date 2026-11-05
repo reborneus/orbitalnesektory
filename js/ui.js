@@ -2,7 +2,7 @@
 /* ==================== == 9. ROZHRANIE ====================
    updateHUD() obnovuje horný panel a nápovedu (~8× za sekundu); renderSheet() vykresľuje otvorené menu podľa sheetTab. */
 /* toast(text, kind): kind true = veľké zlaté, 'bad' = červené, {rar:n} = vo farbe rarity n. */
-function toast(msg,kind){const el=document.createElement('div');const rr=kind&&typeof kind==='object'?kind.rar:-1;
+function toast(msg,kind){if(kind==='bad')sfx('bad');else if(kind===true)sfx('good');const el=document.createElement('div');const rr=kind&&typeof kind==='object'?kind.rar:-1;
   el.className='toast'+(kind===true?' big':typeof kind==='string'?' '+kind:'')+(rr>=0?' rr r'+rr+(rr>=6?' big':''):'');if(rr>=0)el.style.setProperty('--rc',RAR[rr].col);el.textContent=msg;const box=$('#toasts');box.appendChild(el);
   while(box.children.length>3)box.firstChild.remove();setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),400)},kind?4200:2400)}
 function bump(sel){const el=$(sel);if(!el)return;const p=el.parentElement;p.classList.remove('pulse');void p.offsetWidth;p.classList.add('pulse')}
@@ -58,11 +58,11 @@ function updateHUD(){if(!state)return;const s=cur();const inf=influence(s);const
   else h=ptr?t('h.idlePtr'):t('h.idle',{fly:cap1(say('fly')),mine:say('mine')});
   if(h!==lastHint){lastHint=h;$('#hint').innerHTML=h}}
 
-let sheetTab=null,shipGrp='eng',focusIdx=0;
+let sheetTab=null,shipGrp='eng',focusIdx=0,setTab='save';   // setTab = sekcia Nastavení (v0.35)
 const sheet=$('#sheet'),body=$('#sheetBody');
 const TABS=['station','ship','gear','pilot','map','settings'];
-function openSheet(tab){applyMenuAlpha();if(sheetTab!==tab)focusIdx=0;sheetTab=tab;sheet.hidden=false;sheet.classList.toggle('side',tab==='station');renderSheet();document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));lastHint=''}
-function closeSheet(){if(typeof tipHide==='function')tipHide();sheetTab=null;sheet.hidden=true;document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.remove('on'));lastHint=''}
+function openSheet(tab){applyMenuAlpha();if(sheetTab!==tab)sfx(sheetTab?'click':'open');if(sheetTab!==tab)focusIdx=0;sheetTab=tab;sheet.hidden=false;sheet.classList.toggle('side',tab==='station');renderSheet();document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));lastHint=''}
+function closeSheet(){if(typeof tipHide==='function')tipHide();if(sheetTab)sfx('close');sheetTab=null;sheet.hidden=true;document.querySelectorAll('.dock [data-tab]').forEach(b=>b.classList.remove('on'));lastHint=''}
 function toggleTab(tb){sheetTab===tb?closeSheet():openSheet(tb)}
 function cycleTab(d){const i=TABS.indexOf(sheetTab);openSheet(TABS[(i+d+TABS.length)%TABS.length])}
 const SHIP_TABS=['hangar',...GROUPS]; // záložky v paneli Loď: hangár + skupiny vylepšení
@@ -118,29 +118,34 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     if(!isGate)h+=`<p class="note">${t('map.gateNote')}</p>`}
   else if(sheetTab==='settings'){$('#sheetTitle').textContent=t('sh.settings');
     const onoff=(k,on)=>`<div class="langs"><button class="langb" data-act="opt" data-k="${k}" data-v="1" aria-pressed="${on}">${t('on')}</button><button class="langb" data-act="opt" data-k="${k}" data-v="0" aria-pressed="${!on}">${t('off')}</button></div>`;
-    const inMenu=typeof menuOpen==='function'&&menuOpen();   // v0.30: z hlavného menu len spoločné nastavenia (nie nastavenia uloženej hry)
-    if(!inMenu){
-    // v0.30: uložená hra – ručné uloženie do aktuálneho slotu a návrat do hlavného menu
-    {const E=curSlot?slotEntries(curSlot):[],man=E.filter(m=>m.kind==='man').length,au=E.find(m=>m.kind==='auto');
-      h+=`<div class="sec-h"><span>${t('sv.h')}</span></div><div class="card"><h3>${t('mn.slot',{n:curSlot||'–'})}</h3><div class="langs"><button class="langb" data-act="svSave">${t('sv.save')}</button><button class="langb" data-act="svMenu">${t('sv.menu')}</button></div>
-        <p>${t('sv.d',{m:man,M:MAN_N,a:au?fmtWhen(au.ts):'–'})}</p><p class="note" style="margin:0;font-size:11px">${storeInfo()}</p></div>`}
-    h+=`<div class="sec-h"><span>${t('set.autoH')}</span></div>`;
-    h+=`<div class="card"><h3>${t('set.ap')}</h3>${onoff('autoPilot',!!state.autoPilot)}<p>${t('set.ap.d',{V:G().V})}</p>
+    const inMenu=typeof menuOpen==='function'&&menuOpen();   // z hlavného menu len spoločné nastavenia (nie nastavenia uloženej hry)
+    // v0.35: nastavenia sú rozdelené do sekcií (záložiek); Uloženie a Hra sú len počas hry
+    const TABS=(inMenu?[]:['save','game']).concat(['ctrl','ui','gfx','snd']);if(!TABS.includes(setTab))setTab=TABS[0];
+    h+=`<div class="segs settabs" style="grid-template-columns:repeat(${TABS.length},1fr)">${TABS.map(k=>`<button class="seg" data-act="setTab" data-v="${k}" aria-pressed="${setTab===k}">${t('st.'+k)}</button>`).join('')}</div>`;
+    if(setTab==='save'){const E=curSlot?slotEntries(curSlot):[],man=E.filter(m=>m.kind==='man').length,au=E.find(m=>m.kind==='auto');
+      h+=`<div class="card"><h3>${t('mn.slot',{n:curSlot||'–'})}</h3><div class="langs"><button class="langb" data-act="svSave">${t('sv.save')}</button><button class="langb" data-act="svMenu">${t('sv.menu')}</button></div>
+        <p>${t('sv.d',{m:man,M:MAN_N,a:au?fmtWhen(au.ts):'–'})}</p><p class="note" style="margin:0;font-size:11px">${storeInfo()}</p></div>`;
+      h+=`<div class="card"><h3>${t('set.quit')}</h3><button class="act" data-act="quit">${t('btn.quit')}</button><p>${t('set.quit.d')}</p></div>`;
+      h+=`<p class="note">${t('save.note')} ${t('set.diff',{d:t('diff.'+state.diff)})}</p>`}
+    else if(setTab==='game'){
+      h+=`<div class="card"><h3>${t('set.ap')}</h3>${onoff('autoPilot',!!state.autoPilot)}<p>${t('set.ap.d',{V:G().V})}</p>
       <div class="gems" style="gap:8px;flex-wrap:wrap"><span class="note" style="margin:0">${t('set.ap.res')}:</span>${RES.map(r=>`<button class="langb" style="border:1px solid var(--line);border-radius:6px;display:inline-flex;gap:6px;align-items:center" data-act="ares" data-r="${r}" aria-pressed="${state.autoRes===r}"><span class="gem" style="background:${RCOL[r]}"></span>${t('res.'+r)}</button>`).join('')}</div>
       ${SECTORS[state.cur].res.includes(state.autoRes)?'':`<div class="stat" style="color:var(--warn)">${t('set.ap.miss',{r:t('res.'+state.autoRes)})}</div>`}</div>`;
-    h+=`<div class="card"><h3>${t('set.ret')}</h3>${onoff('autoReturn',state.autoReturn!==false)}<p>${t('set.ret.d')}</p></div>`;
-    h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
-    h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`;
-    }
-    if(canHover&&!inMenu)h+=`<div class="card"><h3>${t('set.hud')}</h3><button class="act" data-act="hudEdit">${t('set.hud.b')}</button><p>${t('set.hud.d')}</p></div>`;   // len PC
-    h+=hudModeCard();   // v0.29: kompaktný / schovávaný HUD
-    h+=`<div class="card"><h3>${t('set.ma')}</h3><div class="rangerow"><input type="range" id="menuAlpha" min="35" max="100" step="5" value="${menuA()}"><b id="menuAlphaV">${menuA()} %</b></div><p>${t('set.ma.d')}</p></div>`;
-    h+=`<div class="card"><h3>${t('set.pm')}</h3><div class="langs">${['on','off'].map(v=>`<button class="langb" data-act="padMouse" data-v="${v}" aria-pressed="${padMouseOn()===(v==='on')}">${t(v)}</button>`).join('')}</div><p>${t('set.pm.d')}</p></div>`;
-    h+=`<div class="card"><h3>${t('set.cmp')}</h3><div class="langs">${CMP_MODES.map(m=>`<button class="langb" data-act="cmpMode" data-v="${m}" aria-pressed="${cmpMode()===m}">${t('cmp.'+m)}</button>`).join('')}</div><p>${t('set.cmp.d')}</p></div>`;
-    h+=`<div class="sec-h"><span>${t('set.h')}</span></div>`;
-    h+=`<div class="card"><h3>${t('set.lang')}</h3>${langBtns()}${inMenu?'':`<p>${t('set.diff',{d:t('diff.'+state.diff)})}</p>`}</div>`;
-    h+=`<div class="card"><h3>${t('set.quit')}</h3><button class="act" data-act="quit">${t('btn.quit')}</button><p>${t('set.quit.d')}</p></div>`;
-    h+=`<p class="note">${t(inMenu?'sv.noteMenu':'save.note')}</p>`}
+      h+=`<div class="card"><h3>${t('set.ret')}</h3>${onoff('autoReturn',state.autoReturn!==false)}<p>${t('set.ret.d')}</p></div>`;
+      h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
+      h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`}
+    else if(setTab==='ctrl'){
+      h+=`<div class="card"><h3>${t('set.hold')}</h3>${onoff('holdFollow',state.holdFollow!==false)}<p>${t('set.hold.d')}</p></div>`;
+      h+=`<div class="card"><h3>${t('set.pm')}</h3><div class="langs">${['on','off'].map(v=>`<button class="langb" data-act="padMouse" data-v="${v}" aria-pressed="${padMouseOn()===(v==='on')}">${t(v)}</button>`).join('')}</div><p>${t('set.pm.d')}</p></div>`}
+    else if(setTab==='ui'){
+      h+=`<div class="card"><h3>${t('set.lang')}</h3>${langBtns()}</div>`;
+      h+=hudModeCard();
+      if(canHover&&!inMenu)h+=`<div class="card"><h3>${t('set.hud')}</h3><button class="act" data-act="hudEdit">${t('set.hud.b')}</button><p>${t('set.hud.d')}</p></div>`;   // len PC
+      h+=`<div class="card"><h3>${t('set.ma')}</h3><div class="rangerow"><input type="range" id="menuAlpha" min="35" max="100" step="5" value="${menuA()}"><b id="menuAlphaV">${menuA()} %</b></div><p>${t('set.ma.d')}</p></div>`;
+      h+=`<div class="card"><h3>${t('set.cmp')}</h3><div class="langs">${CMP_MODES.map(m=>`<button class="langb" data-act="cmpMode" data-v="${m}" aria-pressed="${cmpMode()===m}">${t('cmp.'+m)}</button>`).join('')}</div><p>${t('set.cmp.d')}</p></div>`}
+    else if(setTab==='gfx')h+=gfxCard();
+    else if(setTab==='snd')h+=soundCard();
+    if(inMenu)h+=`<p class="note">${t('sv.noteMenu')}</p>`}
   body.innerHTML=h;refreshSheet();applyFocus()}
 function refreshSheet(){if(!sheetTab)return;
   body.querySelectorAll('[data-need]').forEach(el=>el.classList.toggle('lack',amt(el.dataset.need)<+el.dataset.n));
@@ -167,6 +172,9 @@ function activateFocus(){const el=focusables()[focusIdx];if(!el)return;if(!el.di
 let resetArm=0;
 body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
   const act=b.dataset.act;if(!act||b.disabled)return;const s=cur();
+  if(act==='setTab'){setTab=b.dataset.v;focusIdx=0;renderSheet();return}
+  if(gfxAct(act,b))return;
+  if(act==='sndSp'){state.snd=Object.assign(sndCfg(),{sp:b.dataset.v==='1'?1:0});save();renderSheet();return}
   if(act==='svSave'){manualSave();renderSheet();return}
   if(act==='svMenu'){toMenu();return}
   if(adminAct(act,b))return; // admin panel (admin.js)
@@ -221,7 +229,7 @@ function quitGame(){const ok=manualSave();if(!ok)return;
 
 let jumping=false;
 /* Skok do sektora i: krátky záblesk, potom sa sektor postaví nanovo a loď sa objaví pri stanici. */
-function jumpTo(i,instant){if(jumping)return;jumping=true;const w=$('#warp');w.classList.add('on');
+function jumpTo(i,instant){if(jumping)return;jumping=true;if(!instant)sfx('warp');const w=$('#warp');w.classList.add('on');
   mining=false;mineTarget=null;moveTarget=null;hideBeam(beam);
   if(!instant)collectAllLoot();
   setTimeout(()=>{try{state.cur=i;mining=false;mineTarget=null;moveTarget=null;openOnArrive=false;stationG=null;gateNear=true;

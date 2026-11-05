@@ -28,7 +28,7 @@ canvas.addEventListener('pointerup',endPtr);canvas.addEventListener('pointercanc
 canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=clamp(zoom*(1+Math.sign(e.deltaY)*.08),ZMIN,ZMAX)},{passive:false});
 /* v0.31.5: pri držaní tlačidla (myš aj prst) sa cieľ prepočítava stále – aj keď sa kurzor nehýbe, kamera ide za loďou,
    takže bod pod kurzorom sa posúva a loď ho plynulo sleduje (nezastaví sa na prvom mieste). */
-setInterval(()=>{if(!downPos||pointers.size!==1||!$('#intro').hidden)return;const cur=[...pointers.values()][0];
+setInterval(()=>{if(!downPos||pointers.size!==1||!$('#intro').hidden||(state&&state.holdFollow===false))return;const cur=[...pointers.values()][0];
   if(!dragging&&performance.now()-downPos.t<=300)return;dragging=true;const p=groundAt(cur.x,cur.y);if(p)cmdMove(clampLimit(p))},50);
 
 /* minimap: tap to fly there */

@@ -227,7 +227,8 @@ function hideBeam(b){b.visible=false;b.userData.hit.visible=false}
 const _zero=new V3();
 function pool(n,size){const arr=[];for(let i=0;i<n;i++){const s=glow('#ffffff',size,0);s.visible=false;scene.add(s);arr.push({s,life:0,max:1,v:new V3(),from:new V3(),to:null,size})}return arr}
 const trail=pool(90,1.6),debris=pool(110,.9);
-function emit(p,pos,color,life,vel,to){const it=p.find(x=>x.life<=0);if(!it)return;it.s.visible=true;it.s.position.copy(pos);it.from.copy(pos);it.s.material.color.set(color);
+function emit(p,pos,color,life,vel,to){if(typeof gfxFx==='function'&&Math.random()>gfxFx())return;   // menej častíc pri nižšej grafike
+  const it=p.find(x=>x.life<=0);if(!it)return;it.s.visible=true;it.s.position.copy(pos);it.from.copy(pos);it.s.material.color.set(color);
   it.life=it.max=life;it.v.copy(vel||_zero);it.to=to||null}
 function tickPool(p,dt){for(const it of p){if(it.life<=0)continue;it.life-=dt;const k=clamp(it.life/it.max,0,1);
   if(it.to){it.s.position.lerpVectors(it.to,it.from,k*k)}else it.s.position.addScaledVector(it.v,dt);
