@@ -120,19 +120,20 @@ function makeLoop(kind){const g=AC.createGain();g.gain.value=0;g.connect(SB.sfx)
     const o2=AC.createOscillator();o2.type='triangle';o2.frequency.value=76.5;const g2=AC.createGain();g2.gain.value=.12;o2.connect(g2);g2.connect(f);o2.start();L.o2=o2;
     const lfo=AC.createOscillator();lfo.frequency.value=.35;const lg=AC.createGain();lg.gain.value=.15;lfo.connect(lg);lg.connect(og.gain);lfo.start();L.nodes.push(n,o,o2,lfo)}
   else{   // ťažobný lúč: dva rozladené tóny s chorusom, plazmové syčanie a pomalé pulzovanie
-    const f=filt('bandpass',700,1.2);f.connect(g);L.f=f;
+    // pulzovanie ide cez vlastný zosilňovač (am) ZA hlavným g – keď je ťažba vypnutá (g = 0), je úplné ticho
+    const amg=AC.createGain();amg.gain.value=.75;amg.connect(g);const f=filt('bandpass',700,1.2);f.connect(amg);L.f=f;
     for(const[fr,ty,gv]of[[146.8,'sine',.6],[147.9,'sine',.6],[293.7,'triangle',.25],[440.6,'sine',.12]]){const o=AC.createOscillator();o.type=ty;o.frequency.value=fr;const og=AC.createGain();og.gain.value=gv;o.connect(og);og.connect(f);o.start();L.nodes.push(o)}
-    const am=AC.createOscillator();am.frequency.value=5.5;const ag=AC.createGain();ag.gain.value=.25;am.connect(ag);ag.connect(g.gain);am.start();
-    const n=AC.createBufferSource();n.buffer=SB.noise;n.loop=true;const nh=filt('bandpass',5200,1.5);const ng=AC.createGain();ng.gain.value=.18;n.connect(nh);nh.connect(ng);ng.connect(g);n.start();L.nodes.push(am,n)}
+    const am=AC.createOscillator();am.frequency.value=5.5;const ag=AC.createGain();ag.gain.value=.25;am.connect(ag);ag.connect(amg.gain);am.start();
+    const n=AC.createBufferSource();n.buffer=SB.noise;n.loop=true;const nh=filt('bandpass',5200,1.5);const ng=AC.createGain();ng.gain.value=.18;n.connect(nh);nh.connect(ng);ng.connect(amg);n.start();L.nodes.push(am,n)}
   return L}
-function sndLoop(dt){if(!AC||AC.state!=='running')return;const t=AC.currentTime,on=state&&$('#intro').hidden&&!dead&&!jumping;
+function sndLoop(dt){if(!AC||AC.state!=='running'||!(AC instanceof (window.AudioContext||window.webkitAudioContext)))return;const t=AC.currentTime,on=state&&$('#intro').hidden&&!dead&&!jumping;
   // poslucháč: nad stredom pohľadu, pozerá „dolu do obrazovky“ (hore na obrazovke = −z)
   const Ls=AC.listener,px=camTarget.x,pz=camTarget.z;
   if(Ls.positionX){Ls.positionX.setTargetAtTime(px,t,.05);Ls.positionY.setTargetAtTime(26,t,.05);Ls.positionZ.setTargetAtTime(pz+6,t,.05);Ls.forwardX.value=0;Ls.forwardY.value=-.85;Ls.forwardZ.value=-.53;Ls.upX.value=0;Ls.upY.value=.53;Ls.upZ.value=-.85}
   else if(Ls.setPosition){Ls.setPosition(px,26,pz+6);Ls.setOrientation(0,-.85,-.53,0,.53,-.85)}
   if(!_eng)_eng=makeLoop('eng');if(!_mine)_mine=makeLoop('mine');
   const sp=on?shipVel.length()/Math.max(1,shipVal('speed')):0;
-  _eng.g.gain.setTargetAtTime(on?.07+sp*.26:0,t,.15);_eng.f.frequency.setTargetAtTime(140+sp*700,t,.2);_eng.o.frequency.setTargetAtTime(34+sp*22,t,.3);_eng.o2.frequency.setTargetAtTime(68+sp*60,t,.3);
+  _eng.g.gain.setTargetAtTime(on?(sp>.02?.03+sp*.26:.015):0,t,.15);   // v pokoji len veľmi tichý hukot_eng.f.frequency.setTargetAtTime(120+sp*420,t,.2);_eng.o.frequency.setTargetAtTime(34+sp*22,t,.3);_eng.o2.frequency.setTargetAtTime(68+sp*60,t,.3);
   _mine.g.gain.setTargetAtTime(on&&mining?.07:0,t,mining?.08:.15);
   musicTick()}
 
