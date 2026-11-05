@@ -99,7 +99,8 @@ function droneDefend(d,st,dt){const tg=nearestEnemy(new V3(0,0,0),70);if(!tg)ret
 const _ev=new V3(),_tp=new V3();
 /* v0.16.2: dostrel pirátov = dostrel zbrane hráča × RANGE_F. Bežní piráti dostrelia menej ako hráč (silnejší menej
    zaostávajú), bossovia ďalej ako hráč. Raketová veža má rakety na veľkú vzdialenosť. Keď hráč vylepší dosah, posunú sa aj piráti. */
-const enemyRange=e=>gunRange()*(RANGE_F[e.kind]||.9);
+const ERANGE_K=.9;   // v0.40.4: dostrel pirátov o 10 % kratší – hráč ich môže ručne udržať mimo ich dostrelu
+const enemyRange=e=>gunRange()*(RANGE_F[e.kind]||.9)*ERANGE_K;
 function tickEnemies(dt,tt){for(const e of enemies.slice()){
     if(e.passive){tickPassive(e,dt,tt);continue}
     if(e.leaving){_ev.copy(e.pos).setY(0).normalize().multiplyScalar(e.speed*1.4);e.pos.addScaledVector(_ev,dt);e.vel.copy(_ev);e.body.rotation.y=Math.atan2(_ev.x,_ev.z);
@@ -125,7 +126,12 @@ function tickCombat(dt,tt){
   tickPassiveQ(dt);const c=raidCfg();if(c&&!raidActive&&!enemies.some(e=>!e.wasPassive)&&$('#intro').hidden){raidT-=dt;if(raidT<=0){spawnRaid();raidT=rnd(c.every[0],c.every[1])}}
   // útok na vybraného piráta: loď sa drží v dosahu zbrane (ručné ovládanie má prednosť)
   if(attackTarget&&!enemies.includes(attackTarget))attackTarget=null;
-  if(attackTarget&&!mineTarget&&inVec.lengthSq()<1e-4){_ev.subVectors(ship.position,attackTarget.pos).setY(0);const d=_ev.length()||1;moveTarget=attackTarget.pos.clone().setY(0).addScaledVector(_ev,gunRange()*.6/d)}
+  /* v0.40.4: loď krúži okolo cieľa vo vzdialenosti 75 % dostrelu piráta – je teda v jeho dosahu (udržať odstup musí hráč ručne);
+     smer krúženia sa zvolí náhodne pre každý cieľ, bod pohybu sa posúva o ~0,6 rad pred loďou */
+  if(attackTarget&&!mineTarget&&inVec.lengthSq()<1e-4){const e=attackTarget;if(!e.orbDir)e.orbDir=Math.random()<.5?1:-1;
+    const R=Math.max(e.r+3,enemyRange(e)*.75);_ev.subVectors(ship.position,e.pos).setY(0);const d=_ev.length();
+    const a=(d>.01?Math.atan2(_ev.z,_ev.x):Math.random()*TAU)+e.orbDir*(d>R*1.6?.15:.6);
+    moveTarget=new V3(e.pos.x+Math.cos(a)*R,0,e.pos.z+Math.sin(a)*R)}
   tickEnemies(dt,tt);playerGun(dt);tickEscorts(dt,tt);tickShots(dt);if(!inArena())towersFire(dt);tickBolts(dt);tickDmgText(dt)}
 function cmdAttack(e){attackTarget=e;mineTarget=null;autoPause=6;flashMarker(e.pos,'#ff5a4a')}
 

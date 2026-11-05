@@ -153,12 +153,15 @@ function fmtStat(k,v){if(k==='dmgX')return '×'+(1+v/100).toFixed(2);const S=STA
 /* Súčet vlastností nasadených predmetov (uložené v medzipamäti, prepočíta sa po zmene výbavy cez bonusDirty()). */
 let _bonus=null;
 function bonusDirty(){_bonus=null}
+/* v0.40.4: _bonusMask = dočasne vynechať výbavu (eq:false) alebo pilota (pl:false) – pre štatistiky Pilot → Štatistiky */
+let _bonusMask=null;
+function bonusMasked(mask,fn){const keep=_bonus;_bonusMask=mask;_bonus=null;try{return fn()}finally{_bonusMask=null;_bonus=keep}}
 function bonus(){if(_bonus)return _bonus;const b={};for(const k in STATS)b[k]=0;
   b.dmgXm=1;   // násobič poškodenia = súčin (1 + x %) zo všetkých nasadených predmetov
-  if(state&&state.eq)for(const s of shipSlots()){const it=state.eq[s];if(it)for(const x of itemStats(it)){b[x.k]+=x.v;if(x.k==='dmgX')b.dmgXm*=1+x.v/100}}
+  if(state&&state.eq&&!(_bonusMask&&_bonusMask.eq===false))for(const s of shipSlots()){const it=state.eq[s];if(it)for(const x of itemStats(it)){b[x.k]+=x.v;if(x.k==='dmgX')b.dmgXm*=1+x.v/100}}
   b.mf=b.mf||0;
-  if(typeof pilotBonus==='function')pilotBonus(b); // schopnosti pilota (pilot.js)
-  for(const k in STATS)if(STATS[k].cap)b[k]=Math.min(STATS[k].cap,b[k]);return _bonus=b}
+  if(typeof pilotBonus==='function'&&!(_bonusMask&&_bonusMask.pl===false))pilotBonus(b); // schopnosti pilota (pilot.js)
+  for(const k in STATS)if(STATS[k].cap)b[k]=Math.min(STATS[k].cap,b[k]);if(_bonusMask)return b;return _bonus=b}
 
 /* Vylepšenie predmetu: cena rastie s úrovňou a raritou; od +5 hrozí neúspech (stratia sa len suroviny a kredity). */
 function enhCost(it){const n=it.enh+1;return P(C(Math.round(22*Math.pow(n,1.45)),n>5?Math.round(10*Math.pow(n-5,1.4)):0,n>10?Math.round(4*Math.pow(n-10,1.5)):0,Math.round(14*Math.pow(n,2.1)*(1+it.r*.35))))}   // v0.38: strmšie

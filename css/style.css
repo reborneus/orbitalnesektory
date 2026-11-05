@@ -828,3 +828,11 @@ body.pad,body.pad *{cursor:none!important}
 /* v0.40.2: vedľajšia voľba v karte nastavení (riadok s textom a prepínačom) */
 .card .subopt{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:6px;padding-top:8px;border-top:1px solid var(--line);font-size:13.5px;font-weight:600}
 .card .subopt .langs{grid-column:auto;grid-row:auto;flex:none}
+/* v0.40.4: Pilot → Štatistiky */
+.sttab{grid-column:1/-1;width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+.sttab th{font-weight:600;color:var(--muted);font-size:10.5px;text-align:right;padding:2px 6px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.sttab td{padding:5px 6px;text-align:right;font-family:var(--f-data);white-space:nowrap;border-top:1px solid var(--line);color:var(--muted)}
+.sttab td:first-child{text-align:left;font-family:inherit;color:var(--text);white-space:normal}
+.sttab td b{color:var(--text);font-weight:600}.sttab td.up,.sttab td.up b{color:var(--hull)}
+.sttab tr.key td{font-size:15px}.sttab tr.key td:first-child{font-weight:700}
+@media (max-width:520px){.sttab{font-size:12px}.sttab td,.sttab th{padding:4px 3px}}

@@ -36,8 +36,51 @@ function hudPilot(){const el=$('#pilotBtn');if(!el||!state)return;const P=pstate
   $('#plvTxt').textContent=t('pl.lv',{n:P.lv});$('#xpBar').style.width=(P.lv>=PILOT_MAX?100:P.xp/need*100)+'%';
   $('#xpTxt').textContent=P.lv>=PILOT_MAX?'MAX':`${fmtN(P.xp)}/${fmtN(need)} XP`;el.classList.toggle('pts',P.pts>0)}
 
+/* ==================== v0.40.4: ŠTATISTIKY LODE (Pilot → Štatistiky) ====================
+   Každá hodnota sa počíta 3×: Základ = loď s vylepšeniami (bez výbavy a pilota), + Výbava = aj s nasadenými predmetmi,
+   Celkom = aj so schopnosťami pilota. DPS = poškodenie salvy za sekundu × šanca na zásah × priemerný násobok kritických zásahov. */
+let plTab='lv';
+const _pct=x=>nf1(x)+' %',_n=x=>fmtN(x>=100?Math.round(x):Math.round(x*10)/10);
+const STAT_ROWS=[
+  ['cmb',[
+    ['sx.dps',()=>shipVal('gun')*shipVal('gunRate')*hitChance()*(1+critChance()*(critMult()-1)),_n],
+    ['sx.dpsRaw',()=>shipVal('gun')*shipVal('gunRate'),_n],
+    ['sx.volley',()=>gunVolleyDmg(),_n],
+    ['sx.hit',()=>hitChance()*100,_pct],
+    ['sx.crit',()=>critChance()*100,_pct],
+    ['sx.critM',()=>critMult(),x=>'×'+nf1(x)],
+    ['sx.grange',()=>gunRange(),x=>nf1(x)+' m']]],
+  ['def',[
+    ['sx.hull',()=>shipVal('hull'),_n],
+    ['sx.shield',()=>shipVal('shield'),_n],
+    ['sx.sregen',()=>shipVal('shield')*shipVal('sregen').rate,x=>_n(x)+' /s'],
+    ['sx.sdelay',()=>shipVal('sregen').delay,x=>nf1(x)+' s'],
+    ['sx.radS',()=>shipVal('radShield'),x=>nf1(x)+' s'],
+    ['sx.rad',()=>bonus().rad||0,_pct]]],
+  ['mine',[
+    ['sx.mineOre',()=>shipVal('laser')*MINE_RATE.ore*D().yield*(1+bonus().yield/100)*tierMul('gain'),x=>_n(x)+' t/s'],
+    ['sx.yield',()=>bonus().yield||0,_pct],
+    ['sx.mrange',()=>shipVal('range'),x=>nf1(x)+' m'],
+    ['sx.cargo',()=>shipVal('cargo'),_n]]],
+  ['fly',[
+    ['sx.speed',()=>shipVal('speed'),x=>nf1(x)+' m/s'],
+    ['sx.accel',()=>shipVal('accel'),x=>nf1(x)+' m/s²'],
+    ['sx.turn',()=>shipVal('turn'),_n]]],
+  ['eco',[
+    ['sx.cr',()=>bonus().cr||0,_pct],
+    ['sx.mf',()=>bonus().mf||0,_pct]]]];
+function renderStats(){let h=`<p class="note" style="margin:0">${t('sx.note',{s:t('ship.'+state.shipId)})}</p>`;
+  for(const[g,rows]of STAT_ROWS){
+    h+=`<div class="card stcard"><h3>${t('sx.g.'+g)}</h3><table class="sttab"><thead><tr><th></th><th>${t('sx.base')}</th><th>${t('sx.gear')}</th><th>${t('sx.total')}</th></tr></thead><tbody>`;
+    for(const[k,fn,fmt]of rows){const a=bonusMasked({eq:false,pl:false},fn),b=bonusMasked({pl:false},fn),c=fn();
+      const lo=k==='sx.sdelay',better=(x,y)=>lo?x<y-1e-9:x>y+1e-9;   // pri oneskorení dobíjania je lepšia nižšia hodnota
+      h+=`<tr${k==='sx.dps'?' class="key"':''}><td>${t(k)}</td><td>${fmt(a)}</td><td${better(b,a)?' class="up"':''}>${fmt(b)}</td><td${better(c,b)?' class="up"':''}><b>${fmt(c)}</b></td></tr>`}
+    h+='</tbody></table></div>'}
+  return h}
 function renderPilot(){const P=pstate(),need=xpNeed(P.lv);
-  let h=`<div class="card plcard"><h3>${t('pl.lv',{n:P.lv})} <span class="lv">${P.lv>=PILOT_MAX?'MAX':`${fmtN(P.xp)} / ${fmtN(need)} XP`}</span></h3>
+  let h=`<div class="segs two pltabs"><button class="seg" data-act="plTab" data-v="lv" aria-pressed="${plTab==='lv'}">${t('pl.tab.lv')}</button><button class="seg" data-act="plTab" data-v="stats" aria-pressed="${plTab==='stats'}">${t('pl.tab.stats')}</button></div>`;
+  if(plTab==='stats')return h+renderStats();
+  h+=`<div class="card plcard"><h3>${t('pl.lv',{n:P.lv})} <span class="lv">${P.lv>=PILOT_MAX?'MAX':`${fmtN(P.xp)} / ${fmtN(need)} XP`}</span></h3>
     <div class="meter" style="grid-column:1/-1"><div class="bar"><i style="width:${P.lv>=PILOT_MAX?100:P.xp/need*100}%;background:var(--xp)"></i></div></div>
     <p>${t('pl.p',{t:fmtN(P.total)})}</p><div class="stat">${P.pts?`<em>${t('pl.pts',{n:P.pts})}</em>`:t('pl.noPts')}</div></div>`;
   for(const k in SKILLS){const S=SKILLS[k],n=P.sk[k]||0;
@@ -51,7 +94,8 @@ function renderPilot(){const P=pstate(),need=xpNeed(P.lv);
   h+=`<p class="note">${t('pl.how')}</p>`;
   return h}
 const nf1=x=>(Math.round(x*10)/10).toString();
-function pilotAct(act,b){if(act!=='plUp'&&act!=='plReset')return false;const P=pstate();
+function pilotAct(act,b){if(act==='plTab'){plTab=b.dataset.v;renderSheet();return true}
+  if(act!=='plUp'&&act!=='plReset')return false;const P=pstate();
   if(act==='plUp'){const k=b.dataset.k;if(P.pts<=0||(P.sk[k]||0)>=SKILLS[k].max)return true;P.sk[k]=(P.sk[k]||0)+1;P.pts--}
   else{const c=respecCost();if(!afford(c)){toast(t('tt.noRes'));return true}pay(c);for(const k in P.sk){P.pts+=P.sk[k];P.sk[k]=0}toast(t('pl.respecOk'))}
   bonusDirty();save();renderSheet();updateHUD();return true}
