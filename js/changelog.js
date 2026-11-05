@@ -2,6 +2,15 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.31.4",
+"d": "2026-11-05",
+"n": [
+"Bez systémových posuvníkov: menu sa už nikdy neposúvajú do strany a zvislé posuvníky sú tenké vo farbe hry",
+"Náhľad mýtických a prvotných predmetov pulzuje len jasom (zväčšovanie vytváralo blikajúce posuvníky)",
+"Panel stanice: opravené rozloženie rozbaleného slotu (zoznam modulov je pod slotom cez celú šírku), panel je širší a tlačidlo Postaviť sa zalomí, keď sa nezmestí"
+]
+},
+{
 "v": "0.31.3",
 "d": "2026-11-05",
 "n": [
@@ -219,17 +228,6 @@ const CHANGELOG=[
 "Hlavná základňa je nová detailná megaštruktúra: žiariace guľové jadro s mriežkou, veže hore aj dole, veľký palubný prstenec s oknami a modulmi; s úrovňou jadra pribúdajú otáčavé prstence, vedľajšie veže, gyroskopický prstenec a halo",
 "Základňa je väčšia a zapustená hlbšie pod rovinou letu – dá sa nad ňou preletieť a už do nej nenarazíš; stále je klikateľná",
 "Pasívni piráti v 1. mape (pás 2: 3, pásy 3 a 4: po 5): chvíľu ťa sledujú, ale nezaútočia, kým ich nenapadneš (ťukni na piráta); zbraň na nich sama nestrieľa, na minimape sú oranžoví, po zničení sa po čase vrátia"
-]
-},
-{
-"v": "0.17.0",
-"d": "2026-11-04",
-"n": [
-"Nové detailné 3D modely lodí: Klepeto (biela loď s veľkými klepetami a azúrovými svetlami), Sokol (tmavá stíhačka s medenými lemami), Bizón (ťažký krížnik so svietiacimi modrými obvodmi a veliteľskou vežou)",
-"Nové modely všetkých pirátov v jednotnom štýle: tmavý pancier, kruhový rám, zahnuté čepele a ružovo-fialové svetlá; každý typ má iný tvar",
-"Povrch lodí má textúru plechov s drážkami, svetielkami a detailmi; dá sa priblížiť oveľa bližšie",
-"Ovládač: kurzor myši páčkou (Nastavenia alebo stlačenie ľavej páčky L3) – ľavá páčka hýbe kurzorom, A klikne, pravá páčka posúva okno; loď sa vtedy páčkou neriadi",
-"Ovládač: krížovým ovládačom sa v menu dá pohybovať všetkými smermi (napr. priamo medzi loďami v hangári)"
 ]
 }
 ];
