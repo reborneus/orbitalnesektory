@@ -2,6 +2,15 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.40
+
+### v0.40.0 · 2026-11-05
+- Grafika: nová žiara (bloom) – motory, lasery, jadro stanice a žily minerálov teraz skutočne prežiaria do okolia (Nastavenia → Grafika: vypnutá / jemná / silná).
+- Grafika: odrazy prostredia – kovové povrchy lodí, stanice a pirátov odrážajú slnko a vesmír, takže nepôsobia ako plast (dá sa vypnúť).
+- Predvoľby grafiky: Nízka bez efektov, Stredná s odrazmi, Vysoká s jemnou žiarou, Ultra so silnou žiarou.
+- Vlastné 3D modely: ktorýkoľvek model v hre sa dá vymeniť za hotový .glb súbor – stačí ho nahrať do assets/models a zapísať do js/models.js (podrobnosti v README). Ak sa model nenačíta, ostane pôvodný.
+- Podpora komprimovaných modelov (Draco, Meshopt) a vlastnej HDRI mapy pre odrazy.
+
 ## 0.39
 
 ### v0.39.4 · 2026-11-05

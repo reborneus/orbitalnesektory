@@ -2,6 +2,17 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.40.0",
+"d": "2026-11-05",
+"n": [
+"Grafika: nová žiara (bloom) – motory, lasery, jadro stanice a žily minerálov teraz skutočne prežiaria do okolia (Nastavenia → Grafika: vypnutá / jemná / silná).",
+"Grafika: odrazy prostredia – kovové povrchy lodí, stanice a pirátov odrážajú slnko a vesmír, takže nepôsobia ako plast (dá sa vypnúť).",
+"Predvoľby grafiky: Nízka bez efektov, Stredná s odrazmi, Vysoká s jemnou žiarou, Ultra so silnou žiarou.",
+"Vlastné 3D modely: ktorýkoľvek model v hre sa dá vymeniť za hotový .glb súbor – stačí ho nahrať do assets/models a zapísať do js/models.js (podrobnosti v README). Ak sa model nenačíta, ostane pôvodný.",
+"Podpora komprimovaných modelov (Draco, Meshopt) a vlastnej HDRI mapy pre odrazy."
+]
+},
+{
 "v": "0.39.4",
 "d": "2026-11-05",
 "n": [
@@ -231,16 +242,6 @@ const CHANGELOG=[
 "Automatické schovávanie HUD (Nastavenia): po 4 s bez dotyku HUD sa spodné menu schová za malú šípku dole a panely ukážu len sektor, náklad, trup a minimapu; ťuknutím na panel alebo šípku (na PC priblížením myši k spodnému okraju) sa HUD rozbalí",
 "Hra sa dá pridať na plochu telefónu ako aplikácia na celú obrazovku (iOS: Safari → Zdieľať → Pridať na plochu, Android: Chrome → ⋮ → Inštalovať aplikáciu); návod je v README",
 "Hrateľná online verzia: https://reborneus.github.io/orbitalnesektory/"
-]
-},
-{
-"v": "0.28.0",
-"d": "2026-11-05",
-"n": [
-"Oprava: po zničení a znovuzrodení loď už automaticky neletí späť na miesto smrti (zrušia sa útok, autopilotný cieľ aj čakajúce príkazy)",
-"Nová obrazovka smrti s červenou lebkou, strateným nákladom a 5-sekundovým odpočtom; nová loď sa zrodí pri stanici až po odpočte",
-"Po znovuzrodení má loď iba 20 % trupu a prázdny štít",
-"Miesto poslednej smrti je na minimape označené červenou smrtkou (mimo dosahu sa drží pri okraji); keď k nemu priletíš, značka zmizne"
 ]
 }
 ];
