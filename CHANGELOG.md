@@ -2,6 +2,18 @@
 
 Najnovšia verzia je hore. Staršie verzie hry sa dajú spustiť cez výber verzie v spúšťači (pozri README).
 
+## 0.32
+
+### v0.32.0 · 2026-11-05
+- Nová stanica podľa predlohy (rovnaká veľkosť): chrómovaný disk so stupňovitým nábojom okolo jadra, venček svetiel ako lupene, kanál s bronzovým zlato osvetleným dnom, 6 mostíkov s kupolami, hrubý palubný prstenec s oknami a 4 dlhé ramená do kríža s bronzovými kupolami a modulmi na koncoch
+- Energetické jadro je o 20 % menšie, farby podľa stavu ostali (modrá / zelená pri stanici / červená pri útoku); svetlá stanice sa menia s ním
+- Obranná veža podľa predlohy: podstavec so 4 nohami s pásovými chodidlami, otočná plošina a dlhé delo so zväzkom hlavní, modrým energetickým jadrom s cievkami a tyrkysovým ústím
+- Veže pri nečinnosti „v pohotovosti“ – chvíľu stoja, potom sa pomaly natočia a nakloňia inam, akoby prehľadávali okolie; pri nájazde rýchlo zamieria na piráta a pri výstrele hlaveň cúvne
+- Dok dronov: chrómový hangár s oblou rebrovanou strechou, osvetlenou bránou, bronzovými nádržami a pristávacou plochou so zaparkovaným dronom
+- Senzorové pole: technický podstavec s bronzovými skriňami a anténkami, stĺp a otáčajúca sa veľká parabola s trojnožkou a fialovým snímačom
+- Nové náhľady modulov vo všetkých menu (väčšie, kamera sa prispôsobí modelu)
+- Pohľad sa dá oddialiť ešte viac; nepriehľadnosť menu je pri prvom spustení 50 %
+
 ## 0.31
 
 ### v0.31.5 · 2026-11-05

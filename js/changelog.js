@@ -2,6 +2,20 @@
 /* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */
 const CHANGELOG=[
 {
+"v": "0.32.0",
+"d": "2026-11-05",
+"n": [
+"Nová stanica podľa predlohy (rovnaká veľkosť): chrómovaný disk so stupňovitým nábojom okolo jadra, venček svetiel ako lupene, kanál s bronzovým zlato osvetleným dnom, 6 mostíkov s kupolami, hrubý palubný prstenec s oknami a 4 dlhé ramená do kríža s bronzovými kupolami a modulmi na koncoch",
+"Energetické jadro je o 20 % menšie, farby podľa stavu ostali (modrá / zelená pri stanici / červená pri útoku); svetlá stanice sa menia s ním",
+"Obranná veža podľa predlohy: podstavec so 4 nohami s pásovými chodidlami, otočná plošina a dlhé delo so zväzkom hlavní, modrým energetickým jadrom s cievkami a tyrkysovým ústím",
+"Veže pri nečinnosti „v pohotovosti“ – chvíľu stoja, potom sa pomaly natočia a nakloňia inam, akoby prehľadávali okolie; pri nájazde rýchlo zamieria na piráta a pri výstrele hlaveň cúvne",
+"Dok dronov: chrómový hangár s oblou rebrovanou strechou, osvetlenou bránou, bronzovými nádržami a pristávacou plochou so zaparkovaným dronom",
+"Senzorové pole: technický podstavec s bronzovými skriňami a anténkami, stĺp a otáčajúca sa veľká parabola s trojnožkou a fialovým snímačom",
+"Nové náhľady modulov vo všetkých menu (väčšie, kamera sa prispôsobí modelu)",
+"Pohľad sa dá oddialiť ešte viac; nepriehľadnosť menu je pri prvom spustení 50 %"
+]
+},
+{
 "v": "0.31.5",
 "d": "2026-11-05",
 "n": [
@@ -218,15 +232,6 @@ const CHANGELOG=[
 "Spúšťací panel (Windows aj Mac): kontrola novej verzie už nevracia staršiu verziu z vyrovnávacej pamäte GitHubu – najnovšia verzia sa zistí hneď po zverejnení, aj keď je panel otvorený",
 "Panel ukazuje presný čas zverejnenia najnovšej verzie (napr. „4. 11. 2026 o 20:45 (pred 5 min)“) a v zozname verzií je pri každej dátum aj čas",
 "Nový panel sa použije po najbližšej aktualizácii hry a opätovnom otvorení panela"
-]
-},
-{
-"v": "0.19.0",
-"d": "2026-11-04",
-"n": [
-"Nový vzhľad laserových striel (farby podľa rarity zbrane ostali): mäkká farebná žiara, biele horúce jadro, energetické prstence pozdĺž strely, iskry okolo a jasná hlavica; Epické/Legendárne sú hrubšie „kopije“ so špicou, Mytické hrubé a iskriace",
-"Záblesk pri hlavni aj pri zásahu a drobné iskry za letiacou strelou; pirátske strely majú rovnaký štýl v červeno-oranžovej",
-"Božská zbraň: úplne nový detailný blesk – kľukatá dráha s malými slučkami, biele jadro, modrá žiara, bočné vetvy a jemné vlákna; počas výboja sa mihoce"
 ]
 }
 ];

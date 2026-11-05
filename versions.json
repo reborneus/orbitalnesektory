@@ -1,4 +1,5 @@
 {"note":"Generuje tools/versions.py - needituj rucne.","versions":[
+  {"version": "0.32.0", "date": "2026-11-05", "time": "2026-11-05T11:52:45+01:00", "sha": "9a1ec565fd65f56b04b1b0f8d71ea8552cd9f718", "title": "Nová stanica, veža, dok dronov a senzorové pole"},
   {"version": "0.31.5", "date": "2026-11-05", "time": "2026-11-05T11:41:01+01:00", "sha": "da8724c34b0f3a45f2779d3369d307aac335bbd0", "title": "Držanie kliku sleduje cieľ, živé popisy pri myši"},
   {"version": "0.31.4", "date": "2026-11-05", "time": "2026-11-05T11:33:55+01:00", "sha": "0aa51c5ccf1c5cccfe7917709ea53aa216c3d315", "title": "Bez posuvníkov, oprava panela stanice"},
   {"version": "0.31.3", "date": "2026-11-05", "time": "2026-11-05T11:19:09+01:00", "sha": "1284ee48d01b6de7f3780f165321878bb19b8c19", "title": "Uložiť a ukončiť prejde do hlavného menu"},
