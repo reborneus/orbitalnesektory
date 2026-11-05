@@ -9,7 +9,7 @@
 const baseLevels=()=>({speed:1,accel:1,turn:1,hull:1,cargo:1,shield:0,radShield:0,sregen:1,laser:1,range:1,gun:1,gunRate:1});
 function freshState(){return{v:3,num:NUM,ore:40*NUM,green:0,crystal:0,credits:0,cargo:{ore:0,green:0,crystal:0},
   ship:baseLevels(),shipId:'klepeto',owned:['klepeto'],hangar:{},hp:100*NUM,sh:0,radCharge:0,radMode:'auto',diff:'easy',
-  autoMine:true,autoReturn:true,autoPilot:false,autoHunt:false,autoRes:'ore',lang,cur:0,intro:false,
+  autoMine:true,autoReturn:true,autoPilot:false,autoHunt:false,huntPassive:false,huntVoid:false,autoRes:'ore',lang,cur:0,intro:false,
   inv:[],eq:{laser:null,engine:null,hull:null,shield:null,util:null,weapon:null},nextId:1,
   sec:SECTORS.map((s,i)=>({core:1,slots:[null,null,null,null,null,null],captured:false,unlocked:i===0,rewarded:false}))}}
 /* Doplní polia, ktoré staršie uložené hry nemali (aby postup zostal zachovaný). */

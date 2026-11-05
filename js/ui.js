@@ -134,7 +134,8 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
       ${SECTORS[state.cur].res.includes(state.autoRes)?'':`<div class="stat" style="color:var(--warn)">${t('set.ap.miss',{r:t('res.'+state.autoRes)})}</div>`}</div>`;
       h+=`<div class="card"><h3>${t('set.ret')}</h3>${onoff('autoReturn',state.autoReturn!==false)}<p>${t('set.ret.d')}</p></div>`;
       h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
-      h+=`<div class="card"><h3>${t('set.hunt')}</h3>${onoff('autoHunt',!!state.autoHunt)}<p>${t('set.hunt.d')}</p></div>`;
+      h+=`<div class="card"><h3>${t('set.hunt')}</h3>${onoff('autoHunt',!!state.autoHunt)}<p>${t('set.hunt.d')}</p>
+        <div class="subopt"><span>${t('set.hunt.pas')}</span>${onoff('huntPassive',!!state.huntPassive)}</div><div class="subopt"><span>${t('set.hunt.void')}</span>${onoff('huntVoid',!!state.huntVoid)}</div><p>${t('set.hunt.void.d')}</p></div>`;
       h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`}
     else if(setTab==='ctrl'){
       h+=`<div class="card"><h3>${t('set.hold')}</h3>${onoff('holdFollow',state.holdFollow!==false)}<p>${t('set.hold.d')}</p></div>`;

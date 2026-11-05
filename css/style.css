@@ -825,3 +825,6 @@ body.pad,body.pad *{cursor:none!important}
 /* v0.39.3: okno Výbavy má pevnú výšku – pri prechode medzi predmetmi (iná karta v náhľade) sa už nemení jeho veľkosť */
 .sheet[data-tab="gear"]{height:70%}
 @media (min-width:900px) and (hover:hover){.sheet[data-tab="gear"]:not(.side){height:calc(100vh - 150px)}}
+/* v0.40.2: vedľajšia voľba v karte nastavení (riadok s textom a prepínačom) */
+.card .subopt{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:6px;padding-top:8px;border-top:1px solid var(--line);font-size:13.5px;font-weight:600}
+.card .subopt .langs{grid-column:auto;grid-row:auto;flex:none}

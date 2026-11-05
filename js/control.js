@@ -113,7 +113,8 @@ const homeBound=()=>!mineTarget&&moveTarget&&Math.hypot(moveTarget.x,moveTarget.
    Pri trupe pod 35 % lov končí. Ručné ovládanie ho na 6 s preruší (ako autopilot). */
 let huntRes=null,huntAuto=false;
 const HUNT_HP=.35;
-function huntFind(maxD){let best=null,bd=maxD;for(const e of enemies){if(e.leaving||e.manual||e.invuln||(e.passive&&!e.hostile)||Math.hypot(e.pos.x,e.pos.z)>=HORIZON-2)continue;
+/* v0.40.2: voľby lovu – huntPassive = napádať aj pasívnych pirátov, huntVoid = loviť aj za horizontom (radiácia!) */
+function huntFind(maxD){let best=null,bd=maxD;for(const e of enemies){if(e.leaving||e.manual||e.invuln||(e.passive&&!e.hostile&&!state.huntPassive)||(!state.huntVoid&&Math.hypot(e.pos.x,e.pos.z)>=HORIZON-2))continue;
   const d=ship.position.distanceTo(e.pos);if(d<bd){bd=d;best=e}}return best}
 function huntGo(e){attackTarget=e;huntAuto=true;mineTarget=null;moveTarget=null;flashMarker(e.pos,'#ff5a4a')}
 /* volá sa z autoNext po vyčerpaní asteroidu: true = loď letí za pirátom namiesto ďalšieho asteroidu */
