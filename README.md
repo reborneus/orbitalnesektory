@@ -25,6 +25,12 @@ Na čo myslieť:
 - Na telefóne sa automaticky zapne **kompaktný HUD** (menšie panely a minimapa, spodné menu len s ikonami). V *Nastaveniach* sa dá zapnúť aj **automatické schovávanie HUD** – spodné menu sa po chvíli schová a vysunieš ho šípkou dole.
 - Telefón môžeš držať na výšku aj na šírku; na šírku je viac miesta na hraciu plochu.
 
+## Uložené hry
+Hra má **3 sloty**. Každý slot má vlastné **automatické uloženia** (3 kusy s odstupom 5 minút, hra sa ukladá priebežne) a až **6 ručných** (v hre *Nastavenia → Uložiť*). Hlavné menu: *Pokračovať* (posledné uloženie), *Nová hra* (výber slotu a obtiažnosti), *Načítať hru* (slot → konkrétne uloženie).
+Nastavenia ovládania a HUD sú spoločné pre všetky sloty. Hra z verzie 0.29 a starších sa pri prvom spustení automaticky prenesie do slotu 1.
+
+**Pre vývoj – kompatibilita uložení (`js/saves.js`):** každé uloženie nesie číslo schémy `schema`. Keď nová verzia zmení štruktúru stavu, zvýš `SAVE_SCHEMA` a pridaj krok do `SAVE_MIGRATIONS` (krok *i* prevedie schému *i* na *i+1*); nové polia s predvolenou hodnotou stačí doplniť v `migrate()` v `js/state.js`. Staré uloženia tak vždy pokračujú v novej verzii.
+
 ## Úpravy kódu
 Hra je rozdelená na súbory: `index.html` (kostra stránky), `css/style.css` (vzhľad) a `js/*.js` (logika). Prehľad súborov je v `js/README.txt`.
 Ceny, zóny, radiácia, sektory a obtiažnosť sú v `js/data.js`, rarity a predmety v `js/items.js`, texty v oboch jazykoch v `js/i18n.js`.

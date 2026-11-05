@@ -38,3 +38,9 @@ for v, date, notes in rows:
     out.append('')
 open(os.path.join(root, 'CHANGELOG.md'), 'w', encoding='utf-8').write('\n'.join(out).replace('\n\n\n', '\n\n'))
 print(len(rows), 'versions')
+# v0.30: posledné verzie aj pre hlavné menu hry (js/changelog.js – zoznam zmien vpravo dole); texty sú escapované pre HTML
+import html
+js_rows = [{'v': v, 'd': date, 'n': [html.escape(n, quote=False) for n in notes]} for v, date, notes in rows[:25]]
+open(os.path.join(root, 'js', 'changelog.js'), 'w', encoding='utf-8').write(
+    "'use strict';\n/* Generuje tools/changelog.py – needituj ručne. Posledné verzie hry pre zoznam zmien v hlavnom menu (js/menu.js). */\n"
+    'const CHANGELOG=' + json.dumps(js_rows, ensure_ascii=False, indent=0) + ';\n')

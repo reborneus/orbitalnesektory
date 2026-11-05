@@ -18,12 +18,13 @@ const SHIP_MODELS={
      na ramenách kruhové žiariace porty, vzadu chrbtový hrebeň z ostňov. Medzi klepetami ťažobné jadro. */
   klepeto(body){
     const K=shipMats('klepeto',()=>({
-      white:kitHullMat('pinW',{base:'#d8d5ce',vari:.12,line:'#7d7a73',lit:['#5fe6ff'],litP:.04,seed:11},{metalness:.25,roughness:.38,emissiveIntensity:1.8}),
-      dark:kitHullMat('pinD',{base:'#2c3442',vari:.25,lit:['#3fd8ff','#7ff0ff'],litP:.14,seed:12},{metalness:.75,roughness:.35,emissiveIntensity:2.2}),
+      // v0.30: pancier prefarbený z bielej na tmavý grafit s nádychom oceľovej modrej (biela pôsobila ako raketoplán)
+      white:kitHullMat('pinW2',{base:'#46505e',vari:.16,line:'#1a2029',lit:['#5fe6ff'],litP:.05,seed:11},{metalness:.62,roughness:.34,emissiveIntensity:1.9}),
+      dark:kitHullMat('pinD2',{base:'#181d26',vari:.25,lit:['#3fd8ff','#7ff0ff'],litP:.14,seed:12},{metalness:.75,roughness:.35,emissiveIntensity:2.2}),
       glow:kitGlowMat('#3fe0ff',2.6),
       glass:new THREE.MeshStandardMaterial({color:new THREE.Color('#0a1a24'),metalness:.95,roughness:.08,emissive:new THREE.Color('#1aa6c8'),emissiveIntensity:.35}),
-      ring:new THREE.MeshStandardMaterial({color:new THREE.Color('#9eabb9'),metalness:.9,roughness:.25}),
-      shell:new THREE.MeshStandardMaterial({color:new THREE.Color('#1b212b'),metalness:.8,roughness:.4,side:THREE.DoubleSide})}));
+      ring:new THREE.MeshStandardMaterial({color:new THREE.Color('#6f7c8c'),metalness:.9,roughness:.25}),
+      shell:new THREE.MeshStandardMaterial({color:new THREE.Color('#12161d'),metalness:.8,roughness:.4,side:THREE.DoubleSide})}));
     const P=kitParts();
     // --- trup: tmavá kostra dole, biely pancier hore
     P.add(K.dark,kitLoft([{z:-3.7,w:.6,h:.25,hb:.3,y:-.1},{z:-3.0,w:.95,h:.35,hb:.42,y:-.1},{z:-1.2,w:1.0,h:.38,hb:.45,y:-.12},{z:.6,w:.75,h:.3,hb:.38,y:-.12},{z:1.9,w:.36,h:.2,hb:.24,y:-.1},{z:2.5,w:.12,h:.08,y:-.08}],{n:18,p:2.6}));

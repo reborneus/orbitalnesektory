@@ -8,6 +8,8 @@ const clock=new THREE.Clock();let saveT=0,incomeT=0,miniT=0,tt=0;
 function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta(),.05);tt+=dt;
   pollPad(dt);readInput();
   const playing=$('#intro').hidden;
+  if(!playing){menuArtFrame(dt,tt);return}   // v0.30: v hlavnom menu sa kreslí len fanart, svet hry stojí
+  state.playT=(state.playT||0)+dt;          // odohraný čas (zobrazuje sa pri uložených hrách)
   if(!jumping&&!dead&&playing){tickAuto(dt);tickShip(dt,tt)}tickHudMode(dt);if(!jumping)tickDrones(dt,tt);
   // radiation by belt; beyond the horizon it eats the hull directly
   const rr=Math.hypot(ship.position.x,ship.position.z);radRate=0;radHull=false;radProt=false;
@@ -55,12 +57,15 @@ function frame(){requestAnimationFrame(frame);const dt=Math.min(clock.getDelta()
 addEventListener('visibilitychange',()=>{if(document.hidden&&state)save()});
 window.claude?.hot?.snapshot?.(()=>({state}));
 /* start(): načíta uloženú hru (alebo vytvorí novú), postaví sektor a spustí slučku. */
-function start(data){const hs=data&&data.state;state=(hs&&hs.v===3)?migrate(hs):(loadState()||freshState());bonusDirty();buildShip(state.shipId);applyMini();applyHud();applyHudMode();   /* v0.25: veľkosť minimapy, rozloženie HUD */if(state.pilotRetro){const x=state.pilotRetro;delete state.pilotRetro;setTimeout(()=>addXP(x),1500)}
+/* start(): v0.30 – hra začína v hlavnom menu. Za menu je pripravený prázdny stav (spoločné nastavenia) a sektor 1;
+   pri rýchlom obnovení kódu v Claude (hot reload) sa pokračuje priamo v rozohranej hre v poslednom slote. */
+function start(data){const hs=data&&data.state;
   let stored=null;try{stored=localStorage.getItem('os-lang')}catch(e){}
+  if(hs&&hs.v===3){state=applyPrefs(migrate(hs));curSlot=loadIdx().last||1}else state=applyPrefs(freshState());
   if(!stored&&(state.lang==='sk'||state.lang==='en'))lang=state.lang;state.lang=lang;
-  pendingDiff=state.diff||'easy';
-  $('#intro').hidden=!!state.intro;
+  bonusDirty();buildShip(state.shipId);applyMini();applyHud();applyHudMode();applyMenuAlpha();
   resize();buildSector();ship.position.set(0,0,STATION_R+8);camTarget.copy(ship.position);
   document.querySelectorAll('.pg').forEach(el=>el.textContent=G()[el.dataset.g]);
-  applyLang();frame()}
+  if(hs&&hs.v===3){hideMenu();applyLang()}else{applyLang();showMenu('main')}
+  frame()}
 window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});

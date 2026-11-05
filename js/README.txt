@@ -4,19 +4,23 @@ SÚBORY HRY (načítavajú sa v tomto poradí, pozri index.html)
   i18n.js     == 1. JAZYK – všetky texty SK/EN, funkcia t('kľúč')
   data.js     == 2. HERNÉ DÁTA – suroviny, zóny, sektory, ceny, vylepšenia, obtiažnosť  <- TU SA LADÍ BALANS
   items.js    == 11. PREDMETY – rarity, typy modulov, náhodné vlastnosti, padanie koristi
-  state.js    == 3. STAV HRY – čo sa ukladá, ukladanie do prehliadača, prevod starších uložení
+  state.js    == 3. STAV HRY – čo sa ukladá, prevod starších uložení (migrate)
+  saves.js    ULOŽENÉ HRY – 3 sloty, automatické a ručné uloženia, verzia schémy a migrácie, spoločné nastavenia
+  changelog.js  zoznam zmien pre hlavné menu (generuje tools/changelog.py)
   scene.js    == 4. 3D SCÉNA – renderer, kamera, svetlá, materiály
   ship.js     == 5. LOĎ – 3D model "Klepeto", štít, laser, častice
   world.js    == 6. SEKTOR – zóny, asteroidy, stanica, brána, drony, korisť vo vesmíre
+  menuart.js  fanart hlavného menu (3D scéna s loďami a planétou)
   control.js  == 7. OVLÁDANIE LODE – pohyb, ťažba, kolízie, radiácia, automatizácia
   combat.js   == 14. BOJ – piráti, nájazdy, strely, zbraň lode, veže, obrana dronov
   lasers.js   == 14b. LASERY – dávky, šanca na zásah, farby podľa rarity zbrane, blesk a dúhový lúč
   missions.js == 16. MISIE – ponuky, aktívne misie, ciele, odmeny
   input.js    == 8. VSTUP – dotyk/myš, minimapa, klávesnica, ovládač
-  ui.js       == 9. ROZHRANIE – HUD, nápovedy, menu Stanica/Loď/Mapa/Brána, úvod
+  ui.js       == 9. ROZHRANIE – HUD, nápovedy, menu Stanica/Loď/Mapa/Brána
   gear.js     == 12. VÝBAVA – obrazovka inventára a predmetov
   tooltip.js  == 12b. NÁHĽAD PREDMETU – plávajúce vlastnosti pri ukazovateli myši (PC)
   hudmode.js  kompaktný HUD (automaticky na telefónoch) a automatické schovávanie HUD (Nastavenia)
+  menu.js     HLAVNÉ MENU – pokračovať, nová hra, načítať, nastavenia, príručka, zoznam zmien
   mapthumb.js == 13b. NÁHĽAD MAPY – obrázok sektora na pozadí karty v mape
   station.js  == 15. PANEL STANICE – moduly, vylepšenie +10, čipy, predaj
   hangar.js   == 16b. HANGÁR – nákup lodí (Sokol, Bizón), prestup medzi loďami, siluety lodí

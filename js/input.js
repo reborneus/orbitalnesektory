@@ -122,9 +122,11 @@ function pollPad(dt){let pads=[];try{pads=navigator.getGamepads?navigator.getGam
   const pm=padMouseOn()&&$('#intro').hidden;pmCursor(pm);
   if(pm){pmMove(lx,ly,dt);const rx=p.axes[2]||0,ry2=p.axes[3]||0;pmScroll(rx,ry2,dt);if(press(0))pmClick()}
   if(wikiOpen()){const m=$('#wikiMain');if(m)m.scrollTop+=((pm?0:ly)+dy)*dt*900;if(press(1)||press(9))closeWiki();if(press(4))wikiStep(-1);if(press(5))wikiStep(1);padPrev=p.buttons.map((b,i)=>btn(i));return}
-  if(!$('#intro').hidden){
-    if(press(14)||press(15)){const i=DIFFS.indexOf(pendingDiff);pendingDiff=DIFFS[(i+(press(15)?1:DIFFS.length-1))%DIFFS.length];renderIntro()}
-    if(press(2))setLang(lang==='sk'?'en':'sk');if(press(0)||press(9))startGame()}
+  if(!$('#intro').hidden&&!sheetTab){
+    // v0.30: hlavné menu – D-pad / páčka hore-dole = výber, A = potvrdiť, B = späť, X = jazyk
+    let v=dy||dx;if(!v&&Math.abs(ly)>.55)v=Math.sign(ly);const key=v;navT-=dt;
+    if(key&&(key!==navLast||navT<=0)){menuMove(v);navT=key===navLast?.16:.38}navLast=key;
+    if(press(0))menuOk();if(press(1))menuBack();if(press(2))setLang(lang==='sk'?'en':'sk')}
   else if(sheetTab){
     // v0.17: pohyb výberu v menu všetkými 4 smermi (krížový ovládač; ľavá páčka len ak nie je zapnutý kurzor myši)
     let vx=dx,vy=dy;if(!vx&&!vy&&!pm){if(Math.abs(lx)>.55&&Math.abs(lx)>=Math.abs(ly))vx=Math.sign(lx);else if(Math.abs(ly)>.55)vy=Math.sign(ly)}

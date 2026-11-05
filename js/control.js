@@ -72,8 +72,8 @@ function destroyShip(){dead=true;clearShipOrders();hideBeam(beam);shake=1;rumble
   ship.visible=false;const lost=Math.floor(cargoTotal()+.05);for(const r of RES)state.cargo[r]=0;
   toast(lost>0?t('tt.destroyed',{n:lost}):t('tt.destroyed0'),'bad');
   // Nightmare: uložená hra sa zmaže hneď (nedá sa obísť obnovením stránky) a po výbuchu začne nová hra
-  if(D().permadeath){nmDead=true;try{localStorage.removeItem(SAVE_KEY);localStorage.setItem(SAVE_KEY+'-nm',JSON.stringify({sec:state.cur,cap:state.sec.filter(x=>x.captured).length,cr:Math.floor(state.credits)}))}catch(e){}
-    toast(t('tt.nmOver'),'bad');setTimeout(()=>$('#warp').classList.add('on'),900);setTimeout(()=>{$('#warp').classList.remove('on');newGame();pendingDiff='nightmare';renderIntro()},2600);return}
+  if(D().permadeath){nmDead=true;try{if(curSlot)deleteSlot(curSlot);curSlot=null;localStorage.setItem(SAVE_KEY+'-nm',JSON.stringify({sec:state.cur,cap:state.sec.filter(x=>x.captured).length,cr:Math.floor(state.credits)}))}catch(e){}
+    toast(t('tt.nmOver'),'bad');setTimeout(()=>$('#warp').classList.add('on'),900);setTimeout(()=>{$('#warp').classList.remove('on');pendingDiff='nightmare';showMenu('main')},2600);return}   // v0.30: slot sa zmaže, návrat do hlavného menu
   if(!inArena())state.deathPos={s:state.cur,x:+ship.position.x.toFixed(1),z:+ship.position.z.toFixed(1)};
   deathScreen(lost);save()}
 /* Obrazovka smrti: po krátkom výbuchu sa ukáže prekrytie s odpočtom; po RESPAWN_S sekundách sa loď zrodí pri stanici. */

@@ -41,7 +41,8 @@ function migrate(s){
 function loadState(){try{const raw=localStorage.getItem(SAVE_KEY);if(!raw)return null;const s=JSON.parse(raw);if(s&&s.v===3&&Array.isArray(s.sec))return migrate(s)}catch(e){}return null}
 let state=null;
 let nmDead=false; // Nightmare: loď zničená, nič sa už neukladá
-function save(){if(nmDead)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch(e){}}
+/* v0.30: ukladanie cez sloty (saves.js) – spoločné nastavenia vždy, stav hry len ak je zvolený slot (nie v hlavnom menu). */
+function save(){if(!state||typeof savePrefs!=='function')return;savePrefs();if(nmDead||!curSlot)return;autoSave()}
 const cur=()=>state.sec[state.cur];
 const countMod=(s,k)=>s.slots.filter(x=>slotType(x)===k).length;
 /* Modul v slote stanice: t = typ (drone/tower/sensor), enh = vylepšenie +0..+10, chip = vložený čip (predmet) alebo null,

@@ -118,6 +118,12 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     if(!isGate)h+=`<p class="note">${t('map.gateNote')}</p>`}
   else if(sheetTab==='settings'){$('#sheetTitle').textContent=t('sh.settings');
     const onoff=(k,on)=>`<div class="langs"><button class="langb" data-act="opt" data-k="${k}" data-v="1" aria-pressed="${on}">${t('on')}</button><button class="langb" data-act="opt" data-k="${k}" data-v="0" aria-pressed="${!on}">${t('off')}</button></div>`;
+    const inMenu=typeof menuOpen==='function'&&menuOpen();   // v0.30: z hlavného menu len spoločné nastavenia (nie nastavenia uloženej hry)
+    if(!inMenu){
+    // v0.30: uložená hra – ručné uloženie do aktuálneho slotu a návrat do hlavného menu
+    {const E=curSlot?slotEntries(curSlot):[],man=E.filter(m=>m.kind==='man').length,au=E.find(m=>m.kind==='auto');
+      h+=`<div class="sec-h"><span>${t('sv.h')}</span></div><div class="card"><h3>${t('mn.slot',{n:curSlot||'–'})}</h3><div class="langs"><button class="langb" data-act="svSave">${t('sv.save')}</button><button class="langb" data-act="svMenu">${t('sv.menu')}</button></div>
+        <p>${t('sv.d',{m:man,M:MAN_N,a:au?fmtWhen(au.ts):'–'})}</p></div>`}
     h+=`<div class="sec-h"><span>${t('set.autoH')}</span></div>`;
     h+=`<div class="card"><h3>${t('set.ap')}</h3>${onoff('autoPilot',!!state.autoPilot)}<p>${t('set.ap.d',{V:G().V})}</p>
       <div class="gems" style="gap:8px;flex-wrap:wrap"><span class="note" style="margin:0">${t('set.ap.res')}:</span>${RES.map(r=>`<button class="langb" style="border:1px solid var(--line);border-radius:6px;display:inline-flex;gap:6px;align-items:center" data-act="ares" data-r="${r}" aria-pressed="${state.autoRes===r}"><span class="gem" style="background:${RCOL[r]}"></span>${t('res.'+r)}</button>`).join('')}</div>
@@ -125,16 +131,16 @@ function renderSheet(){if(!sheetTab||!state)return;const s=cur();let h='';
     h+=`<div class="card"><h3>${t('set.ret')}</h3>${onoff('autoReturn',state.autoReturn!==false)}<p>${t('set.ret.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.auto')}</h3>${onoff('autoMine',state.autoMine!==false)}<p>${t('set.auto.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('up.radShield')}</h3><div class="langs"><button class="langb" data-act="radMode" data-v="auto" aria-pressed="${state.radMode!=='void'}">${t('rs.auto')}</button><button class="langb" data-act="radMode" data-v="void" aria-pressed="${state.radMode==='void'}">${t('rs.void')}</button></div><p>${t('rs.d')}</p></div>`;
-    h+=tierCard();
-    if(canHover)h+=`<div class="card"><h3>${t('set.hud')}</h3><button class="act" data-act="hudEdit">${t('set.hud.b')}</button><p>${t('set.hud.d')}</p></div>`;   // len PC
+    h+=tierCard()}
+    if(canHover&&!inMenu)h+=`<div class="card"><h3>${t('set.hud')}</h3><button class="act" data-act="hudEdit">${t('set.hud.b')}</button><p>${t('set.hud.d')}</p></div>`;   // len PC
     h+=hudModeCard();   // v0.29: kompaktný / schovávaný HUD
     h+=`<div class="card"><h3>${t('set.ma')}</h3><div class="rangerow"><input type="range" id="menuAlpha" min="35" max="100" step="5" value="${state.menuAlpha||100}"><b id="menuAlphaV">${state.menuAlpha||100} %</b></div><p>${t('set.ma.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.pm')}</h3><div class="langs">${['on','off'].map(v=>`<button class="langb" data-act="padMouse" data-v="${v}" aria-pressed="${padMouseOn()===(v==='on')}">${t(v)}</button>`).join('')}</div><p>${t('set.pm.d')}</p></div>`;
     h+=`<div class="card"><h3>${t('set.cmp')}</h3><div class="langs">${CMP_MODES.map(m=>`<button class="langb" data-act="cmpMode" data-v="${m}" aria-pressed="${cmpMode()===m}">${t('cmp.'+m)}</button>`).join('')}</div><p>${t('set.cmp.d')}</p></div>`;
     h+=`<div class="sec-h"><span>${t('set.h')}</span></div>`;
-    h+=`<div class="card"><h3>${t('set.lang')}</h3>${langBtns()}<p>${t('set.diff',{d:t('diff.'+state.diff)})}</p></div>`;
+    h+=`<div class="card"><h3>${t('set.lang')}</h3>${langBtns()}${inMenu?'':`<p>${t('set.diff',{d:t('diff.'+state.diff)})}</p>`}</div>`;
     h+=`<div class="card"><h3>${t('set.quit')}</h3><button class="act" data-act="quit">${t('btn.quit')}</button><p>${t('set.quit.d')}</p></div>`;
-    h+=`<p class="note">${t('save.note')}</p><button class="ghost danger" id="resetBtn">${t('btn.reset')}</button>`}
+    h+=`<p class="note">${t(inMenu?'sv.noteMenu':'save.note')}</p>`}
   body.innerHTML=h;refreshSheet();applyFocus()}
 function refreshSheet(){if(!sheetTab)return;
   body.querySelectorAll('[data-need]').forEach(el=>el.classList.toggle('lack',amt(el.dataset.need)<+el.dataset.n));
@@ -160,9 +166,9 @@ function activateFocus(){const el=focusables()[focusIdx];if(!el)return;if(!el.di
   if(el.dataset.act==='repair')toast(t('rep.far'));else if(el.dataset.block==='1')toast(t('tt.noSlot'));else if(el.dataset.ore)toast(t('tt.noRes'))}
 let resetArm=0;
 body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-  if(b.id==='resetBtn'){if(performance.now()-resetArm<3000){newGame();return}
-    resetArm=performance.now();b.textContent=t('btn.resetSure');setTimeout(()=>{if(b.isConnected)b.textContent=t('btn.reset')},3000);return}
   const act=b.dataset.act;if(!act||b.disabled)return;const s=cur();
+  if(act==='svSave'){manualSave();renderSheet();return}
+  if(act==='svMenu'){toMenu();return}
   if(adminAct(act,b))return; // admin panel (admin.js)
   if(gearAct(act,b))return; // akcie obrazovky Výbava (gear.js)
   if(storageAct(act,b))return; // hlavný sklad (storage.js)
@@ -222,8 +228,7 @@ function jumpTo(i,instant){if(jumping)return;jumping=true;const w=$('#warp');w.c
     camTarget.copy(ship.position);save();updateHUD();
     if(!instant)toast(t('tt.jumped',{s:secName(i)}))}catch(e){console.error(e)}finally{w.classList.remove('on');jumping=false}},instant?50:480)}
 
-/* language + intro */
-let pendingDiff='easy';
+/* language */
 /* posledná prehratá Nightmare hra (uložená pri zničení lode) */
 function nmRecord(){let r=null;try{r=JSON.parse(localStorage.getItem(SAVE_KEY+'-nm')||'null')}catch(e){}
   return r?`<p class="note nmrec">${t('in.nmRec',{s:secName(r.sec),c:r.cap,cr:r.cr})}</p>`:''}
@@ -231,17 +236,7 @@ function setLang(l){lang=l;if(state)state.lang=l;try{localStorage.setItem('os-la
 function applyLang(){document.documentElement.lang=lang;document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.dataset.t));
   document.querySelectorAll('.dock button').forEach(b=>{const l=b.querySelector('[data-t]');const txt=l?t(l.dataset.t):'Wiki';b.setAttribute('aria-label',txt);b.title=txt});
   mini.setAttribute('aria-label',t('mini'));if(!$('#intro').hidden)renderIntro();renderSheet();lastHint='';updateHUD()}
-function renderIntro(){$('#introBox').innerHTML=`<div class="intro-top"><div class="kicker">${t('in.kicker',{v:GAME_VERSION})}</div>${langBtns()}</div>
-  <h1>Orbitálne Sektory</h1><ol>${[1,2,3,4,5,6].map(i=>`<li>${t('in.'+i)}</li>`).join('')}</ol>
-  <div class="sec-h"><span>${t('in.diff')}</span></div>
-  <div class="diffs">${DIFFS.map(d=>`<button class="diff ${d}" data-d="${d}" aria-pressed="${pendingDiff===d}"><b>${d==='nightmare'?'☠ ':''}${t('diff.'+d)}</b><span>${t('diff.'+d+'D')}</span></button>`).join('')}</div>
-  ${nmRecord()}
-  <button class="go" id="goBtn">${t('in.go')}</button><button class="ghost" id="introWiki" style="justify-self:center">${t('dock.wiki')}</button>`}
-$('#introBox').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
-  if(b.dataset.l){setLang(b.dataset.l);return}if(b.dataset.d){pendingDiff=b.dataset.d;renderIntro();return}if(b.id==='goBtn')startGame();if(b.id==='introWiki')openWiki()});
-function startGame(){state.diff=pendingDiff;state.intro=true;state.hp=shipVal('hull');$('#intro').hidden=true;save();lastHint='';updateHUD();canvas.focus()}
-function newGame(){try{localStorage.removeItem(SAVE_KEY)}catch(e){}nmDead=false;state=freshState();buildShip('klepeto');closeSheet();for(const a of asts)a.claims=0;
-  dead=false;ship.visible=true;hullSince=99;shSince=99;pendingDiff='easy';$('#intro').hidden=false;renderIntro();jumpTo(0,true);toast(t('tt.newGame'))}
+/* v0.30: úvodná obrazovka, nová hra a výber obtiažnosti sú v js/menu.js (hlavné menu) */
 
 document.querySelectorAll('.dock [data-tab]').forEach(b=>b.addEventListener('click',()=>toggleTab(b.dataset.tab)));
 $('#sheetClose').addEventListener('click',closeSheet);
