@@ -50,7 +50,7 @@ function escortModel(mode){if(_escTpl[mode])return _escTpl[mode].clone();
   // zadná dýza
   P.add(K.dark,new THREE.CylinderGeometry(.22,.28,.2,20),{p:[0,0,-.98],r:[H,0,0]});P.add(K.glow,new THREE.CircleGeometry(.17,20),{p:[0,0,-1.09],r:[0,Math.PI,0]});
   P.done(g);const l=glow(col,1.6,.8);l.position.set(0,0,.98);g.add(l);const e=glow(col,1.3,.7);e.position.set(0,0,-1.25);g.add(e);
-  g.scale.setScalar(ESCORT.scale);_escTpl[mode]=g;return g.clone()}
+  glbApply('escort.'+mode,g);g.scale.setScalar(ESCORT.scale);_escTpl[mode]=g;return g.clone()}
 
 /* ---------- objekty v scéne ---------- */
 let escObjs=[];

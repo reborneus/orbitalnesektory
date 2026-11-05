@@ -25,6 +25,7 @@ function pirModel(kind){if(!_pirTpl[kind])_pirTpl[kind]=pirBuild(kind);return _p
 function pirBuild(kind){const K=pirMats(),P=kitParts(),g=new THREE.Group();const lights=[];   // lights = [x,y,z,veľkosť] pre svetelné body
   if(kind==='turret')pirTurret(P,K,lights);else if(kind==='cmod')pirModule(P,K,lights);else pirShip(P,K,PIR_SHAPE[kind]||PIR_SHAPE.fighter,lights);
   P.done(g);for(const[x,y,z,s,c]of lights){const l=glow(c||'#ff5ad8',s,.9);l.position.set(x,y,z);g.add(l)}
+  glbApply('pirate.'+kind,g);   // v0.40: vlastný model z js/models.js
   const sc=(PIR_SHAPE[kind]&&PIR_SHAPE[kind].sc)||1;g.scale.setScalar(sc);return g}
 
 /* loď: trup + pláty + kruhový rám s rebrami + čepele + ostne/plutva/veže */

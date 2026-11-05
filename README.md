@@ -31,6 +31,20 @@ Nastavenia ovládania a HUD sú spoločné pre všetky sloty. Hra z verzie 0.29 
 
 **Pre vývoj – kompatibilita uložení (`js/saves.js`):** každé uloženie nesie číslo schémy `schema`. Keď nová verzia zmení štruktúru stavu, zvýš `SAVE_SCHEMA` a pridaj krok do `SAVE_MIGRATIONS` (krok *i* prevedie schému *i* na *i+1*); nové polia s predvolenou hodnotou stačí doplniť v `migrate()` v `js/state.js`. Staré uloženia tak vždy pokračujú v novej verzii.
 
+## Vlastné 3D modely a grafika
+
+Ktorýkoľvek model v hre (lode, piráti, stanica, moduly, drony, brána, NPC) sa dá vymeniť za hotový model `.glb` bez úpravy kódu:
+
+1. Nahraj súbor do `assets/models/` (napr. `assets/models/bizon.glb`).
+2. V súbore `js/models.js` pridaj riadok, napr. `'ship.bizon': {file:'assets/models/bizon.glb'},` (zoznam všetkých kľúčov a volieb je v komentári toho súboru).
+3. Hra model sama prispôsobí veľkosti a stredu pôvodného modelu. Ak sa nenačíta, ostane pôvodný.
+
+Vlastné prostredie pre odrazy (HDRI `.hdr` alebo panoráma `.jpg`) sa nastavuje v tom istom súbore (`env`).
+Komprimované modely (Draco aj Meshopt, napr. z gltf.report) sú podporované.
+Vlastné modely sa načítajú na stránke hry (GitHub Pages) a pri spustení cez webový server; pri otvorení súboru `index.html` priamo z disku ich prehliadač zablokuje a ostanú pôvodné modely.
+
+V Nastaveniach → Grafika sa dajú zapnúť/vypnúť **odrazy prostredia** a **žiara (bloom)**.
+
 ## Úpravy kódu
 Hra je rozdelená na súbory: `index.html` (kostra stránky), `css/style.css` (vzhľad) a `js/*.js` (logika). Prehľad súborov je v `js/README.txt`.
 Ceny, zóny, radiácia, sektory a obtiažnosť sú v `js/data.js`, rarity a predmety v `js/items.js`, texty v oboch jazykoch v `js/i18n.js`.

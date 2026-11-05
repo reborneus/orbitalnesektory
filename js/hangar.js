@@ -21,7 +21,7 @@ const shipIconSvg=(id,cls='hship')=>`<svg class="${cls}" viewBox="0 0 100 100" r
 /* v0.22: náhľad lode z 3D modelu (spredu, mierne zboku a zhora, ako na výstave); bez Three.js (samostatná príručka) silueta SVG */
 function shipPreviewSrc(id){if(typeof modelPreview!=='function'||typeof THREE==='undefined')return'';
   return modelPreview('ship_'+id,()=>{const g=new THREE.Group(),body=new THREE.Group();g.add(body);const keep=ship.userData.eng;ship.userData.eng=[];
-    const info=SHIP_MODELS[id](body);ship.userData.eng=keep;const cg=glow(info.coreCol,2.6,.8);cg.position.set(...info.core);body.add(cg);
+    const info=SHIP_MODELS[id](body);glbApply('ship.'+id,body);ship.userData.eng=keep;const cg=glow(info.coreCol,2.6,.8);cg.position.set(...info.core);body.add(cg);
     if(info.coreMesh){const core=new THREE.Mesh(new THREE.IcosahedronGeometry(.3,1),M.hullGlow);core.position.set(...info.core);body.add(core)}return g},{w:360,h:220,dir:[.5,.3,1],fit:.62}   /* bez pozadia a spotu */)}
 const shipIcon=(id,cls='hship')=>{const src=shipPreviewSrc(id);return src?`<img class="${cls} pv" src="${src}" alt="${t('ship.'+id)}">`:shipIconSvg(id,cls)};
 /* Krátky prehľad násobkov lode, napr. „Rýchlosť ×1.2 · Náklad ×0.6“. */

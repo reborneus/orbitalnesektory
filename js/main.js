@@ -54,7 +54,7 @@ function frame(){requestAnimationFrame(frame);if(gfxSkip())return;const dt=Math.
   hudT-=dt;if(hudT<=0){hudT=.12;updateHUD()}
   miniT-=dt;if(miniT<=0){miniT=.08;drawMini()}
   saveT+=dt;if(saveT>6){saveT=0;save()}
-  renderer.render(scene,camera)}
+  gfxRender([[scene,camera]])}
 
 addEventListener('visibilitychange',()=>{if(document.hidden&&state)save()});
 window.claude?.hot?.snapshot?.(()=>({state}));
@@ -71,5 +71,6 @@ function start(data){const hs=data&&data.state;
   if(hs&&hs.v===3){hideMenu();applyLang()}else{applyLang();showMenu('main')}
   frame()}
 /* v0.31.2: najprv sa načíta úložisko (localStorage + IndexedDB), potom sa hra spustí */
-const boot=d=>storeInit().then(()=>start(d),()=>start(d));
+/* v0.40: potom sa načítajú vlastné 3D modely z js/models.js (ak nejaké sú) */
+const boot=d=>{const go=()=>start(d);storeInit().then(glbPreload,()=>glbPreload()).then(go,go)};
 window.claude?.hot?.ready?window.claude.hot.ready(boot):boot(window.claude?.hot?.data??{});

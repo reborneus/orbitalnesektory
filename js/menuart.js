@@ -6,7 +6,7 @@
 let menuArt=null;
 /* Samostatný model lode (bez globálnej lode hráča); motory sa zbierajú do vlastného zoznamu. */
 function menuShipModel(id){const g=new THREE.Group(),body=new THREE.Group();g.add(body);
-  const keep=ship.userData.eng;ship.userData.eng=[];const info=SHIP_MODELS[id](body);const eng=ship.userData.eng;ship.userData.eng=keep;
+  const keep=ship.userData.eng;ship.userData.eng=[];const info=SHIP_MODELS[id](body);glbApply('ship.'+id,body);const eng=ship.userData.eng;ship.userData.eng=keep;
   const cg=glow(info.coreCol,2.8,.85);cg.position.set(...info.core);body.add(cg);
   if(info.coreMesh){const core=new THREE.Mesh(new THREE.IcosahedronGeometry(.3,1),M.hullGlow);core.position.set(...info.core);body.add(core)}
   // plameň za každým motorom: kužeľ s aditívnym priechodom, ktorý sa smerom dozadu stráca
@@ -23,7 +23,7 @@ function buildMenuArt(){
   const P=new V3(...BG_DISK.planet),k=BG_DISK.R/150;
   const bgCam=new THREE.PerspectiveCamera(40,1,1,8000);
   // --- vrstva 2: lode ---
-  const fg=new THREE.Scene();
+  const fg=new THREE.Scene();fg.environment=envNow();
   fg.add(new THREE.HemisphereLight(col('#8fb0e0'),col('#1a0c12'),.55));
   const sun=new THREE.DirectionalLight(col('#ffd2a0'),2.4);sun.position.set(-30,14,-10);fg.add(sun);    // teplé svetlo od planéty
   const rim=new THREE.DirectionalLight(col('#5ab0ff'),1.4);rim.position.set(20,10,-30);fg.add(rim);      // studený obrys zozadu
@@ -61,4 +61,4 @@ function menuArtFrame(dt,tt){const A=menuArt||buildMenuArt();A.t+=dt;const t=A.t
   const P=A.pos;for(let i=0;i<A.N;i++){P[i*3]+=dt*6;P[i*3+2]-=dt*12;if(P[i*3]>45||P[i*3+2]<-60){P[i*3]=-45+Math.random()*30;P[i*3+2]=-30+Math.random()*60;P[i*3+1]=(Math.random()-.5)*50}}
   A.dust.geometry.attributes.position.needsUpdate=true;
   A.cam.position.set(Math.sin(t*.07)*1.2,6+Math.sin(t*.05)*.6,24);A.cam.lookAt(ox*.55,A.ly,-6);
-  renderer.autoClear=true;renderer.render(A.bg,A.bgCam);renderer.autoClear=false;renderer.clearDepth();renderer.render(A.fg,A.cam);renderer.autoClear=true}
+  gfxRender([[A.bg,A.bgCam],[A.fg,A.cam]])}   // v0.40: cez bloom (js/fx.js), ak je zapnutý

@@ -25,6 +25,7 @@ function makeNpcShip(kind){const g=new THREE.Group();const col=kind==='trader'?'
   const gl=glow(col,14,.35);g.add(gl);g.userData.glow=gl;
   const halo=new THREE.Mesh(new THREE.RingGeometry(NPC_RANGE-.4,NPC_RANGE,64),new THREE.MeshBasicMaterial({color:new THREE.Color(col),transparent:true,opacity:.12,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
   halo.rotation.x=-Math.PI/2;halo.position.y=-1.5;g.add(halo);
+  glbApply('npc.'+kind,g);   // v0.40: vlastný model z js/models.js
   const proxy=new THREE.Mesh(new THREE.SphereGeometry(6,8,6),M.pick);proxy.userData.npc=kind;g.add(proxy);g.userData.proxy=proxy;return g}
 function col_(c,k){const x=new THREE.Color(c);if(x.multiplyScalar)x.multiplyScalar(k);return x}
 function buildNpcs(){npcs=[];npcNear={};npcOpenOnArrive=null;if(SECTORS[state.cur].arena)return;

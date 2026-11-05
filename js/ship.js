@@ -192,7 +192,7 @@ function buildShip(id){
   if(!SHIP_MODELS[id])id='klepeto';
   while(ship.children.length)ship.remove(ship.children[0]);
   const body=new THREE.Group();ship.add(body);ship.userData.body=body;ship.userData.eng=[];
-  const info=SHIP_MODELS[id](body);NOSE.set(...info.nose);
+  const info=SHIP_MODELS[id](body);glbApply('ship.'+id,body);NOSE.set(...info.nose);   /* v0.40: vlastný model z js/models.js */
   const cg=glow(info.coreCol,3.2,.85);cg.position.set(...info.core);body.add(cg);ship.userData.core=cg;
   if(info.coreMesh){const core=new THREE.Mesh(new THREE.IcosahedronGeometry(.3,1),M.hullGlow);core.position.set(...info.core);body.add(core)}
   const halo=glow(SHIPS[id].col,10,.16);halo.position.y=-.5;ship.add(halo);

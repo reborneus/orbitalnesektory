@@ -227,17 +227,18 @@ function rebuildStation(){
       const R=modRar(m),c=RAR[R].col;const rg=glow(c,4.5+R*.5,.18+R*.04);rg.position.copy(p).setY(DECK_TOP+.35);g.add(rg);anim.blink.push({o:rg,f:.3,base:4.5+R*.5,soft:1});
       if(R>=6){const ring=new THREE.Mesh(new THREE.RingGeometry(2.4,2.65,36),new THREE.MeshBasicMaterial({color:new THREE.Color(c),transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
         ring.rotation.x=-HALF;ring.position.copy(p).setY(DECK_TOP+.25);g.add(ring)}}}
+  glbApply('station',S3);   // v0.40: vlastný model stanice (jadro, svetlá a moduly ostávajú)
   const proxy=new THREE.Mesh(new THREE.SphereGeometry((DECK_R+4)*ST_SCALE,10,8),M.pick);proxy.userData.station=true;g.add(proxy);
   pickables=pickables.filter(p=>!p.userData.station);pickables.push(proxy);
   world.add(g);
   syncDrones();
 }
 function makeModule(type,p,anim,idx){const g=new THREE.Group();g.position.copy(p);g.lookAt(0,p.y,0);
-  if(type==='drone'){const T=dockModel();g.add(T);
+  if(type==='drone'){const T=dockModel();glbApply('module.dock',T);g.add(T);
     {const dm=droneModel();dm.position.set(0,1.9,.15);dm.scale.multiplyScalar(.85);g.add(dm)}   // zaparkovaný ťažobný dron na streche
     const l=glow('#ffc46a',3.2,.55);l.position.set(0,.15,-1.75);g.add(l);const b=glow('#62f4ff',1.2,.9);b.position.set(1.25,2.55,1.0);g.add(b);anim.blink.push({o:b,f:1.1,base:1.2})}
-  else if(type==='tower'){const T=towerModel();g.add(T.g);anim.turrets.push(Object.assign(T,{i:idx,yaw:0,pitch:.3,ty:(Math.random()-.5)*3,tp:.3,wait:Math.random()*3,kick:0}))}
-  else if(type==='sensor'){const T=sensorModel();g.add(T.g);anim.blink.push({o:T.bl,f:2.1,base:1.6});anim.dishes.push({o:T.dg})}
+  else if(type==='tower'){const T=towerModel();glbApply('module.tower',T.g,T.pg);glbApply('module.towerGun',T.pg);g.add(T.g);anim.turrets.push(Object.assign(T,{i:idx,yaw:0,pitch:.3,ty:(Math.random()-.5)*3,tp:.3,wait:Math.random()*3,kick:0}))}
+  else if(type==='sensor'){const T=sensorModel();glbApply('module.sensor',T.g);g.add(T.g);anim.blink.push({o:T.bl,f:2.1,base:1.6});anim.dishes.push({o:T.dg})}
   return g}
 
 /* ==================== v0.32: OBRANNÁ VEŽA (podľa predlohy) ====================
@@ -361,6 +362,7 @@ function updateGate(){if(gate){world.remove(gate);pickables=pickables.filter(p=>
   ringG.add(new THREE.Mesh(new THREE.TorusGeometry(5.2,.55,8,48),M.plate));
   ringG.add(new THREE.Mesh(new THREE.TorusGeometry(4.5,.14,6,48),M.hullGlow));
   for(let i=0;i<6;i++){const a=i/6*TAU;const n=new THREE.Mesh(new THREE.BoxGeometry(.9,1.4,1.4),M.metal);n.position.set(Math.cos(a)*5.4,Math.sin(a)*5.4,0);n.rotation.z=a;ringG.add(n)}
+  glbApply('gate',gate);   // v0.40: vlastný model brány (svetelné jadro ostáva)
   const core=glow('#7ef2e2',9*GATE_K,.5);core.position.y=-7;gate.add(core);gate.userData.ring=ringG;gate.userData.core=core;
   const proxy=new THREE.Mesh(new THREE.SphereGeometry(7*GATE_K,8,6),M.pick);proxy.userData.gate=true;gate.add(proxy);pickables.push(proxy);
   world.add(gate);
@@ -424,7 +426,7 @@ function droneModel(){if(_droneTpl)return _droneTpl.clone();
   P.add(K.metal,new THREE.CylinderGeometry(.012,.012,.5,4),{p:[-.25,.95,-1.1],r:[-.3,0,0]});
   P.done(g);
   for(const s of[-1,1]){const l=glow('#8a74ff',1.6,.85);l.position.set(PX*s,0,PZ-1.45);g.add(l)}
-  g.scale.setScalar(.45);_droneTpl=g;return g.clone()}
+  glbApply('drone',g);g.scale.setScalar(.45);_droneTpl=g;return g.clone()}
 function syncDrones(){const s=cur();const docks=[];s.slots.forEach((m,i)=>{if(slotType(m)==='drone'&&i<slotsFor(s.core))docks.push(i)});
   while(drones.length<docks.length){const g=new THREE.Group();g.add(droneModel());   // v0.19.5: detailný model (droneModel)
     const e=glow('#f0a644',1.4,.9);e.position.set(0,.05,-1.05);g.add(e);
