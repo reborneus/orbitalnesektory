@@ -28,7 +28,10 @@ function endPtr(e){if(!pointers.has(e.pointerId))return;pointers.delete(e.pointe
   if(pointers.size===0){downPos=null;dragging=false;pinch0=0}}
 canvas.addEventListener('pointerup',endPtr);canvas.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);downPos=null;dragging=false});
 canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=clamp(zoom*(1+Math.sign(e.deltaY)*.08),ZMIN,ZMAX)},{passive:false});
-setInterval(()=>{if(downPos&&pointers.size===1&&!dragging&&performance.now()-downPos.t>300){dragging=true;const p=groundAt(downPos.x,downPos.y);if(p)cmdMove(clampLimit(p))}},80);
+/* v0.31.5: pri držaní tlačidla (myš aj prst) sa cieľ prepočítava stále – aj keď sa kurzor nehýbe, kamera ide za loďou,
+   takže bod pod kurzorom sa posúva a loď ho plynulo sleduje (nezastaví sa na prvom mieste). */
+setInterval(()=>{if(!downPos||pointers.size!==1||!$('#intro').hidden)return;const cur=[...pointers.values()][0];
+  if(!dragging&&performance.now()-downPos.t<=300)return;dragging=true;const p=groundAt(cur.x,cur.y);if(p)cmdMove(clampLimit(p))},50);
 
 /* minimap: tap to fly there */
 const mini=$('#mini'),mctx=mini.getContext('2d');const MINI_R=200*MAP_SCALE;

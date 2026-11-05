@@ -45,13 +45,18 @@ const HOVER_TIPS=[['[data-tab="station"]','ht.station'],['[data-tab="ship"]','ht
   ['[data-tab="settings"]','ht.settings'],['#wikiBtn','ht.wiki'],['#homeBtn','ht.home'],['#pilotBtn','ht.pilot'],['.sector .inf','ht.inf'],['#stRow','ht.st'],
   ['.res .r.ore','ht.ore'],['.res .r.grn','ht.grn'],['.res .r.cry','ht.cry'],['.res .r.crd','ht.cr'],['#cargoRow','ht.cargo'],['#rsRow','ht.rs'],['#shRow','ht.sh'],
   ['.res .meter:not([id])','ht.hp'],['.minictl','ht.mz'],['#mini','ht.mini'],['#sheetClose','ht.close']];
-let hintEl=null,hintKey=null,pmHover=false,_wtT=0,_wtLast=null;
+let hintEl=null,hintKey=null,pmHover=false,_wtT=0,_wtLast=null,_hv=null;
+/* v0.31.5: popis sa obnovuje stále (5× za sekundu), aj keď sa myš nehýbe – loď a asteroidy sa pod kurzorom menia
+   (ubúda surovina, pirát stráca život, kamera sa posúva). Pri stlačenom tlačidle a mimo okna sa neobnovuje. */
+setInterval(()=>{if(!_hv||document.hidden)return;if(typeof pointers!=='undefined'&&pointers.size)return;
+  if(!hoverUI()&&!pmHover)return;const el=document.elementFromPoint(_hv.x,_hv.y);if(el)hoverAt(_hv.x,_hv.y,el)},200);
+document.addEventListener('mouseout',e=>{if(!e.relatedTarget){_hv=null;if(!pmHover)hoverHide()}});
 function hintShow(text,x,y){if(!hintEl){hintEl=document.createElement('div');hintEl.id='hintTip';document.body.appendChild(hintEl)}
   if(hintKey!==text){hintEl.innerHTML=text;hintKey=text}hintEl.hidden=false;
   const w=hintEl.offsetWidth,h=hintEl.offsetHeight;let l=x+16,tp=y+18;if(l+w>innerWidth-8)l=x-w-12;if(tp+h>innerHeight-8)tp=y-h-12;hintEl.style.transform=`translate(${Math.max(8,l)}px,${Math.max(8,tp)}px)`}
 function hintHide(){if(hintEl)hintEl.hidden=true;hintKey=null}
 function hoverHide(){tipHide();hintHide()}
-function hoverAt(x,y,el){if(!el){hoverHide();return}
+function hoverAt(x,y,el){_hv={x,y};if(!el){hoverHide();return}
   const b=el.closest&&el.closest('[data-id]');
   if(b&&b.closest('#sheet')&&!b.closest('#gearInsp')&&/^(sel|eqItem|mark|stSel|stSelInv|chipIn|pickEq|trSel|trSell)$/.test(b.dataset.act||'')){hintHide();tipShow(+b.dataset.id,x,y);return}
   tipHide();
