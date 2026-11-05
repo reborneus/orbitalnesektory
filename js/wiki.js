@@ -27,6 +27,38 @@ sk:{
     'Pasívni piráti (vo všetkých mapách okrem arény, pásy 2–4, na minimape oranžoví): chvíľu ťa sledujú, ale nestrieľajú, kým ich nenapadneš. Od 3. mapy sú medzi nimi aj silnejšie typy a agresívni (červení) – tí zaútočia, keď sa priblížiš. Zbraň na nich sama nestrieľa – ťukni na piráta a loď zaútočí. Po napadnutí sa pridajú aj jeho blízki kamaráti; zničený pirát sa po čase vráti.'],
   'cmb.raid':'Nájazdy podľa sektora','cmb.sec':'Sektor','cmb.first':'Prvý nájazd po','cmb.every':'Interval','cmb.count':'Stíhačky','cmb.cors':'Šanca na korzára','cmb.none':'bez pirátov',
   'cmb.fighter':'Stíhačka','cmb.corsair':'Korzár','cmb.frigate':'Fregata','cmb.frig':'Šanca na fregatu','cmb.shp':'Výdrž stanice: {a} + {b} × úroveň jadra.',
+'w3.drone':"Ťažobný dron",
+  'w3.trader':"Obchodník",
+  'w3.giver':"Zadávateľ misií",
+  'w3.swarm':"Roj",
+  'w3.turret':"Raketová veža",
+  'w3.escGun':"Sprievodná loď – útočná",
+  'w3.escMine':"Sprievodná loď – ťažobná",
+  'fix.h':"Vyradená stanica v novom sektore",
+  'fix.cost':"Cena opravy",
+  'fix.from':"Surovina z sektora",
+  'fix.l':["Pri prvej návšteve nového sektora je jeho hlavná stanica vyradená a poškodená: tmavé ohorené plechy, zastavené prstence, blikajúce červené jadro, ohne a trosky.", "Kým ju neopravíš: neprijme náklad, nedá sa na nej stavať, prestupovať na lode, opravovať trup ani dobíjať radiačný štít; piráti na ňu nenalietavajú a autopilot sa k nej nevracia.", "Opravíš ju v paneli Stanica (musíš byť pri nej) za suroviny, ktoré sa ťažia v predošlom sektore – priveź si ich zo skladu.", "Ak ťa zničia pri neopravenej stanici, nová loď sa po odpočte a potvrdení zrodí na poslednej funkčnej základni, ktorú si navštívil."],
+  'cmb.hpbar':"Ukazovateľ výdrže nad pirátom: tmavá dráha = maximum, farebná výplň = koľko ostáva (červená, pod 50 % oranžová, pod 25 % žltá), biely dobeh ukazuje práve ubraté poškodenie a ryhy delia pruh po 25 %. Boss, Dreadnought, hľadaný pirát z misie a fregata v boji majú navyše veľký ukazovateľ hore v strede obrazovky (na telefóne na výšku dole namiesto pomocného textu) s menom, výdržou číslom aj v percentách.",
+  'cmb.belt':"pás",
+  'cmb.pas':"Pasívni piráti na mapách",
+  'cmb.pasN':"Spolu",
+  'cmb.pasB':"Podľa pásov",
+  'cmb.pasA':"Agresívni",
+  'pil.stats':"Záložka Štatistiky ukazuje celkové hodnoty lode – DPS (priemerné aj bez minutí a kritických zásahov), salvu, presnosť, obranu, ťažbu, let a zisk – v 3 stĺpcoch: základ lode s vylepšeniami, s výbavou a celkom so schopnosťami pilota a výskumom.",
+  'rs.h':"Strom výskumu",
+  'rs.p':"Od {n}. úrovne pilota idú všetky získané XP aj do výskumu – {m} úrovní, každá dá 1 bod výskumu. Strom (Pilot → Výskum → Otvoriť strom) má {a} uzlov: {s} základných vylepšení, {nn} význačných a {k} kľúčových so špeciálnymi schopnosťami. Preskúmať môžeš uzol, ktorý susedí s už preskúmaným; bodov je menej ako uzlov, takže si vyberáš smer.",
+  'rs.l':["Ovládanie: ťahaním posúvaš plátno, kolieskom / dvoma prstami / tlačidlami + − približuješ; uzol preskúmaš dvojklikom, druhým ťuknutím alebo tlačidlom v paneli. Ovládač: kríž vyberá, A preskúma, pravá páčka posúva, LT/RT približujú.", "Kľúčové uzly ležia na 6., 12. a 18. mieste hlavnej osi každej vetvy; dva prstence spájajú susedné vetvy hybridnými uzlami.", "Výskum sa dá za kredity vynulovať – body sa vrátia."],
+  'rs.br':"Vetva",
+  'rs.brs':"Základné vylepšenia",
+  'rs.ksh':"Kľúčové schopnosti",
+  'rs.ks':"Schopnosť",
+  'rs.eff':"Účinok",
+  'are.pick':"Výber štartu: po porazení bossa (každých {b} vĺn) sa pri štarte aj pri príchode do arény ponúkne začať hneď za ktorýmkoľvek porazeným bossom.",
+  'are.bar':"Boss má veľký ukazovateľ výdrže hore v strede obrazovky; nezraniteľný krížnik ukazuje počet zostávajúcich modulov.",
+  'hg.extra':"Sloty navyše",
+  'hg.extraP':"Sloty navyše (druhý laser, druhý štít) sú v paneli Výbava hneď vedľa lode; vlastnosti oboch predmetov sa sčítajú. Pri prestupe na loď bez takého slotu sa predmet vráti do inventára.",
+  'gfx.h':"Grafika a vlastné modely",
+  'gfx.l':["Nastavenia → Grafika: predvoľby Nízka / Stredná / Vysoká / Ultra, rozlíšenie, množstvo častíc, animované pozadie, limit snímok (aj 144 / 240 / 360 Hz) a počítadlo FPS.", "Odrazy prostredia: kovové povrchy odrážajú slnko a vesmír. Žiara (bloom): svetlá, lasery, motory a jadro stanice prežiaria do okolia (vypnutá / jemná / silná).", "Vlastné 3D modely: ktorýkoľvek model (lode, piráti, stanica, moduly, drony, brána, NPC) sa dá vymeniť za súbor .glb – nahraj ho do assets/models a zapíš do js/models.js. Hra ho sama prispôsobí veľkosti; ak sa nenačíta, ostane pôvodný. Fungujú aj komprimované modely (Draco, Meshopt) a vlastná HDRI mapa pre odrazy."],
   title:'Príručka',search:'Hľadať v príručke…',none:'Nič sa nenašlo.',close:'Zavrieť',toc:'Obsah',
   auto:'Hodnoty v príručke sa počítajú priamo z herných dát, takže vždy zodpovedajú tejto verzii hry.',
   'start.h':'Začíname',
@@ -85,7 +117,7 @@ sk:{
   'enh.p':'V detaile predmetu ho vylepšíš o +1. Do +5 sa vylepšenie vždy podarí, potom šanca klesá (najmenej {min} %). Pri neúspechu sa minú suroviny a kredity, predmet zostane. Najvyššie vylepšenie závisí od rarity.',
   'auto.h':'Automatizácia',
   'auto.l':['Automatická ťažba: po vyťažení asteroidu loď prejde na najbližší asteroid tej istej suroviny do 320 m.','Automatický návrat: pri plnom náklade loď sama poletí na stanicu.',
-    'Autopilot: ťaží zvolenú surovinu, vozí ju domov, zbiera korisť do 560 m a ťaží relikty do 400 m. Pri trupe pod 35 % sa vráti a pokračuje od 70 %. Ručný zásah ho na 6 s pozastaví.','Všetko zapneš v menu Nastavenia. Autopilota aj klávesou P alebo tlačidlom View/Share.'],
+    'Autopilot: ťaží zvolenú surovinu, vozí ju domov, zbiera korisť do 560 m a ťaží relikty do 400 m. Pri trupe pod 35 % sa vráti a pokračuje od 70 %. Ručný zásah ho na 6 s pozastaví.','Automatický lov pirátov: samostatne loď letí po najbližšom nepriateľskom pirátovi, zostrelí ho, pozbiera korisť a pokračuje; spolu s ťažbou nepreruší ťažbu, ale po vyťažení asteroidu letí za pirátom v dosahu ukazovateľa na okraji obrazovky a potom sa vráti k ťažbe. Voľby: napádať aj pasívnych pirátov, loviť aj za horizontom. Pri trupe pod 35 % lov skončí.','Pri útoku loď krúži okolo cieľa v dosahu jeho streľby – ak sa chceš streľbe vyhnúť, drž odstup ručne (tvoj dosah je väčší).','Všetko zapneš v menu Nastavenia. Autopilota aj klávesou P alebo tlačidlom View/Share.'],
   'diff.h':'Obtiažnosť','diff.k':'Vlastnosť',
   'diff.rows':[['Oprava trupu','sama po 30 s','len na stanici za rudu','len na stanici za rudu'],['Radiácia v pásoch','× {e1}','× {h1}','× {n1}'],['Za horizontom','× {e2}','× {h2}','× {n2}'],['Rýchlosť lode','× {e3}','× {h3}','× {n3}'],['Výnos surovín','× {e4}','× {h4}','× {n4}'],['Poškodenie pirátov','× {e5}','× {h5}','× {n5}'],['Zničenie lode','strata nákladu','strata nákladu','koniec hry – postup sa vymaže']],
   'diff.p':'Obtiažnosť sa vyberá na začiatku hry a zmeniť ju môžeš len pri novej hre.',
@@ -115,6 +147,38 @@ en:{
     'Passive pirates (in all maps except the arena, belts 2–4, orange on the minimap): they follow you for a while but do not shoot until you attack them. From map 3 there are also stronger types and aggressive ones (red) that attack when you come close. Your gun does not fire at them on its own – tap a pirate and the ship attacks. Once attacked, its nearby mates join in; a destroyed pirate comes back after a while.'],
   'cmb.raid':'Raids by sector','cmb.sec':'Sector','cmb.first':'First raid after','cmb.every':'Interval','cmb.count':'Fighters','cmb.cors':'Corsair chance','cmb.none':'no pirates',
   'cmb.fighter':'Fighter','cmb.corsair':'Corsair','cmb.frigate':'Frigate','cmb.frig':'Frigate chance','cmb.shp':'Station integrity: {a} + {b} × core level.',
+'w3.drone':"Mining drone",
+  'w3.trader':"Trader",
+  'w3.giver':"Mission giver",
+  'w3.swarm':"Swarm",
+  'w3.turret':"Missile turret",
+  'w3.escGun':"Escort ship – attack",
+  'w3.escMine':"Escort ship – mining",
+  'fix.h':"Disabled station in a new sector",
+  'fix.cost':"Repair cost",
+  'fix.from':"Resources from sector",
+  'fix.l':["On your first visit to a new sector its main station is disabled and damaged: dark charred plating, stopped rings, a flickering red core, fires and debris.", "Until you repair it: it won’t take cargo, you can’t build, switch ships, repair the hull or recharge the radiation shield there; pirates don’t raid it and the autopilot doesn’t return to it.", "Repair it in the Station panel (you must be next to it) with resources mined in the previous sector – bring them from storage.", "If you are destroyed near an unrepaired station, your new ship respawns after the countdown and confirmation at the last working base you visited."],
+  'cmb.hpbar':"Health bar above a pirate: the dark track is the maximum, the coloured fill shows what is left (red, orange below 50 %, yellow below 25 %), the white trail shows damage just dealt and notches split the bar into 25 % steps. Bosses, the Dreadnought, wanted pirates from missions and frigates in combat also get a large bar at the top centre of the screen (on a phone in portrait at the bottom instead of the hint) with their name and health as a number and percentage.",
+  'cmb.belt':"belt",
+  'cmb.pas':"Passive pirates on maps",
+  'cmb.pasN':"Total",
+  'cmb.pasB':"By belt",
+  'cmb.pasA':"Aggressive",
+  'pil.stats':"The Statistics tab shows your ship’s total values – DPS (average and without misses or crits), volley, accuracy, defence, mining, flight and income – in 3 columns: ship base with upgrades, with gear and total with pilot skills and research.",
+  'rs.h':"Research tree",
+  'rs.p':"From pilot level {n}, all XP you earn also goes into research – {m} levels, each giving 1 research point. The tree (Pilot → Research → Open tree) has {a} nodes: {s} basic upgrades, {nn} notables and {k} keystones with special abilities. You can research a node next to one you already have; there are fewer points than nodes, so you choose your path.",
+  'rs.l':["Controls: drag to pan, wheel / two fingers / + − buttons to zoom; research a node by double-clicking, tapping it again or with the panel button. Controller: D-pad selects, A researches, right stick pans, LT/RT zoom.", "Keystones sit at the 6th, 12th and 18th node of each branch’s main axis; two rings link neighbouring branches with hybrid nodes.", "Research can be reset for credits – points are refunded."],
+  'rs.br':"Branch",
+  'rs.brs':"Basic upgrades",
+  'rs.ksh':"Keystone abilities",
+  'rs.ks':"Ability",
+  'rs.eff':"Effect",
+  'are.pick':"Start choice: after you defeat a boss (every {b} waves), starting a run or arriving in the arena offers to start right after any defeated boss.",
+  'are.bar':"Bosses have a large health bar at the top centre of the screen; the invulnerable carrier shows how many modules remain.",
+  'hg.extra':"Extra slots",
+  'hg.extraP':"Extra slots (second laser, second shield) are in the Gear panel right next to the ship; stats of both items add up. When you switch to a ship without that slot, the item goes back to your inventory.",
+  'gfx.h':"Graphics and custom models",
+  'gfx.l':["Settings → Graphics: Low / Medium / High / Ultra presets, resolution, particle amount, animated background, frame limit (even 144 / 240 / 360 Hz) and an FPS counter.", "Environment reflections: metal surfaces reflect the sun and space. Glow (bloom): lights, lasers, engines and the station core glow into their surroundings (off / soft / strong).", "Custom 3D models: any model (ships, pirates, station, modules, drones, gate, NPCs) can be replaced by a .glb file – upload it to assets/models and list it in js/models.js. The game fits its size automatically; if it fails to load, the original stays. Compressed models (Draco, Meshopt) and a custom HDRI map for reflections work too."],
   title:'Handbook',search:'Search the handbook…',none:'Nothing found.',close:'Close',toc:'Contents',
   auto:'The values in this handbook are computed straight from the game data, so they always match this version of the game.',
   'start.h':'Getting started',
@@ -173,7 +237,7 @@ en:{
   'enh.p':'In the item detail you can upgrade it by +1. Up to +5 it always succeeds, then the chance drops (to at least {min}%). On failure the resources and credits are spent and the item stays. The highest upgrade depends on rarity.',
   'auto.h':'Automation',
   'auto.l':['Auto-mining: when an asteroid is depleted, the ship moves to the nearest asteroid of the same resource within 320 m.','Auto-return: with full cargo the ship flies to the station by itself.',
-    'Autopilot: mines the chosen resource, hauls it home, picks up loot within 560 m and mines relics within 400 m. Below 35% hull it returns and continues from 70%. Manual input pauses it for 6 s.','Turn everything on in the Settings menu. The autopilot also with the P key or the View/Share button.'],
+    'Autopilot: mines the chosen resource, hauls it home, picks up loot within 560 m and mines relics within 400 m. Below 35% hull it returns and continues from 70%. Manual input pauses it for 6 s.','Auto pirate hunting: on its own the ship flies to the nearest hostile pirate, shoots it down, collects the loot and moves on; together with mining it does not interrupt mining, but after depleting an asteroid it goes after a pirate within range of the screen-edge arrows and then returns to mining. Options: attack passive pirates too, hunt beyond the horizon. Hunting stops below 35 % hull.','When attacking, the ship circles the target within its firing range – to avoid its shots, keep your distance manually (your range is longer).','Turn everything on in the Settings menu. The autopilot also with the P key or the View/Share button.'],
   'diff.h':'Difficulty','diff.k':'Property',
   'diff.rows':[['Hull repair','by itself after 30 s','only at the station, for ore','only at the station, for ore'],['Belt radiation','× {e1}','× {h1}','× {n1}'],['Beyond the horizon','× {e2}','× {h2}','× {n2}'],['Ship speed','× {e3}','× {h3}','× {n3}'],['Resource yield','× {e4}','× {h4}','× {n4}'],['Pirate damage','× {e5}','× {h5}','× {n5}'],['Ship destroyed','cargo lost','cargo lost','game over – progress wiped']],
   'diff.p':'Difficulty is chosen at the start and can only be changed with a new game.',
@@ -219,6 +283,23 @@ function shipSvg(){return `<svg class="wimg wship" viewBox="0 0 200 160" role="i
   ${[78,100,122].map(x=>`<circle cx="${x}" cy="142" r="5" fill="#6fe3ff"/><circle cx="${x}" cy="148" r="8" fill="#6fe3ff" opacity=".3"/>`).join('')}
   <rect x="94" y="80" width="12" height="4" fill="#58d0c0"/></svg>`}
 
+/* ---------- v0.43: 3D OBRÁZKY v príručke ----------
+   Náhľady sa kreslia tým istým 3D modelom ako v hre (modelPreview vo world.js, uložia sa raz). V samostatnej stránke
+   wiki.html (bez 3D) sa obrázky jednoducho vynechajú. */
+const can3d=()=>typeof modelPreview==='function'&&typeof THREE!=='undefined';
+function w3d(key,build,o={}){if(!can3d())return'';const src=modelPreview('w_'+key,build,Object.assign({w:240,h:180,dir:[.55,.55,1],fit:.8},o));return src?`<img class="w3d" src="${src}" alt="" loading="lazy">`:''}
+/* galéria: [[obrázok, popis], …] */
+const wgal=items=>{const f=items.filter(x=>x[0]);return f.length?`<div class="wgal">${f.map(([img,cap])=>`<figure>${img}<figcaption>${cap}</figcaption></figure>`).join('')}</div>`:''};
+const wPir=k=>w3d('pir_'+k,()=>pirModel(k),{dir:[.35,.85,.7]});
+const wMin=k=>w3d('min_'+k,()=>{const P=mineralParts(k,rng(7));return new THREE.Mesh(P.geo,P.mat)},{w:200,h:160,dir:[.6,.6,1],fit:.72});
+const wNpc=k=>w3d('npc_'+k,()=>{const g=makeNpcShip(k);for(const c of g.children.slice())if(c.isSprite||c.material===M.pick||(c.geometry&&c.geometry.type==='RingGeometry'))g.remove(c);return g},{dir:[.7,.55,.8]});
+const wMod=(k,r)=>{if(typeof moduleThumb!=='function'||!can3d())return'';const s=moduleThumb(k,r||0);return s?`<img class="w3d" src="${s}" alt="" loading="lazy">`:''};
+/* mapa stromu výskumu ako SVG (rovnaké súradnice ako v hre) */
+function rsTreeSvg(){if(typeof rsBuild!=='function')return'';const N=rsBuild().nodes;let l='',n='';const seen=new Set();
+  for(const a of N)for(const id of a.links){const k=Math.min(a.id,id)+'-'+Math.max(a.id,id);if(seen.has(k))continue;seen.add(k);const b=N[id];l+=`<line x1="${a.x|0}" y1="${a.y|0}" x2="${b.x|0}" y2="${b.y|0}"/>`}
+  for(const a of N){const c=a.br>=0?RS_BR[a.br].col:'#e8f0ff';
+    n+=a.kind==='k'?`<rect x="${(a.x-34)|0}" y="${(a.y-34)|0}" width="68" height="68" rx="10" transform="rotate(45 ${a.x|0} ${a.y|0})" fill="${c}"/>`:`<circle cx="${a.x|0}" cy="${a.y|0}" r="${a.kind==='core'?44:a.kind==='n'?22:12}" fill="${a.kind==='s'?'#0c121e':c}" stroke="${c}" stroke-width="7"/>`}
+  return `<svg class="wimg wrstree" viewBox="-1800 -1800 3600 3600" role="img" aria-label="${esc(wt('rs.h'))}"><g stroke="#4a5a7a" stroke-width="9" opacity=".7">${l}</g>${n}</svg>`}
 /* ---------- kapitoly ---------- */
 let wikiSec=0; // sektor zvolený v tabuľke pravdepodobností
 function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
@@ -228,7 +309,7 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
     const where=k=>{const secs=[],belts=new Set();SECTORS.forEach((s,i)=>s.fields.forEach(f=>{if(f.type===k||f.type==='mix'){if(!secs.includes(i))secs.push(i);for(let z=1;z<=4;z++){const lo=[0,Z1,Z2,Z3][z-1],hi=[Z1,Z2,Z3,HORIZON][z-1];if(f.r[0]<hi&&f.r[1]>lo)belts.add(z)}}}));
       return `${wt('res.sec')}: ${secs.map(i=>secName(i)).join(', ')}<br>${wt('res.belts')}: ${[...belts].sort().join(', ')}`};
     const rows=['ore','green','crystal','relic'].map(k=>[`${gem(k)} <b>${k==='relic'?t('relic'):t('res.'+k)}</b>`,where(k),nf(MINE_RATE[k]*100)+' %',wt('res.use.'+k)]);
-    H('res',wt('res.h'),`<p>${wt('res.p')}</p>`+tbl([wt('res.name'),wt('res.where'),wt('res.rate'),wt('res.use')],rows)+`<p>${gem('cr')} ${wt('res.cr',{c:nf(SECTOR_CREDITS*60)})}</p>`)}
+    H('res',wt('res.h'),`<p>${wt('res.p')}</p>`+wgal(['ore','green','crystal','relic','mix'].map(k=>[wMin(k),k==='relic'?t('relic'):k==='mix'?t('res.mix'):t('res.'+k)]))+tbl([wt('res.name'),wt('res.where'),wt('res.rate'),wt('res.use')],rows)+`<p>${gem('cr')} ${wt('res.cr',{c:nf(SECTOR_CREDITS*60)})}</p>`)}
   { // pásy a radiácia
     // belt=true: hodnota na vonkajšom okraji pásu 4 je ešte radiácia pásu (RAD.end), nie hodnota za horizontom
     const rb=(r,belt)=>r<Z2?0:(r<HORIZON||belt)?RAD.start+(Math.min(r,HORIZON)-Z2)/(HORIZON-Z2)*(RAD.end-RAD.start):RAD.voidBase+(r-HORIZON)*RAD.voidPerM;
@@ -244,7 +325,10 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
     const core=[];for(let L=1;L<=CORE_MAX;L++)core.push([`<b>${L}</b>`,slotsFor(L),L*CORE_INF,L<CORE_MAX?costTxt(coreCost(L)):'–']);
     const inc={drone:wt('st.pd',{o:nf(MOD_FX.drone.income*60)}),tower:wt('st.pt'),sensor:wt('st.ps',{g:nf(MOD_FX.sensor.green*60,1)})};
     const mods=Object.keys(MOD).map(k=>[`<b>${t('mod.'+k)}</b>`,'+'+MOD[k].inf,costTxt(MOD[k].cost(0)),costTxt(MOD[k].cost(1)),costTxt(MOD[k].cost(2)),inc[k]]);
-    H('station',wt('st.h'),`<p>${wt('st.p',{ci:CORE_INF,sell:SELL_BUILD*100})}</p>`+tbl([wt('st.lv'),wt('st.slots'),wt('st.inf'),wt('st.next')],core)+tbl([wt('st.mod'),wt('st.minf'),wt('st.c1'),wt('st.c2'),wt('st.c3'),wt('st.pas')],mods))}
+    H('station',wt('st.h'),`<p>${wt('st.p',{ci:CORE_INF,sell:SELL_BUILD*100})}</p>`+wgal([[wMod('drone',3),t('mod.drone')],[wMod('tower',3),t('mod.tower')],[wMod('sensor',3),t('mod.sensor')],[w3d('drone',()=>droneModel()),wt('w3.drone')]])+tbl([wt('st.lv'),wt('st.slots'),wt('st.inf'),wt('st.next')],core)+tbl([wt('st.mod'),wt('st.minf'),wt('st.c1'),wt('st.c2'),wt('st.c3'),wt('st.pas')],mods))}
+  { // v0.43: vyradená stanica v novom sektore
+    const rows=SECTORS.map((S,i)=>i&&!S.arena?[`<b>${secName(i)}</b>`,costTxt(stationFixCost(i)),secName(i-1)]:null).filter(Boolean);
+    H('repair',wt('fix.h'),list(wt('fix.l'))+tbl([wt('sec.name'),wt('fix.cost'),wt('fix.from')],rows))}
   { // moduly stanice a čipy
     const F=MOD_FX;const rows=[];for(let n=0;n<=MOD_ENH_MAX;n++){const R=MOD_RAR[n];rows.push([`<b>+${n}</b>`,rarName(R),n<MOD_ENH_MAX?costTxt(modEnhCost(n)):'–',['drone','tower','sensor'].map(k=>Math.round(MOD[k].inf*(1+MOD_ENH_INF*n))).join(' / ')])}
     const capTxt=wt('mod.cap').map(x=>fill(x,{g:rarName(CHIP_CAP.green),d:rarName(CHIP_CAP.def),c:rarName(CHIP_CAP.crystal)}));
@@ -254,9 +338,11 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
   { // boj
     const kinds=['fighter','corsair','frigate'].map(k=>{const P=PIRATES[k];return[`<b>${wt('cmb.'+k)}</b>`,P.hp.slice(1).filter(x=>x).join(' / '),P.dmg.slice(1).filter(x=>x).join(' / '),nf(P.fire,1)+' s',pct(P.drop),`${gem('cr')} ${P.cr[0]}–${P.cr[1]}`]});
     const raids=SECTORS.map((S,i)=>{const c=PIRATES.raid[i];return c?[`<b>${secName(i)}</b>`,c.first+' s',`${c.every[0]}–${c.every[1]} s`,`${c.count[0]}–${c.count[1]}`,pct(c.corsair),pct(c.frigate||0)]:[`<b>${secName(i)}</b>`,wt('cmb.none'),'–','–','–','–']});
-    H('combat',wt('cmb.h'),`<p>${wt('cmb.p',{ag:PIRATES.aggro})}</p>`+list(wt('cmb.l').map(x=>fill(x,{f:RANGE_F.fighter*100,c:RANGE_F.corsair*100,fr:RANGE_F.frigate*100,d:RANGE_F.dread*100,k:RANGE_F.carrier*100,b:LASER_BURST,hb:HIT_BASE*100,hm:HIT_MAX*100,ph:PIRATE_HIT*100,cc:CRIT_BASE,cd:CRIT_DMG,gr:GUN_RANGE,st:PIRATES.steal*100,off:PIRATES.offline,rb:PIRATES.repelBonus,hd:Math.round((PIRATES.hardDmg-1)*100)})))
+    const ek=typeof ERANGE_K!=='undefined'?ERANGE_K:.9,rf=k=>Math.round(RANGE_F[k]*ek*100);
+    const pas=SECTORS.map((S,i)=>{const C=PASSIVE[i];return C?[`<b>${secName(i)}</b>`,Object.values(C.belts).reduce((a,b)=>a+b,0),Object.entries(C.belts).map(([b,n])=>`${wt('cmb.belt')} ${b}: ${n}`).join(', '),pct(C.aggr||0)]:null}).filter(Boolean);
+    H('combat',wt('cmb.h'),`<p>${wt('cmb.p',{ag:PIRATES.aggro})}</p>`+wgal(['fighter','corsair','frigate'].map(k=>[wPir(k),wt('cmb.'+k)]))+`<div class="wfig"><div class="whpdemo"><div class="whp"><i style="width:62%"></i><b style="width:48%"></b><u></u><u></u><u></u></div><div class="whp lo"><b style="width:20%"></b><u></u><u></u><u></u></div></div><p>${wt('cmb.hpbar')}</p></div>`+list(wt('cmb.l').map(x=>fill(x,{f:rf('fighter'),c:rf('corsair'),fr:rf('frigate'),d:rf('dread'),k:rf('carrier'),b:LASER_BURST,hb:HIT_BASE*100,hm:HIT_MAX*100,ph:PIRATE_HIT*100,cc:CRIT_BASE,cd:CRIT_DMG,gr:GUN_RANGE,st:PIRATES.steal*100,off:PIRATES.offline,rb:PIRATES.repelBonus,hd:Math.round((PIRATES.hardDmg-1)*100)})))
       +tbl([wt('cmb.kind'),wt('cmb.hp'),wt('cmb.dmg'),wt('cmb.fire'),wt('cmb.drop'),wt('cmb.cr')],kinds)+`<h4>${wt('cmb.raid')}</h4>`+tbl([wt('cmb.sec'),wt('cmb.first'),wt('cmb.every'),wt('cmb.count'),wt('cmb.cors'),wt('cmb.frig')],raids)
-      +`<p class="wnote">${wt('cmb.shp',{a:PIRATES.stationHp(0),b:PIRATES.stationHp(1)-PIRATES.stationHp(0)})}</p>`)}
+      +`<h4>${wt('cmb.pas')}</h4>`+tbl([wt('cmb.sec'),wt('cmb.pasN'),wt('cmb.pasB'),wt('cmb.pasA')],pas)+`<p class="wnote">${wt('cmb.shp',{a:PIRATES.stationHp(0),b:PIRATES.stationHp(1)-PIRATES.stationHp(0)})}</p>`)}
   { // misie a radiačný štít
     const types=Object.keys(MREWARD).map(k=>[`<b>${missionTitle({type:k,res:'ore'}).replace(t('res.ore'),'…')}</b>`,wt('mis.d.'+k),`${gem('cr')} ${MREWARD[k]}`+(MORE[k]?` + ${gem('ore')} ${MORE[k]}`:'')]);
     const tiers=MTIER.map((T,i)=>[`<b>${t('mt.'+T.k)}</b>`,'× '+nf(T.mult,1),rarName(T.minR)+'+',pct(T.itemCh),`${MPOS[i][0]}–${MPOS[i][1]} m`+(i===2?' ('+wt('zone.beyond')+')':'')]);
@@ -273,20 +359,27 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
       [S2[3],nf(XP.missionPerCr*100)+' % ¢'],[S2[4],nf(XP.capture)],[S2[5],nf(XP.build)],[S2[6],nf(XP.enh)]].map(r=>[`<b>${r[0]}</b>`,r[1]]);
     const lv=[1,2,5,10,20,30,50,75,99].map(L=>[`<b>${L} → ${L+1}</b>`,nf(xpNeed(L))]);
     const sk=Object.keys(SKILLS).map(k=>[`<b>${SKILLS[k].ico} ${t('pl.sk.'+k)}</b>`,Object.entries(SKILLS[k].per).map(([s,v])=>`${t(s==='cr'?'pl.cr':'s.'+s)} +${v} %`).join(', '),SKILLS[k].max]);
-    H('pilot',wt('pil.h'),`<p>${wt('pil.p',{m:PILOT_MAX,h:nf(XP_DIFF.hard,2),n:nf(XP_DIFF.nightmare,1)})}</p>`+tbl([wt('pil.src'),wt('pil.xp')],src)+tbl([wt('pil.sk'),wt('pil.per'),wt('pil.max')],sk)+tbl([wt('pil.lv'),wt('pil.need')],lv))}
-  H('trader',wt('trd.h'),`<p>${wt('trd.p',{s:TRADER_SECS.map(secName).join(', '),s1:secName(TRADER_SECS[0]),s2:secName(TRADER_SECS[1]),n:TRADER_STOCK,m:TRADER_TIME/60,x:TRADER_SELL})}</p>`);
+    H('pilot',wt('pil.h'),`<p>${wt('pil.p',{m:PILOT_MAX,h:nf(XP_DIFF.hard,2),n:nf(XP_DIFF.nightmare,1)})}</p><p>${wt('pil.stats')}</p>`+tbl([wt('pil.src'),wt('pil.xp')],src)+tbl([wt('pil.sk'),wt('pil.per'),wt('pil.max')],sk)+tbl([wt('pil.lv'),wt('pil.need')],lv))}
+  if(typeof rsBuild==='function'){ // v0.43: strom výskumu
+    const N=rsBuild().nodes,cnt=k=>N.filter(n=>n.kind===k).length;
+    const ks=N.filter(n=>n.kind==='k').map(n=>[`<span style="color:${RS_BR[n.br].col}">${RS_ICO[n.ks]}</span> <b>${t('rs.k.'+n.ks)}</b>`,t('rs.br.'+RS_BR[n.br].k),t('rs.k.'+n.ks+'.d',RSK[n.ks])]);
+    const br=RS_BR.map(B=>[`<b style="color:${B.col}">${t('rs.br.'+B.k)}</b>`,[...new Set(B.small.map(x=>x[0]))].map(k=>rsStatName(k)).join(', ')]);
+    const lv=[0,24,49,99,149,199,249].map(L=>[`<b>${L} → ${L+1}</b>`,nf(rsNeed(L))]);
+    H('research',wt('rs.h'),`<div class="wfig">${rsTreeSvg()}<div><p>${wt('rs.p',{n:RS_MIN_LV,m:RS_MAX,a:N.length-1,s:cnt('s'),nn:cnt('n'),k:cnt('k')})}</p>${list(wt('rs.l'))}</div></div>`
+      +tbl([wt('rs.br'),wt('rs.brs')],br)+`<h4>${wt('rs.ksh')}</h4>`+tbl([wt('rs.ks'),wt('rs.br'),wt('rs.eff')],ks)+tbl([wt('pil.lv'),wt('pil.need')],lv))}
+  H('trader',wt('trd.h'),wgal([[wNpc('trader'),wt('w3.trader')],[wNpc('giver'),wt('w3.giver')]])+`<p>${wt('trd.p',{s:TRADER_SECS.map(secName).join(', '),s1:secName(TRADER_SECS[0]),s2:secName(TRADER_SECS[1]),n:TRADER_STOCK,m:TRADER_TIME/60,x:TRADER_SELL})}</p>`);
   { const L=[1,2,4,6,8,10,12,14,16].map(n=>[`<b>+${n}</b>`,'+'+nf((Math.pow(TIER.hp,n)-1)*100)+' %','+'+nf((Math.pow(TIER.dmg,n)-1)*100)+' %','+'+nf((Math.pow(TIER.rad,n)-1)*100)+' %','+'+nf((Math.pow(TIER.gain,n)-1)*100)+' %','+'+nf(TIER.mf*n*100)+' %']);
     H('tier',wt('tie.h'),`<p>${t('tr.p')}</p>`+tbl([wt('tie.lv'),t('tr.hp'),t('tr.dmg'),t('tr.rad'),t('tr.gain'),t('tr.mf')],L))}
-  { const from={fighter:1,swarm:3,corsair:5,turret:8,frigate:12,dread:20,carrier:100,cmod:100};const nm={fighter:t('cmb.fighter'),swarm:'Roj',corsair:t('cmb.corsair'),turret:'Raketová veža',frigate:t('cmb.frigate'),dread:'Dreadnought (boss)',carrier:'Bojový krížnik (hlavný boss)',cmod:'Modul krížnika'};
+  { const from={fighter:1,swarm:3,corsair:5,turret:8,frigate:12,dread:20,carrier:100,cmod:100};const nm={fighter:wt('cmb.fighter'),swarm:'Roj',corsair:wt('cmb.corsair'),turret:'Raketová veža',frigate:wt('cmb.frigate'),dread:'Dreadnought (boss)',carrier:'Bojový krížnik (hlavný boss)',cmod:'Modul krížnika'};
     const rows=Object.keys(AK).map(k=>[`<b>${lang==='en'?({swarm:'Swarm',turret:'Missile turret',dread:'Dreadnought (boss)',carrier:'Battle carrier (main boss)',cmod:'Carrier module'}[k]||nm[k]):nm[k]}</b>`,nf(AK[k].hp*NUM),nf(AK[k].dmg*NUM),from[k]]);
     const g=(b,n)=>nf(Math.pow(b,n),1);
-    H('arena',wt('are.h'),`<p>${t('ar.p',{w:ARENA_WAVES,b:ARENA_BOSS})}</p>`+list([t('ar.l1'),t('ar.l2',{b:ARENA_BOSS}),t('ar.l3'),t('ar.l4'),t('ar.note')])+tbl([wt('are.k'),wt('are.hp'),wt('are.dm'),wt('are.from')],rows)+`<p class="wnote">${wt('are.g',{h:ARENA_HP,d:ARENA_DMG,h50:g(ARENA_HP,49),d50:g(ARENA_DMG,49),h100:g(ARENA_HP,99),d100:g(ARENA_DMG,99)})}</p>`)}
+    H('arena',wt('are.h'),`<p>${t('ar.p',{w:ARENA_WAVES,b:ARENA_BOSS})}</p>`+wgal(['swarm','turret','dread','carrier'].map(k=>[wPir(k),{swarm:wt('w3.swarm'),turret:wt('w3.turret'),dread:'Dreadnought',carrier:t('bb.n.carrier')}[k]]))+list([t('ar.l1'),t('ar.l2',{b:ARENA_BOSS}),t('ar.l3'),t('ar.l4'),t('ar.note'),wt('are.pick',{b:ARENA_BOSS}),wt('are.bar')])+tbl([wt('are.k'),wt('are.hp'),wt('are.dm'),wt('are.from')],rows)+`<p class="wnote">${wt('are.g',{h:ARENA_HP,d:ARENA_DMG,h50:g(ARENA_HP,49),d50:g(ARENA_DMG,49),h100:g(ARENA_HP,99),d100:g(ARENA_DMG,99)})}</p>`)}
   { const ex=[0,1,2,3,4].map(n=>[`<b>${STORE_CAP0+n*STORE_STEP} → ${STORE_CAP0+(n+1)*STORE_STEP}</b>`,costTxt(storeExpCost(n))]);
     H('storage',wt('stor.h'),`<p>${wt('stor.p',{s:secName(STORE_SEC),c0:STORE_CAP0,st:STORE_STEP,mx:STORE_MAX})}</p>`+tbl([wt('sto.k'),wt('ship.cost')],ex))}
   { // hangár a lode (v0.8)
     const rows=SHIP_IDS.map(id=>{const S=SHIPS[id];const m=Object.entries(S.mul).map(([k,v])=>`${t('up.'+k)} ×${v}`).join(', ')||'–';
-      return[`<span class="wico">${shipIcon(id,'wshipi')}</span> <b>${t('ship.'+id)}</b>`,S.cost?costTxt(S.cost):'–',S.need<0?wt('hg.start'):secName(S.need),m,'×'+S.upMul]});
-    H('hangar',wt('hg.h'),`<p>${wt('hg.p')}</p>`+tbl([wt('hg.ship'),wt('hg.cost'),wt('hg.unlock'),wt('hg.mul'),wt('hg.upc')],rows))}
+      return[`<span class="wico">${shipIcon(id,'wshipi')}</span> <b>${t('ship.'+id)}</b>`,S.cost?costTxt(S.cost):'–',S.need<0?wt('hg.start'):secName(S.need),m,'×'+S.upMul,S.extra?S.extra.map(x=>t('slot.'+x)).join(', '):'–']});
+    H('hangar',wt('hg.h'),`<p>${wt('hg.p')}</p>`+tbl([wt('hg.ship'),wt('hg.cost'),wt('hg.unlock'),wt('hg.mul'),wt('hg.upc'),wt('hg.extra')],rows)+`<p>${wt('hg.extraP')}</p>`+wgal([[typeof escPreview==='function'&&can3d()?`<img class="w3d" src="${escPreview('gun')}" alt="">`:'',wt('w3.escGun')],[typeof escPreview==='function'&&can3d()?`<img class="w3d" src="${escPreview('mine')}" alt="">`:'',wt('w3.escMine')]]))}
   H('hull',wt('hull.h'),list(wt('hull.l').map(x=>fill(x,{min:COLL.minSpeed,per:nf(COLL.perMs,1),cap:STATS.coll.cap,hd:HULL_DELAY,hr:nf(HULL_RATE*100),rp:REPAIR_PER_ORE}))));
   { // predmety
     const types=Object.keys(BASES).map(b=>{const B=BASES[b];return[`<span class="wico">${icon(b)}</span> <b>${t('base.'+b)}</b>`,t('slot.'+B.slot),t('s.'+B.imp),B.pool.filter(k=>k!==B.imp).map(k=>t('s.'+k)).join(', ')]});
@@ -310,6 +403,7 @@ function wikiSections(){const S=[];const H=(id,h,body)=>S.push({id,h,body});
   {const E=DIFF.easy,Hd=DIFF.hard,N=DIFF.nightmare;const v={e1:E.rad,h1:Hd.rad,n1:N.rad,e2:E.voidM,h2:Hd.voidM,n2:N.voidM,e3:E.speed,h3:Hd.speed,n3:N.speed,e4:E.yield,h4:Hd.yield,n4:N.yield,e5:E.pdmg,h5:Hd.pdmg,n5:N.pdmg};
     H('diff',wt('diff.h'),`<p>${wt('diff.p')}</p>`+tbl([wt('diff.k'),t('diff.easy'),t('diff.hard'),t('diff.nightmare')],wt('diff.rows').map(r=>[`<b>${r[0]}</b>`,fill(r[1],v),fill(r[2],v),fill(r[3],v)])))}
   H('gate',wt('gate.h'),list(wt('gate.l').map(x=>fill(x,{g:GATE_R}))));
+  H('gfx',wt('gfx.h'),list(wt('gfx.l')));   // v0.43: grafika a vlastné modely
   return S}
 
 /* ---------- vykreslenie a vyhľadávanie ---------- */

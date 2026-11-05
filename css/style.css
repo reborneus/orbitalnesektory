@@ -873,3 +873,34 @@ body.pad,body.pad *{cursor:none!important}
 .rs-ia{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0}.rs-st{font-size:13px;color:var(--warn)}.rs-st.on{color:var(--hull)}
 .rs-hint{font-size:11.5px!important;opacity:.75;margin:4px 0 0!important}
 @media (max-width:620px){.rs-top{grid-template-columns:1fr auto}.rs-xp{grid-column:1/-1}.rs-pts{grid-column:1}.rs-btns{grid-column:2;grid-row:1}.rs-ctl{right:8px}.rs-ctl button{width:36px;height:36px}}
+/* ==================== v0.43: UKAZOVATEĽ BOSSA ==================== */
+#bossBar{position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);width:min(520px,40vw);z-index:9;pointer-events:none;animation:bbIn .3s ease-out}
+#bossBar[hidden]{display:none}
+@keyframes bbIn{from{opacity:0;transform:translate(-50%,-8px)}}
+.bb-h{display:flex;gap:8px;align-items:baseline;justify-content:center;white-space:nowrap;overflow:hidden;text-shadow:0 1px 3px #000,0 0 8px #000}
+.bb-h b{font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#ffe2dc}
+.bb-h em{font-style:normal;font:700 10px var(--f-data);letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;border-radius:4px;background:#c8261c;color:#fff}
+#bossBar[data-k=bounty] .bb-h em{background:#c98a10}#bossBar[data-k=mini] .bb-h em{background:#6a3a8a}
+.bb-h span{font:500 11px var(--f-data);color:#d6dbe6}
+.bb-bar{position:relative;height:13px;margin-top:3px;border-radius:4px;background:#3d0f10;border:1px solid rgba(255,130,110,.55);box-shadow:0 0 14px rgba(255,60,40,.35),0 2px 6px rgba(0,0,0,.6);overflow:hidden}
+.bb-bar i{position:absolute;left:0;top:0;bottom:0;transition:width .08s linear}.bb-g{background:rgba(255,255,255,.8)}
+.bb-f{background:linear-gradient(#ff7a62,#c8261c)}
+#bossBar.low .bb-f{background:linear-gradient(#ffe27a,#e09a18)}
+#bossBar.inv .bb-f{background:repeating-linear-gradient(45deg,#8b98b4 0 6px,#5a6680 6px 12px)}
+.bb-bar u{position:absolute;top:0;bottom:0;width:2px;background:rgba(0,0,0,.6)}.bb-bar u:nth-of-type(1){left:25%}.bb-bar u:nth-of-type(2){left:50%}.bb-bar u:nth-of-type(3){left:75%}
+#bossBar[data-k=mini],#bossBar[data-k=bounty]{width:min(380px,30vw)}#bossBar[data-k=mini] .bb-bar,#bossBar[data-k=bounty] .bb-bar{height:9px}
+/* telefón na výšku: ukazovateľ je v spodnej lište namiesto pomocného textu (hracia plocha sa nezmenší) */
+.hud-bottom #bossBar,.hud-bottom #bossBar[data-k]{position:static;transform:none;width:min(92vw,420px);animation:none}
+.boss-on #hint{display:none}
+.hud-bottom .bb-h b{font-size:12px}.hud-bottom .bb-h span{font-size:10px}.hud-bottom .bb-bar{height:9px}
+/* nízka obrazovka (telefón na šírku): tenší pruh hore */
+@media (max-height:500px){body>#bossBar,body>#bossBar[data-k]{top:max(2px,env(safe-area-inset-top));width:36vw}.bb-h b{font-size:10.5px}.bb-h span{font-size:9px}.bb-bar{height:6px!important;margin-top:1px}}
+/* ==================== v0.43: 3D obrázky a ukážky v príručke ==================== */
+.wgal{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin:10px 0}
+.wgal figure{margin:0;padding:6px 6px 8px;text-align:center;border:1px solid var(--line);border-radius:10px;background:radial-gradient(ellipse at 50% 40%,rgba(90,130,200,.14),rgba(255,255,255,.015))}
+.wgal img{width:100%;height:auto;display:block}.wgal figcaption{font-size:12.5px;color:var(--muted);margin-top:2px}
+.wrstree{width:min(100%,360px);background:radial-gradient(#141c2e,#070a12);border-radius:14px;border:1px solid var(--line)}
+.whpdemo{flex:0 0 220px;display:grid;gap:10px}
+.whp{position:relative;height:14px;border-radius:3px;background:#3d0f10;border:2px solid #04060b;overflow:hidden}
+.whp i,.whp b{position:absolute;left:0;top:0;bottom:0}.whp i{background:rgba(255,255,255,.75)}.whp b{background:#ff4b3a}.whp.lo b{background:#ffd23a}
+.whp u{position:absolute;top:0;bottom:0;width:2px;background:#04060b}.whp u:nth-of-type(1){left:25%}.whp u:nth-of-type(2){left:50%}.whp u:nth-of-type(3){left:75%}

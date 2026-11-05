@@ -37,9 +37,7 @@ function makeArenaPirate(kind){if(kind==='fighter'||kind==='corsair'||kind==='fr
   const g=new THREE.Group();const body=new THREE.Group();g.add(body);const A=AK[kind];let sc=1;
   body.add(pirModel(kind));   // v0.17: detailný model (pirmodels.js), mierka je v PIR_SHAPE
   body.scale.setScalar(sc);const R=(A.r||2);
-  const bg=new THREE.Mesh(BAR_GEO,new THREE.MeshBasicMaterial({color:new THREE.Color('#2a0808'),transparent:true,opacity:.85,depthWrite:false}));bg.rotation.x=-Math.PI/2;bg.position.set(0,3,-R-1);g.add(bg);
-  const bar=new THREE.Mesh(BAR_GEO,new THREE.MeshBasicMaterial({color:new THREE.Color(kind==='cmod'?'#ffd23a':'#ff5a4a'),depthWrite:false}));bar.rotation.x=-Math.PI/2;bar.position.set(0,3.05,-R-1);g.add(bar);
-  if(kind==='dread'||kind==='carrier'){bg.scale.set(3,2,1);bar.scale.set(3,2,1)}
+  const big=kind==='dread'||kind==='carrier';const bar=makeHpBar(big?11:kind==='frigate'?5.6:kind==='swarm'?3:4,kind==='cmod'?'#ffd23a':'#ff4b3a');bar.g.position.set(0,3,-R-1.2);if(big)bar.g.scale.set(1,1.8,1);g.add(bar.g);   // v0.43
   const proxy=new THREE.Mesh(new THREE.SphereGeometry(R+.6,8,6),M.pick);g.add(proxy);return{g,body,bar,proxy}}
 
 /* ---------- nepriatelia ---------- */

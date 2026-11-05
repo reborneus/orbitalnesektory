@@ -16,12 +16,52 @@ function resetCombat(){if(typeof clearLasers==='function')clearLasers();for(cons
 const PIR_MAT=new THREE.MeshStandardMaterial({color:col('#3a1218'),metalness:.6,roughness:.4,flatShading:true});
 const PIR_GLOW=new THREE.MeshStandardMaterial({color:col('#2a0505'),emissive:col('#ff3b2f'),emissiveIntensity:1.8});
 const BAR_GEO=new THREE.PlaneGeometry(3,.3);
+/* ==================== v0.43: UKAZOVATEĽ VÝDRŽE NEPRIATEĽA ====================
+   Tmavý rám, tmavočervená dráha (= maximum), výplň ukotvená vľavo (koľko ostáva), biely „dobeh“ ubraného poškodenia,
+   ktorý sa chvíľu po zásahu stiahne, a 3 ryhy po 25 %. Farba výplne: plná červená → oranžová pod 50 % → žltá pod 25 %. */
+const HPB_GEO=new THREE.PlaneGeometry(1,1),HPB_L=new THREE.PlaneGeometry(1,1).translate(.5,0,0);
+function makeHpBar(w,cl){const g=new THREE.Group();const H=.55+w*.025;
+  const m=(c,o)=>new THREE.MeshBasicMaterial({color:col(c),transparent:true,opacity:o,depthWrite:false,toneMapped:false});   // col = farba v sRGB (sýta, nie vyblednutá)
+  const add=(geo,mt,sx,sy,x,z)=>{const o=new THREE.Mesh(geo,mt);o.scale.set(sx,sy,1);o.position.set(x,0,z);o.renderOrder=5+z*100;g.add(o);return o};
+  add(HPB_GEO,m('#04060b',.85),w+.2,H+.2,0,0);add(HPB_GEO,m('#3d0f10',.95),w,H,0,.01);
+  const ghost=add(HPB_L,m('#ffffff',.7),w,H,-w/2,.02),fill=add(HPB_L,m(cl,1),w,H,-w/2,.03);
+  for(const q of[.25,.5,.75])add(HPB_GEO,m('#04060b',.9),.06,H,-w/2+w*q,.04);
+  return{g,fill,ghost,w,col:cl,gr:1,gt:0}}
+/* ==================== v0.43: UKAZOVATEĽ BOSSA (hore v strede obrazovky) ====================
+   Ukáže najdôležitejšieho silného nepriateľa: hlavný boss (krížnik) > boss (Dreadnought) > hľadaný pirát z misie > fregata (miniboss).
+   Bossovia v aréne sa ukážu vždy, ostatní len v boji v dosahu ukazovateľov na okraji (EDGE_R). Meno, druh, výdrž číslom aj v %,
+   pruh s ryhami po 25 % a bielym dobehom; nezraniteľný krížnik má šrafovaný pruh a počet zostávajúcich modulov. */
+let bossEl=null,bossE=null,bossGr=1,bossGt=0,bossR=1;
+const BOSS_P={carrier:4,dread:3,frigate:1};
+function bossPick(){let best=null,bs=-1e9;for(const e of enemies){if(e.leaving)continue;let p=BOSS_P[e.kind]||0;if(e.bounty)p=Math.max(p,2);if(!p)continue;
+  if(e.passive&&!e.hostile&&!e.aggro)continue;const d=ship.position.distanceTo(e.pos);if(p<3&&d>EDGE_R)continue;if(p===1&&!(e.aggro||attackTarget===e))continue;
+  const s=p*1e5-d;if(s>bs){bs=s;best=e}}return best}
+function tickBossBar(dt){if(!bossEl){bossEl=document.createElement('div');bossEl.id='bossBar';bossEl.hidden=true;
+    bossEl.innerHTML='<div class="bb-h"><em></em><b></b><span></span></div><div class="bb-bar"><i class="bb-g"></i><i class="bb-f"></i><u></u><u></u><u></u></div>';document.body.appendChild(bossEl)}
+  // telefón: ukazovateľ ide dole na miesto pomocného textu (nad lištu), takže nezakryje hraciu plochu ani horné panely
+  const mob=innerWidth<=760&&innerHeight>innerWidth,hb=$('.hud-bottom'),par=mob&&hb?hb:document.body;
+  if(bossEl.parentNode!==par){if(par===hb)hb.insertBefore(bossEl,$('#hint'));else document.body.appendChild(bossEl)}
+  const e=dead||jumping?null:bossPick();document.body.classList.toggle('boss-on',!!e&&mob);
+  if(!e){if(!bossEl.hidden)bossEl.hidden=true;bossE=null;return}
+  const r=clamp(e.hp/e.max,0,1);if(e!==bossE){bossE=e;bossGr=r;bossR=r}if(r<bossR-1e-9)bossGt=.45;bossR=r;
+  if(bossGr<=r)bossGr=r;else{bossGt-=dt;if(bossGt<=0)bossGr=Math.max(r,bossGr-dt*.9)}
+  const k=e.kind==='carrier'||e.kind==='dread'?'boss':e.bounty?'bounty':'mini';bossEl.hidden=false;bossEl.dataset.k=k;
+  bossEl.querySelector('em').textContent=t('bb.'+k);bossEl.querySelector('b').textContent=t('bb.n.'+e.kind);
+  const mods=e.invuln&&e.mods?e.mods.filter(m=>enemies.includes(m)).length:0;
+  bossEl.querySelector('span').textContent=(e.invuln?t('bb.inv',{n:mods})+' · ':'')+fmtN(Math.max(0,Math.ceil(e.hp)))+' / '+fmtN(Math.ceil(e.max))+' · '+Math.ceil(r*100)+' %';
+  bossEl.querySelector('.bb-f').style.width=(r*100).toFixed(2)+'%';bossEl.querySelector('.bb-g').style.width=(bossGr*100).toFixed(2)+'%';
+  bossEl.classList.toggle('inv',!!e.invuln);bossEl.classList.toggle('low',r<=.25)}
+/* nastaví výplň podľa e.hp / e.max */
+function hpBarSet(e){const b=e.bar;if(!b||!b.fill)return;const r=clamp(e.hp/e.max,0,1);b.fill.scale.x=Math.max(.001,b.w*r);b.fill.material.color.copy(col(r>.5?b.col:r>.25?'#ff9a2a':'#ffd23a'));b.gt=.45}
+/* biely dobeh: po 0,45 s sa plynulo stiahne k aktuálnej výdrži */
+const _hq=new THREE.Quaternion();
+/* pruh je vždy natočený ku kamere (číta sa rovnako z každého uhla) */
+function tickHpBars(dt){for(const e of enemies){const b=e.bar;if(!b||!b.ghost)continue;if(b.g.visible&&b.g.parent){b.g.parent.getWorldQuaternion(_hq).invert().multiply(camera.quaternion);b.g.quaternion.copy(_hq)}const r=clamp(e.hp/e.max,0,1);if(b.gr<=r){b.gr=r}else{b.gt-=dt;if(b.gt<=0)b.gr=Math.max(r,b.gr-dt*.9)}b.ghost.scale.x=Math.max(.001,b.w*b.gr)}}
 function makePirate(kind){const g=new THREE.Group();const body=new THREE.Group();g.add(body);
   body.add(pirModel(kind));   // v0.17: detailný model (pirmodels.js); fighter / corsair / frigate
   const sc=kind==='frigate'?1.6:kind==='corsair'?1.45:1;const sc0=kind==='frigate'?2.6:kind==='corsair'?1.8:1;body.scale.setScalar(sc);
   // ukazovateľ výdrže nad pirátom (vodorovný, aby bol vidieť z kamery zhora)
-  const bg=new THREE.Mesh(BAR_GEO,new THREE.MeshBasicMaterial({color:new THREE.Color('#2a0808'),transparent:true,opacity:.85,depthWrite:false}));bg.rotation.x=-Math.PI/2;bg.position.set(0,3,-2.6*sc0);g.add(bg);
-  const bar=new THREE.Mesh(BAR_GEO,new THREE.MeshBasicMaterial({color:new THREE.Color('#ff5a4a'),depthWrite:false}));bar.rotation.x=-Math.PI/2;bar.position.set(0,3.05,-2.6*sc0);g.add(bar);
+  const bar=makeHpBar(kind==='frigate'?5.6:kind==='corsair'?4.6:4,'#ff4b3a');bar.g.position.set(0,3.5,-2.6*sc0-.5);g.add(bar.g);   // v0.43
   const proxy=new THREE.Mesh(new THREE.SphereGeometry(2.6*sc0,8,6),M.pick);g.add(proxy);
   return{g,body,bar,proxy}}
 /* hodnota pre sektor si; ak pre neho nie je zadaná (napr. fregata v nižšom sektore cez admin), použije sa najbližšia nenulová */
@@ -69,7 +109,7 @@ function stationDestroyed(){const o=Math.floor(state.ore*PIRATES.steal),g=Math.f
   stationDown=PIRATES.offline;stationHp=stationMaxHp()*.4;raidActive=false;for(const e of enemies)if(!e.wasPassive)e.leaving=true;
   for(let i=0;i<40;i++)emit(debris,new V3(0,2,0),i%2?'#ff8a5c':'#ffe2a8',1+Math.random(),new V3((Math.random()-.5)*26,Math.random()*6,(Math.random()-.5)*26));
   toast(t('tt.stDown',{o,g,s:PIRATES.offline}),'bad');shake=.8;missionRaid(false);save()}
-function hitEnemy(e,dmg,side){if(e.invuln)dmg=arenaHitFilter(e,dmg);e.hp-=dmg;if(side==='player'){e.aggro=true;if(e.passive)provoke(e)}e.bar.scale.x=Math.max(.001,e.hp/e.max);e.bar.position.x=-1.5*(1-e.hp/e.max);
+function hitEnemy(e,dmg,side){if(e.invuln)dmg=arenaHitFilter(e,dmg);e.hp-=dmg;if(side==='player'){e.aggro=true;if(e.passive)provoke(e)}hpBarSet(e);
   if(e.hp<=0)killEnemy(e)}
 function killEnemy(e){sfx('boom',e.pos.clone());const P=PIRATES[e.kind];world.remove(e.g);enemies=enemies.filter(x=>x!==e);pickables=pickables.filter(p=>p!==e.proxy);if(attackTarget===e)attackTarget=null;
   for(let i=0;i<(e.kind==='carrier'?160:e.kind==='dread'?110:e.kind==='frigate'?70:e.kind==='corsair'?40:22);i++)emit(debris,e.pos,['#ff8a5c','#ffe2a8','#ff3b2f'][i%3],.6+Math.random()*.8,new V3((Math.random()-.5)*22,Math.random()*5,(Math.random()-.5)*22));
@@ -133,7 +173,7 @@ function tickCombat(dt,tt){
     const R=Math.max(e.r+3,enemyRange(e)*.75);_ev.subVectors(ship.position,e.pos).setY(0);const d=_ev.length();
     const a=(d>.01?Math.atan2(_ev.z,_ev.x):Math.random()*TAU)+e.orbDir*(d>R*1.6?.15:.6);
     moveTarget=new V3(e.pos.x+Math.cos(a)*R,0,e.pos.z+Math.sin(a)*R)}
-  tickEnemies(dt,tt);playerGun(dt);tickEscorts(dt,tt);tickShots(dt);if(!inArena())towersFire(dt);tickBolts(dt);tickDmgText(dt)}
+  tickHpBars(dt);tickBossBar(dt);tickEnemies(dt,tt);playerGun(dt);tickEscorts(dt,tt);tickShots(dt);if(!inArena())towersFire(dt);tickBolts(dt);tickDmgText(dt)}
 function cmdAttack(e){attackTarget=e;mineTarget=null;autoPause=6;flashMarker(e.pos,'#ff5a4a')}
 
 /* ==================== v0.18: PASÍVNI PIRÁTI (nastavenie PASSIVE v data.js) ====================
@@ -151,9 +191,9 @@ function spawnPassive(belt){const C=PASSIVE[state.cur];if(!C)return;
   const hp=pirStat(P.hp,si)*C.mul*tierMul('hp');
   const e={...v,kind,hp,max:hp,dmg:pirStat(P.dmg,si)*C.mul*D().pdmg*tierMul('dmg'),hostile,speed:P.speed,range:P.range,fire:P.fire,r:P.r,cd:1+Math.random()*2,vel:new V3(),
     aggro:false,leaving:false,orb:Math.random()<.5?1:-1,pos:v.g.position,passive:true,wasPassive:true,belt,home:v.g.position.clone(),wander:null,interest:0,bored:0};
-  v.bar.visible=false;v.g.children.forEach(c=>{if(c.geometry===BAR_GEO)c.visible=false});   // pásik výdrže sa ukáže až v boji
+  v.bar.g.visible=false;   // pásik výdrže sa ukáže až v boji
   v.proxy.userData.enemy=e;pickables.push(v.proxy);enemies.push(e)}
-function provoke(e){for(const o of enemies)if(o.passive&&(o===e||o.pos.distanceTo(e.pos)<PAS_PACK)){o.passive=false;o.aggro=true;o.g.children.forEach(c=>{if(c.geometry===BAR_GEO)c.visible=true})}}
+function provoke(e){for(const o of enemies)if(o.passive&&(o===e||o.pos.distanceTo(e.pos)<PAS_PACK)){o.passive=false;o.aggro=true;o.bar.g.visible=true}}
 function tickPassive(e,dt,tt){const dShip=dead?1e9:e.pos.distanceTo(ship.position);e.bored-=dt;
   if(e.hostile&&dShip<PIRATES.aggro&&!inArena()){provoke(e);return}   // agresívny pirát zaútočí sám
   if(e.interest<=0&&e.bored<=0&&dShip<PAS_SEE&&!inArena()){e.interest=PAS_FOLLOW*(.7+Math.random()*.6)}
