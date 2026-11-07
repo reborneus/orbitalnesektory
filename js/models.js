@@ -38,9 +38,12 @@ const ASSETS={
   env:'',
   envStrength:1,
   models:{
-     'ship.klepeto': {file:'assets/models/pincer.glb'},
-     'ship.sokol':   {file:'assets/models/falcon.glb'},
-     'ship.bizon':   {file:'assets/models/bizon.glb'},
+     'ship.klepeto': {file:'assets/models/pincer.glb', glows:false},
+     'ship.sokol':   {file:'assets/models/falcon.glb', glows:false},
+     'ship.bizon':   {file:'assets/models/bizon.glb', glows:false},
+     'pirate.fighter':{file:'assets/models/pirate-fighter.glb'},
+     'pirate.corsair':{file:'assets/models/pirate-corsair.glb'},
+     'pirate.frigate':{file:'assets/models/pirate-frigate.glb'},
     // 'pirate.fighter':{file:'assets/models/pirat.glb', rot:[0,180,0]},
   }
 };
