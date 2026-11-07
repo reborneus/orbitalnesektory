@@ -41,9 +41,9 @@ const ASSETS={
      'ship.klepeto': {file:'assets/models/pincer.glb', glows:false},
      'ship.sokol':   {file:'assets/models/falcon.glb', glows:false},
      'ship.bizon':   {file:'assets/models/bizon.glb', glows:false},
-     'pirate.fighter':{file:'assets/models/pirate-fighter.glb'},
-     'pirate.corsair':{file:'assets/models/pirate-corsair.glb'},
-     'pirate.frigate':{file:'assets/models/pirate-frigate.glb'},
+     'pirate.fighter':{file:'assets/models/pirate-fighter.glb', glows:false},
+     'pirate.corsair':{file:'assets/models/pirate-corsair.glb', glows:false, scale:1.5},
+     'pirate.frigate':{file:'assets/models/pirate-frigate.glb', glows:false, scale:2},
     // 'pirate.fighter':{file:'assets/models/pirat.glb', rot:[0,180,0]},
   }
 };
